@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 
+import Link from "next/link";
+
 import { useLocale, useTranslations } from "next-intl";
 
 import { setUserLocale } from "@/lib/locale";
@@ -131,8 +133,8 @@ export default function Header() {
                 {locale === "vi" ? "English" : "Tiếng Việt"}
               </button>
 
-              <a
-                href="/login"
+              <Link
+                href="/auth/login"
                 className="group inline-flex items-center rounded-lg border border-transparent bg-gradient-to-r from-purple-600 to-purple-700 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:from-purple-700 hover:to-purple-800 hover:shadow focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:outline-none"
               >
                 {t("AccessSystem")}
@@ -149,7 +151,7 @@ export default function Header() {
                     d="M9 5l7 7-7 7"
                   />
                 </svg>
-              </a>
+              </Link>
             </div>
 
             {/* Mobile menu button */}
@@ -196,7 +198,7 @@ export default function Header() {
                   </svg>
                   {locale === "vi" ? "English" : "Tiếng Việt"}
                 </button>
-                <MobileNavLink href="/login" text={t("Login")} />
+                <MobileNavLink href="/auth/login" text={t("Login")} />
                 <MobileNavLink href="#" text={t("AccessSystem")} isPurple />
               </div>
             </div>
@@ -226,7 +228,7 @@ const MobileNavLink = ({
   text: string;
   isPurple?: boolean;
 }) => (
-  <a
+  <Link
     href={href}
     className={`block px-4 py-2 text-base font-medium ${
       isPurple
@@ -235,7 +237,7 @@ const MobileNavLink = ({
     } hover:bg-gray-50`}
   >
     {text}
-  </a>
+  </Link>
 );
 
 const SystemMenuItem = ({

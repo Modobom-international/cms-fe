@@ -11,6 +11,8 @@ import { Toaster } from "sonner";
 
 import { cn } from "@/lib/utils";
 
+import ScrollToTop from "@/components/layouts/scroll-to-top";
+
 import "@/styles/globals.css";
 
 const jakarta = JakartaSans({
@@ -46,6 +48,7 @@ export default async function RootLayout({
                 <Toaster />
                 <main className="bg-background relative flex min-h-svh flex-col">
                   {children}
+                  <ScrollToTop />
                 </main>
               </NuqsAdapter>
             </ThemeProvider>

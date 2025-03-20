@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 
+import Link from "next/link";
+
 import { useTranslations } from "next-intl";
 
 export default function HeroSection() {
@@ -66,8 +68,8 @@ export default function HeroSection() {
                 <FeatureList />
 
                 <div className="flex items-center gap-x-6">
-                  <a
-                    href="#"
+                  <Link
+                    href="/auth/login"
                     onMouseEnter={() => setHover(true)}
                     onMouseLeave={() => setHover(false)}
                     className="relative inline-flex items-center rounded-lg bg-purple-600 px-8 py-3 text-base font-semibold text-white transition-all duration-300 hover:bg-purple-500 focus:ring-2 focus:ring-purple-600 focus:ring-offset-2 focus:outline-none"
@@ -89,7 +91,7 @@ export default function HeroSection() {
                         d="M13 7l5 5m0 0l-5 5m5-5H6"
                       />
                     </svg>
-                  </a>
+                  </Link>
                 </div>
 
                 {/* System Info */}

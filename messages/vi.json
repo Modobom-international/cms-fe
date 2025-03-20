@@ -100,5 +100,19 @@
       "InternalTerms": "Điều khoản nội bộ",
       "PrivacyPolicy": "Chính sách bảo mật"
     }
+  },
+  "LoginPage": {
+    "title": "Chào mừng trở lại",
+    "description": "Đăng nhập bằng email và mật khẩu",
+    "validation": {
+      "email": {
+        "required": "Email là bắt buộc",
+        "invalid": "Email không hợp lệ"
+      },
+      "password": {
+        "required": "Mật khẩu là bắt buộc",
+        "min": "Mật khẩu phải có ít nhất 6 ký tự"
+      }
+    }
   }
 }
