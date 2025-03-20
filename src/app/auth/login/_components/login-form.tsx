@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { ILoginForm, LoginFormSchema } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -32,6 +34,7 @@ export function LoginForm({
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const t = useTranslations("LoginPage");
+  const router = useRouter();
 
   const form = useForm<ILoginForm>({
     resolver: zodResolver(LoginFormSchema(t)),
@@ -44,6 +47,7 @@ export function LoginForm({
 
   const onSubmit = async (data: ILoginForm) => {
     console.log(data);
+    router.push("/admin");
   };
 
   return (
