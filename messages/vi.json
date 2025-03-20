@@ -1,0 +1,17 @@
+{
+  "Landing": {
+    "Header": {
+      "System": "Hệ thống",
+      "Monitor": "Giám sát",
+      "Logs": "Nhật ký",
+      "Support": "Hỗ trợ",
+      "AccessSystem": "Truy cập hệ thống",
+      "Dashboard": "Bảng điều khiển",
+      "DashboardDesc": "Theo dõi hoạt động hệ thống",
+      "Settings": "Cấu hình",
+      "SettingsDesc": "Quản lý cài đặt hệ thống",
+      "Login": "Đăng nhập",
+      "OpenMenu": "Mở menu chính"
+    }
+  }
+}

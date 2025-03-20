@@ -1,0 +1,17 @@
+{
+    "Landing": {
+        "Header": {
+            "System": "System",
+            "Monitor": "Monitor",
+            "Logs": "Logs",
+            "Support": "Support",
+            "AccessSystem": "Access System",
+            "Dashboard": "Dashboard",
+            "DashboardDesc": "Monitor system activity",
+            "Settings": "Settings",
+            "SettingsDesc": "Manage system settings",
+            "Login": "Login",
+            "OpenMenu": "Open main menu"
+        }
+    }
+}
