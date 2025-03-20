@@ -12,6 +12,93 @@
       "SettingsDesc": "Quản lý cài đặt hệ thống",
       "Login": "Đăng nhập",
       "OpenMenu": "Mở menu chính"
+    },
+    "HeroSection": {
+      "Badge": "Hệ thống nội bộ",
+      "Heading1": "Quản lý & Giám sát",
+      "Heading2": "Hệ thống Modobom",
+      "Description": "Theo dõi, quản lý và tối ưu hóa hoạt động của hệ thống Modobom. Giám sát người dùng, phân tích hành vi và đảm bảo an toàn dữ liệu.",
+      "Feature1": "Theo dõi hoạt động người dùng theo thời gian thực",
+      "Feature2": "Giám sát và quản lý tên miền hệ thống",
+      "Feature3": "Phân tích và ghi nhật ký hệ thống chi tiết",
+      "AccessSystem": "Truy cập hệ thống",
+      "SystemInfoTitle": "Thông tin hệ thống",
+      "Monitoring": "Giám sát",
+      "Uptime": "Uptime",
+      "Response": "Phản hồi",
+      "SystemMonitor": "modobom-system-monitor",
+      "TabDashboard": "Bảng điều khiển",
+      "TabTracking": "Theo dõi",
+      "TabLogs": "Nhật ký",
+      "Dashboard": {
+        "TodayAccess": "Truy cập hôm nay",
+        "ComparedYesterday": "+8% so với hôm qua",
+        "TotalDomains": "Tổng domain",
+        "AllActive": "100% hoạt động",
+        "SystemStatus": "Trạng thái hệ thống",
+        "AllWorkingWell": "Tất cả hoạt động tốt",
+        "MainSystem": "Hệ thống chính",
+        "WorkingNormally": "Hoạt động bình thường",
+        "InternalNetwork": "Mạng nội bộ",
+        "ActiveDomains": "45 domain hoạt động"
+      },
+      "Tracking": {
+        "RecentActivity": "Hoạt động gần đây",
+        "ViewAll": "Xem tất cả",
+        "UpdatedSystemConfig": "Cập nhật cấu hình hệ thống",
+        "JustNow": "Vừa xong",
+        "AutoBackup": "Tự động sao lưu dữ liệu",
+        "MinutesAgo": "5 phút trước"
+      },
+      "Logs": {
+        "SystemLogs": "Nhật ký hệ thống",
+        "Recording": "Đang ghi",
+        "ConfigUpdated": "Cập nhật cấu hình thành công",
+        "DomainCheck": "Kiểm tra kết nối domain modobom.com",
+        "InvalidAccess": "Phát hiện truy cập không hợp lệ"
+      }
+    },
+    "FeaturesSection": {
+      "Tagline": "Giám sát hệ thống thông minh",
+      "Title": "Kiểm soát toàn diện hệ thống Modobom",
+      "Description": "Hệ thống giám sát và quản lý nội bộ giúp theo dõi, phân tích và tối ưu hóa hoạt động của Modobom một cách hiệu quả.",
+      "RealtimeMonitoring": {
+        "Title": "Giám sát thời gian thực",
+        "Description": "Theo dõi hoạt động hệ thống, trạng thái domain và hiệu suất server theo thời gian thực với các chỉ số chi tiết."
+      },
+      "ActivityLogs": {
+        "Title": "Nhật ký hoạt động",
+        "Description": "Ghi lại và phân tích chi tiết mọi hoạt động của hệ thống, từ truy cập người dùng đến các thay đổi cấu hình quan trọng."
+      },
+      "ConfigManagement": {
+        "Title": "Quản lý cấu hình",
+        "Description": "Điều chỉnh và tối ưu hóa cài đặt hệ thống, quản lý domain và cấu hình bảo mật một cách linh hoạt."
+      },
+      "UserManagement": {
+        "Title": "Quản lý người dùng",
+        "Description": "Theo dõi và quản lý quyền truy cập của người dùng, phân quyền chi tiết và giám sát hoạt động."
+      },
+      "ReportsStats": {
+        "Title": "Thống kê & Báo cáo",
+        "Description": "Tạo báo cáo chi tiết về hiệu suất hệ thống, lưu lượng truy cập và các số liệu quan trọng khác."
+      },
+      "Alerts": {
+        "Title": "Cảnh báo & Thông báo",
+        "Description": "Nhận thông báo tức thì về các sự cố, cảnh báo bảo mật và các thay đổi quan trọng trong hệ thống."
+      }
+    },
+    "Footer": {
+      "Description": "Hệ thống quản lý và giám sát nội bộ Modobom, cung cấp các công cụ theo dõi, phân tích và tối ưu hóa hoạt động.",
+      "SystemTitle": "Hệ thống",
+      "Dashboard": "Bảng điều khiển",
+      "Settings": "Cấu hình",
+      "Monitor": "Giám sát",
+      "SupportTitle": "Hỗ trợ",
+      "Documentation": "Tài liệu",
+      "Guide": "Hướng dẫn",
+      "Contact": "Liên hệ",
+      "InternalTerms": "Điều khoản nội bộ",
+      "PrivacyPolicy": "Chính sách bảo mật"
     }
   }
 }
