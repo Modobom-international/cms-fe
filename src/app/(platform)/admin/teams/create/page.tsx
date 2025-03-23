@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import Link from "next/link";
 
-import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowLeft,
@@ -14,38 +13,15 @@ import {
   Home,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-// Define the form schema with Zod
-const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  phone_number: z.string().optional(),
-  address: z.string().optional(),
-  team: z.string().min(1, "Please select a team"),
-  permissions: z.record(z.boolean()).default({}),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-interface Team {
-  id: number;
-  name: string;
-  permissions?: string[];
-}
-
+// Types
 interface PermissionRoute {
   id: number;
   name: string;
@@ -56,25 +32,30 @@ interface Permission {
   [key: string]: PermissionRoute[];
 }
 
-export default function Page() {
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+// Form Schema
+const teamFormSchema = z.object({
+  name: z.string().min(1, "Tên phòng ban không được để trống"),
+  permissions: z.record(z.boolean()).default({}),
+});
+
+type TeamFormValues = z.infer<typeof teamFormSchema>;
+
+export default function CreateTeamPage() {
+  const form = useForm<TeamFormValues>({
+    resolver: zodResolver(teamFormSchema),
     defaultValues: {
+      name: "",
       permissions: {},
     },
   });
 
-  const [teams] = useState<Team[]>([
-    { id: 1, name: "Development Team" },
-    { id: 2, name: "Marketing Team" },
-    { id: 3, name: "Sales Team" },
-  ]);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setValue,
+    watch,
+  } = form;
 
   const [permissions] = useState<Permission>({
     "push-system": [
@@ -119,18 +100,20 @@ export default function Page() {
     ],
   });
 
-  const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>(
-    {}
-  );
+  const [openSections, setOpenSections] = useState<{
+    [key: string]: boolean;
+  }>({
+    "push-system": false,
+    "log-behavior": false,
+    users: false,
+    domain: false,
+    "html-source": false,
+    "users-tracking": false,
+    team: false,
+  });
 
-  const onSubmit = async (data: FormValues) => {
-    try {
-      // Handle form submission
-      console.log(data);
-      // Add your API call here
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    }
+  const onSubmit = async (data: TeamFormValues) => {
+    console.log(data);
   };
 
   return (
@@ -141,24 +124,24 @@ export default function Page() {
         <nav className="text-muted-foreground flex items-center gap-2 text-sm">
           <Home className="h-4 w-4" />
           <ChevronRight className="h-4 w-4" />
-          <span>Quản lý nhân viên</span>
+          <span>Quản lý phòng ban</span>
           <ChevronRight className="h-4 w-4" />
-          <span>Thêm nhân viên</span>
+          <span>Thêm phòng ban</span>
         </nav>
 
         {/* Title and Actions Section */}
         <div className="flex items-start justify-between">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-semibold tracking-tight">
-              Thêm nhân viên
+              Thêm phòng ban
             </h1>
             <p className="text-muted-foreground text-sm">
-              Thêm nhân viên mới vào hệ thống và phân quyền truy cập
+              Thêm phòng ban mới vào hệ thống và phân quyền truy cập
             </p>
           </div>
 
           <Link
-            href="/admin/users"
+            href="/admin/teams"
             className={buttonVariants({
               variant: "outline",
               size: "sm",
@@ -173,107 +156,30 @@ export default function Page() {
       {/* Rest of the form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* Left Column - User Information */}
-          <div className="space-y-6 lg:col-span-2">
-            <div className="bg-card rounded-lg">
-              <div className="mb-6 flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-medium">Thông tin cá nhân</h2>
-                  <p className="text-muted-foreground text-sm">
-                    Nhập thông tin cơ bản của nhân viên
-                  </p>
-                </div>
+          {/* Left Column - Team Information */}
+          <div className="space-y-6">
+            <div className="rounded-lg bg-white">
+              <div className="mb-6">
+                <h2 className="font-medium text-gray-800">
+                  Thông tin phòng ban
+                </h2>
+                <p className="text-xs text-gray-500">
+                  Nhập thông tin cơ bản của phòng ban
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                {/* Name Field */}
-                <div className="space-y-2">
-                  <Label htmlFor="name">Tên</Label>
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="name">Tên phòng ban</Label>
                   <Input
-                    {...register("name")}
                     id="name"
-                    placeholder="Nhập tên nhân viên"
+                    {...register("name")}
+                    disabled={isSubmitting}
+                    placeholder="Nhập tên phòng ban"
                   />
                   {errors.name && (
                     <p className="text-destructive text-sm">
                       {errors.name.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Email Field */}
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    {...register("email")}
-                    id="email"
-                    type="email"
-                    placeholder="example@company.com"
-                  />
-                  {errors.email && (
-                    <p className="text-destructive text-sm">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Password Field */}
-                <div className="space-y-2">
-                  <Label htmlFor="password">Mật khẩu</Label>
-                  <Input
-                    {...register("password")}
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                  />
-                  {errors.password && (
-                    <p className="text-destructive text-sm">
-                      {errors.password.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Phone Number Field */}
-                <div className="space-y-2">
-                  <Label htmlFor="phone_number">Số điện thoại</Label>
-                  <Input
-                    {...register("phone_number")}
-                    id="phone_number"
-                    placeholder="Nhập số điện thoại"
-                  />
-                </div>
-
-                {/* Address Field */}
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="address">Địa chỉ</Label>
-                  <Input
-                    {...register("address")}
-                    id="address"
-                    placeholder="Nhập địa chỉ"
-                  />
-                </div>
-
-                {/* Team Selection */}
-                <div className="space-y-2 md:col-span-1">
-                  <Label htmlFor="team">Phòng ban</Label>
-                  <Select
-                    onValueChange={(value) => setValue("team", value)}
-                    defaultValue={watch("team")}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Chọn phòng ban" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {teams.map((team) => (
-                        <SelectItem key={team.id} value={team.id.toString()}>
-                          {team.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.team && (
-                    <p className="text-destructive text-sm">
-                      {errors.team.message}
                     </p>
                   )}
                 </div>
@@ -282,21 +188,24 @@ export default function Page() {
           </div>
 
           {/* Right Column - Permissions */}
-          <div className="space-y-6">
-            <div className="bg-card rounded-lg">
+          <div className="space-y-6 lg:col-span-2">
+            <div className="rounded-lg bg-white p-6">
               <div className="mb-6">
-                <h2 className="text-lg font-medium">Phân quyền truy cập</h2>
-                <p className="text-muted-foreground text-sm">
-                  Thiết lập quyền truy cập cho nhân viên
+                <h2 className="font-medium text-gray-800">
+                  Phân quyền truy cập
+                </h2>
+                <p className="text-xs text-gray-500">
+                  Thiết lập quyền truy cập cho phòng ban
                 </p>
               </div>
 
               <div className="space-y-4">
                 {Object.entries(permissions).map(([section, routes]) => (
-                  <div key={section} className="bg-card rounded-lg border">
-                    <div className="flex items-center justify-between p-4">
+                  <div key={section} className="rounded-md border">
+                    <div className="flex items-center justify-between bg-gray-50 px-4 py-3">
                       <div className="flex items-center space-x-3">
                         <Checkbox
+                          id={`section-${section}`}
                           checked={routes.every((route) =>
                             watch(`permissions.${section}_${route.name}`)
                           )}
@@ -304,12 +213,14 @@ export default function Page() {
                             routes.forEach((route) => {
                               setValue(
                                 `permissions.${section}_${route.name}`,
-                                checked as boolean
+                                checked as boolean,
+                                { shouldDirty: true }
                               );
                             });
                           }}
+                          disabled={isSubmitting}
                         />
-                        <Label className="font-medium">
+                        <Label htmlFor={`section-${section}`}>
                           {section
                             .split("-")
                             .map(
@@ -341,14 +252,16 @@ export default function Page() {
                     {openSections[section] && (
                       <div className="divide-y border-t">
                         {routes.map((route) => (
-                          <div key={route.id} className="hover:bg-muted/50 p-4">
+                          <div key={route.id} className="px-4 py-3">
                             <div className="flex items-center space-x-3">
                               <Checkbox
+                                id={`permission-${route.id}`}
                                 {...register(
                                   `permissions.${section}_${route.name}`
                                 )}
+                                disabled={isSubmitting}
                               />
-                              <Label className="font-normal">
+                              <Label htmlFor={`permission-${route.id}`}>
                                 {route.name
                                   .split(".")
                                   .map(
@@ -373,7 +286,7 @@ export default function Page() {
         {/* Submit Button */}
         <div className="flex justify-end border-t pt-6">
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Đang xử lý..." : "Tạo nhân viên"}
+            {isSubmitting ? "Đang xử lý..." : "Tạo phòng ban"}
           </Button>
         </div>
       </form>
