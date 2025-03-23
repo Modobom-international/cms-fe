@@ -9,7 +9,7 @@ import { ChevronRight, Home, PlusIcon, Search } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import UserDataTable from "@/components/admin/users/datatable";
+import UserDataTable from "@/components/admin/users/data-table";
 
 export default function Page() {
   const [search, setSearch] = useState("");
