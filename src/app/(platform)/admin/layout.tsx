@@ -22,8 +22,8 @@ export default async function AdminLayout({
         <div className="flex flex-1">
           <AppSidebar />
           <SidebarInset>
-            <div className="flex flex-1 flex-col gap-4 p-4">
-              <main className="container mx-auto py-10 sm:px-6 lg:px-8">
+            <div className="flex flex-1 flex-col gap-4">
+              <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                 {children}
                 <Footer />
               </main>
