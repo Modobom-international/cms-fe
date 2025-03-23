@@ -114,5 +114,81 @@
         "min": "Mật khẩu phải có ít nhất 6 ký tự"
       }
     }
+  },
+  "ProfilePage": {
+    "header": {
+      "title": "Thông tin cá nhân",
+      "welcome": "Xin chào, {name}!",
+      "subtitle": "Quản lý thông tin cá nhân và cài đặt tài khoản của bạn",
+      "status": "Trạng thái",
+      "active": "Đang hoạt động",
+      "lastLogin": "Đăng nhập lần cuối"
+    },
+    "profile": {
+      "title": "Thông tin tài khoản",
+      "description": "Quản lý thông tin cá nhân và bảo mật tài khoản của bạn",
+      "tabs": {
+        "personal": "Thông tin cá nhân",
+        "security": "Bảo mật"
+      },
+      "workInfo": {
+        "title": "Thông tin công việc",
+        "position": "Vị trí",
+        "team": "Nhóm",
+        "joinDate": "Ngày tham gia",
+        "salary": "Lương"
+      },
+      "actions": {
+        "logout": "Đăng xuất",
+        "editCover": "Chỉnh sửa ảnh bìa",
+        "updateAvatar": "Cập nhật ảnh đại diện"
+      }
+    },
+    "personalInfo": {
+      "basicInfo": "Thông tin cơ bản",
+      "name": "Tên",
+      "email": "Email",
+      "notifications": {
+        "title": "Thiết lập thông báo",
+        "emailNotifications": {
+          "title": "Thông báo email",
+          "description": "Nhận thông báo qua email"
+        },
+        "systemNotifications": {
+          "title": "Thông báo hệ thống",
+          "description": "Hiển thị thông báo trên trình duyệt"
+        },
+        "updateNotifications": {
+          "title": "Thông báo cập nhật",
+          "description": "Nhận thông tin về cập nhật mới"
+        }
+      },
+      "saveChanges": "Lưu thay đổi"
+    },
+    "security": {
+      "changePassword": {
+        "title": "Đổi mật khẩu",
+        "currentPassword": "Mật khẩu hiện tại",
+        "newPassword": "Mật khẩu mới",
+        "confirmPassword": "Xác nhận mật khẩu",
+        "updatePassword": "Cập nhật mật khẩu"
+      },
+      "loginSecurity": {
+        "title": "Bảo mật đăng nhập",
+        "twoFactor": {
+          "title": "Xác thực hai yếu tố",
+          "description": "Thêm lớp bảo mật cho tài khoản của bạn"
+        },
+        "newDeviceLogin": {
+          "title": "Đăng nhập thiết bị mới",
+          "description": "Yêu cầu xác nhận khi đăng nhập trên thiết bị lạ"
+        }
+      },
+      "dangerZone": {
+        "title": "Vùng nguy hiểm",
+        "description": "Khi bạn xóa tài khoản, không thể khôi phục lại. Vui lòng chắc chắn.",
+        "deleteAccount": "Xóa tài khoản"
+      }
+    }
   }
 }
