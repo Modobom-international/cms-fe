@@ -1,5 +1,7 @@
 import React from "react";
 
+import Link from "next/link";
+
 import { useTranslations } from "next-intl";
 
 export default function Footer() {
@@ -11,9 +13,9 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div className="col-span-1 md:col-span-2">
-            <a href="/" className="text-xl font-bold text-white">
+            <Link href="/" className="text-xl font-bold text-white">
               <img src="/img/logo-modobom-resize.png" alt="Logo modobom" />
-            </a>
+            </Link>
             <p className="mt-4 text-sm text-gray-400">{t("Description")}</p>
           </div>
 

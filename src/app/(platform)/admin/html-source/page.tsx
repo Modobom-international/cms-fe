@@ -4,10 +4,9 @@ import { useState } from "react";
 
 import Link from "next/link";
 
-import { ChevronRight, Home, PlusIcon, Search } from "lucide-react";
+import { ChevronRight, Home, PlusIcon } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 import HtmlSourceDataTable from "@/components/admin/html-source/data-table";
 

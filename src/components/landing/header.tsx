@@ -41,14 +41,14 @@ export default function Header() {
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <div className="flex flex-shrink-0 items-center">
-              <a href="/" className="flex items-center space-x-2">
+              <Link href="/" className="flex items-center space-x-2">
                 <div className="flex lg:col-start-2 lg:justify-center">
                   <img
                     src="/img/logo-modobom-resize-dark.png"
                     alt="Logo modobom"
                   />
                 </div>
-              </a>
+              </Link>
             </div>
 
             {/* Navigation Links - Desktop */}
@@ -211,12 +211,12 @@ export default function Header() {
 
 // Helper Components
 const NavLink = ({ href, text }: { href: string; text: string }) => (
-  <a
+  <Link
     href={href}
     className="nav-link-active relative px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:text-gray-900"
   >
     {text}
-  </a>
+  </Link>
 );
 
 const MobileNavLink = ({
@@ -249,7 +249,7 @@ const SystemMenuItem = ({
   description: string;
   icon: React.ReactNode;
 }) => (
-  <a
+  <Link
     href="#"
     className="-m-3 flex items-start rounded-lg p-3 transition duration-150 ease-in-out hover:bg-gray-50"
   >
@@ -260,7 +260,7 @@ const SystemMenuItem = ({
       <p className="text-base font-medium text-gray-900">{title}</p>
       <p className="mt-1 text-sm text-gray-500">{description}</p>
     </div>
-  </a>
+  </Link>
 );
 
 // Icons
