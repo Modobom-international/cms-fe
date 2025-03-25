@@ -112,14 +112,14 @@ export default function CardDetail({
   };
 
   // Add logging when description changes
-  useEffect(() => {
-    console.log("Description Content:", description);
-    console.log("Description HTML Structure:", {
-      html: description,
-      hasCodeBlocks:
-        description.includes("<pre") || description.includes("<code"),
-    });
-  }, [description]);
+  //   useEffect(() => {
+  //     console.log("Description Content:", description);
+  //     console.log("Description HTML Structure:", {
+  //       html: description,
+  //       hasCodeBlocks:
+  //         description.includes("<pre") || description.includes("<code"),
+  //     });
+  //   }, [description]);
 
   // Apply syntax highlighting to code blocks when not in edit mode
   useEffect(() => {

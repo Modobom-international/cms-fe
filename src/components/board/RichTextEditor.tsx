@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -21,6 +22,7 @@ import {
   Code,
   Heading1,
   Heading2,
+  ImageIcon,
   Italic,
   Link as LinkIcon,
   List,
@@ -53,6 +55,8 @@ export default function RichTextEditor({
   editable = true,
   placeholder = "Add a detailed description...",
 }: RichTextEditorProps) {
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -63,6 +67,13 @@ export default function RichTextEditor({
         HTMLAttributes: {
           class: "text-blue-500 underline",
         },
+      }),
+      Image.configure({
+        HTMLAttributes: {
+          class:
+            "rounded-lg max-w-full my-4 shadow-sm hover:shadow-md transition-shadow duration-200",
+        },
+        allowBase64: true,
       }),
       CodeBlockLowlight.configure({
         lowlight,
@@ -101,6 +112,40 @@ export default function RichTextEditor({
 
     // update link
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+  }, [editor]);
+
+  const handleImageUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (!editor || !event.target.files?.length) return;
+
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        if (typeof e.target?.result === "string") {
+          // Insert image at current cursor position
+          editor.chain().focus().setImage({ src: e.target.result }).run();
+        }
+      };
+
+      reader.readAsDataURL(file);
+
+      // Reset the input value to allow selecting the same file again
+      if (imageInputRef.current) {
+        imageInputRef.current.value = "";
+      }
+    },
+    [editor]
+  );
+
+  const addImageFromURL = useCallback(() => {
+    if (!editor) return;
+
+    const url = window.prompt("Enter the URL of the image:");
+
+    if (url) {
+      editor.chain().focus().setImage({ src: url }).run();
+    }
   }, [editor]);
 
   if (!editor) {
@@ -218,6 +263,21 @@ export default function RichTextEditor({
             >
               <LinkIcon size={16} />
             </button>
+            <button
+              onClick={() => imageInputRef.current?.click()}
+              className="mr-1 rounded p-1 hover:bg-gray-200"
+              title="Upload Image"
+            >
+              <ImageIcon size={16} />
+            </button>
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+              title="Image upload"
+            />
           </div>
 
           <div className="flex">
@@ -242,7 +302,7 @@ export default function RichTextEditor({
       )}
       <EditorContent
         editor={editor}
-        className="prose prose-sm max-w-none p-2"
+        className="prose prose-sm max-w-none p-2 [&_img]:mx-auto [&_img]:block [&_img]:max-h-[500px] [&_img]:object-contain"
       />
     </div>
   );
