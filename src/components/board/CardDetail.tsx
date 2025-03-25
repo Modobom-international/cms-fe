@@ -124,18 +124,14 @@ export default function CardDetail({
   // Apply syntax highlighting to code blocks when not in edit mode
   useEffect(() => {
     if (!isEditing) {
-      console.log("Applying syntax highlighting...");
       // Find all code blocks in the rendered content
       const codeBlocks = document.querySelectorAll(".prose pre code");
-      console.log("Found code blocks:", codeBlocks.length);
 
       // Apply highlighting to each code block
       codeBlocks.forEach((block) => {
         // Get the language from the class name (e.g., "language-javascript")
         const language =
           block.className.match(/language-(\w+)/)?.[1] || "plaintext";
-        console.log("Code block language:", language);
-        console.log("Code block content:", block.textContent);
 
         // Apply highlighting
         hljs.highlightElement(block as HTMLElement);
@@ -262,7 +258,6 @@ export default function CardDetail({
             <RichTextEditor
               content={description}
               onChange={(newContent) => {
-                console.log("Editor onChange:", newContent);
                 setDescription(newContent);
               }}
             />

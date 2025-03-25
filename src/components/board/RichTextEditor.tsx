@@ -117,7 +117,7 @@ export default function RichTextEditor({
       Image.configure({
         HTMLAttributes: {
           class:
-            "rounded-lg max-w-full my-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group inline-block",
+            "rounded-lg max-w-full my-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group inline-block select-none",
         },
         allowBase64: true,
       }),
@@ -141,7 +141,6 @@ export default function RichTextEditor({
       // Check if an image is selected
       const isImageNode = editor.isActive("image");
       setIsImageSelected(isImageNode);
-      console.log("Selection updated, image selected:", isImageNode);
     },
   });
 
@@ -162,6 +161,31 @@ export default function RichTextEditor({
 
     updateImageDraggable();
   }, [editor, isImageSelected, editable]);
+
+  // Add click handler for images
+  useEffect(() => {
+    if (!editor || !editable) return;
+
+    const handleImageClick = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "IMG") {
+        // Select the node in the editor
+        const pos = editor.view.posAtDOM(target, 0);
+        editor.commands.setNodeSelection(pos);
+        setIsImageSelected(true);
+      } else if (!target.closest(".image-toolbar")) {
+        // Click outside image and toolbar - clear selection
+        setIsImageSelected(false);
+      }
+    };
+
+    const editorElement = document.querySelector(".ProseMirror");
+    editorElement?.addEventListener("click", handleImageClick);
+
+    return () => {
+      editorElement?.removeEventListener("click", handleImageClick);
+    };
+  }, [editor, editable]);
 
   // Memoized event handlers
   const handleDragEnter = useCallback(
@@ -185,22 +209,22 @@ export default function RichTextEditor({
         !isInternalDragging // Prevent external dragging if we're already dragging internally
       ) {
         setIsExternalDragging(true);
-        console.log("External dragging started", {
-          target: target.tagName,
-          types: Array.from(e.dataTransfer.types),
-          isInternalDragging,
-          isImageSelected,
-        });
+        // console.log("External dragging started", {
+        //   target: target.tagName,
+        //   types: Array.from(e.dataTransfer.types),
+        //   isInternalDragging,
+        //   isImageSelected,
+        // });
       }
       // For internal images being dragged - only when the image is selected
       else if (editable && isImageSelected && isTargetImage) {
         setIsInternalDragging(true);
         setIsExternalDragging(false); // Ensure external dragging is off
-        console.log("Internal dragging started", {
-          target: target.tagName,
-          element: target.closest("img"),
-          isImageSelected,
-        });
+        // console.log("Internal dragging started", {
+        //   target: target.tagName,
+        //   element: target.closest("img"),
+        //   isImageSelected,
+        // });
       }
     },
     [editable, isImageSelected, isInternalDragging]
@@ -220,7 +244,6 @@ export default function RichTextEditor({
       ) {
         setIsExternalDragging(false);
         setIsInternalDragging(false);
-        console.log("Dragging ended (left editor area)");
       }
     }
   }, []);
@@ -236,10 +259,10 @@ export default function RichTextEditor({
       e.stopPropagation();
       setIsExternalDragging(false);
       setIsInternalDragging(false);
-      console.log("Drop event occurred", {
-        externalDragging: isExternalDragging,
-        internalDragging: isInternalDragging,
-      });
+      //   console.log("Drop event occurred", {
+      //     externalDragging: isExternalDragging,
+      //     internalDragging: isInternalDragging,
+      //   });
 
       if (!editor || !editable) return;
 
@@ -512,7 +535,7 @@ export default function RichTextEditor({
       >
         <EditorContent
           editor={editor}
-          className="prose prose-sm relative max-w-none p-2 [&_img]:inline-block [&_img]:max-h-[500px] [&_img]:object-contain"
+          className="prose prose-sm relative max-w-none p-4 [&_*:first-child]:mt-0 [&_*:last-child]:mb-0 [&_.ProseMirror]:min-h-[200px] [&_.ProseMirror]:outline-none [&_.ProseMirror_p]:my-3 [&_img]:inline-block [&_img]:max-h-[500px] [&_img]:object-contain [&_img.ProseMirror-selectednode]:ring-2 [&_img.ProseMirror-selectednode]:ring-blue-500"
         />
         {isExternalDragging && (
           <div className="absolute inset-0 flex items-center justify-center bg-blue-50/80 backdrop-blur-sm transition-opacity duration-200">
@@ -544,13 +567,19 @@ export default function RichTextEditor({
             </div>
           </div>
         )}
-        {editable && (
+        {editable && isImageSelected && (
           <div
-            className="absolute z-50 hidden rounded-lg border bg-white p-1 shadow-lg group-hover:flex"
+            className="image-toolbar fixed z-50 rounded-lg border bg-white p-1 shadow-lg"
             style={{
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
+              top:
+                editor?.view.dom
+                  .querySelector("img.ProseMirror-selectednode")
+                  ?.getBoundingClientRect().top ?? 0,
+              left:
+                editor?.view.dom
+                  .querySelector("img.ProseMirror-selectednode")
+                  ?.getBoundingClientRect().left ?? 0,
+              transform: "translateY(-100%)",
             }}
           >
             <ToolbarButton onClick={toggleImageSize} title="Toggle image size">
