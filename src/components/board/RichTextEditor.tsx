@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Image from "@tiptap/extension-image";
@@ -27,9 +27,13 @@ import {
   Link as LinkIcon,
   List,
   ListOrdered,
+  Maximize2,
+  Minimize2,
   Quote,
   Redo,
+  Trash2,
   Undo,
+  Upload,
 } from "lucide-react";
 
 // Create a lowlight instance with specific languages
@@ -56,11 +60,54 @@ export default function RichTextEditor({
   placeholder = "Add a detailed description...",
 }: RichTextEditorProps) {
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  const handleDragEnter = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (editable) {
+        // Only show drop zone if dragging files
+        const hasFiles = e.dataTransfer.types.includes("Files");
+        if (hasFiles) {
+          setIsDragging(true);
+        }
+      }
+    },
+    [editable]
+  );
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Check if we're leaving the editor or entering a child element
+    const rect = editorRef.current?.getBoundingClientRect();
+    if (rect) {
+      const x = e.clientX;
+      const y = e.clientY;
+      if (
+        x <= rect.left ||
+        x >= rect.right ||
+        y <= rect.top ||
+        y >= rect.bottom
+      ) {
+        setIsDragging(false);
+      }
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        codeBlock: false, // Disable the default code block to use CodeBlockLowlight
+        codeBlock: false,
       }),
       Link.configure({
         openOnClick: false,
@@ -71,7 +118,7 @@ export default function RichTextEditor({
       Image.configure({
         HTMLAttributes: {
           class:
-            "rounded-lg max-w-full my-4 shadow-sm hover:shadow-md transition-shadow duration-200",
+            "rounded-lg max-w-full my-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group",
         },
         allowBase64: true,
       }),
@@ -92,6 +139,52 @@ export default function RichTextEditor({
       onChange(editor.getHTML());
     },
   });
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+
+      if (!editor || !editable) return;
+
+      const files = Array.from(e.dataTransfer.files).filter((file) =>
+        file.type.startsWith("image/")
+      );
+
+      if (files.length === 0) return;
+
+      files.forEach((file) => {
+        setIsUploading(true);
+        setUploadProgress(0);
+
+        // Simulate upload progress
+        const interval = setInterval(() => {
+          setUploadProgress((prev) => {
+            if (prev >= 90) {
+              clearInterval(interval);
+              return prev;
+            }
+            return prev + 10;
+          });
+        }, 100);
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (typeof e.target?.result === "string") {
+            editor.chain().focus().setImage({ src: e.target.result }).run();
+            setUploadProgress(100);
+            setTimeout(() => {
+              setIsUploading(false);
+              setUploadProgress(0);
+            }, 500);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    },
+    [editor, editable]
+  );
 
   const setLink = useCallback(() => {
     if (!editor) return;
@@ -119,24 +212,68 @@ export default function RichTextEditor({
       if (!editor || !event.target.files?.length) return;
 
       const file = event.target.files[0];
+      setIsUploading(true);
+      setUploadProgress(0);
+
+      // Simulate upload progress
+      const interval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(interval);
+            return prev;
+          }
+          return prev + 10;
+        });
+      }, 100);
+
       const reader = new FileReader();
 
       reader.onload = (e) => {
         if (typeof e.target?.result === "string") {
-          // Insert image at current cursor position
           editor.chain().focus().setImage({ src: e.target.result }).run();
+          setUploadProgress(100);
+          setTimeout(() => {
+            setIsUploading(false);
+            setUploadProgress(0);
+          }, 500);
         }
       };
 
       reader.readAsDataURL(file);
 
-      // Reset the input value to allow selecting the same file again
       if (imageInputRef.current) {
         imageInputRef.current.value = "";
       }
     },
     [editor]
   );
+
+  const deleteImage = useCallback(() => {
+    if (!editor) return;
+    editor.chain().focus().deleteSelection().run();
+  }, [editor]);
+
+  const toggleImageSize = useCallback(() => {
+    if (!editor) return;
+    const { from, to } = editor.state.selection;
+    const node = editor.state.doc.nodeAt(from);
+
+    if (node?.type.name === "image") {
+      const currentClass = node.attrs.class || "";
+      const isLarge = currentClass.includes("max-w-2xl");
+
+      editor
+        .chain()
+        .focus()
+        .updateAttributes("image", {
+          ...node.attrs,
+          class: isLarge
+            ? "rounded-lg max-w-full my-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group"
+            : "rounded-lg max-w-2xl my-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group",
+        })
+        .run();
+    }
+  }, [editor]);
 
   const addImageFromURL = useCallback(() => {
     if (!editor) return;
@@ -263,21 +400,29 @@ export default function RichTextEditor({
             >
               <LinkIcon size={16} />
             </button>
-            <button
-              onClick={() => imageInputRef.current?.click()}
-              className="mr-1 rounded p-1 hover:bg-gray-200"
-              title="Upload Image"
-            >
-              <ImageIcon size={16} />
-            </button>
-            <input
-              ref={imageInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-              title="Image upload"
-            />
+            <div className="mr-2 flex">
+              <button
+                onClick={() => imageInputRef.current?.click()}
+                className="relative mr-1 rounded p-1 hover:bg-gray-200"
+                title="Upload Image"
+                disabled={isUploading}
+              >
+                <ImageIcon size={16} />
+                {isUploading && (
+                  <div className="absolute inset-0 flex items-center justify-center rounded bg-gray-200">
+                    <div className="h-3 w-3 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                  </div>
+                )}
+              </button>
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+                title="Image upload"
+              />
+            </div>
           </div>
 
           <div className="flex">
@@ -300,10 +445,74 @@ export default function RichTextEditor({
           </div>
         </div>
       )}
-      <EditorContent
-        editor={editor}
-        className="prose prose-sm max-w-none p-2 [&_img]:mx-auto [&_img]:block [&_img]:max-h-[500px] [&_img]:object-contain"
-      />
+      <div
+        ref={editorRef}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        className="relative min-h-[200px]"
+      >
+        <EditorContent
+          editor={editor}
+          className="prose prose-sm relative max-w-none p-2 [&_img]:mx-auto [&_img]:block [&_img]:max-h-[500px] [&_img]:object-contain"
+        />
+        {isDragging && (
+          <div className="absolute inset-0 flex items-center justify-center bg-blue-50/80 backdrop-blur-sm transition-opacity duration-200">
+            <div className="rounded-lg border-2 border-dashed border-blue-500 bg-white p-8 text-center shadow-lg">
+              <div className="relative">
+                <ImageIcon className="mx-auto mb-2 h-12 w-12 text-blue-500" />
+                <div className="absolute -inset-2 animate-pulse rounded-full bg-blue-100/50" />
+              </div>
+              <p className="text-sm font-medium text-gray-700">
+                Drop image here
+              </p>
+              <p className="mt-1 text-xs text-gray-500">
+                Supports PNG, JPG, GIF
+              </p>
+              <div className="mt-2 flex justify-center gap-2">
+                <div
+                  className="h-1 w-1 animate-bounce rounded-full bg-blue-500"
+                  style={{ animationDelay: "0ms" }}
+                />
+                <div
+                  className="h-1 w-1 animate-bounce rounded-full bg-blue-500"
+                  style={{ animationDelay: "150ms" }}
+                />
+                <div
+                  className="h-1 w-1 animate-bounce rounded-full bg-blue-500"
+                  style={{ animationDelay: "300ms" }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+        {editable && (
+          <div
+            className="absolute z-50 hidden rounded-lg border bg-white p-1 shadow-lg group-hover:flex"
+            style={{
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <button
+              onClick={toggleImageSize}
+              className="rounded p-1 hover:bg-gray-100"
+              title="Toggle image size"
+            >
+              <Maximize2 size={16} />
+            </button>
+            <button
+              onClick={deleteImage}
+              className="rounded p-1 text-red-500 hover:bg-gray-100"
+              title="Delete image"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
