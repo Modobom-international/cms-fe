@@ -1,10 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { X } from "lucide-react";
+import { format } from "date-fns";
+import hljs from "highlight.js";
+import "highlight.js/styles/github.css";
+// Import highlight.js CSS for syntax highlighting
+import { Calendar, CheckSquare, Clock, X } from "lucide-react";
 
-import { Card } from "@/types/board";
+import { Card, ChecklistItem } from "@/types/board";
+
+import Checklist from "./Checklist";
+import RichTextEditor from "./RichTextEditor";
 
 interface CardDetailProps {
   card: Card;
@@ -20,8 +27,20 @@ export default function CardDetail({
   onDelete,
 }: CardDetailProps) {
   const [title, setTitle] = useState(card.title);
-  const [description, setDescription] = useState(card.description);
+  const [description, setDescription] = useState(card.description || "");
+  const [dueDate, setDueDate] = useState<string | undefined>(card.dueDate);
+  const [checklist, setChecklist] = useState<ChecklistItem[]>(
+    card.checklist || []
+  );
   const [isEditing, setIsEditing] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+
+  const handleChecklistChange = useCallback(
+    (updatedChecklist: ChecklistItem[]) => {
+      setChecklist(updatedChecklist);
+    },
+    []
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,15 +48,67 @@ export default function CardDetail({
       onUpdate({
         ...card,
         title: title.trim(),
-        description: description.trim(),
+        description,
+        dueDate,
+        checklist,
       });
       setIsEditing(false);
     }
   };
 
+  const handleDueDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDueDate(e.target.value);
+  };
+
+  const handleClose = () => {
+    if (
+      title !== card.title ||
+      description !== (card.description || "") ||
+      dueDate !== card.dueDate ||
+      JSON.stringify(checklist) !== JSON.stringify(card.checklist || [])
+    ) {
+      onUpdate({
+        ...card,
+        title,
+        description,
+        dueDate,
+        checklist,
+      });
+    }
+    onClose();
+  };
+
+  // Apply syntax highlighting to code blocks when not in edit mode
+  useEffect(() => {
+    if (!isEditing) {
+      document.querySelectorAll("pre code").forEach((block) => {
+        hljs.highlightElement(block as HTMLElement);
+      });
+    }
+  }, [isEditing, description]);
+
+  const formatDueDate = (dateString?: string) => {
+    if (!dateString) return "No due date";
+    try {
+      return format(new Date(dateString), "PPP");
+    } catch (error) {
+      return "Invalid date";
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          handleClose();
+        }
+      }}
+    >
+      <div
+        className="w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="mb-4 flex items-center justify-between">
           {isEditing ? (
             <input
@@ -53,31 +124,73 @@ export default function CardDetail({
           )}
           <button
             title="close"
-            onClick={onClose}
+            onClick={handleClose}
             className="rounded-full p-1 hover:bg-gray-200"
           >
             <X size={20} />
           </button>
         </div>
 
+        <div className="mb-6 flex items-center gap-2 text-sm text-gray-600">
+          {dueDate ? (
+            <div className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1">
+              <Clock size={14} />
+              <span>Due: {formatDueDate(dueDate)}</span>
+            </div>
+          ) : null}
+        </div>
+
         <div className="mb-6">
-          <p className="mb-2 text-sm font-medium text-gray-700">Description</p>
+          <div className="mb-2 flex items-center gap-2">
+            <p className="text-sm font-medium text-gray-700">Description</p>
+            {!isEditing && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="rounded bg-gray-200 px-2 py-1 text-xs hover:bg-gray-300"
+              >
+                Edit
+              </button>
+            )}
+          </div>
           {isEditing ? (
-            <textarea
-              title="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full rounded border p-2"
-              rows={5}
-            />
+            <RichTextEditor content={description} onChange={setDescription} />
           ) : (
-            <p
-              className="cursor-pointer rounded p-2 text-gray-600 hover:bg-gray-100"
-              onClick={() => setIsEditing(true)}
-            >
-              {card.description || "Add a more detailed description..."}
-            </p>
+            <div
+              className="prose prose-sm max-w-none rounded bg-gray-50 p-3"
+              dangerouslySetInnerHTML={{
+                __html: description || "<p>No description</p>",
+              }}
+            />
           )}
+        </div>
+
+        {isEditing && (
+          <div className="mb-6">
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Due Date
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                title="due date"
+                type="date"
+                value={dueDate?.split("T")[0] || ""}
+                onChange={handleDueDateChange}
+                className="rounded border p-2"
+              />
+              {dueDate && (
+                <button
+                  onClick={() => setDueDate(undefined)}
+                  className="rounded bg-gray-200 px-2 py-1 text-xs hover:bg-gray-300"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="mb-6">
+          <Checklist items={checklist} onChange={handleChecklistChange} />
         </div>
 
         <div className="flex justify-between">
@@ -92,7 +205,9 @@ export default function CardDetail({
               <button
                 onClick={() => {
                   setTitle(card.title);
-                  setDescription(card.description);
+                  setDescription(card.description || "");
+                  setDueDate(card.dueDate);
+                  setChecklist(card.checklist || []);
                   setIsEditing(false);
                 }}
                 className="rounded px-3 py-1 hover:bg-gray-200"
