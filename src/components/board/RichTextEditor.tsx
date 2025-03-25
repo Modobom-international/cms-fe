@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+// Tiptap imports
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import css from "highlight.js/lib/languages/css";
@@ -14,14 +15,18 @@ import json from "highlight.js/lib/languages/json";
 import python from "highlight.js/lib/languages/python";
 import ts from "highlight.js/lib/languages/typescript";
 import html from "highlight.js/lib/languages/xml";
-// Import highlight.js CSS for syntax highlighting
+// Highlight.js imports
 import "highlight.js/styles/github.css";
 import { createLowlight } from "lowlight";
+// Lucide icons - grouped by functionality
 import {
+  // Text formatting
   Bold,
+  // Code and links
   Code,
   Heading1,
   Heading2,
+  // Image handling
   ImageIcon,
   Italic,
   Link as LinkIcon,
@@ -32,8 +37,8 @@ import {
   Quote,
   Redo,
   Trash2,
+  // History
   Undo,
-  Upload,
 } from "lucide-react";
 
 // Create a lowlight instance with specific languages
@@ -45,6 +50,36 @@ lowlight.register("python", python);
 lowlight.register("html", html);
 lowlight.register("xml", html);
 lowlight.register("json", json);
+
+// Memoized toolbar button component
+const ToolbarButton = memo(
+  ({
+    onClick,
+    isActive,
+    disabled,
+    children,
+    title,
+  }: {
+    onClick: () => void;
+    isActive?: boolean;
+    disabled?: boolean;
+    children: React.ReactNode;
+    title: string;
+  }) => (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`mr-1 rounded p-1 ${
+        isActive ? "bg-gray-200" : "hover:bg-gray-200"
+      } ${disabled ? "opacity-50" : ""}`}
+      title={title}
+    >
+      {children}
+    </button>
+  )
+);
+
+ToolbarButton.displayName = "ToolbarButton";
 
 interface RichTextEditorProps {
   content: string;
@@ -60,50 +95,14 @@ export default function RichTextEditor({
   placeholder = "Add a detailed description...",
 }: RichTextEditorProps) {
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const editorRef = useRef<HTMLDivElement>(null);
+  const [isExternalDragging, setIsExternalDragging] = useState(false);
+  const [isInternalDragging, setIsInternalDragging] = useState(false);
+  const [isImageSelected, setIsImageSelected] = useState(false);
 
-  const handleDragEnter = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (editable) {
-        // Only show drop zone if dragging files
-        const hasFiles = e.dataTransfer.types.includes("Files");
-        if (hasFiles) {
-          setIsDragging(true);
-        }
-      }
-    },
-    [editable]
-  );
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    // Check if we're leaving the editor or entering a child element
-    const rect = editorRef.current?.getBoundingClientRect();
-    if (rect) {
-      const x = e.clientX;
-      const y = e.clientY;
-      if (
-        x <= rect.left ||
-        x >= rect.right ||
-        y <= rect.top ||
-        y >= rect.bottom
-      ) {
-        setIsDragging(false);
-      }
-    }
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
-
+  // Memoized editor configuration
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -118,7 +117,7 @@ export default function RichTextEditor({
       Image.configure({
         HTMLAttributes: {
           class:
-            "rounded-lg max-w-full my-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group",
+            "rounded-lg max-w-full my-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group inline-block",
         },
         allowBase64: true,
       }),
@@ -138,13 +137,109 @@ export default function RichTextEditor({
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
+    onSelectionUpdate: ({ editor }) => {
+      // Check if an image is selected
+      const isImageNode = editor.isActive("image");
+      setIsImageSelected(isImageNode);
+      console.log("Selection updated, image selected:", isImageNode);
+    },
   });
+
+  // Add draggable attribute to selected images
+  useEffect(() => {
+    if (!editor || !editable) return;
+
+    const updateImageDraggable = () => {
+      const images = document.querySelectorAll(".ProseMirror img");
+      images.forEach((img) => {
+        if (isImageSelected) {
+          img.setAttribute("draggable", "true");
+        } else {
+          img.setAttribute("draggable", "false");
+        }
+      });
+    };
+
+    updateImageDraggable();
+  }, [editor, isImageSelected, editable]);
+
+  // Memoized event handlers
+  const handleDragEnter = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Check if we're currently dragging an internal image
+      const isDraggingInternalImage = isImageSelected && isInternalDragging;
+
+      // Check if the drag target is an image element
+      const target = e.target as HTMLElement;
+      const isTargetImage = target.closest("img") !== null;
+
+      // For external files being dragged in
+      if (
+        editable &&
+        e.dataTransfer.types.includes("Files") &&
+        !isTargetImage &&
+        !isDraggingInternalImage &&
+        !isInternalDragging // Prevent external dragging if we're already dragging internally
+      ) {
+        setIsExternalDragging(true);
+        console.log("External dragging started", {
+          target: target.tagName,
+          types: Array.from(e.dataTransfer.types),
+          isInternalDragging,
+          isImageSelected,
+        });
+      }
+      // For internal images being dragged - only when the image is selected
+      else if (editable && isImageSelected && isTargetImage) {
+        setIsInternalDragging(true);
+        setIsExternalDragging(false); // Ensure external dragging is off
+        console.log("Internal dragging started", {
+          target: target.tagName,
+          element: target.closest("img"),
+          isImageSelected,
+        });
+      }
+    },
+    [editable, isImageSelected, isInternalDragging]
+  );
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = editorRef.current?.getBoundingClientRect();
+    if (rect) {
+      const { clientX: x, clientY: y } = e;
+      if (
+        x <= rect.left ||
+        x >= rect.right ||
+        y <= rect.top ||
+        y >= rect.bottom
+      ) {
+        setIsExternalDragging(false);
+        setIsInternalDragging(false);
+        console.log("Dragging ended (left editor area)");
+      }
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      setIsDragging(false);
+      setIsExternalDragging(false);
+      setIsInternalDragging(false);
+      console.log("Drop event occurred", {
+        externalDragging: isExternalDragging,
+        internalDragging: isInternalDragging,
+      });
 
       if (!editor || !editable) return;
 
@@ -158,7 +253,6 @@ export default function RichTextEditor({
         setIsUploading(true);
         setUploadProgress(0);
 
-        // Simulate upload progress
         const interval = setInterval(() => {
           setUploadProgress((prev) => {
             if (prev >= 90) {
@@ -186,6 +280,44 @@ export default function RichTextEditor({
     [editor, editable]
   );
 
+  const handleImageUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (!editor || !event.target.files?.length) return;
+
+      const file = event.target.files[0];
+      setIsUploading(true);
+      setUploadProgress(0);
+
+      const interval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(interval);
+            return prev;
+          }
+          return prev + 10;
+        });
+      }, 100);
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (typeof e.target?.result === "string") {
+          editor.chain().focus().setImage({ src: e.target.result }).run();
+          setUploadProgress(100);
+          setTimeout(() => {
+            setIsUploading(false);
+            setUploadProgress(0);
+          }, 500);
+        }
+      };
+      reader.readAsDataURL(file);
+
+      if (imageInputRef.current) {
+        imageInputRef.current.value = "";
+      }
+    },
+    [editor]
+  );
+
   const setLink = useCallback(() => {
     if (!editor) return;
 
@@ -206,47 +338,6 @@ export default function RichTextEditor({
     // update link
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   }, [editor]);
-
-  const handleImageUpload = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (!editor || !event.target.files?.length) return;
-
-      const file = event.target.files[0];
-      setIsUploading(true);
-      setUploadProgress(0);
-
-      // Simulate upload progress
-      const interval = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 90) {
-            clearInterval(interval);
-            return prev;
-          }
-          return prev + 10;
-        });
-      }, 100);
-
-      const reader = new FileReader();
-
-      reader.onload = (e) => {
-        if (typeof e.target?.result === "string") {
-          editor.chain().focus().setImage({ src: e.target.result }).run();
-          setUploadProgress(100);
-          setTimeout(() => {
-            setIsUploading(false);
-            setUploadProgress(0);
-          }, 500);
-        }
-      };
-
-      reader.readAsDataURL(file);
-
-      if (imageInputRef.current) {
-        imageInputRef.current.value = "";
-      }
-    },
-    [editor]
-  );
 
   const deleteImage = useCallback(() => {
     if (!editor) return;
@@ -285,127 +376,95 @@ export default function RichTextEditor({
     }
   }, [editor]);
 
-  if (!editor) {
-    return null;
-  }
+  if (!editor) return null;
 
   return (
     <div className="rounded border">
       {editable && (
         <div className="flex flex-wrap border-b bg-gray-50 p-1">
+          {/* Text formatting buttons */}
           <div className="mr-2 flex">
-            <button
+            <ToolbarButton
               onClick={() => editor.chain().focus().toggleBold().run()}
-              className={`mr-1 rounded p-1 ${
-                editor.isActive("bold") ? "bg-gray-200" : "hover:bg-gray-200"
-              }`}
+              isActive={editor.isActive("bold")}
               title="Bold"
             >
               <Bold size={16} />
-            </button>
-            <button
+            </ToolbarButton>
+            <ToolbarButton
               onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={`mr-1 rounded p-1 ${
-                editor.isActive("italic") ? "bg-gray-200" : "hover:bg-gray-200"
-              }`}
+              isActive={editor.isActive("italic")}
               title="Italic"
             >
               <Italic size={16} />
-            </button>
+            </ToolbarButton>
           </div>
 
           <div className="mr-2 flex">
-            <button
+            <ToolbarButton
               onClick={() =>
                 editor.chain().focus().toggleHeading({ level: 1 }).run()
               }
-              className={`mr-1 rounded p-1 ${
-                editor.isActive("heading", { level: 1 })
-                  ? "bg-gray-200"
-                  : "hover:bg-gray-200"
-              }`}
+              isActive={editor.isActive("heading", { level: 1 })}
               title="Heading 1"
             >
               <Heading1 size={16} />
-            </button>
-            <button
+            </ToolbarButton>
+            <ToolbarButton
               onClick={() =>
                 editor.chain().focus().toggleHeading({ level: 2 }).run()
               }
-              className={`mr-1 rounded p-1 ${
-                editor.isActive("heading", { level: 2 })
-                  ? "bg-gray-200"
-                  : "hover:bg-gray-200"
-              }`}
+              isActive={editor.isActive("heading", { level: 2 })}
               title="Heading 2"
             >
               <Heading2 size={16} />
-            </button>
+            </ToolbarButton>
           </div>
 
           <div className="mr-2 flex">
-            <button
+            <ToolbarButton
               onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={`mr-1 rounded p-1 ${
-                editor.isActive("bulletList")
-                  ? "bg-gray-200"
-                  : "hover:bg-gray-200"
-              }`}
+              isActive={editor.isActive("bulletList")}
               title="Bullet List"
             >
               <List size={16} />
-            </button>
-            <button
+            </ToolbarButton>
+            <ToolbarButton
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              className={`mr-1 rounded p-1 ${
-                editor.isActive("orderedList")
-                  ? "bg-gray-200"
-                  : "hover:bg-gray-200"
-              }`}
+              isActive={editor.isActive("orderedList")}
               title="Ordered List"
             >
               <ListOrdered size={16} />
-            </button>
+            </ToolbarButton>
           </div>
 
           <div className="mr-2 flex">
-            <button
+            <ToolbarButton
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
-              className={`mr-1 rounded p-1 ${
-                editor.isActive("blockquote")
-                  ? "bg-gray-200"
-                  : "hover:bg-gray-200"
-              }`}
+              isActive={editor.isActive("blockquote")}
               title="Quote"
             >
               <Quote size={16} />
-            </button>
-            <button
+            </ToolbarButton>
+            <ToolbarButton
               onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-              className={`mr-1 rounded p-1 ${
-                editor.isActive("codeBlock")
-                  ? "bg-gray-200"
-                  : "hover:bg-gray-200"
-              }`}
+              isActive={editor.isActive("codeBlock")}
               title="Code Block"
             >
               <Code size={16} />
-            </button>
-            <button
+            </ToolbarButton>
+            <ToolbarButton
               onClick={setLink}
-              className={`mr-1 rounded p-1 ${
-                editor.isActive("link") ? "bg-gray-200" : "hover:bg-gray-200"
-              }`}
+              isActive={editor.isActive("link")}
               title="Link"
             >
               <LinkIcon size={16} />
-            </button>
+            </ToolbarButton>
             <div className="mr-2 flex">
-              <button
+              <ToolbarButton
                 onClick={() => imageInputRef.current?.click()}
-                className="relative mr-1 rounded p-1 hover:bg-gray-200"
-                title="Upload Image"
                 disabled={isUploading}
+                title="Upload Image"
               >
                 <ImageIcon size={16} />
                 {isUploading && (
@@ -413,7 +472,7 @@ export default function RichTextEditor({
                     <div className="h-3 w-3 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
                   </div>
                 )}
-              </button>
+              </ToolbarButton>
               <input
                 ref={imageInputRef}
                 type="file"
@@ -426,22 +485,20 @@ export default function RichTextEditor({
           </div>
 
           <div className="flex">
-            <button
+            <ToolbarButton
               onClick={() => editor.chain().focus().undo().run()}
               disabled={!editor.can().undo()}
-              className="mr-1 rounded p-1 hover:bg-gray-200 disabled:opacity-50"
               title="Undo"
             >
               <Undo size={16} />
-            </button>
-            <button
+            </ToolbarButton>
+            <ToolbarButton
               onClick={() => editor.chain().focus().redo().run()}
               disabled={!editor.can().redo()}
-              className="rounded p-1 hover:bg-gray-200 disabled:opacity-50"
               title="Redo"
             >
               <Redo size={16} />
-            </button>
+            </ToolbarButton>
           </div>
         </div>
       )}
@@ -455,9 +512,9 @@ export default function RichTextEditor({
       >
         <EditorContent
           editor={editor}
-          className="prose prose-sm relative max-w-none p-2 [&_img]:mx-auto [&_img]:block [&_img]:max-h-[500px] [&_img]:object-contain"
+          className="prose prose-sm relative max-w-none p-2 [&_img]:inline-block [&_img]:max-h-[500px] [&_img]:object-contain"
         />
-        {isDragging && (
+        {isExternalDragging && (
           <div className="absolute inset-0 flex items-center justify-center bg-blue-50/80 backdrop-blur-sm transition-opacity duration-200">
             <div className="rounded-lg border-2 border-dashed border-blue-500 bg-white p-8 text-center shadow-lg">
               <div className="relative">
@@ -496,20 +553,12 @@ export default function RichTextEditor({
               transform: "translate(-50%, -50%)",
             }}
           >
-            <button
-              onClick={toggleImageSize}
-              className="rounded p-1 hover:bg-gray-100"
-              title="Toggle image size"
-            >
+            <ToolbarButton onClick={toggleImageSize} title="Toggle image size">
               <Maximize2 size={16} />
-            </button>
-            <button
-              onClick={deleteImage}
-              className="rounded p-1 text-red-500 hover:bg-gray-100"
-              title="Delete image"
-            >
-              <Trash2 size={16} />
-            </button>
+            </ToolbarButton>
+            <ToolbarButton onClick={deleteImage} title="Delete image">
+              <Trash2 size={16} className="text-red-500" />
+            </ToolbarButton>
           </div>
         )}
       </div>
