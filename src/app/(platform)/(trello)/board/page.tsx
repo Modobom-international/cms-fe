@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 
-import { List } from "@/types/board";
+import { Card, List } from "@/types/board";
 
 import AddList from "@/components/board/AddList";
 import BoardList from "@/components/board/BoardList";
@@ -113,6 +113,38 @@ export default function BoardPage() {
     setLists(newLists);
   };
 
+  const handleUpdateCard = (listId: string, updatedCard: Card) => {
+    const newLists = lists.map((list) => {
+      if (list.id === listId) {
+        return {
+          ...list,
+          cards: list.cards.map((card) =>
+            card.id === updatedCard.id ? updatedCard : card
+          ),
+        };
+      }
+      return list;
+    });
+    setLists(newLists);
+  };
+
+  const handleDeleteCard = (listId: string, cardId: string) => {
+    const newLists = lists.map((list) => {
+      if (list.id === listId) {
+        return {
+          ...list,
+          cards: list.cards.filter((card) => card.id !== cardId),
+        };
+      }
+      return list;
+    });
+    setLists(newLists);
+  };
+
+  const handleDeleteList = (listId: string) => {
+    setLists(lists.filter((list) => list.id !== listId));
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <h1 className="mb-8 text-3xl font-bold">My Board</h1>
@@ -132,6 +164,9 @@ export default function BoardPage() {
                   onAddCard={(title, description) =>
                     handleAddCard(list.id, title, description)
                   }
+                  onUpdateCard={handleUpdateCard}
+                  onDeleteCard={handleDeleteCard}
+                  onDeleteList={handleDeleteList}
                 />
               ))}
               {provided.placeholder}
