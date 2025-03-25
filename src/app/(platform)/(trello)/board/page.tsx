@@ -15,7 +15,12 @@ export default function BoardPage() {
       id: "1",
       title: "To Do",
       cards: [
-        { id: "1", title: "Task 1", description: "Description 1" },
+        {
+          id: "1",
+          title: "Task 1",
+          description:
+            '<pre class="rounded bg-gray-100 p-2 font-mono text-sm my-2"><code class="language-javascript">import StarterKit from "@tiptap/starter-kit";\nimport css from "highlight.js/lib/languages/css";\nimport js from "highlight.js/lib/languages/javascript";\nimport json from "highlight.js/lib/languages/json";\nimport python from "highlight.js/lib/languages/python";\nimport ts from "highlight.js/lib/languages/typescript";\nimport html from "highlight.js/lib/languages/xml";</code></pre>',
+        },
         { id: "2", title: "Task 2", description: "Description 2" },
       ],
     },
