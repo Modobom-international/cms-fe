@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
+    style: "currency",
+    currency: "VND",
   }).format(amount);
 };

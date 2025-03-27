@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import StarterKit from "@tiptap/starter-kit";
 import { format } from "date-fns";
 import hljs from "highlight.js";
 import css from "highlight.js/lib/languages/css";
@@ -14,8 +13,6 @@ import html from "highlight.js/lib/languages/xml";
 import "highlight.js/styles/github.css";
 // Import highlight.js CSS for syntax highlighting
 import {
-  Calendar,
-  CheckSquare,
   Clock,
   Download,
   File,

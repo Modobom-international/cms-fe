@@ -33,7 +33,6 @@ import {
   List,
   ListOrdered,
   Maximize2,
-  Minimize2,
   Quote,
   Redo,
   Trash2,
@@ -594,4 +593,3 @@ export default function RichTextEditor({
     </div>
   );
 }
-
