@@ -1,21 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
-
 import { env } from "@/env";
 import StudioEditor from "@grapesjs/studio-sdk/react";
-import type { LoadResultProps } from "@grapesjs/studio-sdk/react";
 import "@grapesjs/studio-sdk/style";
 
 export default function WebBuilderStudio() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const saveToAPI = async (project: any) => {
     try {
-      setIsLoading(true);
-      setError(null);
-
       // Simulate network delay (for demo purposes)
       await new Promise((res) => setTimeout(res, 1000));
 
@@ -38,18 +29,13 @@ export default function WebBuilderStudio() {
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to save project";
-      setError(errorMessage);
+
       throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const loadFromAPI = async () => {
     try {
-      setIsLoading(true);
-      setError(null);
-
       // Simulate network delay (for demo purposes)
       await new Promise((res) => setTimeout(res, 1000));
 
@@ -66,28 +52,13 @@ export default function WebBuilderStudio() {
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to load project";
-      setError(errorMessage);
+
       throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
     <div className="relative h-screen w-screen">
-      {error && (
-        <div className="absolute top-2 right-2 z-50 rounded-md bg-red-600 p-3 text-white shadow-lg">
-          {error}
-          <button className="ml-2 font-bold" onClick={() => setError(null)}>
-            ×
-          </button>
-        </div>
-      )}
-      {isLoading && (
-        <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/50">
-          <div className="rounded-md bg-white p-4 shadow-lg">Loading...</div>
-        </div>
-      )}
       <StudioEditor
         options={{
           licenseKey: env.NEXT_PUBLIC_BACKEND_URL,
@@ -95,10 +66,12 @@ export default function WebBuilderStudio() {
             type: "self",
             autosaveChanges: 5, // save after every 5 changes
 
-            onSave: async ({ project }) => {
+            onSave: async ({ project, editor }) => {
               try {
-                await saveToAPI(project);
+                // await saveToAPI(project);
                 console.log("Project saved", { project });
+                console.log(">>>>>>>CSS", editor.getCss());
+                console.log(">>>>>>>HTML", editor.getHtml());
               } catch (error) {
                 console.error("Failed to save project:", error);
               }
@@ -116,7 +89,7 @@ export default function WebBuilderStudio() {
                       { name: "Home", component: "<h1>New project</h1>" },
                     ],
                   },
-                } as LoadResultProps;
+                };
               } catch (error) {
                 console.error("Failed to load project:", error);
                 // Return fallback project instead of null
@@ -131,21 +104,18 @@ export default function WebBuilderStudio() {
                       { name: "Contact", component: "<h1>Contact page</h1>" },
                     ],
                   },
-                } as LoadResultProps;
+                };
               }
             },
           },
           project: {
             type: "web",
-            // Default acts as fallback project, in case the load fails
             default: {
               pages: [
                 {
                   name: "Home",
                   component: "<h1>Fallback Project, reload to retry</h1>",
                 },
-                { name: "About", component: "<h1>About page</h1>" },
-                { name: "Contact", component: "<h1>Contact page</h1>" },
               ],
             },
           },
@@ -154,4 +124,3 @@ export default function WebBuilderStudio() {
     </div>
   );
 }
-
