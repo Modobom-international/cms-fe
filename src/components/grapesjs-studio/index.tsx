@@ -148,7 +148,7 @@ export default function WebBuilderStudio() {
     <div className="relative h-screen w-screen">
       <StudioEditor
         options={{
-          licenseKey: env.NEXT_PUBLIC_BACKEND_URL,
+          licenseKey: env.NEXT_PUBLIC_GRAPESJS_LICENSE_KEY,
           storage: {
             type: "self",
             autosaveChanges: 5, // save after every 5 changes
