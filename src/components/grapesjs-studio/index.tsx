@@ -6,6 +6,8 @@ import { env } from "@/env";
 import StudioEditor from "@grapesjs/studio-sdk/react";
 import "@grapesjs/studio-sdk/style";
 
+import { deleteAssets, loadAssets, uploadAssets } from "./actions/upload";
+
 interface WebBuilderStudioProps {
   slug: string;
 }
@@ -271,7 +273,7 @@ export default function WebBuilderStudio({ slug }: WebBuilderStudioProps) {
 
       <StudioEditor
         options={{
-          licenseKey: env.NEXT_PUBLIC_GRAPESJS_LICENSE_KEY,
+          licenseKey: env.NEXT_PUBLIC_BACKEND_URL,
           storage: {
             type: "self",
             autosaveChanges: 5, // save after every 5 changes
@@ -332,9 +334,86 @@ export default function WebBuilderStudio({ slug }: WebBuilderStudioProps) {
             },
           },
           plugins: [exportButtonPlugin],
+          assets: {
+            storageType: "self",
+            onUpload: async ({ files, editor }) => {
+              try {
+                // Display uploading status
+                setSaveStatus({ message: "Uploading assets...", type: "info" });
+                setIsSaving(true);
+
+                // Use our firebase upload function
+                const uploadedAssets = await uploadAssets({ files, editor });
+
+                setSaveStatus({
+                  message: "Assets uploaded successfully!",
+                  type: "success",
+                });
+
+                // Clear success message after 3 seconds
+                setTimeout(() => {
+                  setSaveStatus({ message: "", type: null });
+                }, 3000);
+
+                return uploadedAssets;
+              } catch (error) {
+                const errorMessage =
+                  error instanceof Error
+                    ? error.message
+                    : "Failed to upload assets";
+                setSaveStatus({
+                  message: `Error uploading assets: ${errorMessage}`,
+                  type: "error",
+                });
+                throw error;
+              } finally {
+                setIsSaving(false);
+              }
+            },
+            onDelete: async ({ assets, editor }) => {
+              try {
+                // Display deleting status
+                setSaveStatus({ message: "Deleting assets...", type: "info" });
+                setIsSaving(true);
+
+                // Use our firebase delete function
+                await deleteAssets({ assets, editor });
+
+                setSaveStatus({
+                  message: "Assets deleted successfully!",
+                  type: "success",
+                });
+
+                // Clear success message after 3 seconds
+                setTimeout(() => {
+                  setSaveStatus({ message: "", type: null });
+                }, 3000);
+              } catch (error) {
+                const errorMessage =
+                  error instanceof Error
+                    ? error.message
+                    : "Failed to delete assets";
+                setSaveStatus({
+                  message: `Error deleting assets: ${errorMessage}`,
+                  type: "error",
+                });
+                throw error;
+              } finally {
+                setIsSaving(false);
+              }
+            },
+            onLoad: async ({ editor }) => {
+              try {
+                // Use our firebase load function
+                return await loadAssets({ editor });
+              } catch (error) {
+                console.error("Error loading assets from Firebase:", error);
+                return [];
+              }
+            },
+          },
         }}
       />
     </div>
   );
 }
-

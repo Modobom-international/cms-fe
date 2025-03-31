@@ -2,14 +2,12 @@ import React from "react";
 
 import WebBuilderStudio from "@/components/grapesjs-studio";
 
-interface PageProps {
-  params: {
-    slug: string;
-  };
-}
-
-export default function Page({ params }: PageProps) {
-  const { slug } = params;
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
 
   return (
     <div className="h-screen w-screen">
