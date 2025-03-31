@@ -6,13 +6,16 @@ import Image from "next/image";
 import Link from "next/link";
 
 import {
+  Activity,
+  Code,
   Frame,
+  Globe,
+  LayoutDashboard,
   LifeBuoy,
   Map,
   PieChart,
   Send,
-  SquareTerminal,
-  User,
+  Users,
 } from "lucide-react";
 
 import {
@@ -35,48 +38,50 @@ const data = {
   },
   navMain: [
     {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
+      title: "Dashboard",
+      url: "/admin",
+      icon: LayoutDashboard,
       isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
     },
-
     {
-      title: "Users & Teams",
-      url: "#",
-      icon: User,
-      items: [
-        {
-          title: "Users List",
-          url: "#",
-        },
-        {
-          title: "Create new user",
-          url: "#",
-        },
-        {
-          title: "Teams List",
-          url: "#",
-        },
-        {
-          title: "Create new team",
-          url: "#",
-        },
-      ],
+      title: "Domain",
+      url: "/admin/domains",
+      icon: Globe,
+    },
+    {
+      title: "HTML Source",
+      url: "/admin/html-source",
+      icon: Code,
+    },
+    {
+      title: "Log Behavior",
+      url: "/admin/log-behavior",
+      icon: Activity,
+    },
+    {
+      title: "Push System",
+      url: "/admin/push-system",
+      icon: Send,
+    },
+    {
+      title: "Teams",
+      url: "/admin/teams",
+      icon: Users,
+    },
+    {
+      title: "Users",
+      url: "/admin/users",
+      icon: Users,
+    },
+    {
+      title: "Studio",
+      url: "/studio",
+      icon: Frame,
+    },
+    {
+      title: "Board",
+      url: "/trello",
+      icon: Map,
     },
   ],
   navSecondary: [
