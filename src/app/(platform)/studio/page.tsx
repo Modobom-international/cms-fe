@@ -1,11 +1,6 @@
-import React from "react";
-
-import WebBuilderStudio from "@/components/grapesjs-studio";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return (
-    <div className="h-screen w-screen">
-      <WebBuilderStudio />
-    </div>
-  );
+  // Redirect to a default page
+  redirect("/studio/home");
 }
