@@ -1,87 +1,28 @@
 "use client";
 
-import Link from "next/link";
-
 import {
   Activity,
   AlertTriangle,
   ArrowUpRight,
-  BellRing,
   CheckCircle,
   ChevronRight,
-  Code,
   Home,
   Info,
+  Plus,
   TrendingUp,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
-// Sample data for charts and tables
-const systemMetricsData = [
-  { time: "00:00", cpu: 42, memory: 65, requests: 120, errors: 2 },
-  { time: "04:00", cpu: 38, memory: 59, requests: 80, errors: 1 },
-  { time: "08:00", cpu: 65, memory: 72, requests: 340, errors: 4 },
-  { time: "12:00", cpu: 89, memory: 85, requests: 580, errors: 12 },
-  { time: "16:00", cpu: 72, memory: 79, requests: 460, errors: 8 },
-  { time: "20:00", cpu: 56, memory: 68, requests: 220, errors: 3 },
-  { time: "24:00", cpu: 45, memory: 62, requests: 140, errors: 2 },
-];
-
-const logEventsData = [
-  {
-    id: "LOG001",
-    source: "Push System",
-    level: "error",
-    message: "Failed to deliver notification to device: TOKEN_EXPIRED",
-    timestamp: "2023-05-20 14:32:15",
-  },
-  {
-    id: "LOG002",
-    source: "HTML Source",
-    level: "warn",
-    message: "Resource loading timeout for domain example.com",
-    timestamp: "2023-05-20 15:45:22",
-  },
-  {
-    id: "LOG003",
-    source: "Domain Service",
-    level: "info",
-    message: "Domain registration renewed: client-domain.com",
-    timestamp: "2023-05-21 09:12:45",
-  },
-  {
-    id: "LOG004",
-    source: "User Service",
-    level: "error",
-    message: "Authentication failed multiple times for user ID: 28456",
-    timestamp: "2023-05-22 18:02:37",
-  },
-  {
-    id: "LOG005",
-    source: "Push System",
-    level: "info",
-    message: "Batch notification successfully delivered to 12,543 devices",
-    timestamp: "2023-05-24 11:24:18",
-  },
-];
+import CalendarSample from "@/components/calendar/calendar-sample";
 
 const statusData = [
   {
@@ -140,27 +81,19 @@ export default function AdminDashboard() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/admin/logs"
-              className={buttonVariants({
-                variant: "outline",
-                size: "sm",
-              })}
-            >
+            <Button size="sm" variant="outline">
               Xem nhật ký
-            </Link>
-            <Link
-              href="/admin/alerts"
-              className={buttonVariants({
-                variant: "default",
-                size: "sm",
-              })}
-            >
-              <BellRing className="mr-2 h-4 w-4" />
-              Cảnh báo (2)
-            </Link>
+            </Button>
+            <Button size="sm">
+              <Plus className="mr-2 h-4 w-4" />
+              Thêm widget
+            </Button>
           </div>
         </div>
+      </div>
+
+      <div>
+        <CalendarSample />
       </div>
 
       {/* System Status Overview */}
@@ -305,77 +238,6 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Recent Logs */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Code className="text-primary mr-2 h-5 w-5" />
-            Sự kiện nhật ký gần đây
-          </CardTitle>
-          <CardDescription>
-            Các sự kiện hệ thống quan trọng gần đây nhất
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Nguồn</TableHead>
-                <TableHead>Mức độ</TableHead>
-                <TableHead>Thông báo</TableHead>
-                <TableHead className="text-right">Thời gian</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {logEventsData.map((log) => (
-                <TableRow key={log.id}>
-                  <TableCell className="font-medium">{log.id}</TableCell>
-                  <TableCell>{log.source}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        log.level === "error"
-                          ? "destructive"
-                          : log.level === "warn"
-                            ? "outline"
-                            : "default"
-                      }
-                      className={
-                        log.level === "info"
-                          ? "bg-blue-500 hover:bg-blue-600"
-                          : ""
-                      }
-                    >
-                      {log.level === "error"
-                        ? "Lỗi"
-                        : log.level === "warn"
-                          ? "Cảnh báo"
-                          : "Thông tin"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="max-w-md truncate">
-                    {log.message}
-                  </TableCell>
-                  <TableCell className="text-right">{log.timestamp}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-        <CardFooter className="flex items-center justify-center">
-          <Link
-            href="/admin/logs"
-            className={buttonVariants({
-              variant: "outline",
-              size: "sm",
-            })}
-          >
-            Xem tất cả nhật ký
-          </Link>
-        </CardFooter>
-      </Card>
     </div>
   );
 }
