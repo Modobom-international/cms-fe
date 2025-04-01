@@ -5,10 +5,8 @@ import { useEffect, useMemo, useRef } from "react";
 import { format, isSameDay } from "date-fns";
 import { XIcon } from "lucide-react";
 
-import {
-  type CalendarEvent,
-  EventItem,
-} from "@/components/calendar/event-calendar";
+import { EventItem } from "@/components/calendar/event-item";
+import { CalendarEvent } from "@/components/calendar/types";
 
 interface EventsPopupProps {
   date: Date;

@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import { Calendar, Settings2Icon, SidebarIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -20,27 +18,6 @@ import NotificationsButton from "@/components/notifications";
 
 export function SiteHeader() {
   const { toggleSidebar } = useSidebar();
-  const [currentMonth, setCurrentMonth] = useState(
-    new Date().toLocaleString("default", { month: "long", year: "numeric" })
-  );
-
-  const handlePrevMonth = () => {
-    // This would normally update the calendar view
-    const date = new Date();
-    date.setMonth(date.getMonth() - 1);
-    setCurrentMonth(
-      date.toLocaleString("default", { month: "long", year: "numeric" })
-    );
-  };
-
-  const handleNextMonth = () => {
-    // This would normally update the calendar view
-    const date = new Date();
-    date.setMonth(date.getMonth() + 1);
-    setCurrentMonth(
-      date.toLocaleString("default", { month: "long", year: "numeric" })
-    );
-  };
 
   return (
     <header className="bg-background sticky top-0 z-50 flex w-full items-center border-b">
