@@ -1,6 +1,7 @@
 import { Plus_Jakarta_Sans as JakartaSans } from "next/font/google";
 
 import { constructMetadata } from "@/configs/site.config";
+import AuthProvider from "@/providers/auth-provider";
 import { ReactQueryClientProvider } from "@/providers/react-query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { NextIntlClientProvider } from "next-intl";
@@ -36,22 +37,24 @@ export default async function RootLayout({
       <body className={cn(jakarta.variable, "font-jakarta antialiased")}>
         <ReactQueryClientProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="light"
-              enableSystem
-              disableTransitionOnChange
-              enableColorScheme
-            >
-              <NextTopLoader height={4} color="#7c3aed" showSpinner={false} />
-              <NuqsAdapter>
-                <Toaster />
-                <main className="bg-background relative flex min-h-svh flex-col">
-                  {children}
-                  <ScrollToTop />
-                </main>
-              </NuqsAdapter>
-            </ThemeProvider>
+            <AuthProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="light"
+                enableSystem
+                disableTransitionOnChange
+                enableColorScheme
+              >
+                <NextTopLoader height={4} color="#7c3aed" showSpinner={false} />
+                <NuqsAdapter>
+                  <Toaster />
+                  <main className="bg-background relative flex min-h-svh flex-col">
+                    {children}
+                    <ScrollToTop />
+                  </main>
+                </NuqsAdapter>
+              </ThemeProvider>
+            </AuthProvider>
           </NextIntlClientProvider>
         </ReactQueryClientProvider>
       </body>
