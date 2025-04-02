@@ -120,8 +120,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
         loginForm.reset();
 
-        toast.success("Success", {
-          description: "Login  ",
+        toast.success("Login Successful", {
+          description: "You have been successfully logged in",
         });
       } else {
         toast.error("Failed", {
@@ -139,8 +139,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       if (callbackUrl) {
         router.push(callbackUrl);
       } else {
-        const { role } = res.data;
-        if (role === UserRoleEnum.ADMIN) {
+        const { type_user } = res.data;
+        if (type_user === UserRoleEnum.ADMIN) {
           router.push("/admin");
         }
       }

@@ -1,3 +1,4 @@
+import { useAuth } from "@/providers/auth-provider";
 import {
   BoltIcon,
   ChevronDownIcon,
@@ -18,6 +19,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function AvatarButton() {
+  const { logout, isLoggingOut } = useAuth();
+
   return (
     <DropdownMenu dir="ltr">
       <DropdownMenuTrigger asChild>
@@ -60,7 +63,7 @@ export default function AvatarButton() {
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={logout}>
           <LogOutIcon size={16} className="opacity-60" aria-hidden="true" />
           <span>Logout</span>
         </DropdownMenuItem>
