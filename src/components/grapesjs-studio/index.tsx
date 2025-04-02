@@ -24,16 +24,20 @@ export default function WebBuilderStudio({ slug }: WebBuilderStudioProps) {
       setIsSaving(true);
       setSaveStatus({ message: "Saving...", type: "info" });
 
-      const response = await fetch(`${env.NEXT_PUBLIC_BACKEND_URL}/api/update-page`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          slug: slug,
-          content: JSON.stringify(project),
-        }),
-      });
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_BACKEND_URL}/api/update-page`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            slug: slug,
+            content: JSON.stringify(project),
+          }),
+        }
+      );
 
       if (!response.ok) {
         // If the page doesn't exist yet (404), create it instead
@@ -73,18 +77,22 @@ export default function WebBuilderStudio({ slug }: WebBuilderStudioProps) {
       console.log(`Page ${slug} doesn't exist, creating it now.`);
       setSaveStatus({ message: "Creating new page...", type: "info" });
 
-      const response = await fetch("${env.NEXT_PUBLIC_BACKEND_URL}/api/create-page", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          site_id: 1,
-          name: slug,
-          slug: slug,
-          content: JSON.stringify(project),
-        }),
-      });
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_BACKEND_URL}/api/create-page`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            site_id: 1,
+            name: slug,
+            slug: slug,
+            content: JSON.stringify(project),
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
@@ -120,7 +128,15 @@ export default function WebBuilderStudio({ slug }: WebBuilderStudioProps) {
       // Simulate network delay (for demo purposes)
       await new Promise((res) => setTimeout(res, 1000));
 
-      const response = await fetch(`${env.NEXT_PUBLIC_BACKEND_URL}/api/page/${slug}`);
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_BACKEND_URL}/api/page/${slug}`,
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
@@ -165,10 +181,16 @@ export default function WebBuilderStudio({ slug }: WebBuilderStudioProps) {
       formData.append("html_file", htmlBlob, "page.html");
       formData.append("slug", slug);
 
-      const response = await fetch(`${env.NEXT_PUBLIC_BACKEND_URL}/api/export-pages`, {
-        method: "POST",
-        body: formData, // Send as FormData instead of JSON
-      });
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_BACKEND_URL}/api/export-pages`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+          },
+          body: formData, // Send as FormData instead of JSON
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Export failed: ${response.status}`);
