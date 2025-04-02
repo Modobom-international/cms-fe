@@ -17,14 +17,56 @@ export default function ManagePages() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newPageSlug, setNewPageSlug] = useState("");
+  const [deployLoading, setDeployLoading] = useState<number | null>(null);
   const router = useRouter();
+
+  // Handle deployment
+  const handleDeploy = async (pageId: number, slug: string) => {
+    try {
+      setDeployLoading(pageId);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/cloudflare/deploy-exports`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            project_name: "test1234",
+            directory: `${slug}`,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Deploy failed: ${response.status}`);
+      }
+
+      // Show success message or handle response as needed
+      alert("Deployment successful!");
+    } catch (err) {
+      console.error("Failed to deploy:", err);
+      setError("Failed to deploy. Please try again later.");
+    } finally {
+      setDeployLoading(null);
+    }
+  };
 
   // Load all pages
   useEffect(() => {
     const fetchPages = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://127.0.0.1:8000/api/pages");
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/pages`,
+          {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
@@ -64,18 +106,22 @@ export default function ManagePages() {
         ],
       };
 
-      const response = await fetch("http://127.0.0.1:8000/api/create-page", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          site_id: 1,
-          name: newPageSlug,
-          slug: newPageSlug,
-          content: JSON.stringify(defaultProject),
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/create-page`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            site_id: 1,
+            name: newPageSlug,
+            slug: newPageSlug,
+            content: JSON.stringify(defaultProject),
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
@@ -172,6 +218,15 @@ export default function ManagePages() {
                         >
                           Preview
                         </Link>
+                        <button
+                          onClick={() => handleDeploy(page.id, page.slug)}
+                          disabled={deployLoading === page.id}
+                          className="rounded bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-700 disabled:bg-green-400"
+                        >
+                          {deployLoading === page.id
+                            ? "Deploying..."
+                            : "Deploy"}
+                        </button>
                       </div>
                     </td>
                   </tr>
