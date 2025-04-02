@@ -11,7 +11,13 @@ export interface ILoginRes {
 
 export interface ILoginErrorRes {
   success: false;
-
   message: string;
   type: "email_or_password_incorrect" | "unknown";
+}
+
+export interface IMeRes {
+  success: true;
+  data: IUser;
+  message: string;
+  type: "data_user_success";
 }

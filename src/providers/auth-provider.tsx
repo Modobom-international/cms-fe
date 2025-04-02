@@ -16,7 +16,7 @@ import { useTranslations } from "next-intl";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 
-import { ILoginErrorRes, ILoginRes } from "@/types/auth.type";
+import { ILoginErrorRes, ILoginRes, IMeRes } from "@/types/auth.type";
 import { IUser } from "@/types/user.type";
 
 import apiClient from "@/lib/api/client";
@@ -48,10 +48,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     queryKey: authQueryKeys.me(),
     queryFn: async () => {
       try {
-        const { data } = await apiClient.get<IBackendRes<IUser>>(
-          "/api/affiliate-network/users/me"
-        );
-        return data.value;
+        const { data } = await apiClient.get<IMeRes>("/api/me");
+        return data.data;
       } catch {
         return null;
       }
@@ -64,7 +62,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     mutationKey: authQueryKeys.logout(),
     mutationFn: async () => {
       try {
-        const data = await apiClient.post<IBackendRes<void>>("/auth/logout");
+        const data = await apiClient.post<IBackendRes<void>>("/api/logout");
         return data;
       } catch (error) {
         const errRes =
