@@ -6,16 +6,20 @@ import Image from "next/image";
 import Link from "next/link";
 
 import {
-  Activity,
-  Code,
-  Frame,
-  Globe,
-  LayoutDashboard,
-  LifeBuoy,
-  Map,
-  PieChart,
-  Send,
-  Users,
+  ActivitySquare,
+  Bell,
+  Building2,
+  Construction,
+  CreditCard,
+  GanttChartSquare,
+  HeartHandshake,
+  LayoutGrid,
+  MessagesSquare,
+  Network,
+  PenTool,
+  Terminal,
+  User,
+  Workflow,
 } from "lucide-react";
 
 import {
@@ -40,77 +44,77 @@ const data = {
     {
       title: "Dashboard",
       url: "/admin",
-      icon: LayoutDashboard,
+      icon: LayoutGrid,
       isActive: true,
     },
     {
       title: "Domain",
       url: "/admin/domains",
-      icon: Globe,
+      icon: Network,
     },
     {
       title: "HTML Source",
       url: "/admin/html-source",
-      icon: Code,
+      icon: Terminal,
     },
     {
       title: "Log Behavior",
       url: "/admin/log-behavior",
-      icon: Activity,
+      icon: ActivitySquare,
     },
     {
       title: "Push System",
       url: "/admin/push-system",
-      icon: Send,
+      icon: Bell,
     },
     {
       title: "Teams",
       url: "/admin/teams",
-      icon: Users,
+      icon: Building2,
     },
     {
       title: "Users",
       url: "/admin/users",
-      icon: Users,
+      icon: User,
     },
     {
       title: "Studio",
       url: "/studio",
-      icon: Frame,
+      icon: PenTool,
     },
     {
       title: "Board",
       url: "/trello",
-      icon: Map,
+      icon: GanttChartSquare,
     },
   ],
   navSecondary: [
     {
       title: "Support",
       url: "#",
-      icon: LifeBuoy,
+      icon: HeartHandshake,
     },
     {
       title: "Feedback",
       url: "#",
-      icon: Send,
+      icon: MessagesSquare,
     },
   ],
   projects: [
     {
       name: "Design Engineering",
       url: "#",
-      icon: Frame,
+      icon: Construction,
     },
     {
       name: "Sales & Marketing",
       url: "#",
-      icon: PieChart,
+      icon: CreditCard,
     },
     {
       name: "Travel",
       url: "#",
-      icon: Map,
+      icon: Workflow,
     },
   ],
 };

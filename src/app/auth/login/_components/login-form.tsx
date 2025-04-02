@@ -1,11 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
-import { ILoginForm, LoginFormSchema } from "@/validations/auth.validation";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useAuth } from "@/providers/auth-provider";
 import { useTranslations } from "next-intl";
-import { useForm } from "react-hook-form";
 
 import { cn } from "@/lib/utils";
 
@@ -34,21 +30,7 @@ export function LoginForm({
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const t = useTranslations("LoginPage");
-  const router = useRouter();
-
-  const form = useForm<ILoginForm>({
-    resolver: zodResolver(LoginFormSchema(t)),
-    defaultValues: {
-      email: "",
-      password: "",
-      remember: false,
-    },
-  });
-
-  const onSubmit = async (data: ILoginForm) => {
-    console.log(data);
-    router.push("/admin");
-  };
+  const { login, isLoggingIn, loginForm } = useAuth();
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -58,12 +40,12 @@ export function LoginForm({
           <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+          <Form {...loginForm}>
+            <form onSubmit={loginForm.handleSubmit((data) => login(data))}>
               <div className="grid gap-6">
                 <div className="grid gap-6">
                   <FormField
-                    control={form.control}
+                    control={loginForm.control}
                     name="email"
                     render={({ field }) => (
                       <FormItem className="grid gap-2">
@@ -81,7 +63,7 @@ export function LoginForm({
                     )}
                   />
                   <FormField
-                    control={form.control}
+                    control={loginForm.control}
                     name="password"
                     render={({ field }) => (
                       <FormItem className="grid gap-2">
@@ -108,7 +90,11 @@ export function LoginForm({
                       Remember me
                     </Label>
                   </div>
-                  <Button type="submit" className="w-full">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isLoggingIn}
+                  >
                     Login
                   </Button>
                 </div>

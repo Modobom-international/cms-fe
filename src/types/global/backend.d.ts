@@ -19,9 +19,9 @@ declare global {
 
   interface IBackendErrorRes {
     success: false;
-    statusCode: number;
+
     message: string;
-    details: string;
+    type: string;
   }
 
   interface IValidationErrors {
