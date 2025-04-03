@@ -190,5 +190,11 @@
                 "deleteAccount": "Delete Account"
             }
         }
+    },
+    "EmptyTable": {
+        "title": "No data available",
+        "description": "No data found that matches your current filters.",
+        "refreshButton": "Refresh",
+        "viewReportsButton": "View saved reports"
     }
 }

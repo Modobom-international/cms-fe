@@ -190,5 +190,11 @@
         "deleteAccount": "Xóa tài khoản"
       }
     }
+  },
+  "EmptyTable": {
+    "title": "Không có dữ liệu",
+    "description": "Không tìm thấy dữ liệu nào phù hợp với bộ lọc hiện tại.",
+    "refreshButton": "Làm mới",
+    "viewReportsButton": "Xem báo cáo đã lưu"
   }
 }
