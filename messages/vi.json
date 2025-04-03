@@ -196,5 +196,45 @@
     "description": "Không tìm thấy dữ liệu nào phù hợp với bộ lọc hiện tại.",
     "refreshButton": "Làm mới",
     "viewReportsButton": "Xem báo cáo đã lưu"
+  },
+  "UserTrackingPage": {
+    "title": "Theo dõi người dùng",
+    "description": "Quản lý và theo dõi dữ liệu người dùng từ các ứng dụng khác nhau",
+    "breadcrumb": "Theo dõi người dùng",
+    "table": {
+      "filters": {
+        "selectDomain": "Chọn tên miền",
+        "datePicker": "Chọn ngày",
+        "search": "Tìm kiếm",
+        "viewHeatmap": "Xem bản đồ nhiệt"
+      },
+      "columns": {
+        "id": "ID",
+        "timestamp": "Thời gian cuối cùng",
+        "ip": "Địa chỉ IP",
+        "device": "Thiết bị",
+        "actions": "Hành động"
+      },
+      "pagination": {
+        "rowsPerPage": "Số dòng mỗi trang",
+        "of": "trong số",
+        "firstPage": "Đến trang đầu tiên",
+        "previousPage": "Đến trang trước",
+        "nextPage": "Đến trang tiếp theo",
+        "lastPage": "Đến trang cuối cùng"
+      },
+      "actions": {
+        "details": "Chi tiết"
+      },
+      "deviceTypes": {
+        "mobile": "Di động",
+        "tablet": "Máy tính bảng",
+        "desktop": "Máy tính để bàn"
+      },
+      "placeholders": {
+        "selectDomain": "Chọn tên miền",
+        "selectResults": "Chọn số kết quả hiển thị"
+      }
+    }
   }
 }
