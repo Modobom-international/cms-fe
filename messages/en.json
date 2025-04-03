@@ -190,5 +190,51 @@
                 "deleteAccount": "Delete Account"
             }
         }
+    },
+    "EmptyTable": {
+        "title": "No data available",
+        "description": "No data found that matches your current filters.",
+        "refreshButton": "Refresh",
+        "viewReportsButton": "View saved reports"
+    },
+    "UserTrackingPage": {
+        "title": "User Tracking",
+        "description": "Manage and monitor user tracking data from various applications",
+        "breadcrumb": "User Tracking",
+        "table": {
+            "filters": {
+                "selectDomain": "Select domain",
+                "datePicker": "Date picker",
+                "search": "Search",
+                "viewHeatmap": "View heatmap"
+            },
+            "columns": {
+                "id": "ID",
+                "timestamp": "Last timestamp",
+                "ip": "IP Address",
+                "device": "Device",
+                "actions": "Actions"
+            },
+            "pagination": {
+                "rowsPerPage": "Rows per page",
+                "of": "of",
+                "firstPage": "Go to first page",
+                "previousPage": "Go to previous page",
+                "nextPage": "Go to next page",
+                "lastPage": "Go to last page"
+            },
+            "actions": {
+                "details": "Details"
+            },
+            "deviceTypes": {
+                "mobile": "Mobile",
+                "tablet": "Tablet",
+                "desktop": "Desktop"
+            },
+            "placeholders": {
+                "selectDomain": "Select domain",
+                "selectResults": "Select number of results"
+            }
+        }
     }
 }

@@ -40,12 +40,8 @@ export function SiteHeader() {
           <div className="flex items-center gap-1">
             <Popover>
               <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative h-9 w-9"
-                >
-                  <Calendar className="text-muted-foreground h-[18px] w-[18px]" />
+                <Button variant="ghost" size="icon" className="relative">
+                  <Calendar size={16} aria-hidden="true" />
                   <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium">
                     3
                   </span>
@@ -95,4 +91,3 @@ export function SiteHeader() {
     </header>
   );
 }
-
