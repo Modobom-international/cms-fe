@@ -1,6 +1,7 @@
+/* eslint-disable unused-imports/no-unused-vars */
 "use client";
 
-import { CSSProperties, useEffect, useState } from "react";
+import { CSSProperties, useState } from "react";
 
 import {
   Column,
@@ -40,6 +41,8 @@ import {
 } from "@/components/ui/table";
 
 import { SearchBar } from "./search-bar";
+
+/* eslint-disable unused-imports/no-unused-vars */
 
 type LogBehaviorItem = {
   uid: string;
@@ -284,187 +287,6 @@ export default function LogBehaviorDataTable() {
       setGlobalFilter(values.total);
     }
   };
-
-  useEffect(() => {
-    // Example data based on the real output
-    setData([
-      {
-        uid: "18d5a78c-f496-49d6-b96f-9154bf1475b7",
-        app: "BlueLockBlazeBattle",
-        country: "Malaysia",
-        platform: "Tiktok",
-        network: "DiGi_50216",
-        timeutc: "1742378831021",
-        date: "2025-03-19 17:07:11",
-        behavior: {
-          INSTALL: "Update_File_V1 21/01/2025 - DEVICE: samsung-SM-A136B-14",
-          PERMISSION_SMS: "SUCCESS",
-          MyNotification: "2025-03-19 : 17:08:17 Start",
-          MyNotification_Digi: "2025-03-19 : 17:08:17 Start_Digi",
-          GET_MIN_DIGI: "https://apizep.modobomz.com/lpdigi/33980/ga _ GA",
-          LOAD_URL_WAP_1: "https://apizep.modobomz.com/lpdigi/33980/ga",
-          CHECK_3G:
-            'ON {"as":"AS4818 DiGi Telecommunications Sdn. Bhd.","city":"Kuala Lumpur","country":"Malaysia","countryCode":"MY","hosting":false,"isp":"DiGi Telecommunications Sdn Bhd., Digi Internet Exchange","lat":3.1203,"lon":101.6898,"mobile":true,"org":"DiGi Telecommunications Sdn Bhd","proxy":false,"region":"14","regionName":"Kuala Lumpur","status":"success","timezone":"Asia/Kuala_Lumpur","zip":"58100"}',
-          POST_URL_SUCCESS: '{"success":true,"message":"Save data success"}',
-          Click_requestTac:
-            "http://wap-cpa.digi.com.my/TransactionConfirm.jsp;jsessionid=2E572A5A64FACEAA76496C3F6EB6DD892",
-          CLICK_OK_DIALOG: "OK",
-          OnSmsReceived: "OK",
-          CONTENT_OTP_Digi_1:
-            "2025-03-19 : 17:07:32 RM0:Your TAC for ga service subscription is 3315(expires in 2mins).Please ignore if you did not request.",
-          SMS_RETRIEVED_ACTION: "FALSE",
-          fillNameOtp: "2025-03-19 : 17:07:35-9532",
-          CONTENT_OTP_Digi_2:
-            "2025-03-19 : 17:07:35 RM0:Your TAC for ga service subscription is 9532(expires in 2mins).Please ignore if you did not request.",
-          SUB_OK_Confirm_GA: "33980_GA",
-          CLICK_CONFIRM: "2025-03-19 : 17:07:48 confirmURL",
-        },
-      },
-      {
-        uid: "29f4b67d-e385-58c7-a9d3-8243ce2386a8",
-        app: "DragonBallLegends",
-        country: "Indonesia",
-        platform: "Facebook",
-        network: "Telkomsel_51010",
-        timeutc: "1742378845632",
-        date: "2025-03-19 17:15:23",
-        behavior: {
-          INSTALL: "Update_File_V2 22/01/2025 - DEVICE: xiaomi-Redmi-Note-12",
-          PERMISSION_SMS: "SUCCESS",
-          MyNotification: "2025-03-19 : 17:16:05 Start",
-          GET_MIN_TELKOMSEL: "https://apizep.modobomz.com/lptelkomsel/45123/fb",
-          CHECK_3G:
-            'ON {"as":"AS7713 PT Telekomunikasi Indonesia","city":"Jakarta","country":"Indonesia","countryCode":"ID","hosting":false,"mobile":true,"status":"success"}',
-          POST_URL_SUCCESS:
-            '{"success":true,"message":"Data saved successfully"}',
-          CLICK_OK_DIALOG: "OK",
-          SMS_RETRIEVED_ACTION: "TRUE",
-          SUB_OK_Confirm_FB: "45123_FB",
-        },
-      },
-      {
-        uid: "3ac5d89e-f274-69d8-b8e2-7132df349c9b",
-        app: "NarutoXBoruto",
-        country: "Vietnam",
-        platform: "Google",
-        network: "Viettel_45204",
-        timeutc: "1742378892145",
-        date: "2025-03-19 17:22:45",
-        behavior: {
-          INSTALL: "New_Install_V1 23/01/2025 - DEVICE: oppo-Reno8-5G",
-          PERMISSION_SMS: "SUCCESS",
-          MyNotification: "2025-03-19 : 17:23:12 Start",
-          GET_MIN_VIETTEL: "https://apizep.modobomz.com/lpviettel/56789/gg",
-          CHECK_3G:
-            'ON {"as":"AS45204 Viettel Group","city":"Hanoi","country":"Vietnam","countryCode":"VN","mobile":true,"status":"success"}',
-          CLICK_OK_DIALOG: "OK",
-          SMS_RETRIEVED_ACTION: "TRUE",
-          SUB_OK_Confirm_GG: "56789_GG",
-        },
-      },
-      {
-        uid: "4bd6e9af-g385-7ae9-c9f3-6021ef458d0c",
-        app: "OnePieceTC",
-        country: "Thailand",
-        platform: "Tiktok",
-        network: "AIS_52001",
-        timeutc: "1742378923478",
-        date: "2025-03-19 17:30:15",
-        behavior: {
-          INSTALL: "Update_File_V3 24/01/2025 - DEVICE: vivo-V25-Pro",
-          PERMISSION_SMS: "ERRO_PERMISSION_DENIED",
-          MyNotification: "2025-03-19 : 17:31:02 Start",
-          GET_MIN_AIS: "https://apizep.modobomz.com/lpais/67890/tt",
-          CHECK_3G:
-            'ON {"as":"AS52001 Advanced Info Service PCL.","city":"Bangkok","country":"Thailand","countryCode":"TH","mobile":true,"status":"success"}',
-          POST_URL_SUCCESS: '{"success":false,"message":"Permission denied"}',
-          CLICK_OK_DIALOG: "CANCEL",
-        },
-      },
-      {
-        uid: "5ce7f0bg-h496-8bf0-d0g4-4910fg567e1d",
-        app: "BleachBS",
-        country: "Philippines",
-        platform: "Facebook",
-        network: "Globe_51502",
-        timeutc: "1742378967890",
-        date: "2025-03-19 17:38:45",
-        behavior: {
-          INSTALL: "New_Install_V2 25/01/2025 - DEVICE: realme-GT-Neo-3",
-          PERMISSION_SMS: "SUCCESS",
-          MyNotification: "2025-03-19 : 17:39:22 Start",
-          GET_MIN_GLOBE: "https://apizep.modobomz.com/lpglobe/78901/fb",
-          CHECK_3G:
-            'ON {"as":"AS51502 Globe Telecom","city":"Manila","country":"Philippines","countryCode":"PH","mobile":true,"status":"success"}',
-          POST_URL_SUCCESS: '{"success":true,"message":"Save data success"}',
-          CLICK_OK_DIALOG: "OK",
-          SMS_RETRIEVED_ACTION: "TRUE",
-          SUB_OK_Confirm_FB: "78901_FB",
-        },
-      },
-      {
-        uid: "6df8g1ch-i507-9cg1-e1h5-5821gh678f2e",
-        app: "DragonQuestTact",
-        country: "Malaysia",
-        platform: "Google",
-        network: "Maxis_50212",
-        timeutc: "1742379012345",
-        date: "2025-03-19 17:45:12",
-        behavior: {
-          INSTALL: "Update_File_V2 26/01/2025 - DEVICE: samsung-S23-Ultra",
-          PERMISSION_SMS: "SUCCESS",
-          MyNotification: "2025-03-19 : 17:46:03 Start",
-          GET_MIN_MAXIS: "https://apizep.modobomz.com/lpmaxis/89012/gg",
-          CHECK_3G:
-            'ON {"as":"AS50212 Maxis Broadband","city":"Kuala Lumpur","country":"Malaysia","countryCode":"MY","mobile":true,"status":"success"}',
-          POST_URL_SUCCESS: '{"success":true,"message":"Save data success"}',
-          CLICK_OK_DIALOG: "OK",
-          SMS_RETRIEVED_ACTION: "TRUE",
-          SUB_OK_Confirm_GG: "89012_GG",
-        },
-      },
-      {
-        uid: "7eg9h2di-j618-0dh2-f2i6-6932hi789g3f",
-        app: "FateGrandOrder",
-        country: "Indonesia",
-        platform: "Tiktok",
-        network: "Indosat_51021",
-        timeutc: "1742379056789",
-        date: "2025-03-19 17:52:33",
-        behavior: {
-          INSTALL: "New_Install_V3 27/01/2025 - DEVICE: poco-F5-Pro",
-          PERMISSION_SMS: "SUCCESS",
-          MyNotification: "2025-03-19 : 17:53:15 Start",
-          GET_MIN_INDOSAT: "https://apizep.modobomz.com/lpindosat/90123/tt",
-          CHECK_3G:
-            'ON {"as":"AS51021 PT Indosat","city":"Jakarta","country":"Indonesia","countryCode":"ID","mobile":true,"status":"success"}',
-          POST_URL_SUCCESS: '{"success":true,"message":"Save data success"}',
-          CLICK_OK_DIALOG: "OK",
-          SMS_RETRIEVED_ACTION: "TRUE",
-          SUB_OK_Confirm_TT: "90123_TT",
-        },
-      },
-      {
-        uid: "8fh0i3ej-k729-1ei3-g3j7-7043ij890h4g",
-        app: "GenshinImpact",
-        country: "Vietnam",
-        platform: "Facebook",
-        network: "Mobifone_45201",
-        timeutc: "1742379098765",
-        date: "2025-03-19 17:59:58",
-        behavior: {
-          INSTALL: "Update_File_V1 28/01/2025 - DEVICE: oneplus-11R",
-          PERMISSION_SMS: "SAI_PERMISSION",
-          MyNotification: "2025-03-19 : 18:00:45 Start",
-          GET_MIN_MOBIFONE: "https://apizep.modobomz.com/lpmobifone/01234/fb",
-          CHECK_3G:
-            'ON {"as":"AS45201 Mobifone Corporation","city":"Ho Chi Minh","country":"Vietnam","countryCode":"VN","mobile":true,"status":"success"}',
-          POST_URL_SUCCESS: '{"success":false,"message":"Invalid permission"}',
-          CLICK_OK_DIALOG: "CANCEL",
-        },
-      },
-    ]);
-  }, []);
 
   const table = useReactTable({
     data,

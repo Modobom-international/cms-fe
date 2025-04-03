@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, useEffect, useState } from "react";
+import { CSSProperties, useState } from "react";
 
 import {
   Column,
@@ -163,63 +163,6 @@ export default function TeamsDataTable() {
       desc: false,
     },
   ]);
-
-  useEffect(() => {
-    // For demonstration, using static data instead of fetching
-    setData([
-      {
-        id: "1",
-        name: "HR Team",
-        permissions: [
-          "push-system",
-          "log-behavior",
-          "users",
-          "domain",
-          "html-source",
-          "users-tracking",
-          "team",
-        ],
-        created_at: "2024-04-01",
-        updated_at: "2024-04-01",
-      },
-      {
-        id: "2",
-        name: "Development Team",
-        permissions: ["push-system", "log-behavior", "domain", "html-source"],
-        created_at: "2024-04-01",
-        updated_at: "2024-04-01",
-      },
-      {
-        id: "3",
-        name: "Marketing Team",
-        permissions: ["users-tracking", "domain", "html-source"],
-        created_at: "2024-04-01",
-        updated_at: "2024-04-01",
-      },
-      {
-        id: "4",
-        name: "Support Team",
-        permissions: ["users", "log-behavior", "users-tracking"],
-        created_at: "2024-04-01",
-        updated_at: "2024-04-01",
-      },
-      {
-        id: "5",
-        name: "Admin Team",
-        permissions: [
-          "push-system",
-          "log-behavior",
-          "users",
-          "domain",
-          "html-source",
-          "users-tracking",
-          "team",
-        ],
-        created_at: "2024-04-01",
-        updated_at: "2024-04-01",
-      },
-    ]);
-  }, []);
 
   const table = useReactTable({
     data,

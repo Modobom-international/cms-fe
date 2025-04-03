@@ -184,9 +184,7 @@ const columns: ColumnDef<DomainItem>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      const domain = row.original;
-
+    cell: () => {
       return (
         <div className="flex justify-end">
           <DropdownMenu>
@@ -217,7 +215,7 @@ const columns: ColumnDef<DomainItem>[] = [
 ];
 
 export default function DomainDataTable() {
-  const [data, setData] = useState<DomainItem[]>([]);
+  const [data, _setData] = useState<DomainItem[]>([]);
   const [sorting, setSorting] = useState<SortingState>([
     {
       id: "domain",

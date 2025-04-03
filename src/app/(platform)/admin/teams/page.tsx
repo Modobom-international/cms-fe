@@ -11,19 +11,6 @@ import { Input } from "@/components/ui/input";
 
 import TeamsDataTable from "@/components/admin/teams/data-table";
 
-interface Team {
-  id: number;
-  name: string;
-  prefix_permissions: string;
-}
-
-interface TeamsPageProps {
-  teams?: {
-    data: Team[];
-    links: any;
-  };
-}
-
 export default function TeamsPage() {
   const [search, setSearch] = useState("");
 

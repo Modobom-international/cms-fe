@@ -7,12 +7,7 @@ import {
   DEFAULT_LOGIN_REDIRECT,
   publicRoutes,
 } from "@/configs/route.config";
-import { UserRoleEnum } from "@/enums/user-role";
-import {
-  canAccessPath,
-  getCurrentUser,
-  getRoleRedirect,
-} from "@/server/actions/auth";
+import { getCurrentUser } from "@/server/actions/auth";
 
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -32,15 +27,15 @@ export default async function middleware(request: NextRequest) {
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
   // Check route access based on user role if user is logged in
-  if (isLoggedIn && user?.role) {
-    const hasAccess = canAccessPath(pathname, user.type_user);
-    if (!hasAccess) {
-      // Redirect to appropriate page based on role
-      return NextResponse.redirect(
-        new URL(getRoleRedirect(user.role as UserRoleEnum), nextUrl)
-      );
-    }
-  }
+  // if (isLoggedIn && user?.role) {
+  //   const hasAccess = canAccessPath(pathname, user.type_user);
+  //   if (!hasAccess) {
+  //     // Redirect to appropriate page based on role
+  //     return NextResponse.redirect(
+  //       new URL(getRoleRedirect(user.role as UserRoleEnum), nextUrl)
+  //     );
+  //   }
+  // }
 
   // Handle API authentication routes
   if (isApiAuthRoute) {

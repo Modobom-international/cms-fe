@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 
 import { errorMessage } from "@/constants/error-message";
 import { authQueryKeys } from "@/constants/query-keys";
-import { UserRoleEnum } from "@/enums/user-role";
 import { ILoginForm, LoginFormSchema } from "@/validations/auth.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -125,7 +124,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         });
       } else {
         toast.error("Failed", {
-          description: res.message,
+          description: "Failed to login. Please try again later.",
         });
       }
     },
@@ -139,10 +138,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       if (callbackUrl) {
         router.push(callbackUrl);
       } else {
-        const { type_user } = res.data;
-        if (type_user === UserRoleEnum.ADMIN) {
-          router.push("/admin");
-        }
+        router.push("/admin");
       }
     }
   };

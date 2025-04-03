@@ -57,7 +57,7 @@ interface UserProfile {
 export default function Page() {
   const t = useTranslations("ProfilePage");
 
-  const [user, setUser] = useState<UserProfile>({
+  const [user, _setUser] = useState<UserProfile>({
     name: "John Doe",
     email: "john@example.com",
     title: "Staff",

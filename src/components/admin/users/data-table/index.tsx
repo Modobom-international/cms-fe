@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, useEffect, useState } from "react";
+import { CSSProperties, useState } from "react";
 
 import {
   Column,
@@ -111,9 +111,7 @@ const columns: ColumnDef<Item>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      const user = row.original;
-
+    cell: () => {
       return (
         <div className="flex justify-end">
           <DropdownMenu>
@@ -155,42 +153,6 @@ export default function UserDataTable() {
       desc: false,
     },
   ]);
-
-  useEffect(() => {
-    // For demonstration, using static data instead of fetching
-    setData([
-      {
-        id: "1",
-        name: "John Doe",
-        email: "john@example.com",
-        team: "Engineering",
-      },
-      {
-        id: "2",
-        name: "Jane Smith",
-        email: "jane@example.com",
-        team: "Design",
-      },
-      {
-        id: "3",
-        name: "Bob Johnson",
-        email: "bob@example.com",
-        team: "Marketing",
-      },
-      {
-        id: "4",
-        name: "Alice Brown",
-        email: "alice@example.com",
-        team: "Engineering",
-      },
-      {
-        id: "5",
-        name: "Charlie Wilson",
-        email: "charlie@example.com",
-        team: "Product",
-      },
-    ]);
-  }, []);
 
   const table = useReactTable({
     data,
