@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 import Link from "next/link";
 
@@ -181,7 +181,6 @@ const ShowcaseWindow = ({
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }) => {
-  const t = useTranslations("Landing.HeroSection");
   return (
     <div className="relative rounded-2xl bg-white shadow-xl ring-1 ring-slate-900/5">
       {/* Window Header */}

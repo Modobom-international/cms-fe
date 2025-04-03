@@ -215,7 +215,7 @@ const columns: ColumnDef<DomainItem>[] = [
 ];
 
 export default function DomainDataTable() {
-  const [data, setData] = useState<DomainItem[]>([]);
+  const [data, _setData] = useState<DomainItem[]>([]);
   const [sorting, setSorting] = useState<SortingState>([
     {
       id: "domain",

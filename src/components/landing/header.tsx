@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 
+import Image from "next/image";
 import Link from "next/link";
 
 import { useLocale, useTranslations } from "next-intl";
@@ -43,9 +44,11 @@ export default function Header() {
             <div className="flex flex-shrink-0 items-center">
               <Link href="/" className="flex items-center space-x-2">
                 <div className="flex lg:col-start-2 lg:justify-center">
-                  <img
+                  <Image
                     src="/img/logo-modobom-resize-dark.png"
                     alt="Logo modobom"
+                    width={119}
+                    height={25}
                   />
                 </div>
               </Link>

@@ -1,3 +1,4 @@
+/* eslint-disable unused-imports/no-unused-vars */
 "use client";
 
 import { CSSProperties, useState } from "react";
@@ -40,6 +41,8 @@ import {
 } from "@/components/ui/table";
 
 import { SearchBar } from "./search-bar";
+
+/* eslint-disable unused-imports/no-unused-vars */
 
 type LogBehaviorItem = {
   uid: string;
