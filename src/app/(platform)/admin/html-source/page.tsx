@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import Link from "next/link";
 
 import { ChevronRight, Home, PlusIcon } from "lucide-react";
@@ -11,8 +9,6 @@ import { buttonVariants } from "@/components/ui/button";
 import HtmlSourceDataTable from "@/components/admin/html-source/data-table";
 
 export default function HtmlSourcePage() {
-  const [search, setSearch] = useState("");
-
   return (
     <div className="flex flex-col gap-8">
       {/* Header Section */}

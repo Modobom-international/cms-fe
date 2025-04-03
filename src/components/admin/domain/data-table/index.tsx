@@ -184,9 +184,7 @@ const columns: ColumnDef<DomainItem>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      const domain = row.original;
-
+    cell: () => {
       return (
         <div className="flex justify-end">
           <DropdownMenu>

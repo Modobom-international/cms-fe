@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, useEffect, useState } from "react";
+import { CSSProperties, useState } from "react";
 
 import {
   Column,
@@ -306,130 +306,6 @@ export default function HtmlSourceDataTable() {
     // In a real implementation, you would filter data based on all criteria
     // including platform, application, nation, etc.
   };
-
-  useEffect(() => {
-    // Fake data that matches the fields from HtmlSourceController
-    setData([
-      {
-        id: 105,
-        url: "https://example.com/page1",
-        country: "US",
-        source:
-          "<html><head><title>Example Page 1</title></head><body><div class='content'>This is example content</div></body></html>",
-        device_id: "device_108a4fe23",
-        app_id: "com.modobom.app1",
-        version: "1.0.0",
-        created_date: "2023-10-15 14:30:22",
-        note: "Homepage example",
-        platform: "Facebook",
-      },
-      {
-        id: 104,
-        url: "https://example.com/page2",
-        country: "UK",
-        source:
-          "<html><head><title>Example Page 2</title></head><body><div class='content'>This is example content for page 2</div></body></html>",
-        device_id: "device_97b3cd12",
-        app_id: "com.modobom.app1",
-        version: "1.0.0",
-        created_date: "2023-10-15 13:45:11",
-        note: "Product page example",
-        platform: "TikTok",
-      },
-      {
-        id: 103,
-        url: "https://example.com/page3",
-        country: "JP",
-        source:
-          "<html><head><title>Example Page 3</title></head><body><div class='content'>This is example content for page 3</div></body></html>",
-        device_id: "device_65d2abc7",
-        app_id: "com.modobom.app2",
-        version: "2.1.5",
-        created_date: "2023-10-15 12:20:45",
-        note: "Login page example",
-        platform: "Google",
-      },
-      {
-        id: 102,
-        url: "https://example.com/page4",
-        country: "VN",
-        source:
-          "<html><head><title>Example Page 4</title></head><body><div class='content'>This is example content for page 4</div></body></html>",
-        device_id: "device_32e7fb09",
-        app_id: "com.modobom.app2",
-        version: "2.1.5",
-        created_date: "2023-10-14 22:10:33",
-        note: "Settings page example",
-        platform: "Instagram",
-      },
-      {
-        id: 101,
-        url: "https://example.com/page5",
-        country: "US",
-        source:
-          "<html><head><title>Example Page 5</title></head><body><div class='content'>This is example content for page 5</div></body></html>",
-        device_id: "device_45c8db33",
-        app_id: "com.modobom.app3",
-        version: "1.2.0",
-        created_date: "2023-10-14 18:05:17",
-        note: "Profile page example",
-        platform: "YouTube",
-      },
-      // Additional platform examples
-      {
-        id: 100,
-        url: "https://example.com/page6",
-        country: "FR",
-        source:
-          "<html><head><title>Example Page 6</title></head><body><div class='content'>This is example content for page 6</div></body></html>",
-        device_id: "device_23d9ab45",
-        app_id: "com.modobom.app1",
-        version: "1.0.1",
-        created_date: "2023-10-14 15:22:09",
-        note: "Twitter feed example",
-        platform: "Twitter",
-      },
-      {
-        id: 99,
-        url: "https://example.com/page7",
-        country: "DE",
-        source:
-          "<html><head><title>Example Page 7</title></head><body><div class='content'>This is example content for page 7</div></body></html>",
-        device_id: "device_87f2cd34",
-        app_id: "com.modobom.app2",
-        version: "2.1.5",
-        created_date: "2023-10-14 12:11:47",
-        note: "Pinterest board example",
-        platform: "Pinterest",
-      },
-      {
-        id: 98,
-        url: "https://example.com/page8",
-        country: "CA",
-        source:
-          "<html><head><title>Example Page 8</title></head><body><div class='content'>This is example content for page 8</div></body></html>",
-        device_id: "device_54e1bc23",
-        app_id: "com.modobom.app3",
-        version: "1.2.0",
-        created_date: "2023-10-13 23:45:30",
-        note: "Snapchat feed example",
-        platform: "Snapchat",
-      },
-      {
-        id: 97,
-        url: "https://example.com/page9",
-        country: "AU",
-        source:
-          "<html><head><title>Example Page 9</title></head><body><div class='content'>This is example content for page 9</div></body></html>",
-        device_id: "device_12a3bc78",
-        app_id: "com.modobom.app1",
-        version: "1.0.1",
-        created_date: "2023-10-13 18:33:21",
-        note: "LinkedIn profile example",
-        platform: "LinkedIn",
-      },
-    ]);
-  }, []);
 
   const table = useReactTable({
     data,

@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, useEffect, useState } from "react";
+import { CSSProperties, useState } from "react";
 
 import {
   Column,
@@ -193,81 +193,6 @@ export default function PushSystemDataTable() {
       desc: true,
     },
   ]);
-
-  const handleSearch = (filters: {
-    domain: string;
-    date: Date | undefined;
-  }) => {
-    // Here you would typically make an API call with the filters
-    // For now, we'll just log them
-    console.log("Search filters:", filters);
-  };
-
-  useEffect(() => {
-    // Simulated data based on the PHP controller's structure
-    setData([
-      {
-        id: "1",
-        country: "Thailand",
-        totalUsers: 695059,
-        activeUsers: 12453,
-        status: "on",
-        type: "search",
-        shareWeb: 60,
-        lastUpdated: new Date().toLocaleString(),
-      },
-      {
-        id: "2",
-        country: "Romania",
-        totalUsers: 34479,
-        activeUsers: 1245,
-        status: "on",
-        type: "search",
-        shareWeb: 40,
-        lastUpdated: new Date().toLocaleString(),
-      },
-      {
-        id: "3",
-        country: "Croatia",
-        totalUsers: 7990,
-        activeUsers: 432,
-        status: "off",
-        type: "search",
-        shareWeb: 50,
-        lastUpdated: new Date().toLocaleString(),
-      },
-      {
-        id: "4",
-        country: "Czech",
-        totalUsers: 1425,
-        activeUsers: 89,
-        status: "on",
-        type: "search",
-        shareWeb: 45,
-        lastUpdated: new Date().toLocaleString(),
-      },
-      {
-        id: "5",
-        country: "Montenegro",
-        totalUsers: 178,
-        activeUsers: 23,
-        status: "on",
-        type: "search",
-        shareWeb: 55,
-        lastUpdated: new Date().toLocaleString(),
-      },
-      {
-        id: "6",
-        country: "Slovenia",
-        totalUsers: 26,
-        activeUsers: 5,
-        status: "off",
-        type: "search",
-        shareWeb: 30,
-        lastUpdated: new Date().toLocaleString(),
-      },
-    ]);
-  }, []);
 
   const table = useReactTable({
     data,
