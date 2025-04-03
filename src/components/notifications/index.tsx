@@ -1,9 +1,7 @@
-import React from "react";
 import { useState } from "react";
 
 import { BellIcon } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -94,10 +92,11 @@ export default function NotificationsButton() {
           aria-label="Open notifications"
         >
           <BellIcon size={16} aria-hidden="true" />
+
           {unreadCount > 0 && (
-            <Badge className="absolute -top-2 left-full min-w-5 -translate-x-1/2 px-1">
+            <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium">
               {unreadCount > 99 ? "99+" : unreadCount}
-            </Badge>
+            </span>
           )}
         </Button>
       </PopoverTrigger>
