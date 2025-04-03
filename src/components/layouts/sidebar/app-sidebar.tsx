@@ -19,6 +19,7 @@ import {
   PenTool,
   Terminal,
   User,
+  UserSearch,
   Workflow,
 } from "lucide-react";
 
@@ -51,6 +52,11 @@ const data = {
       title: "Domain",
       url: "/admin/domains",
       icon: Network,
+    },
+    {
+      title: "User Tracking",
+      url: "/admin/user-tracking",
+      icon: UserSearch,
     },
     {
       title: "HTML Source",
