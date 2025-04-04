@@ -113,7 +113,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     onSuccess: async (res) => {
       if (res.success === true) {
         const { data, token } = res;
-        await Cookies.set("access_token", token);
+        await Cookies.set("access_token", token, {
+          expires: 365,
+        });
 
         queryClient.setQueryData(authQueryKeys.me(), data);
 
