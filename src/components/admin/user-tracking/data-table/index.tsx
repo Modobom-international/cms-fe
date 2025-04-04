@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/table";
 
 import { EmptyTable } from "@/components/data-table/empty-table";
+import { Spinner } from "@/components/global/spinner";
 
 export default function UserTrackingDataTable() {
   const t = useTranslations("UserTrackingPage.table");
@@ -76,12 +77,6 @@ export default function UserTrackingDataTable() {
     last_page: 1,
   };
   const isDataEmpty = !userTrackingData || userTrackingData.length === 0;
-
-  // Function to handle page changes with minimum value check
-  const handlePageChange = (delta: number) => {
-    setCurrentPage((prev) => Math.max(1, prev + delta));
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
 
   // Handle next page navigation - increment by 1
   const handleNextPage = () => {
@@ -205,8 +200,7 @@ export default function UserTrackingDataTable() {
           {isFetching ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-center">
-                <div className="border-primary mx-auto h-12 w-12 animate-spin rounded-full border-t-2 border-b-2"></div>
-                <p className="text-muted-foreground mt-4 text-sm">Loading...</p>
+                <Spinner />
               </div>
             </div>
           ) : isError ? (
@@ -500,4 +494,3 @@ const renderUserBehavior = (
       );
   }
 };
-

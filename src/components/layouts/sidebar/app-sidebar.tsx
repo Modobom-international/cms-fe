@@ -8,7 +8,6 @@ import Link from "next/link";
 import {
   ActivitySquare,
   Bell,
-  Building2,
   Construction,
   CreditCard,
   GanttChartSquare,
@@ -19,10 +18,10 @@ import {
   PenTool,
   Terminal,
   User,
-  UserSearch,
   Workflow,
 } from "lucide-react";
 
+import { Icons } from "@/components/ui/icons";
 import {
   Sidebar,
   SidebarContent,
@@ -56,7 +55,7 @@ const data = {
     {
       title: "User Tracking",
       url: "/admin/user-tracking",
-      icon: UserSearch,
+      icon: Icons.tracking,
     },
     {
       title: "HTML Source",
@@ -76,7 +75,7 @@ const data = {
     {
       title: "Teams",
       url: "/admin/teams",
-      icon: Building2,
+      icon: Icons.team,
     },
     {
       title: "Users",
