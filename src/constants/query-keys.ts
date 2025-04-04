@@ -7,3 +7,16 @@ export const authQueryKeys = {
   resetPassword: () => [...authQueryKeys.origin, "reset-password"] as const,
   logout: () => [...authQueryKeys.origin, "logout"] as const,
 };
+
+export const userTrackingQueryKeys = {
+  origin: ["users-tracking"] as const,
+  list: (page: number, pageSize: number, date: string, domain: string) =>
+    [
+      ...userTrackingQueryKeys.origin,
+      "list",
+      page,
+      pageSize,
+      date,
+      domain,
+    ] as const,
+};

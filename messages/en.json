@@ -213,6 +213,7 @@
                 "timestamp": "Last timestamp",
                 "ip": "IP Address",
                 "device": "Device",
+                "userBehavior": "User Behavior",
                 "actions": "Actions"
             },
             "pagination": {
@@ -230,6 +231,18 @@
                 "mobile": "Mobile",
                 "tablet": "Tablet",
                 "desktop": "Desktop"
+            },
+            "behaviors": {
+                "mouseMovement": "Mouse Movement",
+                "click": "Click",
+                "scroll": "Scroll",
+                "pageView": "Page View",
+                "timeSpent": "Time Spent",
+                "position": "Position",
+                "totalMovements": "Total movements",
+                "target": "Target",
+                "height": "Height",
+                "duration": "Duration"
             },
             "placeholders": {
                 "selectDomain": "Select domain",

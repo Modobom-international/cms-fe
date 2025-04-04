@@ -29,6 +29,11 @@ apiClient.interceptors.request.use(async (config) => {
 const refreshCsrfToken = async () => {
   try {
     await axios.get(`${env.NEXT_PUBLIC_BACKEND_URL}/sanctum/csrf-cookie`, {
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+        Accept: "application/json",
+      },
+      withXSRFToken: true,
       withCredentials: true,
     });
   } catch (error) {

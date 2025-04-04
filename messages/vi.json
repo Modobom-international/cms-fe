@@ -213,6 +213,7 @@
         "timestamp": "Thời gian cuối cùng",
         "ip": "Địa chỉ IP",
         "device": "Thiết bị",
+        "userBehavior": "Hành vi người dùng",
         "actions": "Hành động"
       },
       "pagination": {
@@ -230,6 +231,18 @@
         "mobile": "Di động",
         "tablet": "Máy tính bảng",
         "desktop": "Máy tính để bàn"
+      },
+      "behaviors": {
+        "mouseMovement": "Di chuyển chuột",
+        "click": "Nhấp chuột",
+        "scroll": "Cuộn trang",
+        "pageView": "Xem trang",
+        "timeSpent": "Thời gian dừng",
+        "position": "Vị trí",
+        "totalMovements": "Tổng di chuyển",
+        "target": "Đích",
+        "height": "Chiều cao",
+        "duration": "Thời gian"
       },
       "placeholders": {
         "selectDomain": "Chọn tên miền",
