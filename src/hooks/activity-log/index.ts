@@ -2,10 +2,7 @@ import { activityLogQueryKeys } from "@/constants/query-keys";
 import { useQuery } from "@tanstack/react-query";
 import qs from "qs";
 
-import {
-  IActivityLogResponse,
-  IErrorPaginationResponse,
-} from "@/types/activity-log.type";
+import { IActivityLogResponse } from "@/types/activity-log.type";
 
 import apiClient from "@/lib/api/client";
 
