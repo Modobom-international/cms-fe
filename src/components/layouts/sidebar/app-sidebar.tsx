@@ -16,6 +16,7 @@ import {
   MessagesSquare,
   Network,
   PenTool,
+  SquareActivity,
   Terminal,
   User,
   Workflow,
@@ -61,6 +62,11 @@ const data = {
       title: "HTML Source",
       url: "/admin/html-source",
       icon: Terminal,
+    },
+    {
+      title: "Activity Log",
+      url: "/admin/activity-log",
+      icon: SquareActivity,
     },
     {
       title: "Log Behavior",
