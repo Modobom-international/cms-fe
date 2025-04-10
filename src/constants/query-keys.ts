@@ -26,3 +26,9 @@ export const domainQueryKeys = {
   list: (page: number, pageSize: number, search: string) =>
     [...domainQueryKeys.origin, "list", page, pageSize, search] as const,
 };
+
+export const activityLogQueryKeys = {
+  origin: ["activity-logs"] as const,
+  list: (page: number, pageSize: number, search: string = "") =>
+    [...activityLogQueryKeys.origin, "list", page, pageSize, search] as const,
+};

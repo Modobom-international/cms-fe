@@ -292,5 +292,46 @@
                 "delete": "Delete"
             }
         }
+    },
+    "ActivityLogPage": {
+        "title": "Activity Log",
+        "description": "Monitor and review system activities and user actions",
+        "breadcrumb": "Activity Log",
+        "table": {
+            "title": "Activity Logs",
+            "description": "Track and monitor all system activities and user actions",
+            "filters": {
+                "search": "Search activity logs",
+                "dateRange": "Date range"
+            },
+            "columns": {
+                "id": "ID",
+                "action": "Action",
+                "timestamp": "Timestamp",
+                "user": "User",
+                "details": "Details",
+                "actions": "Actions"
+            },
+            "pagination": {
+                "rowsPerPage": "Rows per page",
+                "of": "of",
+                "firstPage": "Go to first page",
+                "previousPage": "Previous",
+                "nextPage": "Next",
+                "lastPage": "Go to last page"
+            },
+            "actions": {
+                "details": "View Details",
+                "retry": "Retry",
+                "refresh": "Refresh"
+            },
+            "loadingStates": {
+                "loading": "Loading activity logs...",
+                "error": "An error occurred while loading activity logs"
+            },
+            "placeholders": {
+                "search": "Search by action or user ID"
+            }
+        }
     }
 }
