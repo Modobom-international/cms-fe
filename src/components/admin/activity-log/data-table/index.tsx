@@ -1,14 +1,13 @@
 "use client";
 
-import { DomainStatusEnum } from "@/enums/domain-status";
 import { format } from "date-fns";
-import { Lock, LockOpen, RefreshCw, Search } from "lucide-react";
+import { RefreshCw, Search, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
-import { IDomainActual } from "@/types/domain.type";
+import { IActivityLog } from "@/types/activity-log.type";
 
-import { useGetDomainList } from "@/hooks/domain";
+import { useGetActivityLogs } from "@/hooks/activity-log";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -27,12 +26,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { DomainStatusBadge } from "@/components/badge/domain-status-badge";
+import { ActivityLogBadge } from "@/components/badge/activity-log-badge";
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 
-export default function DomainDataTable() {
-  const t = useTranslations("DomainPage.table");
+export default function ActivityLogDataTable() {
+  const t = useTranslations("ActivityLogPage.table");
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -48,21 +47,21 @@ export default function DomainDataTable() {
   );
 
   const {
-    data: domainResponse,
+    data: activityLogResponse,
     isFetching,
     isError,
     refetch,
-  } = useGetDomainList(currentPage, pageSize, search);
+  } = useGetActivityLogs(currentPage, pageSize, search);
 
   // Extract data from the response
-  const domainData = domainResponse?.data?.data || [];
-  const paginationInfo = domainResponse?.data || {
+  const activityLogData = activityLogResponse?.data?.data || [];
+  const paginationInfo = activityLogResponse?.data || {
     from: 0,
     to: 0,
     total: 0,
     last_page: 1,
   };
-  const isDataEmpty = !domainData || domainData.length === 0;
+  const isDataEmpty = !activityLogData || activityLogData.length === 0;
 
   // Handle next page navigation - increment by 1
   const handleNextPage = () => {
@@ -81,26 +80,48 @@ export default function DomainDataTable() {
     refetch();
   };
 
-  // Function to determine domain status based on expiration date
-  const getDomainStatus = (domain: IDomainActual): DomainStatusEnum => {
-    if (!domain.time_expired) return DomainStatusEnum.INACTIVE;
+  // Helper function to render activity details
+  const renderActivityDetails = (log: IActivityLog) => {
+    const { details } = log;
+    if (!details) {
+      return <span>No details available</span>;
+    }
 
-    const today = new Date();
-    const expiry = new Date(domain.time_expired);
+    const { filters } = details;
 
-    // Calculate days until expiration
-    const daysUntilExpiry = Math.floor(
-      (expiry.getTime() - today.getTime()) / (1000 * 3600 * 24)
+    return (
+      <div className="flex flex-col">
+        <span className="mb-1 font-medium">Filters:</span>
+        <div className="grid grid-cols-1 gap-1 text-xs">
+          <div className="flex items-center">
+            <span className="mr-1 font-medium">Page:</span>
+            <span>{filters.page || "1"}</span>
+          </div>
+          <div className="flex items-center">
+            <span className="mr-1 font-medium">Page Size:</span>
+            <span>{filters.pageSize || "10"}</span>
+          </div>
+          {filters.search && (
+            <div className="flex items-center">
+              <span className="mr-1 font-medium">Search:</span>
+              <span>{filters.search}</span>
+            </div>
+          )}
+        </div>
+      </div>
     );
-
-    if (daysUntilExpiry < 0) return DomainStatusEnum.INACTIVE;
-    if (domain.is_locked) return DomainStatusEnum.ACTIVE;
-
-    return DomainStatusEnum.ACTIVE;
   };
 
   return (
     <div className="flex min-h-[calc(100vh-200px)] flex-col">
+      {/* Page Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+          {t("title")}
+        </h1>
+        <p className="mt-1 text-base text-gray-500">{t("description")}</p>
+      </div>
+
       {/* Filters Section */}
       <div className="space-y-6">
         <div className="grid grid-cols-1 items-end gap-6 md:grid-cols-2">
@@ -186,23 +207,17 @@ export default function DomainDataTable() {
                       <TableHead className="w-[60px] py-3 font-medium text-gray-700">
                         {t("columns.id")}
                       </TableHead>
-                      <TableHead className="w-[140px] py-3 font-medium text-gray-700">
-                        Domain
-                      </TableHead>
                       <TableHead className="w-[120px] py-3 font-medium text-gray-700">
-                        Status
+                        {t("columns.action")}
                       </TableHead>
-                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                      <TableHead className="w-[180px] py-3 font-medium text-gray-700">
                         {t("columns.timestamp")}
                       </TableHead>
                       <TableHead className="w-[120px] py-3 font-medium text-gray-700">
-                        Expires
+                        {t("columns.user")}
                       </TableHead>
-                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
-                        Registrar
-                      </TableHead>
-                      <TableHead className="w-[90px] py-3 font-medium text-gray-700">
-                        Security
+                      <TableHead className="w-[250px] py-3 font-medium text-gray-700">
+                        {t("columns.details")}
                       </TableHead>
                       <TableHead className="py-3 text-right font-medium text-gray-700">
                         <span className="sr-only">{t("columns.actions")}</span>
@@ -210,59 +225,37 @@ export default function DomainDataTable() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {domainData.map((domain: IDomainActual, index: number) => {
-                      const domainStatus = getDomainStatus(domain);
+                    {activityLogData.map((log: IActivityLog, index: number) => {
                       return (
                         <TableRow
                           key={index}
                           className="border-b border-gray-200 hover:bg-gray-50"
                         >
                           <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                            {domain.id}
-                          </TableCell>
-                          <TableCell className="text-muted-foreground py-3">
-                            <span className="font-medium text-indigo-600">
-                              {domain.domain || "—"}
-                            </span>
+                            {log.id}
                           </TableCell>
                           <TableCell className="py-3">
-                            <DomainStatusBadge status={domainStatus} />
+                            <ActivityLogBadge action={log.action} />
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
-                            {domain.updated_at
+                            {log.details && log.details.logged_at
                               ? format(
-                                  new Date(domain.updated_at),
+                                  new Date(log.details.logged_at),
                                   "yyyy-MM-dd HH:mm"
                                 )
-                              : "—"}
+                              : format(
+                                  new Date(log.created_at),
+                                  "yyyy-MM-dd HH:mm"
+                                )}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
-                            {domain.time_expired
-                              ? format(
-                                  new Date(domain.time_expired),
-                                  "yyyy-MM-dd"
-                                )
-                              : "—"}
+                            <div className="flex items-center">
+                              <User className="mr-2 h-4 w-4 text-gray-500" />
+                              <span>ID: {log.user_id}</span>
+                            </div>
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
-                            {domain.registrar || "—"}
-                          </TableCell>
-                          <TableCell className="py-3">
-                            {domain.is_locked ? (
-                              <div className="flex items-center">
-                                <Lock className="mr-1 h-4 w-4 text-green-600" />
-                                <span className="text-xs text-green-600">
-                                  Locked
-                                </span>
-                              </div>
-                            ) : (
-                              <div className="flex items-center">
-                                <LockOpen className="mr-1 h-4 w-4 text-amber-600" />
-                                <span className="text-xs text-amber-600">
-                                  Unlocked
-                                </span>
-                              </div>
-                            )}
+                            {renderActivityDetails(log)}
                           </TableCell>
                           <TableCell className="py-3 text-right">
                             <Button

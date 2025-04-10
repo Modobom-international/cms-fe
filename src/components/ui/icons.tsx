@@ -49,10 +49,10 @@ export const Icons = {
       {...props}
       stroke="currentColor"
       fill="none"
-      stroke-width="2"
+      strokeWidth="2"
       viewBox="0 0 24 24"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       height="200px"
       width="200px"
       xmlns="http://www.w3.org/2000/svg"
@@ -68,7 +68,7 @@ export const Icons = {
       {...props}
       stroke="currentColor"
       fill="currentColor"
-      stroke-width="0"
+      strokeWidth="0"
       viewBox="0 0 24 24"
       height="200px"
       width="200px"

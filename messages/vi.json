@@ -249,5 +249,89 @@
         "selectResults": "Chọn số kết quả hiển thị"
       }
     }
+  },
+  "DomainPage": {
+    "title": "Quản lý tên miền",
+    "description": "Quản lý và giám sát hoạt động các tên miền trong hệ thống",
+    "breadcrumb": "Tên miền",
+    "table": {
+      "filters": {
+        "search": "Tìm kiếm tên miền"
+      },
+      "columns": {
+        "id": "ID",
+        "action": "Hành động",
+        "timestamp": "Cập nhật lần cuối",
+        "user": "Người dùng",
+        "details": "Chi tiết",
+        "actions": "Thao tác"
+      },
+      "pagination": {
+        "rowsPerPage": "Số dòng mỗi trang",
+        "of": "trong số",
+        "firstPage": "Đến trang đầu tiên",
+        "previousPage": "Đến trang trước",
+        "nextPage": "Đến trang tiếp theo",
+        "lastPage": "Đến trang cuối cùng"
+      },
+      "actions": {
+        "details": "Xem chi tiết",
+        "retry": "Thử lại",
+        "refresh": "Làm mới"
+      },
+      "loadingStates": {
+        "loading": "Đang tải dữ liệu tên miền...",
+        "error": "Đã xảy ra lỗi khi tải dữ liệu tên miền"
+      },
+      "placeholders": {
+        "search": "Tìm kiếm theo tên miền hoặc hành động"
+      },
+      "actionTypes": {
+        "create": "Tạo mới",
+        "update": "Cập nhật",
+        "delete": "Xóa"
+      }
+    }
+  },
+  "ActivityLogPage": {
+    "title": "Nhật ký hoạt động",
+    "description": "Theo dõi và kiểm tra các hoạt động của hệ thống và người dùng",
+    "breadcrumb": "Nhật ký hoạt động",
+    "table": {
+      "title": "Nhật ký hoạt động",
+      "description": "Theo dõi và giám sát tất cả các hoạt động của hệ thống và người dùng",
+      "filters": {
+        "search": "Tìm kiếm nhật ký",
+        "dateRange": "Khoảng thời gian"
+      },
+      "columns": {
+        "id": "ID",
+        "action": "Hành động",
+        "timestamp": "Thời gian",
+        "user": "Người dùng",
+        "details": "Chi tiết",
+        "actions": "Thao tác"
+      },
+      "pagination": {
+        "rowsPerPage": "Số dòng mỗi trang",
+        "of": "trong số",
+        "firstPage": "Đến trang đầu tiên",
+        "previousPage": "Trước",
+        "nextPage": "Tiếp",
+        "lastPage": "Đến trang cuối cùng"
+      },
+      "actions": {
+        "details": "Xem chi tiết",
+        "retry": "Thử lại",
+        "refresh": "Làm mới"
+      },
+      "loadingStates": {
+        "loading": "Đang tải nhật ký hoạt động...",
+        "error": "Đã xảy ra lỗi khi tải nhật ký hoạt động"
+      },
+      "placeholders": {
+        "search": "Tìm kiếm theo hành động hoặc ID người dùng"
+      }
+    }
   }
 }
