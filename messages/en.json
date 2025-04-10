@@ -249,5 +249,48 @@
                 "selectResults": "Select number of results"
             }
         }
+    },
+    "DomainPage": {
+        "title": "Domain Management",
+        "description": "Manage and monitor domain activities across the system",
+        "breadcrumb": "Domains",
+        "table": {
+            "filters": {
+                "search": "Search domains"
+            },
+            "columns": {
+                "id": "ID",
+                "action": "Action",
+                "timestamp": "Last updated",
+                "user": "User",
+                "details": "Details",
+                "actions": "Actions"
+            },
+            "pagination": {
+                "rowsPerPage": "Rows per page",
+                "of": "of",
+                "firstPage": "Go to first page",
+                "previousPage": "Go to previous page",
+                "nextPage": "Go to next page",
+                "lastPage": "Go to last page"
+            },
+            "actions": {
+                "details": "Details",
+                "retry": "Retry",
+                "refresh": "Refresh"
+            },
+            "loadingStates": {
+                "loading": "Loading domain data...",
+                "error": "An error occurred while loading domain data"
+            },
+            "placeholders": {
+                "search": "Search by domain name or action"
+            },
+            "actionTypes": {
+                "create": "Create",
+                "update": "Update",
+                "delete": "Delete"
+            }
+        }
     }
 }

@@ -20,3 +20,9 @@ export const userTrackingQueryKeys = {
       domain,
     ] as const,
 };
+
+export const domainQueryKeys = {
+  origin: ["domains"] as const,
+  list: (page: number, pageSize: number, search: string) =>
+    [...domainQueryKeys.origin, "list", page, pageSize, search] as const,
+};

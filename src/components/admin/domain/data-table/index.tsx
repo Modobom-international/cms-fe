@@ -1,49 +1,16 @@
 "use client";
 
-import { CSSProperties, useState } from "react";
+import { DomainStatusEnum } from "@/enums/domain-status";
+import { format } from "date-fns";
+import { Lock, LockOpen, RefreshCw, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
-import {
-  Column,
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
-  ArrowLeftToLineIcon,
-  ArrowRightToLineIcon,
-  ChevronDownIcon,
-  ChevronFirstIcon,
-  ChevronLastIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronUpIcon,
-  EllipsisIcon,
-  MoreHorizontalIcon,
-  PencilIcon,
-  PinOffIcon,
-  ServerIcon,
-  TrashIcon,
-} from "lucide-react";
+import { IDomainActual } from "@/types/domain.type";
 
-import { cn } from "@/lib/utils";
+import { useGetDomainList } from "@/hooks/domain";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-} from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
@@ -60,543 +27,325 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { SearchBar } from "./search-bar";
-
-type DomainItem = {
-  domain: string;
-  loginAccount: string;
-  loginPassword: string;
-  dayCreation: string;
-  manager: string;
-  server: string;
-  status: "Work" | "Error";
-};
-
-// Add Badge component definition
-const Badge = ({
-  variant,
-  children,
-}: {
-  variant: "success" | "error" | "warning" | "default";
-  children: React.ReactNode;
-}) => {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset",
-        variant === "success" && "bg-green-50 text-green-700 ring-green-600/20",
-        variant === "error" && "bg-red-50 text-red-700 ring-red-600/20",
-        variant === "warning" &&
-          "bg-yellow-50 text-yellow-700 ring-yellow-600/20",
-        variant === "default" && "bg-gray-50 text-gray-700 ring-gray-600/20"
-      )}
-    >
-      {children}
-    </span>
-  );
-};
-
-// Helper function to compute pinning styles for columns
-const getPinningStyles = (column: Column<DomainItem>): CSSProperties => {
-  const isPinned = column.getIsPinned();
-  return {
-    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
-    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
-    position: isPinned ? "sticky" : "relative",
-    width: column.getSize(),
-    zIndex: isPinned ? 1 : 0,
-    backgroundColor: isPinned ? "#fff" : "transparent",
-  };
-};
-
-const columns: ColumnDef<DomainItem>[] = [
-  {
-    header: "Domain name",
-    accessorKey: "domain",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <span className="truncate font-medium">{row.getValue("domain")}</span>
-      </div>
-    ),
-  },
-  {
-    header: "Login account",
-    accessorKey: "loginAccount",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <span className="truncate">{row.getValue("loginAccount")}</span>
-      </div>
-    ),
-  },
-  {
-    header: "Login password",
-    accessorKey: "loginPassword",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <span className="truncate font-mono text-sm">
-          {row.getValue("loginPassword")}
-        </span>
-      </div>
-    ),
-  },
-  {
-    header: "Day creation",
-    accessorKey: "dayCreation",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground truncate">
-        {row.getValue("dayCreation")}
-      </div>
-    ),
-  },
-  {
-    header: "Manager",
-    accessorKey: "manager",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground truncate">
-        {row.getValue("manager")}
-      </div>
-    ),
-  },
-  {
-    header: "Server",
-    accessorKey: "server",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <ServerIcon className="text-muted-foreground h-4 w-4" />
-        <span className="truncate font-mono text-sm">
-          {row.getValue("server")}
-        </span>
-      </div>
-    ),
-  },
-  {
-    header: "Status",
-    accessorKey: "status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string;
-      return (
-        <Badge variant={status === "Work" ? "success" : "error"}>
-          {status}
-        </Badge>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: () => {
-      return (
-        <div className="flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="data-[state=open]:bg-muted flex h-8 w-8 p-0"
-              >
-                <MoreHorizontalIcon className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[160px]">
-              <DropdownMenuItem>
-                <PencilIcon className="mr-2 h-4 w-4" />
-                Edit Domain
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive focus:text-destructive">
-                <TrashIcon className="mr-2 h-4 w-4" />
-                Delete Domain
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
-    },
-  },
-];
+import { DomainStatusBadge } from "@/components/badge/domain-status-badge";
+import { EmptyTable } from "@/components/data-table/empty-table";
+import { Spinner } from "@/components/global/spinner";
 
 export default function DomainDataTable() {
-  const [data, _setData] = useState<DomainItem[]>([]);
-  const [sorting, setSorting] = useState<SortingState>([
-    {
-      id: "domain",
-      desc: false,
-    },
-  ]);
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const t = useTranslations("DomainPage.table");
 
-  const handleSearch = () => {
-    setGlobalFilter(searchQuery);
-    // Here you can also make an API call if needed
-    console.log("Searching for:", searchQuery);
+  const [currentPage, setCurrentPage] = useQueryState(
+    "page",
+    parseAsInteger.withDefault(1)
+  );
+  const [pageSize, setPageSize] = useQueryState(
+    "pageSize",
+    parseAsInteger.withDefault(10)
+  );
+  const [search, setSearch] = useQueryState(
+    "search",
+    parseAsString.withDefault("")
+  );
+
+  const {
+    data: domainResponse,
+    isFetching,
+    isError,
+    refetch,
+  } = useGetDomainList(currentPage, pageSize, search);
+
+  // Extract data from the response
+  const domainData = domainResponse?.data?.data || [];
+  const paginationInfo = domainResponse?.data || {
+    from: 0,
+    to: 0,
+    total: 0,
+    last_page: 1,
+  };
+  const isDataEmpty = !domainData || domainData.length === 0;
+
+  // Handle next page navigation - increment by 1
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const table = useReactTable({
-    data,
-    columns,
-    columnResizeMode: "onChange",
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onSortingChange: setSorting,
-    state: {
-      sorting,
-      globalFilter,
-    },
-    onGlobalFilterChange: setGlobalFilter,
-    enableSortingRemoval: false,
-  });
+  // Handle previous page navigation - decrement by 1
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Handler for refresh button click
+  const handleRefresh = () => {
+    refetch();
+  };
+
+  // Function to determine domain status based on expiration date
+  const getDomainStatus = (domain: IDomainActual): DomainStatusEnum => {
+    if (!domain.time_expired) return DomainStatusEnum.INACTIVE;
+
+    const today = new Date();
+    const expiry = new Date(domain.time_expired);
+
+    // Calculate days until expiration
+    const daysUntilExpiry = Math.floor(
+      (expiry.getTime() - today.getTime()) / (1000 * 3600 * 24)
+    );
+
+    if (daysUntilExpiry < 0) return DomainStatusEnum.INACTIVE;
+    if (domain.is_locked) return DomainStatusEnum.ACTIVE;
+
+    return DomainStatusEnum.ACTIVE;
+  };
 
   return (
-    <>
-      {/* Search Bar */}
-      <div className="mb-4">
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          onSearch={handleSearch}
-          placeholder="Search domains, servers, managers..."
-        />
-      </div>
-
-      <div className="w-full">
-        <Table
-          className="[&_td]:border-border [&_th]:border-border w-full table-fixed border-separate border-spacing-0 [&_tfoot_td]:border-t [&_th]:border-b [&_tr]:border-none [&_tr:not(:last-child)_td]:border-b"
-          style={{
-            minWidth: "100%",
-          }}
-        >
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="bg-muted/50">
-                {headerGroup.headers.map((header) => {
-                  const { column } = header;
-                  const isPinned = column.getIsPinned();
-                  const isLastLeftPinned =
-                    isPinned === "left" && column.getIsLastColumn("left");
-                  const isFirstRightPinned =
-                    isPinned === "right" && column.getIsFirstColumn("right");
-
-                  return (
-                    <TableHead
-                      key={header.id}
-                      className="[&[data-pinned][data-last-col]]:border-border data-pinned:bg-muted/90 relative h-10 truncate border-t data-pinned:backdrop-blur-xs [&:not([data-pinned]):has(+[data-pinned])_div.cursor-col-resize:last-child]:opacity-0 [&[data-last-col=left]_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=left][data-last-col=left]]:border-r [&[data-pinned=right]:last-child_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=right][data-last-col=right]]:border-l"
-                      colSpan={header.colSpan}
-                      style={{
-                        ...getPinningStyles(column),
-                      }}
-                      data-pinned={isPinned || undefined}
-                      data-last-col={
-                        isLastLeftPinned
-                          ? "left"
-                          : isFirstRightPinned
-                            ? "right"
-                            : undefined
-                      }
-                      aria-sort={
-                        header.column.getIsSorted() === "asc"
-                          ? "ascending"
-                          : header.column.getIsSorted() === "desc"
-                            ? "descending"
-                            : "none"
-                      }
-                    >
-                      <div
-                        className={cn(
-                          "flex items-center justify-between gap-2",
-                          header.column.getCanSort() &&
-                            "cursor-pointer select-none"
-                        )}
-                        onClick={
-                          header.column.getCanSort()
-                            ? header.column.getToggleSortingHandler()
-                            : undefined
-                        }
-                        onKeyDown={(e) => {
-                          if (
-                            header.column.getCanSort() &&
-                            (e.key === "Enter" || e.key === " ")
-                          ) {
-                            e.preventDefault();
-                            header.column.getToggleSortingHandler()?.(e);
-                          }
-                        }}
-                        tabIndex={header.column.getCanSort() ? 0 : undefined}
-                      >
-                        <div className="flex items-center gap-1">
-                          <span className="truncate">
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
-                          </span>
-                          {header.column.getCanSort() && (
-                            <div className="flex items-center">
-                              {header.column.getIsSorted() === "asc" ? (
-                                <ChevronUpIcon className="size-4 shrink-0 opacity-60" />
-                              ) : header.column.getIsSorted() === "desc" ? (
-                                <ChevronDownIcon className="size-4 shrink-0 opacity-60" />
-                              ) : null}
-                            </div>
-                          )}
-                        </div>
-                        {/* Pin/Unpin column controls with enhanced accessibility */}
-                        {!header.isPlaceholder &&
-                          header.column.getCanPin() &&
-                          (header.column.getIsPinned() ? (
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="-mr-1 size-7 shadow-none"
-                              onClick={() => header.column.pin(false)}
-                              aria-label={`Unpin ${
-                                header.column.columnDef.header as string
-                              } column`}
-                              title={`Unpin ${
-                                header.column.columnDef.header as string
-                              } column`}
-                            >
-                              <PinOffIcon
-                                className="opacity-60"
-                                size={16}
-                                aria-hidden="true"
-                              />
-                            </Button>
-                          ) : (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="-mr-1 size-7 shadow-none"
-                                  aria-label={`Pin options for ${
-                                    header.column.columnDef.header as string
-                                  } column`}
-                                  title={`Pin options for ${
-                                    header.column.columnDef.header as string
-                                  } column`}
-                                >
-                                  <EllipsisIcon
-                                    className="opacity-60"
-                                    size={16}
-                                    aria-hidden="true"
-                                  />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onClick={() => header.column.pin("left")}
-                                >
-                                  <ArrowLeftToLineIcon
-                                    size={16}
-                                    className="opacity-60"
-                                    aria-hidden="true"
-                                  />
-                                  Stick to left
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => header.column.pin("right")}
-                                >
-                                  <ArrowRightToLineIcon
-                                    size={16}
-                                    className="opacity-60"
-                                    aria-hidden="true"
-                                  />
-                                  Stick to right
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          ))}
-                        {header.column.getCanResize() && (
-                          <div
-                            {...{
-                              onDoubleClick: () => header.column.resetSize(),
-                              onMouseDown: header.getResizeHandler(),
-                              onTouchStart: header.getResizeHandler(),
-                              className:
-                                "absolute top-0 h-full w-4 cursor-col-resize user-select-none touch-none -right-2 z-10 flex justify-center before:absolute before:w-px before:inset-y-0 before:bg-border before:-translate-x-px",
-                            }}
-                          />
-                        )}
-                      </div>
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    const { column } = cell;
-                    const isPinned = column.getIsPinned();
-                    const isLastLeftPinned =
-                      isPinned === "left" && column.getIsLastColumn("left");
-                    const isFirstRightPinned =
-                      isPinned === "right" && column.getIsFirstColumn("right");
-
-                    return (
-                      <TableCell
-                        key={cell.id}
-                        className="[&[data-pinned][data-last-col]]:border-border data-pinned:bg-background/90 truncate data-pinned:backdrop-blur-xs [&[data-pinned=left][data-last-col=left]]:border-r [&[data-pinned=right][data-last-col=right]]:border-l"
-                        style={{
-                          ...getPinningStyles(column),
-                        }}
-                        data-pinned={isPinned || undefined}
-                        data-last-col={
-                          isLastLeftPinned
-                            ? "left"
-                            : isFirstRightPinned
-                              ? "right"
-                              : undefined
-                        }
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between gap-8">
-        {/* Results per page */}
-        <div className="flex items-center gap-3">
-          <Label htmlFor="rows-per-page" className="max-sm:sr-only">
-            Rows per page
-          </Label>
-          <Select
-            value={table.getState().pagination.pageSize.toString()}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
-            }}
-          >
-            <SelectTrigger
-              id="rows-per-page"
-              className="w-fit whitespace-nowrap"
+    <div className="flex min-h-[calc(100vh-200px)] flex-col">
+      {/* Filters Section */}
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 items-end gap-6 md:grid-cols-2">
+          <div>
+            <label
+              className="mb-2 block text-sm font-medium text-gray-700"
+              htmlFor="search"
             >
-              <SelectValue placeholder="Select number of results" />
-            </SelectTrigger>
-            <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
-              {[5, 10, 25, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={pageSize.toString()}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {/* Page number information */}
-        <div className="text-muted-foreground flex grow justify-end text-sm whitespace-nowrap">
-          <p
-            className="text-muted-foreground text-sm whitespace-nowrap"
-            aria-live="polite"
-          >
-            <span className="text-foreground">
-              {table.getState().pagination.pageIndex *
-                table.getState().pagination.pageSize +
-                1}
-              -
-              {Math.min(
-                Math.max(
-                  table.getState().pagination.pageIndex *
-                    table.getState().pagination.pageSize +
-                    table.getState().pagination.pageSize,
-                  0
-                ),
-                table.getRowCount()
-              )}
-            </span>{" "}
-            of{" "}
-            <span className="text-foreground">
-              {table.getRowCount().toString()}
-            </span>
-          </p>
+              {t("filters.search")}
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                id="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-4 py-2 pr-10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                placeholder={t("placeholders.search")}
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                <Search className="h-4 w-4 text-gray-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-end">
+            <Button
+              onClick={() => {
+                setCurrentPage(1); // Reset to first page when searching
+                refetch();
+              }}
+              disabled={isFetching}
+            >
+              <Search className="mr-2 h-4 w-4" /> {t("filters.search")}
+            </Button>
+
+            <Button
+              variant="outline"
+              className="ml-4"
+              onClick={handleRefresh}
+              disabled={isFetching}
+            >
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
+              />
+              {t("actions.refresh") || "Refresh"}
+            </Button>
+          </div>
         </div>
 
-        {/* Pagination buttons */}
-        <div>
-          <Pagination>
-            <PaginationContent>
-              {/* First page button */}
-              <PaginationItem>
+        {/* Results Table or Empty State */}
+        <div className="mt-4 flex-grow">
+          {isFetching ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <Spinner />
+              </div>
+            </div>
+          ) : isError ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <p className="text-destructive text-sm">
+                  {t("loadingStates.error")}
+                </p>
                 <Button
-                  size="icon"
+                  onClick={handleRefresh}
                   variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.firstPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  aria-label="Go to first page"
+                  className="mt-4"
                 >
-                  <ChevronFirstIcon size={16} aria-hidden="true" />
+                  {t("actions.retry")}
                 </Button>
-              </PaginationItem>
-              {/* Previous page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  aria-label="Go to previous page"
-                >
-                  <ChevronLeftIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Next page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                  aria-label="Go to next page"
-                >
-                  <ChevronRightIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Last page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.lastPage()}
-                  disabled={!table.getCanNextPage()}
-                  aria-label="Go to last page"
-                >
-                  <ChevronLastIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+              </div>
+            </div>
+          ) : isDataEmpty ? (
+            <EmptyTable onRefresh={handleRefresh} />
+          ) : (
+            <div className="flex flex-col">
+              {/* Data Table Section */}
+              <div className="relative w-full overflow-auto">
+                <Table className="w-full">
+                  <TableHeader className="sticky top-0 z-10 bg-white">
+                    <TableRow className="border-b border-gray-200 hover:bg-white">
+                      <TableHead className="w-[60px] py-3 font-medium text-gray-700">
+                        {t("columns.id")}
+                      </TableHead>
+                      <TableHead className="w-[140px] py-3 font-medium text-gray-700">
+                        Domain
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        Status
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        {t("columns.timestamp")}
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        Expires
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        Registrar
+                      </TableHead>
+                      <TableHead className="w-[90px] py-3 font-medium text-gray-700">
+                        Security
+                      </TableHead>
+                      <TableHead className="py-3 text-right font-medium text-gray-700">
+                        <span className="sr-only">{t("columns.actions")}</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {domainData.map((domain: IDomainActual, index: number) => {
+                      const domainStatus = getDomainStatus(domain);
+                      return (
+                        <TableRow
+                          key={index}
+                          className="border-b border-gray-200 hover:bg-gray-50"
+                        >
+                          <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                            {domain.id}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3">
+                            <span className="font-medium text-indigo-600">
+                              {domain.domain || "—"}
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-3">
+                            <DomainStatusBadge status={domainStatus} />
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {domain.updated_at
+                              ? format(
+                                  new Date(domain.updated_at),
+                                  "yyyy-MM-dd HH:mm"
+                                )
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {domain.time_expired
+                              ? format(
+                                  new Date(domain.time_expired),
+                                  "yyyy-MM-dd"
+                                )
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {domain.registrar || "—"}
+                          </TableCell>
+                          <TableCell className="py-3">
+                            {domain.is_locked ? (
+                              <div className="flex items-center">
+                                <Lock className="mr-1 h-4 w-4 text-green-600" />
+                                <span className="text-xs text-green-600">
+                                  Locked
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center">
+                                <LockOpen className="mr-1 h-4 w-4 text-amber-600" />
+                                <span className="text-xs text-amber-600">
+                                  Unlocked
+                                </span>
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="py-3 text-right">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              {t("actions.details")}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Pagination Section - Fixed at bottom when scrolling */}
+              <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
+                {/* Main pagination controls */}
+                <div className="flex items-center justify-between px-4 py-2">
+                  {/* Results per page */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600">
+                      {t("pagination.rowsPerPage")}
+                    </span>
+                    <Select
+                      value={pageSize.toString()}
+                      onValueChange={(value) => setPageSize(Number(value))}
+                    >
+                      <SelectTrigger className="h-8 w-14 border-gray-200 text-sm">
+                        <SelectValue placeholder="10" />
+                      </SelectTrigger>
+                      <SelectContent className="text-sm">
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Pagination controls */}
+                  <div className="flex items-center gap-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1}
+                    >
+                      {t("pagination.previousPage")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      onClick={handleNextPage}
+                      disabled={currentPage === paginationInfo.last_page}
+                    >
+                      {t("pagination.nextPage")}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Bottom status line */}
+                <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+                  <div>
+                    Viewing {paginationInfo.from || 1}-
+                    {paginationInfo.to ||
+                      Math.min(pageSize, paginationInfo.total || 0)}{" "}
+                    {t("pagination.of")} {paginationInfo.total || 0} results
+                  </div>
+                  <div>
+                    Page {currentPage} {t("pagination.of")}{" "}
+                    {paginationInfo.last_page || 1}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 }
