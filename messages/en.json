@@ -256,7 +256,7 @@
         "breadcrumb": "Domains",
         "table": {
             "filters": {
-                "search": "Search domains"
+                "search": "Search"
             },
             "columns": {
                 "id": "ID",
@@ -301,7 +301,7 @@
             "title": "Activity Logs",
             "description": "Track and monitor all system activities and user actions",
             "filters": {
-                "search": "Search activity logs",
+                "search": "Search",
                 "dateRange": "Date range"
             },
             "columns": {
