@@ -1,6 +1,6 @@
 export interface INotification {
     id: number;
-    user_id: number;
+    email: string;
     message: string;
     unread: boolean;
     updated_at: string;

@@ -107,13 +107,6 @@
     "react-dom": "^19.0.0"
   },
   "pnpm": {
-    "peerDependencyRules": {
-      "ignorePeer": [
-        "react",
-        "react-dom",
-        "@types/react"
-      ]
-    },
     "onlyBuiltDependencies": [
       "@firebase/util",
       "protobufjs",
