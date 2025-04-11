@@ -1,5 +1,5 @@
 {
-  "name": "onesignal5-fe",
+  "name": "cms-fe",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -111,7 +111,12 @@
         "react-dom",
         "@types/react"
       ]
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@firebase/util",
+      "protobufjs",
+      "sharp"
+    ]
   },
   "packageManager": "pnpm@10.7.0"
 }

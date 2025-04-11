@@ -5,7 +5,6 @@ import { format } from "date-fns";
 import { Lock, LockOpen, RefreshCw, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import { useEffect } from "react";
 
 import { IDomainActual } from "@/types/domain.type";
 
@@ -47,10 +46,6 @@ export default function DomainDataTable() {
     "search",
     parseAsString.withDefault("")
   );
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, setCurrentPage]);
 
   const {
     data: domainResponse,
@@ -121,9 +116,12 @@ export default function DomainDataTable() {
                 type="text"
                 id="search"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
                 className="w-full rounded-md border border-gray-300 px-4 py-2 pr-10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
                 placeholder={t("placeholders.search")}
+                onChange={(e) => {
+                  setCurrentPage(1);
+                  setSearch(e.target.value);
+                }}
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                 <Search className="h-4 w-4 text-gray-400" />

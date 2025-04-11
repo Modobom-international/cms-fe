@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
 import Link from "next/link";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowLeft,
@@ -14,7 +12,6 @@ import {
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
 import { buttonVariants } from "@/components/ui/button";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,7 +32,7 @@ interface Permission {
 // Form Schema
 const teamFormSchema = z.object({
   name: z.string().min(1, "Tên phòng ban không được để trống"),
-  permissions: z.record(z.boolean()).default({}),
+  permissions: z.record(z.string(), z.boolean()),
 });
 
 type TeamFormValues = z.infer<typeof teamFormSchema>;
@@ -120,7 +117,6 @@ export default function CreateTeamPage() {
     <div className="flex flex-col gap-8">
       {/* Header Section */}
       <div className="flex flex-col gap-4">
-        {/* Breadcrumbs */}
         <nav className="text-muted-foreground flex items-center gap-2 text-sm">
           <Home className="h-4 w-4" />
           <ChevronRight className="h-4 w-4" />
@@ -128,8 +124,6 @@ export default function CreateTeamPage() {
           <ChevronRight className="h-4 w-4" />
           <span>Thêm phòng ban</span>
         </nav>
-
-        {/* Title and Actions Section */}
         <div className="flex items-start justify-between">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-semibold tracking-tight">
@@ -139,7 +133,6 @@ export default function CreateTeamPage() {
               Thêm phòng ban mới vào hệ thống và phân quyền truy cập
             </p>
           </div>
-
           <Link
             href="/admin/teams"
             className={buttonVariants({
@@ -152,11 +145,8 @@ export default function CreateTeamPage() {
           </Link>
         </div>
       </div>
-
-      {/* Rest of the form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* Left Column - Team Information */}
           <div className="space-y-6">
             <div className="rounded-lg bg-white">
               <div className="mb-6">
@@ -167,7 +157,6 @@ export default function CreateTeamPage() {
                   Nhập thông tin cơ bản của phòng ban
                 </p>
               </div>
-
               <div className="space-y-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="name">Tên phòng ban</Label>
@@ -186,8 +175,6 @@ export default function CreateTeamPage() {
               </div>
             </div>
           </div>
-
-          {/* Right Column - Permissions */}
           <div className="space-y-6 lg:col-span-2">
             <div className="rounded-lg bg-white p-6">
               <div className="mb-6">
@@ -198,7 +185,6 @@ export default function CreateTeamPage() {
                   Thiết lập quyền truy cập cho phòng ban
                 </p>
               </div>
-
               <div className="space-y-4">
                 {Object.entries(permissions).map(([section, routes]) => (
                   <div key={section} className="rounded-md border">
@@ -248,7 +234,6 @@ export default function CreateTeamPage() {
                         )}
                       </Button>
                     </div>
-
                     {openSections[section] && (
                       <div className="divide-y border-t">
                         {routes.map((route) => (
@@ -282,8 +267,6 @@ export default function CreateTeamPage() {
             </div>
           </div>
         </div>
-
-        {/* Submit Button */}
         <div className="flex justify-end border-t pt-6">
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Đang xử lý..." : "Tạo phòng ban"}
