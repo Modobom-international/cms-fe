@@ -21,6 +21,7 @@ interface DraggableEventProps {
   isFirstDay?: boolean;
   isLastDay?: boolean;
   "aria-hidden"?: boolean | "true" | "false";
+  elementRef?: React.MutableRefObject<HTMLElement | null>;
 }
 
 export function DraggableEvent({
@@ -36,7 +37,7 @@ export function DraggableEvent({
   "aria-hidden": ariaHidden,
 }: DraggableEventProps) {
   const { activeId } = useCalendarDnd();
-  const elementRef = useRef<HTMLDivElement>(null);
+  const elementRef = useRef<HTMLElement | null>(null);
   const [dragHandlePosition, setDragHandlePosition] = useState<{
     x: number;
     y: number;
@@ -87,16 +88,16 @@ export function DraggableEvent({
 
   const style = transform
     ? {
-        transform: CSS.Translate.toString(transform),
-        height: height || "auto",
-        width:
-          isMultiDayEvent && multiDayWidth ? `${multiDayWidth}%` : undefined,
-      }
+      transform: CSS.Translate.toString(transform),
+      height: height || "auto",
+      width:
+        isMultiDayEvent && multiDayWidth ? `${multiDayWidth}%` : undefined,
+    }
     : {
-        height: height || "auto",
-        width:
-          isMultiDayEvent && multiDayWidth ? `${multiDayWidth}%` : undefined,
-      };
+      height: height || "auto",
+      width:
+        isMultiDayEvent && multiDayWidth ? `${multiDayWidth}%` : undefined,
+    };
 
   // Handle touch start to track where on the event the user touched
   const handleTouchStart = (e: React.TouchEvent) => {
