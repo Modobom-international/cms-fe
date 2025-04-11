@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNotificationsData } from "@/hooks/notification";
 import { INotification } from "@/types/notification";
 import Echo from "laravel-echo";
-import Pusher from "pusher-js";
 
 export function useNotifications(socketUrl: string, email: string) {
   const { data: fetchedNotifications, isLoading } = useNotificationsData(email);
@@ -22,11 +21,11 @@ export function useNotifications(socketUrl: string, email: string) {
     const echo = new Echo({
       broadcaster: "reverb",
       key: process.env.NEXT_PUBLIC_REVERB_APP_KEY,
-      wsHost: "localhost",
-      wsPort: 8080,
-      wssPort: 8080,
-      forceTLS: false,
-      enabledTransports: ['ws', 'wss'],
+      wsHost: process.env.NEXT_PUBLIC_REVERB_HOST,
+      wsPort: process.env.NEXT_PUBLIC_REVERB_PORT || 8080,
+      wssPort: process.env.NEXT_PUBLIC_REVERB_PORT || 443,
+      forceTLS: process.env.NEXT_PUBLIC_REVERB_SCHEME === "https",
+      enabledTransports: ["ws", "wss"],
     });
 
     echo

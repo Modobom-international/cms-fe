@@ -114,7 +114,6 @@ export function MonthView({
             {week.map((day, dayIndex) => {
               const dayEvents = getEventsForDay(events, day);
               const spanningEvents = getSpanningEventsForDay(events, day);
-              const isCurrentMonth = isSameMonth(day, currentDate);
               const cellId = `month-cell-${day.toISOString()}`;
               const allDayEvents = [...spanningEvents, ...dayEvents];
               const allEvents = getAllEventsForDay(events, day);
@@ -130,12 +129,21 @@ export function MonthView({
                 ? allDayEvents.length - visibleCount
                 : 0;
 
+              const today = new Date(currentDate);
+
+              function isToday(day: Date): boolean {
+                return (
+                  day.getFullYear() === today.getFullYear() &&
+                  day.getMonth() === today.getMonth() &&
+                  day.getDate() === today.getDate()
+                );
+              }
+
               return (
                 <div
                   key={day.toString()}
                   className="group border-border/70 data-outside-cell:bg-muted/25 data-outside-cell:text-muted-foreground/70 border-r border-b last:border-r-0"
-                  data-today={isToday(day) || undefined}
-                  data-outside-cell={!isCurrentMonth || undefined}
+                  data-today={isToday(day)}
                 >
                   <DroppableCell
                     id={cellId}
