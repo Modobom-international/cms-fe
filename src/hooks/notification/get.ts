@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
-import { io, Socket } from "socket.io-client";
 import { useNotificationsData } from "@/hooks/notification";
 import { INotification } from "@/types/notification";
+import Echo from "laravel-echo";
+import Pusher from "pusher-js";
 
 export function useNotifications(socketUrl: string, email: string) {
-  const [socket, setSocket] = useState<Socket | null>(null);
   const { data: fetchedNotifications, isLoading } = useNotificationsData(email);
   const [socketNotifications, setSocketNotifications] = useState<INotification[]>(
-    fetchedNotifications && 'data' in fetchedNotifications ? fetchedNotifications.data : []
+    fetchedNotifications && "data" in fetchedNotifications ? fetchedNotifications.data : []
   );
 
   useEffect(() => {
-    if (fetchedNotifications && 'data' in fetchedNotifications) {
+    if (fetchedNotifications && "data" in fetchedNotifications) {
       setSocketNotifications(fetchedNotifications.data);
     } else {
       setSocketNotifications([]);
@@ -19,24 +19,29 @@ export function useNotifications(socketUrl: string, email: string) {
   }, [fetchedNotifications]);
 
   useEffect(() => {
-    const newSocket = io(socketUrl, {
-      transports: ["websocket"],
-      reconnection: true,
+    const echo = new Echo({
+      broadcaster: "reverb",
+      key: process.env.NEXT_PUBLIC_REVERB_APP_KEY,
+      wsHost: "localhost",
+      wsPort: 8080,
+      wssPort: 8080,
+      forceTLS: false,
+      enabledTransports: ["ws"],
     });
 
-    setSocket(newSocket);
-
-    newSocket.on("new-notification", (notification: INotification & { email?: string }) => {
-      if (notification.email === email) {
-        setSocketNotifications((prev) => [
-          { ...notification, unread: true },
-          ...prev,
-        ]);
-      }
-    });
+    echo
+      .private(`notifications.${email}`)
+      .listen("NewNotification", (notification: INotification & { email?: string }) => {
+        if (notification.email === email) {
+          setSocketNotifications((prev) => [
+            { ...notification, unread: true },
+            ...prev,
+          ]);
+        }
+      });
 
     return () => {
-      newSocket.disconnect();
+      echo.disconnect();
     };
   }, [socketUrl, email]);
 
