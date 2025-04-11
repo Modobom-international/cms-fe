@@ -336,5 +336,11 @@
         "search": "Tìm kiếm theo hành động hoặc ID người dùng"
       }
     }
+  },
+  "Notification": {
+    "markAllAsRead": "Đánh dấu tất cả đã đọc",
+    "noNotifications": "Không có thông báo",
+    "unRead": "Chưa đọc",
+    "notifications": "Thông báo"
   }
 }

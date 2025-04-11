@@ -336,5 +336,11 @@
                 "search": "Search by action or user ID"
             }
         }
+    },
+    "Notification": {
+        "markAllAsRead": "Mark all as read",
+        "noNotifications": "No notifications",
+        "unRead": "Unread",
+        "notifications": "Notifications"
     }
 }

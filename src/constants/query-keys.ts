@@ -32,3 +32,9 @@ export const activityLogQueryKeys = {
   list: (page: number, pageSize: number, search: string = "") =>
     [...activityLogQueryKeys.origin, "list", page, pageSize, search] as const,
 };
+
+export const notificationQueryKeys = {
+  origin: ["notifications"] as const,
+  list: (email: string) =>
+    [...notificationQueryKeys.origin, "list", email] as const,
+};

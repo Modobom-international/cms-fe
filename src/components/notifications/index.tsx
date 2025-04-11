@@ -1,48 +1,12 @@
-import { useState } from "react";
-
 import { BellIcon } from "lucide-react";
-
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
-const initialNotifications = [
-  {
-    id: 1,
-    user: "Chris Tompson",
-    action: "requested review on",
-    target: "PR #42: Feature implementation",
-    timestamp: "15 minutes ago",
-    unread: true,
-  },
-  {
-    id: 2,
-    user: "Emma Davis",
-    action: "shared",
-    target: "New component library",
-    timestamp: "45 minutes ago",
-    unread: true,
-  },
-  {
-    id: 3,
-    user: "James Wilson",
-    action: "assigned you to",
-    target: "API integration task",
-    timestamp: "4 hours ago",
-    unread: false,
-  },
-  {
-    id: 4,
-    user: "Alex Morgan",
-    action: "replied to your comment in",
-    target: "Authentication flow",
-    timestamp: "12 hours ago",
-    unread: false,
-  },
-];
+import { useNotifications } from "@/hooks/notification/get";
 
 function Dot({ className }: { className?: string }) {
   return (
@@ -59,28 +23,26 @@ function Dot({ className }: { className?: string }) {
     </svg>
   );
 }
-export default function NotificationsButton() {
-  const [notifications, setNotifications] = useState(initialNotifications);
-  const unreadCount = notifications.filter((n) => n.unread).length;
 
-  const handleMarkAllAsRead = () => {
-    setNotifications(
-      notifications.map((notification) => ({
-        ...notification,
-        unread: false,
-      }))
-    );
-  };
+export default function NotificationsButton({ email }: { email: string }) {
+  const socketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || "http://localhost:3003";
+  const t = useTranslations("Notification");
+  const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } =
+    useNotifications(socketUrl, email);
 
-  const handleNotificationClick = (id: number) => {
-    setNotifications(
-      notifications.map((notification) =>
-        notification.id === id
-          ? { ...notification, unread: false }
-          : notification
-      )
+  if (isLoading) {
+    return (
+      <Button
+        size="icon"
+        variant="ghost"
+        className="relative"
+        aria-label="Loading notifications"
+        disabled
+      >
+        <BellIcon size={16} aria-hidden="true" />
+      </Button>
     );
-  };
+  }
 
   return (
     <Popover>
@@ -92,7 +54,6 @@ export default function NotificationsButton() {
           aria-label="Open notifications"
         >
           <BellIcon size={16} aria-hidden="true" />
-
           {unreadCount > 0 && (
             <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium">
               {unreadCount > 99 ? "99+" : unreadCount}
@@ -102,13 +63,13 @@ export default function NotificationsButton() {
       </PopoverTrigger>
       <PopoverContent className="w-80 p-1" side="bottom" align="end">
         <div className="flex items-baseline justify-between gap-4 px-3 py-2">
-          <div className="text-sm font-semibold">Notifications</div>
+          <div className="text-sm font-semibold">{t("notifications")}</div>
           {unreadCount > 0 && (
             <button
               className="text-xs font-medium hover:underline"
-              onClick={handleMarkAllAsRead}
+              onClick={markAllAsRead}
             >
-              Mark all as read
+              {t("markAllAsRead")}
             </button>
           )}
         </div>
@@ -117,39 +78,38 @@ export default function NotificationsButton() {
           aria-orientation="horizontal"
           className="bg-border -mx-1 my-1 h-px"
         ></div>
-        {notifications.map((notification) => (
-          <div
-            key={notification.id}
-            className="hover:bg-accent rounded-md px-3 py-2 text-sm transition-colors"
-          >
-            <div className="relative flex items-start pe-3">
-              <div className="flex-1 space-y-1">
-                <button
-                  className="text-foreground/80 text-left after:absolute after:inset-0"
-                  onClick={() => handleNotificationClick(notification.id)}
-                >
-                  <span className="text-foreground font-medium hover:underline">
-                    {notification.user}
-                  </span>{" "}
-                  {notification.action}{" "}
-                  <span className="text-foreground font-medium hover:underline">
-                    {notification.target}
-                  </span>
-                  .
-                </button>
-                <div className="text-muted-foreground text-xs">
-                  {notification.timestamp}
-                </div>
-              </div>
-              {notification.unread && (
-                <div className="absolute end-0 self-center">
-                  <span className="sr-only">Unread</span>
-                  <Dot />
-                </div>
-              )}
-            </div>
+        {notifications.length === 0 ? (
+          <div className="px-3 py-2 text-sm text-muted-foreground">
+            {t("noNotifications")}
           </div>
-        ))}
+        ) : (
+          notifications.map((notification) => (
+            <div
+              key={notification.id}
+              className="hover:bg-accent rounded-md px-3 py-2 text-sm transition-colors"
+            >
+              <div className="relative flex items-start pe-3">
+                <div className="flex-1 space-y-1">
+                  <button
+                    className="text-foreground/80 text-left after:absolute after:inset-0"
+                    onClick={() => markAsRead(notification.id)}
+                  >
+                    {notification.message}
+                  </button>
+                  <div className="text-muted-foreground text-xs">
+                    {notification.created_at}
+                  </div>
+                </div>
+                {notification.unread && (
+                  <div className="absolute end-0 self-center">
+                    <span className="sr-only">{t("unRead")}</span>
+                    <Dot />
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </PopoverContent>
     </Popover>
   );

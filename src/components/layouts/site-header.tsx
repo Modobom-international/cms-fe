@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
+import { useAuth } from "@/providers/auth-provider";
 
 import AvatarButton from "@/components/avatars/avatar-button";
 import CalendarSample from "@/components/calendar/calendar-sample";
@@ -18,6 +19,7 @@ import NotificationsButton from "@/components/notifications";
 
 export function SiteHeader() {
   const { toggleSidebar } = useSidebar();
+  const { user } = useAuth();
 
   return (
     <header className="bg-background sticky top-0 z-50 flex w-full items-center border-b">
@@ -78,7 +80,11 @@ export function SiteHeader() {
               </PopoverContent>
             </Popover>
 
-            <NotificationsButton />
+            {user && user.email ? (
+              <NotificationsButton email={user.email} />
+            ) : (
+              <div className="h-9 w-9" />
+            )}
 
             <Button variant="ghost" size="icon" className="h-9 w-9">
               <Settings2Icon className="text-muted-foreground h-[18px] w-[18px]" />
