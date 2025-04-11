@@ -23,7 +23,7 @@ export const useNotificationsData = (email: string) => {
           success: false,
           data: [],
           message: "Lấy dữ liệu thông báo thất bại",
-          type: "list_notifications_failed",
+          type: "list_notifications_fail",
         };
       }
     },

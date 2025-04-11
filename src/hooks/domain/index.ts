@@ -108,8 +108,8 @@ export const useGetAllDomains = () => {
         return {
           success: false,
           data: [],
-          message: "Failed to fetch all domains",
-          type: "all_domains_error",
+          message: "Lấy dữ liệu domain lỗi",
+          type: "list_domain_fail",
         };
       }
     },
