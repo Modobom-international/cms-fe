@@ -7141,7 +7141,7 @@ snapshots:
 
   '@types/hoist-non-react-statics@3.3.6':
     dependencies:
-      '@types/react': 19.1.0
+      '@types/react': 18.3.20
       hoist-non-react-statics: 3.3.2
 
   '@types/jquery@3.5.32':
@@ -7173,7 +7173,7 @@ snapshots:
 
   '@types/react-beautiful-dnd@13.1.8':
     dependencies:
-      '@types/react': 19.1.0
+      '@types/react': 18.3.20
 
   '@types/react-dom@18.3.6(@types/react@18.3.20)':
     dependencies:
@@ -7186,7 +7186,7 @@ snapshots:
   '@types/react-redux@7.1.34':
     dependencies:
       '@types/hoist-non-react-statics': 3.3.6
-      '@types/react': 19.1.0
+      '@types/react': 18.3.20
       hoist-non-react-statics: 3.3.2
       redux: 4.2.1
 

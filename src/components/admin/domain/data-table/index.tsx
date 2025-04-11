@@ -55,11 +55,9 @@ export default function DomainDataTable() {
   } = useGetDomainList(currentPage, pageSize, search);
 
   // Extract data from the response
-  const domainData = domainResponse?.data?.data || [];
-  const paginationInfo = domainResponse?.data || {
-    from: 0,
-    to: 0,
-    total: 0,
+  const domainData = domainResponse && "data" in domainResponse ? domainResponse.data.data || [] : [];
+  const paginationInfo = domainResponse && "data" in domainResponse ? domainResponse.data : {
+    from: 0, to: 0, total: 0,
     last_page: 1,
   };
   const isDataEmpty = !domainData || domainData.length === 0;

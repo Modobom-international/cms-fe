@@ -4,6 +4,15 @@ import { INotification } from "@/types/notification";
 import Echo from "laravel-echo";
 import Pusher from "pusher-js";
 
+interface CustomPusherOptions {
+  wsHost?: string;
+  wsPort?: number;
+  wssPort?: number;
+  forceTLS?: boolean;
+  enabledTransports?: string[];
+  cluster?: string;
+}
+
 export function useNotifications(socketUrl: string, email: string) {
   const { data: fetchedNotifications, isLoading } = useNotificationsData(email);
   const [socketNotifications, setSocketNotifications] = useState<INotification[]>(
@@ -26,12 +35,12 @@ export function useNotifications(socketUrl: string, email: string) {
       wsPort: 8080,
       wssPort: 8080,
       forceTLS: false,
-      enabledTransports: ["ws"],
+      enabledTransports: ['ws', 'wss'],
     });
 
     echo
       .private(`notifications.${email}`)
-      .listen("NewNotification", (notification: INotification & { email?: string }) => {
+      .listen("NotificationSystem", (notification: INotification & { email?: string }) => {
         if (notification.email === email) {
           setSocketNotifications((prev) => [
             { ...notification, unread: true },
