@@ -6,20 +6,14 @@ import Image from "next/image";
 import Link from "next/link";
 
 import {
-  ActivitySquare,
   Bell,
-  Construction,
-  CreditCard,
   GanttChartSquare,
-  HeartHandshake,
   LayoutGrid,
-  MessagesSquare,
   Network,
   PenTool,
   SquareActivity,
   Terminal,
   User,
-  Workflow,
 } from "lucide-react";
 
 import { Icons } from "@/components/ui/icons";
@@ -69,11 +63,6 @@ const data = {
       icon: SquareActivity,
     },
     {
-      title: "Log Behavior",
-      url: "/admin/log-behavior",
-      icon: ActivitySquare,
-    },
-    {
       title: "Push System",
       url: "/admin/push-system",
       icon: Bell,
@@ -95,39 +84,11 @@ const data = {
     },
     {
       title: "Board",
-      url: "/trello",
+      url: "/admin/trello",
       icon: GanttChartSquare,
     },
   ],
-  navSecondary: [
-    {
-      title: "Support",
-      url: "#",
-      icon: HeartHandshake,
-    },
-    {
-      title: "Feedback",
-      url: "#",
-      icon: MessagesSquare,
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Construction,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: CreditCard,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Workflow,
-    },
-  ],
+  navSecondary: [],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -145,7 +106,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <div className="relative aspect-square size-8">
                     <Image
                       src="/img/logo.png"
-                      alt="Mondobom Platform"
+                      alt="Modobom CMS"
                       className="h-full w-full"
                       fill
                     />
@@ -153,7 +114,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
-                    Mondobom Platform
+                    Modobom CMS
                   </span>
                   <span className="truncate text-xs">Enterprise</span>
                 </div>

@@ -247,6 +247,9 @@
             "placeholders": {
                 "selectDomain": "Select domain",
                 "selectResults": "Select number of results"
+            },
+            "loadingStates": {
+                "loadingDomains": "Domain is loading..."
             }
         }
     },

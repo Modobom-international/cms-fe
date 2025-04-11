@@ -2,7 +2,7 @@ import { domainQueryKeys } from "@/constants/query-keys";
 import { useQuery } from "@tanstack/react-query";
 import qs from "qs";
 
-import { IDomainResponse } from "@/types/domain.type";
+import { IDomainResponse, IDomainActual } from "@/types/domain.type";
 
 import apiClient from "@/lib/api/client";
 
@@ -83,6 +83,41 @@ export const useGetDomainList = (
           type: "list_domain_error",
         };
       }
+    },
+  });
+};
+
+interface IErrorDomainResponse {
+  success: boolean;
+  data: IDomainActual[];
+  message: string;
+  type: string;
+}
+
+export const useGetAllDomains = () => {
+  return useQuery({
+    queryKey: ['domains'],
+    queryFn: async (): Promise<IDomainActual[] | IErrorDomainResponse> => {
+      try {
+        const { data } = await apiClient.get<IDomainResponse>(
+          `/api/domain`
+        );
+
+        return data.data.data;
+      } catch {
+        return {
+          success: false,
+          data: [],
+          message: "Failed to fetch all domains",
+          type: "all_domains_error",
+        };
+      }
+    },
+    select: (data) => {
+      if ("success" in data && !data.success) {
+        return [];
+      }
+      return data as IDomainActual[];
     },
   });
 };

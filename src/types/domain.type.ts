@@ -16,6 +16,11 @@ export interface IDomainActual {
   created_at: string;
   updated_at: string;
   is_locked: number;
+  renewable: number;
+  status: string;
+  name_servers: string;
+  renew_deadline: string;
+  registrar_created_at: string;
 }
 
 export interface IDomainResponse {

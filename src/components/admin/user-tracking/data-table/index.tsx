@@ -12,10 +12,13 @@ import {
   Group,
   Popover,
 } from "react-aria-components";
+import { useEffect } from "react";
 
 import { IUserTracking } from "@/types/user-tracking.type";
+import { IDomainActual } from "@/types/domain.type";
 
 import { useGetUserTracking } from "@/hooks/user-tracking";
+import { useGetAllDomains } from "@/hooks/domain";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,9 +60,17 @@ export default function UserTrackingDataTable() {
     parseAsString.withDefault(format(new Date(), "yyyy-MM-dd"))
   );
   const [domain, setDomain] = useQueryState(
-    "domain",
-    parseAsString.withDefault("apkafe.com")
+    "domains",
+    parseAsString.withDefault("")
   );
+
+  const { data: domains = [], isLoading: isLoadingDomains, error: domainError } = useGetAllDomains();
+
+  useEffect(() => {
+    if (domain === "" && domains.length > 0) {
+      setDomain(domains[0].domain);
+    }
+  }, [domains, domain, setDomain]);
 
   const {
     data: userTrackingResponse,
@@ -68,7 +79,7 @@ export default function UserTrackingDataTable() {
     refetch,
   } = useGetUserTracking(currentPage, pageSize, date, domain);
 
-  // Extract data from the response
+  // Extract data từ response
   const userTrackingData = userTrackingResponse?.data?.data || [];
   const paginationInfo = userTrackingResponse?.data || {
     from: 0,
@@ -78,19 +89,19 @@ export default function UserTrackingDataTable() {
   };
   const isDataEmpty = !userTrackingData || userTrackingData.length === 0;
 
-  // Handle next page navigation - increment by 1
+  // Handle next page navigation
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Handle previous page navigation - decrement by 1
+  // Handle previous page navigation
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Convert string date to CalendarDate and back
+  // Convert string date to CalendarDate
   const calendarDate = date ? parseDate(date) : undefined;
   const handleDateChange = (newDate: CalendarDate | null) => {
     if (newDate) {
@@ -100,7 +111,7 @@ export default function UserTrackingDataTable() {
     }
   };
 
-  // Handler for refresh button click
+  // Handler cho nút refresh
   const handleRefresh = () => {
     refetch();
   };
@@ -117,20 +128,34 @@ export default function UserTrackingDataTable() {
             >
               {t("filters.selectDomain")}
             </label>
-            <Select value={domain} onValueChange={setDomain}>
-              <SelectTrigger className="w-full">
+            <Select value={domain} onValueChange={setDomain} disabled={isLoadingDomains}>
+              <SelectTrigger
+                id="domain-select"
+                className="w-full"
+                aria-label={t("filters.selectDomain")}
+              >
                 <SelectValue placeholder={t("placeholders.selectDomain")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="apkafe.com">apkafe.com</SelectItem>
-                <SelectItem value="vnitourist.com">vnitourist.com</SelectItem>
-                <SelectItem value="vnifood.com">vnifood.com</SelectItem>
-                <SelectItem value="betonamuryori.com">
-                  betonamuryori.com
-                </SelectItem>
-                <SelectItem value="lifecompass365.com">
-                  lifecompass365.com
-                </SelectItem>
+                {isLoadingDomains ? (
+                  <div className="py-2 text-center text-sm text-gray-500">
+                    {t("loadingStates.loadingDomains")}
+                  </div>
+                ) : domainError ? (
+                  <div className="py-2 text-center text-sm text-red-500">
+                    {t("errors.fetchDomainsFailed")}
+                  </div>
+                ) : domains.length === 0 ? (
+                  <div className="py-2 text-center text-sm text-gray-500">
+                    {t("loadingStates.noDomains")}
+                  </div>
+                ) : (
+                  domains.map((domainItem: IDomainActual) => (
+                    <SelectItem key={domainItem.id} value={domainItem.domain}>
+                      {domainItem.domain}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -166,7 +191,7 @@ export default function UserTrackingDataTable() {
           <div className="flex items-end">
             <Button
               onClick={() => {
-                setCurrentPage(1); // Reset to first page when searching
+                setCurrentPage(1);
                 refetch();
               }}
               disabled={isFetching}
@@ -304,11 +329,9 @@ export default function UserTrackingDataTable() {
                 </Table>
               </div>
 
-              {/* Pagination Section - Fixed at bottom when scrolling */}
+              {/* Pagination Section */}
               <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
-                {/* Main pagination controls */}
                 <div className="flex items-center justify-between px-4 py-2">
-                  {/* Results per page */}
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-600">Rows per page</span>
                     <Select
@@ -327,7 +350,6 @@ export default function UserTrackingDataTable() {
                     </Select>
                   </div>
 
-                  {/* Pagination controls */}
                   <div className="flex items-center gap-4">
                     <Button
                       variant="outline"
@@ -350,7 +372,6 @@ export default function UserTrackingDataTable() {
                   </div>
                 </div>
 
-                {/* Bottom status line */}
                 <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
                   <div>
                     Viewing {paginationInfo.from || 1}-
@@ -371,6 +392,7 @@ export default function UserTrackingDataTable() {
   );
 }
 
+// Helper functions (giữ nguyên)
 const getBadgeColor = (device: string) => {
   switch (device.toLowerCase()) {
     case "mobile":
@@ -384,7 +406,6 @@ const getBadgeColor = (device: string) => {
   }
 };
 
-// Helper function to get localized device type
 const getLocalizedDeviceType = (
   t: (key: string) => string,
   device: string
@@ -401,7 +422,6 @@ const getLocalizedDeviceType = (
   }
 };
 
-// Helper function to render user behavior based on event_name and event_data
 const renderUserBehavior = (
   record: IUserTracking,
   t: (key: string) => string

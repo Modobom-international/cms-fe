@@ -247,6 +247,9 @@
       "placeholders": {
         "selectDomain": "Chọn tên miền",
         "selectResults": "Chọn số kết quả hiển thị"
+      },
+      "loadingStates": {
+        "loadingDomains": "Đang tải domain..."
       }
     }
   },

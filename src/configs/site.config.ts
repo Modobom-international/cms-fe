@@ -2,8 +2,8 @@ import { Metadata } from "next";
 
 export function constructMetadata({
   title = {
-    default: "Modobom Platform",
-    template: "%s | Modobom Platform",
+    default: "Modobom CMS",
+    template: "%s | Modobom CMS",
   },
   description = "",
   image = "/img/logo-modobom-resize-dark.png",
@@ -30,7 +30,7 @@ export function constructMetadata({
       title: title.default,
       description,
       images: [image],
-      creator: "@Modobom_Platform",
+      creator: "@Modobom",
     },
     icons,
     metadataBase: new URL("http://localhost:3000/"),

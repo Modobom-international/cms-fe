@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { Lock, LockOpen, RefreshCw, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
+import { useEffect } from "react";
 
 import { IDomainActual } from "@/types/domain.type";
 
@@ -46,6 +47,10 @@ export default function DomainDataTable() {
     "search",
     parseAsString.withDefault("")
   );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, setCurrentPage]);
 
   const {
     data: domainResponse,
@@ -231,17 +236,17 @@ export default function DomainDataTable() {
                           <TableCell className="text-muted-foreground py-3 text-sm">
                             {domain.updated_at
                               ? format(
-                                  new Date(domain.updated_at),
-                                  "yyyy-MM-dd HH:mm"
-                                )
+                                new Date(domain.updated_at),
+                                "yyyy-MM-dd HH:mm"
+                              )
                               : "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
                             {domain.time_expired
                               ? format(
-                                  new Date(domain.time_expired),
-                                  "yyyy-MM-dd"
-                                )
+                                new Date(domain.time_expired),
+                                "yyyy-MM-dd"
+                              )
                               : "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">

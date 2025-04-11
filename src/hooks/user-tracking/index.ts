@@ -65,4 +65,3 @@ export const useGetUserTracking = (
     enabled: !!date || !!domain,
   });
 };
-
