@@ -22,21 +22,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-// import {
-//   addHoursToDate,
-//   AgendaDaysToShow,
-//   AgendaView,
-//   CalendarDndProvider,
-//   CalendarEvent,
-//   CalendarView,
-//   DayView,
-//   EventDialog,
-//   EventGap,
-//   EventHeight,
-//   MonthView,
-//   WeekCellsHeight,
-//   WeekView,
-// } from "@/components/event-calendar"
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -83,15 +68,14 @@ export function EventCalendar({
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<CalendarView>(initialView);
   const [isEventDialogOpen, setIsEventDialogOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
-    null
-  );
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+
+  // Tạo giá trị today
+  const today = useMemo(() => new Date(), []); // Sử dụng useMemo để tránh tạo mới today mỗi lần render
 
   // Add keyboard shortcuts for view switching
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Skip if user is typing in an input, textarea or contentEditable element
-      // or if the event dialog is open
       if (
         isEventDialogOpen ||
         e.target instanceof HTMLInputElement ||
@@ -132,7 +116,6 @@ export function EventCalendar({
     } else if (view === "day") {
       setCurrentDate(addDays(currentDate, -1));
     } else if (view === "agenda") {
-      // For agenda view, go back 30 days (a full month)
       setCurrentDate(addDays(currentDate, -AgendaDaysToShow));
     }
   };
@@ -145,7 +128,6 @@ export function EventCalendar({
     } else if (view === "day") {
       setCurrentDate(addDays(currentDate, 1));
     } else if (view === "agenda") {
-      // For agenda view, go forward 30 days (a full month)
       setCurrentDate(addDays(currentDate, AgendaDaysToShow));
     }
   };
@@ -155,23 +137,20 @@ export function EventCalendar({
   };
 
   const handleEventSelect = (event: CalendarEvent) => {
-    console.log("Event selected:", event); // Debug log
+    console.log("Event selected:", event);
     setSelectedEvent(event);
     setIsEventDialogOpen(true);
   };
 
   const handleEventCreate = (startTime: Date) => {
-    console.log("Creating new event at:", startTime); // Debug log
+    console.log("Creating new event at:", startTime);
 
-    // Snap to 15-minute intervals
     const minutes = startTime.getMinutes();
     const remainder = minutes % 15;
     if (remainder !== 0) {
       if (remainder < 7.5) {
-        // Round down to nearest 15 min
         startTime.setMinutes(minutes - remainder);
       } else {
-        // Round up to nearest 15 min
         startTime.setMinutes(minutes + (15 - remainder));
       }
       startTime.setSeconds(0);
@@ -192,7 +171,6 @@ export function EventCalendar({
   const handleEventSave = (event: CalendarEvent) => {
     if (event.id) {
       onEventUpdate?.(event);
-      // Show toast notification when an event is updated
       toast(`Event "${event.title}" updated`, {
         description: format(new Date(event.start), "MMM d, yyyy"),
         position: "bottom-left",
@@ -202,7 +180,6 @@ export function EventCalendar({
         ...event,
         id: Math.random().toString(36).substring(2, 11),
       });
-      // Show toast notification when an event is added
       toast(`Event "${event.title}" added`, {
         description: format(new Date(event.start), "MMM d, yyyy"),
         position: "bottom-left",
@@ -218,7 +195,6 @@ export function EventCalendar({
     setIsEventDialogOpen(false);
     setSelectedEvent(null);
 
-    // Show toast notification when an event is deleted
     if (deletedEvent) {
       toast(`Event "${deletedEvent.title}" deleted`, {
         description: format(new Date(deletedEvent.start), "MMM d, yyyy"),
@@ -230,7 +206,6 @@ export function EventCalendar({
   const handleEventUpdate = (updatedEvent: CalendarEvent) => {
     onEventUpdate?.(updatedEvent);
 
-    // Show toast notification when an event is updated via drag and drop
     toast(`Event "${updatedEvent.title}" moved`, {
       description: format(new Date(updatedEvent.start), "MMM d, yyyy"),
       position: "bottom-left",
@@ -254,7 +229,7 @@ export function EventCalendar({
           <span className="min-[480px]:hidden" aria-hidden="true">
             {format(currentDate, "MMM d, yyyy")}
           </span>
-          <span className="max-[479px]:hidden min-md:hidden" aria-hidden="true">
+          <span className="max-[479px]:sr-only min-md:hidden" aria-hidden="true">
             {format(currentDate, "MMMM d, yyyy")}
           </span>
           <span className="max-md:hidden">
@@ -263,7 +238,6 @@ export function EventCalendar({
         </>
       );
     } else if (view === "agenda") {
-      // Show the month range for agenda view
       const start = currentDate;
       const end = addDays(currentDate, AgendaDaysToShow - 1);
 
@@ -367,7 +341,7 @@ export function EventCalendar({
             <Button
               className="aspect-square max-[479px]:p-0!"
               onClick={() => {
-                setSelectedEvent(null); // Ensure we're creating a new event
+                setSelectedEvent(null);
                 setIsEventDialogOpen(true);
               }}
             >
@@ -386,6 +360,7 @@ export function EventCalendar({
             <MonthView
               currentDate={currentDate}
               events={events}
+              today={today} // Truyền prop today
               onEventSelect={handleEventSelect}
               onEventCreate={handleEventCreate}
             />
@@ -429,4 +404,3 @@ export function EventCalendar({
     </div>
   );
 }
-

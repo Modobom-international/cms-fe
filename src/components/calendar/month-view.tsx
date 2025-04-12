@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-
 import {
   addDays,
   eachDayOfInterval,
@@ -9,8 +8,6 @@ import {
   endOfWeek,
   format,
   isSameDay,
-  isSameMonth,
-  isToday,
   startOfMonth,
   startOfWeek,
 } from "date-fns";
@@ -37,6 +34,7 @@ import {
 interface MonthViewProps {
   currentDate: Date;
   events: CalendarEvent[];
+  today: Date;
   onEventSelect: (event: CalendarEvent) => void;
   onEventCreate: (startTime: Date) => void;
 }
@@ -44,6 +42,7 @@ interface MonthViewProps {
 export function MonthView({
   currentDate,
   events,
+  today, // Sử dụng prop today
   onEventSelect,
   onEventCreate,
 }: MonthViewProps) {
@@ -93,6 +92,10 @@ export function MonthView({
     setIsMounted(true);
   }, []);
 
+  function isToday(day: Date): boolean {
+    return isSameDay(day, today); // Sử dụng prop today và isSameDay từ date-fns
+  }
+
   return (
     <>
       <div className="border-border/70 grid grid-cols-7 border-b">
@@ -128,16 +131,6 @@ export function MonthView({
               const remainingCount = hasMore
                 ? allDayEvents.length - visibleCount
                 : 0;
-
-              const today = new Date(currentDate);
-
-              function isToday(day: Date): boolean {
-                return (
-                  day.getFullYear() === today.getFullYear() &&
-                  day.getMonth() === today.getMonth() &&
-                  day.getDate() === today.getDate()
-                );
-              }
 
               return (
                 <div
@@ -281,4 +274,3 @@ export function MonthView({
     </>
   );
 }
-

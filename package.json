@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "next lint --ext .ts,.tsx",
     "lint:fix": "next lint --fix",
     "format": "prettier --write ./src/**/*.{ts,tsx,css} --cache"
   },
@@ -113,5 +113,5 @@
       "sharp"
     ]
   },
-  "packageManager": "pnpm@10.7.0"
+  "packageManager": "pnpm@10.8.0"
 }
