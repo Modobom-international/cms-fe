@@ -11,6 +11,7 @@ import apiClient from "@/lib/api/client";
 import { useDeployPage, useExportPage, useUpdatePage } from "@/hooks/pages";
 
 import { deleteAssets, loadAssets, uploadAssets } from "./actions/upload";
+import { buttonBlock } from "./blocks/button";
 
 interface WebBuilderStudioProps {
   slug: string;
@@ -86,6 +87,7 @@ export default function WebBuilderStudio({
 <html>
 <head>
   <meta charset="UTF-8">
+  <script src="https://api.modobomco.com/js/users-tracking.min.js" async></script>
   <style>
     ${editor.getCss()}
   </style>
@@ -381,6 +383,10 @@ export default function WebBuilderStudio({
               }
             },
           },
+        }}
+        onEditor={(editor) => {
+          customButtonsPlugin(editor);
+          buttonBlock(editor); // Register the button block
         }}
       />
     </div>

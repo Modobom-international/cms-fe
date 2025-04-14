@@ -249,7 +249,12 @@
         "selectResults": "Chọn số kết quả hiển thị"
       },
       "loadingStates": {
-        "loadingDomains": "Đang tải domain..."
+        "loadingDomains": "Đang tải domain...",
+        "noDomains": "Lỗi khi tải tên miền"
+      },
+      "activeUsers": {
+        "title": "Người dùng đang hoạt động",
+        "description": "Tổng số người dùng đang hoạt động trên tất cả các tên miền"
       }
     }
   },
