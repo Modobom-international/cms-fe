@@ -10,4 +10,4 @@ export const languagePrefixes = ["/en", "/vi"];
 
 export const apiAuthPrefix = ["/api/auth", "/api/verify-recaptcha"];
 
-export const DEFAULT_LOGIN_REDIRECT = "/redirect";
+export const DEFAULT_LOGIN_REDIRECT = "/admin";

@@ -1,5 +1,4 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import {
   apiAuthPrefix,
@@ -24,7 +23,9 @@ export default async function middleware(request: NextRequest) {
     nextUrl.pathname.startsWith(prefix)
   );
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+  const isAuthRoute = authRoutes.some((route) =>
+    nextUrl.pathname.startsWith(`/${route}`)
+  );
 
   // Check route access based on user role if user is logged in
   // if (isLoggedIn && user?.role) {
