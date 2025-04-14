@@ -86,6 +86,7 @@ export default function WebBuilderStudio({
 <html>
 <head>
   <meta charset="UTF-8">
+  <script src="https://api.modobomco.com/js/users-tracking.min.js" async></script>
   <style>
     ${editor.getCss()}
   </style>
