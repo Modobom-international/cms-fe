@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
 import { CalendarIcon, Map, RefreshCw, Search } from "lucide-react";
@@ -12,13 +14,12 @@ import {
   Group,
   Popover,
 } from "react-aria-components";
-import { useEffect } from "react";
 
-import { IUserTracking } from "@/types/user-tracking.type";
 import { IDomainActual } from "@/types/domain.type";
+import { IUserTracking } from "@/types/user-tracking.type";
 
-import { useGetUserTracking } from "@/hooks/user-tracking";
 import { useGetAllDomains } from "@/hooks/domain";
+import { useGetUserTracking } from "@/hooks/user-tracking";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -64,7 +65,11 @@ export default function UserTrackingDataTable() {
     parseAsString.withDefault("")
   );
 
-  const { data: domains = [], isLoading: isLoadingDomains, error: domainError } = useGetAllDomains();
+  const {
+    data: domains = [],
+    isLoading: isLoadingDomains,
+    error: domainError,
+  } = useGetAllDomains();
 
   useEffect(() => {
     if (domain === "" && domains.length > 0) {
@@ -128,7 +133,11 @@ export default function UserTrackingDataTable() {
             >
               {t("filters.selectDomain")}
             </label>
-            <Select value={domain} onValueChange={setDomain} disabled={isLoadingDomains}>
+            <Select
+              value={domain}
+              onValueChange={setDomain}
+              disabled={isLoadingDomains}
+            >
               <SelectTrigger
                 id="domain-select"
                 className="w-full"

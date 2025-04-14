@@ -12,7 +12,7 @@ export const useGetUserTracking = (
   date: string,
   domain: string
 ) => {
-  const params = qs.stringify({ page, pageSize, date, domain });
+  const params = qs.stringify({ date, domain, page, pageSize });
   return useQuery({
     queryKey: userTrackingQueryKeys.list(page, pageSize, date, domain),
     queryFn: async (): Promise<
