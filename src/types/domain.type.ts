@@ -21,6 +21,7 @@ export interface IDomainActual {
   name_servers: string;
   renew_deadline: string;
   registrar_created_at: string;
+  activeUsers?: number; // Add this new property
 }
 
 export interface IDomainResponse {

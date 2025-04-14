@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
-import { CalendarIcon, Map, RefreshCw, Search } from "lucide-react";
+import { CalendarIcon, Map, RefreshCw, Search, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import {
@@ -12,13 +14,13 @@ import {
   Group,
   Popover,
 } from "react-aria-components";
-import { useEffect } from "react";
 
-import { IUserTracking } from "@/types/user-tracking.type";
 import { IDomainActual } from "@/types/domain.type";
+import { IUserTracking } from "@/types/user-tracking.type";
 
-import { useGetUserTracking } from "@/hooks/user-tracking";
 import { useGetAllDomains } from "@/hooks/domain";
+import { useGetUserTracking } from "@/hooks/user-tracking";
+import { useActiveUsers } from "@/hooks/user-tracking/use-active-users";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -64,7 +66,11 @@ export default function UserTrackingDataTable() {
     parseAsString.withDefault("")
   );
 
-  const { data: domains = [], isLoading: isLoadingDomains, error: domainError } = useGetAllDomains();
+  const {
+    data: domains = [],
+    isLoading: isLoadingDomains,
+    error: domainError,
+  } = useGetAllDomains();
 
   useEffect(() => {
     if (domain === "" && domains.length > 0) {
@@ -79,7 +85,9 @@ export default function UserTrackingDataTable() {
     refetch,
   } = useGetUserTracking(currentPage, pageSize, date, domain);
 
-  // Extract data từ response
+  const activeUsers = useActiveUsers(domains);
+
+  // Extract data from response
   const userTrackingData = userTrackingResponse?.data?.data || [];
   const paginationInfo = userTrackingResponse?.data || {
     from: 0,
@@ -111,7 +119,7 @@ export default function UserTrackingDataTable() {
     }
   };
 
-  // Handler cho nút refresh
+  // Handler for refresh button
   const handleRefresh = () => {
     refetch();
   };
@@ -128,7 +136,11 @@ export default function UserTrackingDataTable() {
             >
               {t("filters.selectDomain")}
             </label>
-            <Select value={domain} onValueChange={setDomain} disabled={isLoadingDomains}>
+            <Select
+              value={domain}
+              onValueChange={setDomain}
+              disabled={isLoadingDomains}
+            >
               <SelectTrigger
                 id="domain-select"
                 className="w-full"
@@ -217,6 +229,27 @@ export default function UserTrackingDataTable() {
               />
               Refresh
             </Button>
+          </div>
+        </div>
+        {/* Active Users Section */}
+        <div className="mb-6">
+          <div className="bg-card rounded-lg border p-4">
+            <div className="flex items-center space-x-4">
+              <Users className="text-primary h-8 w-8" />
+              <div>
+                <h3 className="text-lg font-semibold">
+                  {t("activeUsers.title")}
+                </h3>
+                <div className="flex items-baseline space-x-2">
+                  <span className="text-2xl font-bold">
+                    {activeUsers.total}
+                  </span>
+                  <span className="text-muted-foreground text-sm">
+                    {t("activeUsers.description")}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
