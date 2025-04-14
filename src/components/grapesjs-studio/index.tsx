@@ -11,6 +11,7 @@ import apiClient from "@/lib/api/client";
 import { useDeployPage, useExportPage, useUpdatePage } from "@/hooks/pages";
 
 import { deleteAssets, loadAssets, uploadAssets } from "./actions/upload";
+import { buttonBlock } from "./blocks/button";
 
 interface WebBuilderStudioProps {
   slug: string;
@@ -382,6 +383,10 @@ export default function WebBuilderStudio({
               }
             },
           },
+        }}
+        onEditor={(editor) => {
+          customButtonsPlugin(editor);
+          buttonBlock(editor); // Register the button block
         }}
       />
     </div>
