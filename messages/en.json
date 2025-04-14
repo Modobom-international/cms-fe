@@ -1,351 +1,346 @@
 {
-  "Landing": {
-    "Header": {
-      "System": "System",
-      "Monitor": "Monitor",
-      "Logs": "Logs",
-      "Support": "Support",
-      "AccessSystem": "Access System",
-      "Dashboard": "Dashboard",
-      "DashboardDesc": "Monitor system activity",
-      "Settings": "Settings",
-      "SettingsDesc": "Manage system settings",
-      "Login": "Login",
-      "OpenMenu": "Open main menu"
-    },
-    "HeroSection": {
-      "Badge": "Internal System",
-      "Heading1": "Management & Monitoring",
-      "Heading2": "Modobom System",
-      "Description": "Monitor, manage and optimize the operations of the Modobom system. Monitor users, analyze behavior and ensure data security.",
-      "Feature1": "Monitor user activity in real-time",
-      "Feature2": "Monitor and manage system domains",
-      "Feature3": "Detailed system analysis and logging",
-      "AccessSystem": "Access System",
-      "SystemInfoTitle": "System Information",
-      "Monitoring": "Monitoring",
-      "Uptime": "Uptime",
-      "Response": "Response",
-      "SystemMonitor": "modobom-system-monitor",
-      "TabDashboard": "Dashboard",
-      "TabTracking": "Tracking",
-      "TabLogs": "Logs",
-      "Dashboard": {
-        "TodayAccess": "Today's Access",
-        "ComparedYesterday": "+8% compared to yesterday",
-        "TotalDomains": "Total Domains",
-        "AllActive": "100% active",
-        "SystemStatus": "System Status",
-        "AllWorkingWell": "All systems operational",
-        "MainSystem": "Main System",
-        "WorkingNormally": "Operating normally",
-        "InternalNetwork": "Internal Network",
-        "ActiveDomains": "45 active domains"
-      },
-      "Tracking": {
-        "RecentActivity": "Recent Activity",
-        "ViewAll": "View all",
-        "UpdatedSystemConfig": "Updated system configuration",
-        "JustNow": "Just now",
-        "AutoBackup": "Automatic data backup",
-        "MinutesAgo": "5 minutes ago"
-      },
-      "Logs": {
-        "SystemLogs": "System Logs",
-        "Recording": "Recording",
-        "ConfigUpdated": "Configuration updated successfully",
-        "DomainCheck": "Testing connection to modobom.com",
-        "InvalidAccess": "Invalid access detected"
-      }
-    },
-    "FeaturesSection": {
-      "Tagline": "Intelligent System Monitoring",
-      "Title": "Complete Control of the Modobom System",
-      "Description": "The internal monitoring and management system helps track, analyze, and optimize Modobom operations efficiently.",
-      "RealtimeMonitoring": {
-        "Title": "Real-time Monitoring",
-        "Description": "Track system activity, domain status, and server performance in real-time with detailed metrics."
-      },
-      "ActivityLogs": {
-        "Title": "Activity Logs",
-        "Description": "Record and analyze in detail all system activities, from user access to important configuration changes."
-      },
-      "ConfigManagement": {
-        "Title": "Configuration Management",
-        "Description": "Adjust and optimize system settings, manage domains and security configurations flexibly."
-      },
-      "UserManagement": {
-        "Title": "User Management",
-        "Description": "Track and manage user access permissions, detailed privilege assignment and activity monitoring."
-      },
-      "ReportsStats": {
-        "Title": "Reports & Statistics",
-        "Description": "Create detailed reports on system performance, traffic, and other important metrics."
-      },
-      "Alerts": {
-        "Title": "Alerts & Notifications",
-        "Description": "Receive instant notifications about incidents, security alerts, and important system changes."
-      }
-    },
-    "Footer": {
-      "Description": "Modobom internal management and monitoring system, providing tools for tracking, analyzing and optimizing operations.",
-      "SystemTitle": "System",
-      "Dashboard": "Dashboard",
-      "Settings": "Settings",
-      "Monitor": "Monitor",
-      "SupportTitle": "Support",
-      "Documentation": "Documentation",
-      "Guide": "Guide",
-      "Contact": "Contact",
-      "InternalTerms": "Internal Terms",
-      "PrivacyPolicy": "Privacy Policy"
-    }
-  },
-  "LoginPage": {
-    "title": "Welcome back",
-    "description": "Login with your email and password",
-    "validation": {
-      "email": {
-        "required": "Email is required",
-        "invalid": "Email is invalid"
-      },
-      "password": {
-        "required": "Password is required",
-        "min": "Password must be at least 6 characters"
-      }
-    }
-  },
-  "ProfilePage": {
-    "header": {
-      "title": "Personal Information",
-      "welcome": "Hello, {name}!",
-      "subtitle": "Manage your personal information and account settings",
-      "status": "Status",
-      "active": "Active",
-      "lastLogin": "Last login"
-    },
-    "profile": {
-      "title": "Account Information",
-      "description": "Manage your personal information and account security",
-      "tabs": {
-        "personal": "Personal Information",
-        "security": "Security"
-      },
-      "workInfo": {
-        "title": "Work Information",
-        "position": "Position",
-        "team": "Team",
-        "joinDate": "Join Date",
-        "salary": "Salary"
-      },
-      "actions": {
-        "logout": "Logout",
-        "editCover": "Edit cover photo",
-        "updateAvatar": "Update profile picture"
-      }
-    },
-    "personalInfo": {
-      "basicInfo": "Basic Information",
-      "name": "Name",
-      "email": "Email",
-      "notifications": {
-        "title": "Notification Settings",
-        "emailNotifications": {
-          "title": "Email notifications",
-          "description": "Receive notifications via email"
+    "Landing": {
+        "Header": {
+            "System": "System",
+            "Monitor": "Monitor",
+            "Logs": "Logs",
+            "Support": "Support",
+            "AccessSystem": "Access System",
+            "Dashboard": "Dashboard",
+            "DashboardDesc": "Monitor system activity",
+            "Settings": "Settings",
+            "SettingsDesc": "Manage system settings",
+            "Login": "Login",
+            "OpenMenu": "Open main menu"
         },
-        "systemNotifications": {
-          "title": "System notifications",
-          "description": "Show notifications in browser"
+        "HeroSection": {
+            "Badge": "Internal System",
+            "Heading1": "Management & Monitoring",
+            "Heading2": "Modobom System",
+            "Description": "Monitor, manage and optimize the operations of the Modobom system. Monitor users, analyze behavior and ensure data security.",
+            "Feature1": "Monitor user activity in real-time",
+            "Feature2": "Monitor and manage system domains",
+            "Feature3": "Detailed system analysis and logging",
+            "AccessSystem": "Access System",
+            "SystemInfoTitle": "System Information",
+            "Monitoring": "Monitoring",
+            "Uptime": "Uptime",
+            "Response": "Response",
+            "SystemMonitor": "modobom-system-monitor",
+            "TabDashboard": "Dashboard",
+            "TabTracking": "Tracking",
+            "TabLogs": "Logs",
+            "Dashboard": {
+                "TodayAccess": "Today's Access",
+                "ComparedYesterday": "+8% compared to yesterday",
+                "TotalDomains": "Total Domains",
+                "AllActive": "100% active",
+                "SystemStatus": "System Status",
+                "AllWorkingWell": "All systems operational",
+                "MainSystem": "Main System",
+                "WorkingNormally": "Operating normally",
+                "InternalNetwork": "Internal Network",
+                "ActiveDomains": "45 active domains"
+            },
+            "Tracking": {
+                "RecentActivity": "Recent Activity",
+                "ViewAll": "View all",
+                "UpdatedSystemConfig": "Updated system configuration",
+                "JustNow": "Just now",
+                "AutoBackup": "Automatic data backup",
+                "MinutesAgo": "5 minutes ago"
+            },
+            "Logs": {
+                "SystemLogs": "System Logs",
+                "Recording": "Recording",
+                "ConfigUpdated": "Configuration updated successfully",
+                "DomainCheck": "Testing connection to modobom.com",
+                "InvalidAccess": "Invalid access detected"
+            }
         },
-        "updateNotifications": {
-          "title": "Update notifications",
-          "description": "Receive information about new updates"
+        "FeaturesSection": {
+            "Tagline": "Intelligent System Monitoring",
+            "Title": "Complete Control of the Modobom System",
+            "Description": "The internal monitoring and management system helps track, analyze, and optimize Modobom operations efficiently.",
+            "RealtimeMonitoring": {
+                "Title": "Real-time Monitoring",
+                "Description": "Track system activity, domain status, and server performance in real-time with detailed metrics."
+            },
+            "ActivityLogs": {
+                "Title": "Activity Logs",
+                "Description": "Record and analyze in detail all system activities, from user access to important configuration changes."
+            },
+            "ConfigManagement": {
+                "Title": "Configuration Management",
+                "Description": "Adjust and optimize system settings, manage domains and security configurations flexibly."
+            },
+            "UserManagement": {
+                "Title": "User Management",
+                "Description": "Track and manage user access permissions, detailed privilege assignment and activity monitoring."
+            },
+            "ReportsStats": {
+                "Title": "Reports & Statistics",
+                "Description": "Create detailed reports on system performance, traffic, and other important metrics."
+            },
+            "Alerts": {
+                "Title": "Alerts & Notifications",
+                "Description": "Receive instant notifications about incidents, security alerts, and important system changes."
+            }
+        },
+        "Footer": {
+            "Description": "Modobom internal management and monitoring system, providing tools for tracking, analyzing and optimizing operations.",
+            "SystemTitle": "System",
+            "Dashboard": "Dashboard",
+            "Settings": "Settings",
+            "Monitor": "Monitor",
+            "SupportTitle": "Support",
+            "Documentation": "Documentation",
+            "Guide": "Guide",
+            "Contact": "Contact",
+            "InternalTerms": "Internal Terms",
+            "PrivacyPolicy": "Privacy Policy"
         }
-      },
-      "saveChanges": "Save Changes"
     },
-    "security": {
-      "changePassword": {
-        "title": "Change Password",
-        "currentPassword": "Current Password",
-        "newPassword": "New Password",
-        "confirmPassword": "Confirm Password",
-        "updatePassword": "Update Password"
-      },
-      "loginSecurity": {
-        "title": "Login Security",
-        "twoFactor": {
-          "title": "Two-factor authentication",
-          "description": "Add an extra layer of security to your account"
-        },
-        "newDeviceLogin": {
-          "title": "New device login",
-          "description": "Require verification when logging in from an unknown device"
+    "LoginPage": {
+        "title": "Welcome back",
+        "description": "Login with your email and password",
+        "validation": {
+            "email": {
+                "required": "Email is required",
+                "invalid": "Email is invalid"
+            },
+            "password": {
+                "required": "Password is required",
+                "min": "Password must be at least 6 characters"
+            }
         }
-      },
-      "dangerZone": {
-        "title": "Danger Zone",
-        "description": "When you delete your account, it cannot be recovered. Please be sure.",
-        "deleteAccount": "Delete Account"
-      }
+    },
+    "ProfilePage": {
+        "header": {
+            "title": "Personal Information",
+            "welcome": "Hello, {name}!",
+            "subtitle": "Manage your personal information and account settings",
+            "status": "Status",
+            "active": "Active",
+            "lastLogin": "Last login"
+        },
+        "profile": {
+            "title": "Account Information",
+            "description": "Manage your personal information and account security",
+            "tabs": {
+                "personal": "Personal Information",
+                "security": "Security"
+            },
+            "workInfo": {
+                "title": "Work Information",
+                "position": "Position",
+                "team": "Team",
+                "joinDate": "Join Date",
+                "salary": "Salary"
+            },
+            "actions": {
+                "logout": "Logout",
+                "editCover": "Edit cover photo",
+                "updateAvatar": "Update profile picture"
+            }
+        },
+        "personalInfo": {
+            "basicInfo": "Basic Information",
+            "name": "Name",
+            "email": "Email",
+            "notifications": {
+                "title": "Notification Settings",
+                "emailNotifications": {
+                    "title": "Email notifications",
+                    "description": "Receive notifications via email"
+                },
+                "systemNotifications": {
+                    "title": "System notifications",
+                    "description": "Show notifications in browser"
+                },
+                "updateNotifications": {
+                    "title": "Update notifications",
+                    "description": "Receive information about new updates"
+                }
+            },
+            "saveChanges": "Save Changes"
+        },
+        "security": {
+            "changePassword": {
+                "title": "Change Password",
+                "currentPassword": "Current Password",
+                "newPassword": "New Password",
+                "confirmPassword": "Confirm Password",
+                "updatePassword": "Update Password"
+            },
+            "loginSecurity": {
+                "title": "Login Security",
+                "twoFactor": {
+                    "title": "Two-factor authentication",
+                    "description": "Add an extra layer of security to your account"
+                },
+                "newDeviceLogin": {
+                    "title": "New device login",
+                    "description": "Require verification when logging in from an unknown device"
+                }
+            },
+            "dangerZone": {
+                "title": "Danger Zone",
+                "description": "When you delete your account, it cannot be recovered. Please be sure.",
+                "deleteAccount": "Delete Account"
+            }
+        }
+    },
+    "EmptyTable": {
+        "title": "No data available",
+        "description": "No data found that matches your current filters.",
+        "refreshButton": "Refresh",
+        "viewReportsButton": "View saved reports"
+    },
+    "UserTrackingPage": {
+        "title": "User Tracking",
+        "description": "Manage and monitor user tracking data from various applications",
+        "breadcrumb": "User Tracking",
+        "table": {
+            "filters": {
+                "selectDomain": "Select domain",
+                "datePicker": "Date picker",
+                "search": "Search",
+                "viewHeatmap": "View heatmap"
+            },
+            "columns": {
+                "id": "ID",
+                "timestamp": "Last timestamp",
+                "ip": "IP Address",
+                "device": "Device",
+                "userBehavior": "User Behavior",
+                "actions": "Actions"
+            },
+            "pagination": {
+                "rowsPerPage": "Rows per page",
+                "of": "of",
+                "firstPage": "Go to first page",
+                "previousPage": "Go to previous page",
+                "nextPage": "Go to next page",
+                "lastPage": "Go to last page"
+            },
+            "actions": {
+                "details": "Details"
+            },
+            "deviceTypes": {
+                "mobile": "Mobile",
+                "tablet": "Tablet",
+                "desktop": "Desktop"
+            },
+            "behaviors": {
+                "mouseMovement": "Mouse Movement",
+                "click": "Click",
+                "scroll": "Scroll",
+                "pageView": "Page View",
+                "timeSpent": "Time Spent",
+                "position": "Position",
+                "totalMovements": "Total movements",
+                "target": "Target",
+                "height": "Height",
+                "duration": "Duration"
+            },
+            "placeholders": {
+                "selectDomain": "Select domain",
+                "selectResults": "Select number of results"
+            },
+            "loadingStates": {
+                "loadingDomains": "Domain is loading..."
+            }
+        }
+    },
+    "DomainPage": {
+        "title": "Domain Management",
+        "description": "Manage and monitor domain activities across the system",
+        "breadcrumb": "Domains",
+        "table": {
+            "filters": {
+                "search": "Search"
+            },
+            "columns": {
+                "id": "ID",
+                "action": "Action",
+                "timestamp": "Last updated",
+                "user": "User",
+                "details": "Details",
+                "actions": "Actions"
+            },
+            "pagination": {
+                "rowsPerPage": "Rows per page",
+                "of": "of",
+                "firstPage": "Go to first page",
+                "previousPage": "Previous",
+                "nextPage": "Next",
+                "lastPage": "Go to last page"
+            },
+            "actions": {
+                "details": "Details",
+                "retry": "Retry",
+                "refresh": "Refresh"
+            },
+            "loadingStates": {
+                "loading": "Loading domain data...",
+                "error": "An error occurred while loading domain data"
+            },
+            "placeholders": {
+                "search": "Search by domain name or action"
+            },
+            "actionTypes": {
+                "create": "Create",
+                "update": "Update",
+                "delete": "Delete"
+            }
+        }
+    },
+    "ActivityLogPage": {
+        "title": "Activity Log",
+        "description": "Monitor and review system activities and user actions",
+        "breadcrumb": "Activity Log",
+        "table": {
+            "title": "Activity Logs",
+            "description": "Track and monitor all system activities and user actions",
+            "filters": {
+                "search": "Search",
+                "dateRange": "Date range"
+            },
+            "columns": {
+                "id": "ID",
+                "action": "Action",
+                "timestamp": "Timestamp",
+                "user": "User",
+                "details": "Details",
+                "actions": "Actions"
+            },
+            "pagination": {
+                "rowsPerPage": "Rows per page",
+                "of": "of",
+                "firstPage": "Go to first page",
+                "previousPage": "Previous",
+                "nextPage": "Next",
+                "lastPage": "Go to last page"
+            },
+            "actions": {
+                "details": "View Details",
+                "retry": "Retry",
+                "refresh": "Refresh"
+            },
+            "loadingStates": {
+                "loading": "Loading activity logs...",
+                "error": "An error occurred while loading activity logs"
+            },
+            "placeholders": {
+                "search": "Search by action or user ID"
+            }
+        }
+    },
+    "Notification": {
+        "markAllAsRead": "Mark all as read",
+        "noNotifications": "No notifications",
+        "unRead": "Unread",
+        "notifications": "Notifications"
     }
-  },
-  "EmptyTable": {
-    "title": "No data available",
-    "description": "No data found that matches your current filters.",
-    "refreshButton": "Refresh",
-    "viewReportsButton": "View saved reports"
-  },
-  "UserTrackingPage": {
-    "title": "User Tracking",
-    "description": "Manage and monitor user tracking data from various applications",
-    "breadcrumb": "User Tracking",
-    "table": {
-      "filters": {
-        "selectDomain": "Select domain",
-        "datePicker": "Date picker",
-        "search": "Search",
-        "viewHeatmap": "View heatmap"
-      },
-      "columns": {
-        "id": "ID",
-        "timestamp": "Last timestamp",
-        "ip": "IP Address",
-        "device": "Device",
-        "userBehavior": "User Behavior",
-        "actions": "Actions"
-      },
-      "pagination": {
-        "rowsPerPage": "Rows per page",
-        "of": "of",
-        "firstPage": "Go to first page",
-        "previousPage": "Go to previous page",
-        "nextPage": "Go to next page",
-        "lastPage": "Go to last page"
-      },
-      "actions": {
-        "details": "Details"
-      },
-      "deviceTypes": {
-        "mobile": "Mobile",
-        "tablet": "Tablet",
-        "desktop": "Desktop"
-      },
-      "behaviors": {
-        "mouseMovement": "Mouse Movement",
-        "click": "Click",
-        "scroll": "Scroll",
-        "pageView": "Page View",
-        "timeSpent": "Time Spent",
-        "position": "Position",
-        "totalMovements": "Total movements",
-        "target": "Target",
-        "height": "Height",
-        "duration": "Duration"
-      },
-      "placeholders": {
-        "selectDomain": "Select domain",
-        "selectResults": "Select number of results"
-      },
-      "loadingStates": {
-        "loadingDomains": "Domain is loading...",
-        "noDomains": "Failed to fetch domains"
-      },
-      "activeUsers": {
-        "title": "Active Users",
-        "description": "Total active users across all domains"
-      }
-    }
-  },
-  "DomainPage": {
-    "title": "Domain Management",
-    "description": "Manage and monitor domain activities across the system",
-    "breadcrumb": "Domains",
-    "table": {
-      "filters": {
-        "search": "Search"
-      },
-      "columns": {
-        "id": "ID",
-        "action": "Action",
-        "timestamp": "Last updated",
-        "user": "User",
-        "details": "Details",
-        "actions": "Actions"
-      },
-      "pagination": {
-        "rowsPerPage": "Rows per page",
-        "of": "of",
-        "firstPage": "Go to first page",
-        "previousPage": "Go to previous page",
-        "nextPage": "Go to next page",
-        "lastPage": "Go to last page"
-      },
-      "actions": {
-        "details": "Details",
-        "retry": "Retry",
-        "refresh": "Refresh"
-      },
-      "loadingStates": {
-        "loading": "Loading domain data...",
-        "error": "An error occurred while loading domain data"
-      },
-      "placeholders": {
-        "search": "Search by domain name or action"
-      },
-      "actionTypes": {
-        "create": "Create",
-        "update": "Update",
-        "delete": "Delete"
-      }
-    }
-  },
-  "ActivityLogPage": {
-    "title": "Activity Log",
-    "description": "Monitor and review system activities and user actions",
-    "breadcrumb": "Activity Log",
-    "table": {
-      "title": "Activity Logs",
-      "description": "Track and monitor all system activities and user actions",
-      "filters": {
-        "search": "Search",
-        "dateRange": "Date range"
-      },
-      "columns": {
-        "id": "ID",
-        "action": "Action",
-        "timestamp": "Timestamp",
-        "user": "User",
-        "details": "Details",
-        "actions": "Actions"
-      },
-      "pagination": {
-        "rowsPerPage": "Rows per page",
-        "of": "of",
-        "firstPage": "Go to first page",
-        "previousPage": "Previous",
-        "nextPage": "Next",
-        "lastPage": "Go to last page"
-      },
-      "actions": {
-        "details": "View Details",
-        "retry": "Retry",
-        "refresh": "Refresh"
-      },
-      "loadingStates": {
-        "loading": "Loading activity logs...",
-        "error": "An error occurred while loading activity logs"
-      },
-      "placeholders": {
-        "search": "Search by action or user ID"
-      }
-    }
-  },
-  "Notification": {
-    "markAllAsRead": "Mark all as read",
-    "noNotifications": "No notifications",
-    "unRead": "Unread",
-    "notifications": "Notifications"
-  }
 }

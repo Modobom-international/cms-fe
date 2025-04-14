@@ -8,6 +8,7 @@ import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { IActivityLog } from "@/types/activity-log.type";
 
 import { useGetActivityLogs } from "@/hooks/activity-log";
+import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -46,12 +47,14 @@ export default function ActivityLogDataTable() {
     parseAsString.withDefault("")
   );
 
+  const debouncedSearch = useDebounce(search, 500);
+
   const {
     data: activityLogResponse,
     isFetching,
     isError,
     refetch,
-  } = useGetActivityLogs(currentPage, pageSize, search);
+  } = useGetActivityLogs(currentPage, pageSize, debouncedSearch);
 
   // Extract data from the response
   const activityLogData = activityLogResponse?.data?.data || [];
