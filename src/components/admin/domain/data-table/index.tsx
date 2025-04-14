@@ -9,6 +9,7 @@ import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { IDomainActual } from "@/types/domain.type";
 
 import { useGetDomainList } from "@/hooks/domain";
+import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -47,19 +48,29 @@ export default function DomainDataTable() {
     parseAsString.withDefault("")
   );
 
+  const debouncedSearch = useDebounce(search, 500);
+
   const {
     data: domainResponse,
     isFetching,
     isError,
     refetch,
-  } = useGetDomainList(currentPage, pageSize, search);
+  } = useGetDomainList(currentPage, pageSize, debouncedSearch);
 
   // Extract data from the response
-  const domainData = domainResponse && "data" in domainResponse ? domainResponse.data.data || [] : [];
-  const paginationInfo = domainResponse && "data" in domainResponse ? domainResponse.data : {
-    from: 0, to: 0, total: 0,
-    last_page: 1,
-  };
+  const domainData =
+    domainResponse && "data" in domainResponse
+      ? domainResponse.data.data || []
+      : [];
+  const paginationInfo =
+    domainResponse && "data" in domainResponse
+      ? domainResponse.data
+      : {
+          from: 0,
+          to: 0,
+          total: 0,
+          last_page: 1,
+        };
   const isDataEmpty = !domainData || domainData.length === 0;
 
   // Handle next page navigation - increment by 1
@@ -232,17 +243,17 @@ export default function DomainDataTable() {
                           <TableCell className="text-muted-foreground py-3 text-sm">
                             {domain.updated_at
                               ? format(
-                                new Date(domain.updated_at),
-                                "yyyy-MM-dd HH:mm"
-                              )
+                                  new Date(domain.updated_at),
+                                  "yyyy-MM-dd HH:mm"
+                                )
                               : "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
                             {domain.time_expired
                               ? format(
-                                new Date(domain.time_expired),
-                                "yyyy-MM-dd"
-                              )
+                                  new Date(domain.time_expired),
+                                  "yyyy-MM-dd"
+                                )
                               : "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">

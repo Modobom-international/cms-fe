@@ -273,8 +273,8 @@
                 "rowsPerPage": "Rows per page",
                 "of": "of",
                 "firstPage": "Go to first page",
-                "previousPage": "Go to previous page",
-                "nextPage": "Go to next page",
+                "previousPage": "Previous",
+                "nextPage": "Next",
                 "lastPage": "Go to last page"
             },
             "actions": {
