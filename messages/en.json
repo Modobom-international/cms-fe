@@ -246,10 +246,13 @@
             },
             "placeholders": {
                 "selectDomain": "Select domain",
-                "selectResults": "Select number of results"
+                "selectResults": "Select number of results",
+                "searchDomain": "Search domain..."
             },
             "loadingStates": {
-                "loadingDomains": "Domain is loading..."
+                "loadingDomains": "Domain is loading...",
+                "noDomains": "No domains found",
+                "error": "An error occurred while loading data"
             },
             "activeUsers": {
                 "title": "Total Active Users",

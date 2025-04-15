@@ -1,7 +1,5 @@
-import { Database, FileBarChart2, RefreshCw } from "lucide-react";
+import { Database } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-import { Button } from "@/components/ui/button";
 
 export function EmptyTable({
   title,

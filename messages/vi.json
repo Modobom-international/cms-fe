@@ -246,11 +246,13 @@
       },
       "placeholders": {
         "selectDomain": "Chọn tên miền",
-        "selectResults": "Chọn số kết quả hiển thị"
+        "selectResults": "Chọn số kết quả hiển thị",
+        "searchDomain": "Tìm kiếm tên miền..."
       },
       "loadingStates": {
         "loadingDomains": "Đang tải domain...",
-        "noDomains": "Lỗi khi tải tên miền"
+        "noDomains": "Không tìm thấy tên miền",
+        "error": "Đã xảy ra lỗi khi tải dữ liệu"
       },
       "activeUsers": {
         "title": "Người dùng đang hoạt động",
