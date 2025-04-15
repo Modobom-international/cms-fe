@@ -1,9 +1,24 @@
 "use client";
 
+import React from "react";
+
+import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
-import { RefreshCw, Search, User } from "lucide-react";
+import { Calendar as CalendarIcon, Search, User } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
+import {
+  parseAsArrayOf,
+  parseAsInteger,
+  parseAsString,
+  useQueryState,
+} from "nuqs";
+import {
+  Button as ButtonAria,
+  DatePicker,
+  Dialog,
+  Group,
+  Popover as PopoverAria,
+} from "react-aria-components";
 
 import { IActivityLog } from "@/types/activity-log.type";
 
@@ -11,6 +26,9 @@ import { useGetActivityLogs } from "@/hooks/activity-log";
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { DateInput } from "@/components/ui/datefield-rac";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -30,9 +48,28 @@ import {
 import { ActivityLogBadge } from "@/components/badge/activity-log-badge";
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
+import { SearchInput } from "@/components/inputs/search-input";
+
+interface ExtendedActivityLog extends Omit<IActivityLog, "description"> {
+  user_email?: string;
+  description?: string;
+}
+
+// Action type constants
+const ACTION_TYPES = {
+  ACCESS_VIEW: "access_view",
+  SHOW_RECORD: "show_record",
+  CREATE_RECORD: "create_record",
+  UPDATE_RECORD: "update_record",
+  DELETE_RECORD: "delete_record",
+} as const;
+
+type ActionType = (typeof ACTION_TYPES)[keyof typeof ACTION_TYPES];
 
 export default function ActivityLogDataTable() {
   const t = useTranslations("ActivityLogPage.table");
+  const [isActionFilterOpen, setIsActionFilterOpen] = React.useState(false);
+  const actionFilterRef = React.useRef<HTMLDivElement>(null);
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -46,6 +83,14 @@ export default function ActivityLogDataTable() {
     "search",
     parseAsString.withDefault("")
   );
+  const [date, setDate] = useQueryState(
+    "date",
+    parseAsString.withDefault(format(new Date(), "yyyy-MM-dd"))
+  );
+  const [selectedActions, setSelectedActions] = useQueryState(
+    "actions",
+    parseAsArrayOf(parseAsString).withDefault([])
+  );
 
   const debouncedSearch = useDebounce(search, 500);
 
@@ -57,7 +102,8 @@ export default function ActivityLogDataTable() {
   } = useGetActivityLogs(currentPage, pageSize, debouncedSearch);
 
   // Extract data from the response
-  const activityLogData = activityLogResponse?.data?.data || [];
+  const activityLogData =
+    activityLogResponse?.data?.data || ([] as ExtendedActivityLog[]);
   const paginationInfo = activityLogResponse?.data || {
     from: 0,
     to: 0,
@@ -78,79 +124,65 @@ export default function ActivityLogDataTable() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Handler for refresh button click
-  const handleRefresh = () => {
-    refetch();
-  };
-
-  // Helper function to render activity details
-  const renderActivityDetails = (log: IActivityLog) => {
-    const { details } = log;
-    if (!details) {
-      return <span>No details available</span>;
+  const calendarDate = date ? parseDate(date) : undefined;
+  const handleDateChange = (newDate: CalendarDate | null) => {
+    if (newDate) {
+      setDate(newDate.toString());
+    } else {
+      setDate("");
     }
-
-    const { filters } = details;
-
-    return (
-      <div className="flex flex-col">
-        <span className="mb-1 font-medium">Filters:</span>
-        <div className="grid grid-cols-1 gap-1 text-xs">
-          <div className="flex items-center">
-            <span className="mr-1 font-medium">Page:</span>
-            <span>{filters.page || "1"}</span>
-          </div>
-          <div className="flex items-center">
-            <span className="mr-1 font-medium">Page Size:</span>
-            <span>{filters.pageSize || "10"}</span>
-          </div>
-          {filters.search && (
-            <div className="flex items-center">
-              <span className="mr-1 font-medium">Search:</span>
-              <span>{filters.search}</span>
-            </div>
-          )}
-        </div>
-      </div>
-    );
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-200px)] flex-col">
-      {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-          {t("title")}
-        </h1>
-        <p className="mt-1 text-base text-gray-500">{t("description")}</p>
-      </div>
-
+    <div className="flex flex-col">
       {/* Filters Section */}
       <div className="space-y-6">
-        <div className="grid grid-cols-1 items-end gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 items-end justify-end gap-4 md:grid-cols-3">
           <div>
-            <label
+            <Label
               className="mb-2 block text-sm font-medium text-gray-700"
               htmlFor="search"
             >
-              {t("filters.search")}
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                id="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-4 py-2 pr-10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-                placeholder={t("placeholders.search")}
-              />
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                <Search className="h-4 w-4 text-gray-400" />
-              </div>
-            </div>
+              {t("filters.searchByEmail")}
+            </Label>
+            <SearchInput
+              className="w-full"
+              placeholder="Search by email"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
 
-          <div className="flex items-end">
+          {/* Date Filters */}
+          <div>
+            <DatePicker
+              className="*:not-first:mt-2"
+              value={calendarDate}
+              onChange={handleDateChange}
+            >
+              <Label className="text-foreground text-sm font-medium">
+                {t("filters.datePicker")}
+              </Label>
+              <div className="flex">
+                <Group className="w-full">
+                  <DateInput className="pe-9" />
+                </Group>
+                <ButtonAria className="text-muted-foreground/80 hover:text-foreground data-focus-visible:border-ring data-focus-visible:ring-ring/50 z-10 -ms-9 -me-px flex w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none data-focus-visible:ring-[3px]">
+                  <CalendarIcon size={16} />
+                </ButtonAria>
+              </div>
+              <PopoverAria
+                className="bg-background text-popover-foreground data-entering:animate-in data-exiting:animate-out data-[entering]:fade-in-0 data-[exiting]:fade-out-0 data-[entering]:zoom-in-95 data-[exiting]:zoom-out-95 data-[placement=bottom]:slide-in-from-top-2 data-[placement=left]:slide-in-from-right-2 data-[placement=right]:slide-in-from-left-2 data-[placement=top]:slide-in-from-bottom-2 z-50 rounded-lg border shadow-lg outline-hidden"
+                offset={4}
+              >
+                <Dialog className="max-h-[inherit] overflow-auto p-2">
+                  <Calendar />
+                </Dialog>
+              </PopoverAria>
+            </DatePicker>
+          </div>
+
+          <div className="flex items-center">
             <Button
               onClick={() => {
                 setCurrentPage(1); // Reset to first page when searching
@@ -158,19 +190,7 @@ export default function ActivityLogDataTable() {
               }}
               disabled={isFetching}
             >
-              <Search className="mr-2 h-4 w-4" /> {t("filters.search")}
-            </Button>
-
-            <Button
-              variant="outline"
-              className="ml-4"
-              onClick={handleRefresh}
-              disabled={isFetching}
-            >
-              <RefreshCw
-                className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
-              />
-              {t("actions.refresh") || "Refresh"}
+              <Search className="mr-2 h-4 w-4" /> {t("filters.apply")}
             </Button>
           </div>
         </div>
@@ -190,7 +210,10 @@ export default function ActivityLogDataTable() {
                   {t("loadingStates.error")}
                 </p>
                 <Button
-                  onClick={handleRefresh}
+                  onClick={() => {
+                    setCurrentPage(1);
+                    refetch();
+                  }}
                   variant="outline"
                   className="mt-4"
                 >
@@ -199,7 +222,7 @@ export default function ActivityLogDataTable() {
               </div>
             </div>
           ) : isDataEmpty ? (
-            <EmptyTable onRefresh={handleRefresh} />
+            <EmptyTable />
           ) : (
             <div className="flex flex-col">
               {/* Data Table Section */}
@@ -216,62 +239,90 @@ export default function ActivityLogDataTable() {
                       <TableHead className="w-[180px] py-3 font-medium text-gray-700">
                         {t("columns.timestamp")}
                       </TableHead>
-                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
-                        {t("columns.user")}
+                      <TableHead className="w-[180px] py-3 font-medium text-gray-700">
+                        {t("columns.userEmail")}
+                      </TableHead>
+                      <TableHead className="py-3 font-medium text-gray-700">
+                        {t("columns.description")}
                       </TableHead>
                       <TableHead className="w-[250px] py-3 font-medium text-gray-700">
                         {t("columns.details")}
                       </TableHead>
-                      <TableHead className="py-3 text-right font-medium text-gray-700">
-                        <span className="sr-only">{t("columns.actions")}</span>
-                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {activityLogData.map((log: IActivityLog, index: number) => {
-                      return (
-                        <TableRow
-                          key={index}
-                          className="border-b border-gray-200 hover:bg-gray-50"
-                        >
-                          <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                            {log.id}
-                          </TableCell>
-                          <TableCell className="py-3">
-                            <ActivityLogBadge action={log.action} />
-                          </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
-                            {log.details && log.details.logged_at
-                              ? format(
-                                  new Date(log.details.logged_at),
-                                  "yyyy-MM-dd HH:mm"
-                                )
-                              : format(
-                                  new Date(log.created_at),
-                                  "yyyy-MM-dd HH:mm"
-                                )}
-                          </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
-                            <div className="flex items-center">
-                              <User className="mr-2 h-4 w-4 text-gray-500" />
-                              <span>ID: {log.user_id}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
-                            {renderActivityDetails(log)}
-                          </TableCell>
-                          <TableCell className="py-3 text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-indigo-600 hover:text-indigo-900"
-                            >
-                              {t("actions.details")}
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                    {activityLogData.map(
+                      (log: ExtendedActivityLog, index: number) => {
+                        return (
+                          <TableRow
+                            key={index}
+                            className="border-b border-gray-200 hover:bg-gray-50"
+                          >
+                            <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                              {log.id}
+                            </TableCell>
+                            <TableCell className="py-3">
+                              <ActivityLogBadge action={log.action} />
+                            </TableCell>
+                            <TableCell className="text-muted-foreground py-3 text-sm">
+                              {log.details && log.details.logged_at
+                                ? format(
+                                    new Date(log.details.logged_at),
+                                    "yyyy-MM-dd HH:mm"
+                                  )
+                                : format(
+                                    new Date(log.created_at),
+                                    "yyyy-MM-dd HH:mm"
+                                  )}
+                            </TableCell>
+                            <TableCell className="text-muted-foreground py-3 text-sm">
+                              <div className="flex items-center">
+                                <User className="mr-2 h-4 w-4 text-gray-500" />
+                                <span>{log.user_email || "N/A"}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-muted-foreground py-3 text-sm">
+                              {log.description || "No description available"}
+                            </TableCell>
+                            <TableCell className="text-muted-foreground py-3 text-sm">
+                              <div className="flex flex-col">
+                                <span className="mb-1 font-medium">
+                                  Filters:
+                                </span>
+                                <div className="grid grid-cols-1 gap-1 text-xs">
+                                  <div className="flex items-center">
+                                    <span className="mr-1 font-medium">
+                                      Page:
+                                    </span>
+                                    <span>
+                                      {log.details?.filters?.page || "-"}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <span className="mr-1 font-medium">
+                                      Page Size:
+                                    </span>
+                                    <span>
+                                      {log.details?.filters?.pageSize || "-"}
+                                    </span>
+                                  </div>
+                                  {log.details?.filters?.search && (
+                                    <div className="flex items-center">
+                                      <span className="mr-1 font-medium">
+                                        Search:
+                                      </span>
+                                      <span>
+                                        {log.details?.filters?.search}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      }
+                    )}
                   </TableBody>
                 </Table>
               </div>

@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 
 import { ChevronRight, Home, PlusIcon } from "lucide-react";
@@ -28,28 +26,11 @@ export default function DomainPage() {
               Quản lý và giám sát hệ thống domain
             </p>
           </div>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href="/admin/domains/create"
-              className={buttonVariants({
-                variant: "default",
-                size: "sm",
-              })}
-            >
-              <PlusIcon className="mr-2 h-4 w-4" />
-              Thêm domain
-            </Link>
-          </div>
         </div>
       </div>
 
-      {/* Search and Table Container */}
       <div>
-        {/* Table Section */}
-        <div>
-          <DomainDataTable />
-        </div>
+        <DomainDataTable />
       </div>
     </div>
   );

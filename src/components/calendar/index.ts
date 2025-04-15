@@ -23,4 +23,3 @@ export * from "./utils";
 
 // Type exports
 export type { CalendarEvent, CalendarView, EventColor } from "./types";
-

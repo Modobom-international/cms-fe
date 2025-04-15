@@ -1,15 +1,22 @@
-import { useState, useEffect } from "react";
-import { useNotificationsData } from "@/hooks/notification";
-import { INotification } from "@/types/notification";
+import { useEffect, useState } from "react";
+
+import { env } from "@/env";
+import Cookies from "js-cookie";
 import Echo from "laravel-echo";
 import Pusher from "pusher-js";
-import Cookies from "js-cookie";
-import { env } from "@/env";
+
+import { INotification } from "@/types/notification";
+
+import { useNotificationsData } from "@/hooks/notification";
 
 export function useNotifications(socketUrl: string, email: string) {
   const { data: fetchedNotifications, isLoading } = useNotificationsData(email);
-  const [socketNotifications, setSocketNotifications] = useState<INotification[]>(
-    fetchedNotifications && "data" in fetchedNotifications ? fetchedNotifications.data : []
+  const [socketNotifications, setSocketNotifications] = useState<
+    INotification[]
+  >(
+    fetchedNotifications && "data" in fetchedNotifications
+      ? fetchedNotifications.data
+      : []
   );
 
   useEffect(() => {
@@ -46,15 +53,18 @@ export function useNotifications(socketUrl: string, email: string) {
 
     echo
       .private(`notifications.${email}`)
-      .listen("NotificationSystem", (notification: INotification & { email?: string }) => {
-        console.log("Nhận được thông báo:", notification);
-        if (notification.email === email) {
-          setSocketNotifications((prev) => [
-            { ...notification, unread: true },
-            ...prev,
-          ]);
+      .listen(
+        "NotificationSystem",
+        (notification: INotification & { email?: string }) => {
+          console.log("Nhận được thông báo:", notification);
+          if (notification.email === email) {
+            setSocketNotifications((prev) => [
+              { ...notification, unread: true },
+              ...prev,
+            ]);
+          }
         }
-      });
+      );
 
     return () => {
       echo.disconnect();
@@ -64,7 +74,9 @@ export function useNotifications(socketUrl: string, email: string) {
   const markAsRead = (id: number) => {
     setSocketNotifications((prev) =>
       prev.map((notification) =>
-        notification.id === id ? { ...notification, unread: false } : notification
+        notification.id === id
+          ? { ...notification, unread: false }
+          : notification
       )
     );
   };

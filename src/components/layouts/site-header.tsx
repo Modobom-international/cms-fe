@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/providers/auth-provider";
 import { Calendar, Settings2Icon, SidebarIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
-import { useAuth } from "@/providers/auth-provider";
 
 import AvatarButton from "@/components/avatars/avatar-button";
 import CalendarSample from "@/components/calendar/calendar-sample";

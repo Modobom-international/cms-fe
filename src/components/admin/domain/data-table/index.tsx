@@ -187,7 +187,7 @@ export default function DomainDataTable() {
               </div>
             </div>
           ) : isDataEmpty ? (
-            <EmptyTable onRefresh={handleRefresh} />
+            <EmptyTable />
           ) : (
             <div className="flex flex-col">
               {/* Data Table Section */}
@@ -207,6 +207,9 @@ export default function DomainDataTable() {
                       <TableHead className="w-[120px] py-3 font-medium text-gray-700">
                         {t("columns.timestamp")}
                       </TableHead>
+                      <TableHead className="w-[90px] py-3 font-medium text-gray-700">
+                        Renew Deadline
+                      </TableHead>
                       <TableHead className="w-[120px] py-3 font-medium text-gray-700">
                         Expires
                       </TableHead>
@@ -215,9 +218,6 @@ export default function DomainDataTable() {
                       </TableHead>
                       <TableHead className="w-[90px] py-3 font-medium text-gray-700">
                         Security
-                      </TableHead>
-                      <TableHead className="py-3 text-right font-medium text-gray-700">
-                        <span className="sr-only">{t("columns.actions")}</span>
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -244,9 +244,15 @@ export default function DomainDataTable() {
                             {domain.updated_at
                               ? format(
                                   new Date(domain.updated_at),
-                                  "yyyy-MM-dd HH:mm"
+                                  "yyyy-MM-dd, h:mm a"
                                 )
                               : "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {format(
+                              domain.renew_deadline,
+                              "yyyy-MM-dd, h:mm a"
+                            ) || "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
                             {domain.time_expired
@@ -275,15 +281,6 @@ export default function DomainDataTable() {
                                 </span>
                               </div>
                             )}
-                          </TableCell>
-                          <TableCell className="py-3 text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-indigo-600 hover:text-indigo-900"
-                            >
-                              {t("actions.details")}
-                            </Button>
                           </TableCell>
                         </TableRow>
                       );

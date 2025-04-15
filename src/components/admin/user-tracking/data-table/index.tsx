@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { CalendarIcon, Map, RefreshCw, Search, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
@@ -18,15 +19,36 @@ import {
 import { IDomainActual } from "@/types/domain.type";
 import { IUserTracking } from "@/types/user-tracking.type";
 
-import { useGetAllDomains } from "@/hooks/domain";
+import { cn } from "@/lib/utils";
+
+import { useGetDomainList } from "@/hooks/domain";
 import { useGetUserTracking } from "@/hooks/user-tracking";
 import { useActiveUsers } from "@/hooks/user-tracking/use-active-users";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar-rac";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { DateInput } from "@/components/ui/datefield-rac";
+import {
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  Dialog as DialogUI,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import {
+  PopoverContent,
+  PopoverTrigger,
+  Popover as PopoverUI,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -48,6 +70,11 @@ import { Spinner } from "@/components/global/spinner";
 
 export default function UserTrackingDataTable() {
   const t = useTranslations("UserTrackingPage.table");
+  const [showHeatmapModal, setShowHeatmapModal] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<IUserTracking | null>(
+    null
+  );
+  const [openDomainSelect, setOpenDomainSelect] = useState(false);
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -67,10 +94,15 @@ export default function UserTrackingDataTable() {
   );
 
   const {
-    data: domains = [],
+    data: domainResponse = { data: { data: [] } },
     isLoading: isLoadingDomains,
     error: domainError,
-  } = useGetAllDomains();
+  } = useGetDomainList(1, 100, "");
+
+  const domains =
+    "data" in domainResponse && domainResponse.data?.data
+      ? domainResponse.data.data
+      : [];
 
   useEffect(() => {
     if (domain === "" && domains.length > 0) {
@@ -87,7 +119,6 @@ export default function UserTrackingDataTable() {
 
   const activeUsers = useActiveUsers(domains);
 
-  // Extract data from response
   const userTrackingData = userTrackingResponse?.data?.data || [];
   const paginationInfo = userTrackingResponse?.data || {
     from: 0,
@@ -97,19 +128,16 @@ export default function UserTrackingDataTable() {
   };
   const isDataEmpty = !userTrackingData || userTrackingData.length === 0;
 
-  // Handle next page navigation
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Handle previous page navigation
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Convert string date to CalendarDate
   const calendarDate = date ? parseDate(date) : undefined;
   const handleDateChange = (newDate: CalendarDate | null) => {
     if (newDate) {
@@ -119,14 +147,21 @@ export default function UserTrackingDataTable() {
     }
   };
 
-  // Handler for refresh button
   const handleRefresh = () => {
     refetch();
   };
 
+  const hasHeatmapData = (record: IUserTracking) => {
+    return record.uuid && record.event_name.toLowerCase() === "mousemove";
+  };
+
+  const handleOpenHeatmap = (record: IUserTracking) => {
+    setSelectedRecord(record);
+    setShowHeatmapModal(true);
+  };
+
   return (
     <div className="flex min-h-[calc(100vh-200px)] flex-col">
-      {/* Filters Section */}
       <div className="space-y-6">
         <div className="grid grid-cols-1 items-end gap-6 md:grid-cols-3">
           <div>
@@ -136,40 +171,77 @@ export default function UserTrackingDataTable() {
             >
               {t("filters.selectDomain")}
             </label>
-            <Select
-              value={domain}
-              onValueChange={setDomain}
-              disabled={isLoadingDomains}
+            <PopoverUI
+              open={openDomainSelect}
+              onOpenChange={setOpenDomainSelect}
             >
-              <SelectTrigger
-                id="domain-select"
-                className="w-full"
-                aria-label={t("filters.selectDomain")}
+              <PopoverTrigger asChild>
+                <Button
+                  id="domain-select"
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={openDomainSelect}
+                  className="w-full justify-between"
+                  disabled={isLoadingDomains}
+                >
+                  {domain
+                    ? domains.find((d) => d.domain === domain)?.domain || domain
+                    : t("placeholders.selectDomain")}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-[24rem] p-0"
+                side="bottom"
+                align="start"
               >
-                <SelectValue placeholder={t("placeholders.selectDomain")} />
-              </SelectTrigger>
-              <SelectContent>
-                {isLoadingDomains ? (
-                  <div className="py-2 text-center text-sm text-gray-500">
-                    {t("loadingStates.loadingDomains")}
-                  </div>
-                ) : domainError ? (
-                  <div className="py-2 text-center text-sm text-red-500">
-                    {t("errors.fetchDomainsFailed")}
-                  </div>
-                ) : domains.length === 0 ? (
-                  <div className="py-2 text-center text-sm text-gray-500">
-                    {t("loadingStates.noDomains")}
-                  </div>
-                ) : (
-                  domains.map((domainItem: IDomainActual) => (
-                    <SelectItem key={domainItem.id} value={domainItem.domain}>
-                      {domainItem.domain}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+                <Command>
+                  <CommandInput
+                    placeholder={t("placeholders.searchDomain")}
+                    className="h-9"
+                  />
+                  <CommandList>
+                    <CommandEmpty>{t("loadingStates.noDomains")}</CommandEmpty>
+                    <CommandGroup>
+                      {isLoadingDomains ? (
+                        <div className="py-2 text-center text-sm text-gray-500">
+                          {t("loadingStates.loadingDomains")}
+                        </div>
+                      ) : domainError ? (
+                        <div className="py-2 text-center text-sm text-red-500">
+                          {t("errors.fetchDomainsFailed")}
+                        </div>
+                      ) : domains.length === 0 ? (
+                        <div className="py-2 text-center text-sm text-gray-500">
+                          {t("loadingStates.noDomains")}
+                        </div>
+                      ) : (
+                        domains.map((domainItem: IDomainActual) => (
+                          <CommandItem
+                            key={domainItem.id}
+                            value={domainItem.domain}
+                            onSelect={(currentValue: string) => {
+                              setDomain(currentValue);
+                              setOpenDomainSelect(false);
+                            }}
+                          >
+                            {domainItem.domain}
+                            <Check
+                              className={cn(
+                                "ml-auto h-4 w-4",
+                                domain === domainItem.domain
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                          </CommandItem>
+                        ))
+                      )}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </PopoverUI>
           </div>
 
           <div>
@@ -212,13 +284,6 @@ export default function UserTrackingDataTable() {
             </Button>
 
             <Button
-              variant="default"
-              className="ml-4 bg-emerald-600 hover:bg-emerald-700"
-            >
-              <Map className="mr-2 h-4 w-4" /> {t("filters.viewHeatmap")}
-            </Button>
-
-            <Button
               variant="outline"
               className="ml-4"
               onClick={handleRefresh}
@@ -231,7 +296,6 @@ export default function UserTrackingDataTable() {
             </Button>
           </div>
         </div>
-        {/* Active Users Section */}
         <div className="mb-6">
           <div className="bg-card rounded-lg border p-4">
             <div className="flex items-center space-x-4">
@@ -253,7 +317,6 @@ export default function UserTrackingDataTable() {
           </div>
         </div>
 
-        {/* Results Table or Empty State */}
         <div className="mt-4 flex-grow">
           {isFetching ? (
             <div className="flex items-center justify-center py-8">
@@ -277,10 +340,9 @@ export default function UserTrackingDataTable() {
               </div>
             </div>
           ) : isDataEmpty ? (
-            <EmptyTable onRefresh={handleRefresh} />
+            <EmptyTable />
           ) : (
             <div className="flex flex-col">
-              {/* Data Table Section */}
               <div className="relative w-full">
                 <Table className="w-full">
                   <TableHeader className="sticky top-0 z-10 bg-white">
@@ -316,10 +378,10 @@ export default function UserTrackingDataTable() {
                           className="border-b border-gray-200 hover:bg-gray-50"
                         >
                           <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                            {record.id.$oid}
+                            {record?.id?.$oid}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
-                            {record.domain}
+                            {record?.domain}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3">
                             {format(
@@ -347,13 +409,26 @@ export default function UserTrackingDataTable() {
                             {renderUserBehavior(record, t)}
                           </TableCell>
                           <TableCell className="py-3 text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-indigo-600 hover:text-indigo-900"
-                            >
-                              {t("actions.details")}
-                            </Button>
+                            <div className="flex justify-end space-x-2">
+                              {hasHeatmapData(record) && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-emerald-600 hover:text-emerald-900"
+                                  onClick={() => handleOpenHeatmap(record)}
+                                >
+                                  <Map className="mr-2 h-3 w-3" />
+                                  Heatmap
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-indigo-600 hover:text-indigo-900"
+                              >
+                                {t("actions.details")}
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       )
@@ -362,7 +437,6 @@ export default function UserTrackingDataTable() {
                 </Table>
               </div>
 
-              {/* Pagination Section */}
               <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
                 <div className="flex items-center justify-between px-4 py-2">
                   <div className="flex items-center gap-2">
@@ -421,11 +495,46 @@ export default function UserTrackingDataTable() {
           )}
         </div>
       </div>
+
+      <DialogUI open={showHeatmapModal} onOpenChange={setShowHeatmapModal}>
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>Heatmap Visualization</DialogTitle>
+          </DialogHeader>
+          {selectedRecord && (
+            <div className="mt-4">
+              <div className="mb-4 grid grid-cols-3 gap-4 text-sm">
+                <div>
+                  <span className="font-semibold">UUID:</span>{" "}
+                  {selectedRecord.uuid}
+                </div>
+                <div>
+                  <span className="font-semibold">Domain:</span>{" "}
+                  {selectedRecord.domain}
+                </div>
+                <div>
+                  <span className="font-semibold">Date:</span>{" "}
+                  {format(new Date(selectedRecord.timestamp), "yyyy-MM-dd")}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-center overflow-hidden rounded-lg bg-gray-100">
+                <div className="relative aspect-video w-full">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <p className="text-gray-500">
+                      Heatmap visualization for UUID: {selectedRecord.uuid}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </DialogUI>
     </div>
   );
 }
 
-// Helper functions (giữ nguyên)
 const getBadgeColor = (device: string) => {
   switch (device.toLowerCase()) {
     case "mobile":

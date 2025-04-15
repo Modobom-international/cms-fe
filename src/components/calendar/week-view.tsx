@@ -402,4 +402,3 @@ export function WeekView({
     </div>
   );
 }
-

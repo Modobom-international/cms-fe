@@ -150,4 +150,3 @@ export function addHoursToDate(date: Date, hours: number): Date {
   result.setHours(result.getHours() + hours);
   return result;
 }
-

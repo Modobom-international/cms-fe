@@ -2,7 +2,7 @@ import { domainQueryKeys } from "@/constants/query-keys";
 import { useQuery } from "@tanstack/react-query";
 import qs from "qs";
 
-import { IDomainResponse, IDomainActual } from "@/types/domain.type";
+import { IDomainActual, IDomainResponse } from "@/types/domain.type";
 
 import apiClient from "@/lib/api/client";
 
@@ -33,12 +33,10 @@ export const useGetDomainList = (
 
 export const useGetAllDomains = () => {
   return useQuery({
-    queryKey: ['domains'],
+    queryKey: ["domains"],
     queryFn: async (): Promise<IDomainActual[] | IErrorResponse> => {
       try {
-        const { data } = await apiClient.get<IDomainResponse>(
-          `/api/domain`
-        );
+        const { data } = await apiClient.get<IDomainResponse>(`/api/domain`);
 
         return data.data.data;
       } catch {

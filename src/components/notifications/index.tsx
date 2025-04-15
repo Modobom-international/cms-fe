@@ -1,12 +1,14 @@
 import { BellIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { useNotifications } from "@/hooks/notification/get";
+
 import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useNotifications } from "@/hooks/notification/get";
 
 function Dot({ className }: { className?: string }) {
   return (
@@ -25,7 +27,8 @@ function Dot({ className }: { className?: string }) {
 }
 
 export default function NotificationsButton({ email }: { email: string }) {
-  const socketUrl = process.env.NEXT_PUBLIC_WEBSOCKET_URL || "http://localhost:3003";
+  const socketUrl =
+    process.env.NEXT_PUBLIC_WEBSOCKET_URL || "http://localhost:3003";
   const t = useTranslations("Notification");
   const { notifications, unreadCount, markAsRead, markAllAsRead, isLoading } =
     useNotifications(socketUrl, email);
@@ -79,7 +82,7 @@ export default function NotificationsButton({ email }: { email: string }) {
           className="bg-border -mx-1 my-1 h-px"
         ></div>
         {notifications.length === 0 ? (
-          <div className="px-3 py-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground px-3 py-2 text-sm">
             {t("noNotifications")}
           </div>
         ) : (

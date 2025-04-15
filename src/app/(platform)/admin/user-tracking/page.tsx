@@ -1,5 +1,3 @@
-"use client";
-
 import { ChevronRight, Home } from "lucide-react";
 import { useTranslations } from "next-intl";
 
