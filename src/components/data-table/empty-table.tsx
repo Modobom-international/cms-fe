@@ -6,11 +6,9 @@ import { Button } from "@/components/ui/button";
 export function EmptyTable({
   title,
   description,
-  onRefresh,
 }: {
   title?: string;
   description?: string;
-  onRefresh?: () => void;
 }) {
   const t = useTranslations("EmptyTable");
 
@@ -23,23 +21,6 @@ export function EmptyTable({
       <p className="text-muted-foreground mt-2 text-sm">
         {description ?? t("description")}
       </p>
-      <div className="mt-6 flex gap-3">
-        {onRefresh && (
-          <Button
-            onClick={onRefresh}
-            className="inline-flex items-center"
-            variant="outline"
-            size="sm"
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            {t("refreshButton")}
-          </Button>
-        )}
-        <Button className="inline-flex items-center" size="sm">
-          <FileBarChart2 className="mr-2 h-4 w-4" />
-          {t("viewReportsButton")}
-        </Button>
-      </div>
     </div>
   );
 }

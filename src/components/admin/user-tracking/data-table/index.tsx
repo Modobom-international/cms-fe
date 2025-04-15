@@ -277,7 +277,7 @@ export default function UserTrackingDataTable() {
               </div>
             </div>
           ) : isDataEmpty ? (
-            <EmptyTable onRefresh={handleRefresh} />
+            <EmptyTable />
           ) : (
             <div className="flex flex-col">
               {/* Data Table Section */}
@@ -316,10 +316,10 @@ export default function UserTrackingDataTable() {
                           className="border-b border-gray-200 hover:bg-gray-50"
                         >
                           <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                            {record.id.$oid}
+                            {record?.id?.$oid}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
-                            {record.domain}
+                            {record?.domain}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3">
                             {format(

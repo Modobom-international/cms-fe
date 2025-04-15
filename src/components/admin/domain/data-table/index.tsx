@@ -187,7 +187,7 @@ export default function DomainDataTable() {
               </div>
             </div>
           ) : isDataEmpty ? (
-            <EmptyTable onRefresh={handleRefresh} />
+            <EmptyTable />
           ) : (
             <div className="flex flex-col">
               {/* Data Table Section */}
