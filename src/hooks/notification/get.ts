@@ -21,13 +21,6 @@ export function useNotifications(socketUrl: string, email: string) {
   }, [fetchedNotifications]);
 
   useEffect(() => {
-    console.log("Khởi tạo Pusher với cấu hình:", {
-      wsHost: env.NEXT_PUBLIC_REVERB_HOST,
-      wsPort: env.NEXT_PUBLIC_REVERB_PORT,
-      wssPort: env.NEXT_PUBLIC_REVERB_PORT,
-      forceTLS: env.NEXT_PUBLIC_REVERB_SCHEME === "https",
-    });
-
     const pusherClient = new Pusher(env.NEXT_PUBLIC_REVERB_APP_KEY, {
       wsHost: env.NEXT_PUBLIC_REVERB_HOST,
       wsPort: parseInt(env.NEXT_PUBLIC_REVERB_PORT),
@@ -37,8 +30,6 @@ export function useNotifications(socketUrl: string, email: string) {
       disableStats: true,
       cluster: "as1",
     });
-
-    console.log("Pusher đã được khởi tạo:", pusherClient);
 
     const echo = new Echo({
       broadcaster: "reverb",
@@ -52,8 +43,6 @@ export function useNotifications(socketUrl: string, email: string) {
         },
       },
     });
-
-    console.log("Echo đã được khởi tạo:", echo);
 
     echo
       .private(`notifications.${email}`)

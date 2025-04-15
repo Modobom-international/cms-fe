@@ -250,6 +250,10 @@
             },
             "loadingStates": {
                 "loadingDomains": "Domain is loading..."
+            },
+            "activeUsers": {
+                "title": "Total Active Users",
+                "description": "Total active users across all domains"
             }
         }
     },
