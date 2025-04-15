@@ -1,9 +1,10 @@
+import { notificationQueryKeys } from "@/constants/query-keys";
 import { useQuery } from "@tanstack/react-query";
 import qs from "qs";
 
-import apiClient from "@/lib/api/client";
-import { notificationQueryKeys } from "@/constants/query-keys";
 import { INotificationsResponse } from "@/types/notification";
+
+import apiClient from "@/lib/api/client";
 
 type NotificationsResult = INotificationsResponse | IErrorResponse;
 

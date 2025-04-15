@@ -373,4 +373,3 @@ export function CalendarDndProvider({
     </DndContext>
   );
 }
-

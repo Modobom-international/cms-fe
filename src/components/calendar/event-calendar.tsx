@@ -68,7 +68,9 @@ export function EventCalendar({
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<CalendarView>(initialView);
   const [isEventDialogOpen, setIsEventDialogOpen] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+    null
+  );
 
   // Tạo giá trị today
   const today = useMemo(() => new Date(), []); // Sử dụng useMemo để tránh tạo mới today mỗi lần render
@@ -229,7 +231,10 @@ export function EventCalendar({
           <span className="min-[480px]:hidden" aria-hidden="true">
             {format(currentDate, "MMM d, yyyy")}
           </span>
-          <span className="max-[479px]:sr-only min-md:hidden" aria-hidden="true">
+          <span
+            className="max-[479px]:sr-only min-md:hidden"
+            aria-hidden="true"
+          >
             {format(currentDate, "MMMM d, yyyy")}
           </span>
           <span className="max-md:hidden">
