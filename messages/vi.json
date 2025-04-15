@@ -310,13 +310,22 @@
       "description": "Theo dõi và giám sát tất cả các hoạt động của hệ thống và người dùng",
       "filters": {
         "search": "Tìm kiếm nhật ký",
-        "dateRange": "Khoảng thời gian"
+        "searchByEmail": "Tìm kiếm theo email",
+        "dateRange": "Khoảng thời gian",
+        "datePicker": "Chọn ngày",
+        "startDate": "Ngày bắt đầu",
+        "endDate": "Ngày kết thúc",
+        "actionTypes": "Loại hành động",
+        "apply": "Áp dụng bộ lọc",
+        "clearAll": "Xóa tất cả"
       },
       "columns": {
         "id": "ID",
         "action": "Hành động",
         "timestamp": "Thời gian",
         "user": "Người dùng",
+        "userEmail": "Email người dùng",
+        "description": "Mô tả",
         "details": "Chi tiết",
         "actions": "Thao tác"
       },
@@ -338,7 +347,15 @@
         "error": "Đã xảy ra lỗi khi tải nhật ký hoạt động"
       },
       "placeholders": {
-        "search": "Tìm kiếm theo hành động hoặc ID người dùng"
+        "search": "Tìm kiếm theo hành động hoặc ID người dùng",
+        "searchByEmail": "Tìm kiếm theo địa chỉ email"
+      },
+      "actionTypes": {
+        "ACCESS_VIEW": "Truy cập xem",
+        "SHOW_RECORD": "Xem bản ghi",
+        "CREATE_RECORD": "Tạo bản ghi",
+        "UPDATE_RECORD": "Cập nhật bản ghi",
+        "DELETE_RECORD": "Xóa bản ghi"
       }
     }
   },

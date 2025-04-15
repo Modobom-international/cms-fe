@@ -309,13 +309,22 @@
             "description": "Track and monitor all system activities and user actions",
             "filters": {
                 "search": "Search",
-                "dateRange": "Date range"
+                "searchByEmail": "Search by email",
+                "dateRange": "Date range",
+                "datePicker": "Select date",
+                "startDate": "Start date",
+                "endDate": "End date",
+                "actionTypes": "Action types",
+                "apply": "Apply filters",
+                "clearAll": "Clear all"
             },
             "columns": {
                 "id": "ID",
                 "action": "Action",
                 "timestamp": "Timestamp",
                 "user": "User",
+                "userEmail": "User Email",
+                "description": "Description",
                 "details": "Details",
                 "actions": "Actions"
             },
@@ -337,7 +346,15 @@
                 "error": "An error occurred while loading activity logs"
             },
             "placeholders": {
-                "search": "Search by action or user ID"
+                "search": "Search by action or user ID",
+                "searchByEmail": "Search by email address"
+            },
+            "actionTypes": {
+                "ACCESS_VIEW": "Access View",
+                "SHOW_RECORD": "Show Record",
+                "CREATE_RECORD": "Create Record",
+                "UPDATE_RECORD": "Update Record",
+                "DELETE_RECORD": "Delete Record"
             }
         }
     },
