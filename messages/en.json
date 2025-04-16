@@ -326,7 +326,7 @@
                 "action": "Action",
                 "timestamp": "Timestamp",
                 "user": "User",
-                "userEmail": "User Email",
+                "userEmail": "Email",
                 "description": "Description",
                 "details": "Details",
                 "actions": "Actions"

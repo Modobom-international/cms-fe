@@ -52,11 +52,6 @@ import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 import { SearchInput } from "@/components/inputs/search-input";
 
-interface ExtendedActivityLog extends Omit<IActivityLog, "description"> {
-  user_email?: string;
-  description?: string;
-}
-
 // Action type constants
 const ACTION_TYPES = {
   ACCESS_VIEW: "access_view",
@@ -105,7 +100,7 @@ export default function ActivityLogDataTable() {
 
   // Extract data from the response
   const activityLogData =
-    activityLogResponse?.data?.data || ([] as ExtendedActivityLog[]);
+    activityLogResponse?.data?.data || ([] as IActivityLog[]);
   const paginationInfo = activityLogResponse?.data || {
     from: 0,
     to: 0,
@@ -244,79 +239,74 @@ export default function ActivityLogDataTable() {
                       <TableHead className="w-[180px] py-3 font-medium text-gray-700">
                         {t("columns.userEmail")}
                       </TableHead>
-                      <TableHead className="py-3 font-medium text-gray-700">
-                        {t("columns.description")}
-                      </TableHead>
                       <TableHead className="w-[250px] py-3 font-medium text-gray-700">
                         {t("columns.details")}
+                      </TableHead>
+                      <TableHead className="py-3 font-medium text-gray-700">
+                        {t("columns.description")}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {activityLogData.map(
-                      (log: ExtendedActivityLog, index: number) => {
-                        return (
-                          <TableRow
-                            key={index}
-                            className="border-b border-gray-200 hover:bg-gray-50"
-                          >
-                            <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                              {log.id}
-                            </TableCell>
-                            <TableCell className="py-3">
-                              <ActivityLogBadge action={log.action} />
-                            </TableCell>
-                            <TableCell className="text-muted-foreground py-3 text-sm">
-                              {log.details && log.details.logged_at
-                                ? formatDateTime(
-                                    new Date(log.details.logged_at)
-                                  )
-                                : "—"}
-                            </TableCell>
-                            <TableCell className="text-muted-foreground py-3 text-sm">
-                              <div className="flex items-center">
-                                <span>{log.user_email || "—"}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-muted-foreground py-3 text-sm">
-                              {log.description || "—"}
-                            </TableCell>
-                            <TableCell className="text-muted-foreground py-3 text-sm">
-                              <div className="flex flex-col">
-                                <div className="grid grid-cols-1 gap-1 text-xs">
-                                  <div className="flex items-center">
-                                    <span className="mr-1 font-medium">
-                                      Page:
-                                    </span>
-                                    <span>
-                                      {log.details?.filters?.page || "-"}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center">
-                                    <span className="mr-1 font-medium">
-                                      Page Size:
-                                    </span>
-                                    <span>
-                                      {log.details?.filters?.pageSize || "-"}
-                                    </span>
-                                  </div>
-                                  {log.details?.filters?.search && (
-                                    <div className="flex items-center">
-                                      <span className="mr-1 font-medium">
-                                        Search:
-                                      </span>
-                                      <span>
-                                        {log.details?.filters?.search}
-                                      </span>
-                                    </div>
-                                  )}
+                    {activityLogData.map((log: IActivityLog, index: number) => {
+                      return (
+                        <TableRow
+                          key={index}
+                          className="border-b border-gray-200 hover:bg-gray-50"
+                        >
+                          <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                            {log.id}
+                          </TableCell>
+                          <TableCell className="py-3">
+                            <ActivityLogBadge action={log.action} />
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {log.details && log.details.logged_at
+                              ? formatDateTime(new Date(log.details.logged_at))
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            <div className="flex items-center">
+                              <span>{log.user_email || "—"}</span>
+                            </div>
+                          </TableCell>
+
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            <div className="flex flex-col">
+                              <div className="grid grid-cols-1 gap-1 text-xs">
+                                <div className="flex items-center">
+                                  <span className="mr-1 font-medium">
+                                    Page:
+                                  </span>
+                                  <span>
+                                    {log.details?.filters?.page || "-"}
+                                  </span>
                                 </div>
+                                <div className="flex items-center">
+                                  <span className="mr-1 font-medium">
+                                    Page Size:
+                                  </span>
+                                  <span>
+                                    {log.details?.filters?.pageSize || "-"}
+                                  </span>
+                                </div>
+                                {log.details?.filters?.search && (
+                                  <div className="flex items-center">
+                                    <span className="mr-1 font-medium">
+                                      Search:
+                                    </span>
+                                    <span>{log.details?.filters?.search}</span>
+                                  </div>
+                                )}
                               </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      }
-                    )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {log.description || "—"}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
