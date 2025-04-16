@@ -442,7 +442,7 @@ export default function UserTrackingDataTable() {
                       value={pageSize.toString()}
                       onValueChange={(value) => setPageSize(Number(value))}
                     >
-                      <SelectTrigger className="h-8 w-14 border-gray-200 text-sm">
+                      <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
                         <SelectValue placeholder="10" />
                       </SelectTrigger>
                       <SelectContent className="text-sm">
