@@ -108,20 +108,11 @@ export const useCreatePage = () => {
 
   return useMutation({
     mutationFn: async (data: CreatePageData) => {
-      try {
-        const response = await apiClient.post(`/api/create-page`, data);
-        return {
-          isSuccess: true,
-          data: response.data,
-          message: "Page created successfully",
-        };
-      } catch (error) {
-        return {
-          isSuccess: false,
-          data: null,
-          message: "Failed to create page",
-        };
+      const response = await apiClient.post(`/api/create-page`, data);
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Failed to create page");
       }
+      return response.data;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -211,6 +202,25 @@ export const useDeployPage = () => {
           message: "Failed to deploy page",
         };
       }
+    },
+  });
+};
+
+export const useDeletePage = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (pageId: number) => {
+      const response = await apiClient.delete(`/api/pages/${pageId}`);
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Failed to delete page");
+      }
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: pageQueryKeys.lists(),
+      });
     },
   });
 };

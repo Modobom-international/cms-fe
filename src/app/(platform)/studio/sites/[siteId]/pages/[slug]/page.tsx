@@ -11,7 +11,6 @@ export default async function PageEditor({
 }) {
   const { slug, siteId } = await params;
   const { pageId } = await searchParams;
-  console.log("Page ID:", pageId);
 
   return (
     <div className="relative h-screen">
