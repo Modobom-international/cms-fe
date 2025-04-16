@@ -5,8 +5,77 @@ import { useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
-import { useCreatePage, useGetPages } from "@/hooks/pages";
+import { toast } from "sonner";
+
+import { useCreatePage, useDeletePage, useGetPages } from "@/hooks/pages";
 import { useGetSiteById } from "@/hooks/sites";
+
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+
+interface DeleteDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  pageName: string;
+  isDeleting: boolean;
+}
+
+function DeleteConfirmationDialog({
+  isOpen,
+  onClose,
+  onConfirm,
+  pageName,
+  isDeleting,
+}: DeleteDialogProps) {
+  const [confirmationText, setConfirmationText] = useState("");
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Delete Page</DialogTitle>
+          <DialogDescription>
+            This action cannot be undone. This will permanently delete the page
+            <span className="font-semibold"> {pageName}</span>.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="py-4">
+          <p className="mb-2 text-sm text-gray-600">
+            To confirm, type{" "}
+            <span className="font-mono text-red-500">{pageName}</span> below:
+          </p>
+          <Input
+            value={confirmationText}
+            onChange={(e) => setConfirmationText(e.target.value)}
+            placeholder="Type page slug to confirm"
+            className="w-full"
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={onConfirm}
+            disabled={confirmationText !== pageName || isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete Page"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 interface Page {
   id: number;
@@ -18,6 +87,16 @@ interface Page {
 
 export default function SitePagesManagement() {
   const [newPageSlug, setNewPageSlug] = useState("");
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    pageId: number | null;
+    pageName: string;
+  }>({
+    isOpen: false,
+    pageId: null,
+    pageName: "",
+  });
+
   const params = useParams();
   const router = useRouter();
   const siteId = Number(params.siteId);
@@ -26,6 +105,7 @@ export default function SitePagesManagement() {
   const { data: siteData, isLoading: isSiteLoading } = useGetSiteById(siteId);
   const { data: pagesData, isLoading: isPagesLoading } = useGetPages(siteId);
   const createPageMutation = useCreatePage();
+  const deletePageMutation = useDeletePage();
 
   const handleCreatePage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,9 +129,43 @@ export default function SitePagesManagement() {
         content: JSON.stringify(defaultProject),
       });
 
+      toast.success("Page created successfully", {
+        description: `Created new page: ${newPageSlug}`,
+      });
+
       setNewPageSlug("");
     } catch (err) {
       console.error("Error creating page:", err);
+      toast.error("Failed to create page", {
+        description: "There was an error creating the page. Please try again.",
+      });
+    }
+  };
+
+  const handleDeleteClick = (pageId: number, pageName: string) => {
+    setDeleteDialog({
+      isOpen: true,
+      pageId,
+      pageName,
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog.pageId) return;
+
+    try {
+      await deletePageMutation.mutateAsync(deleteDialog.pageId);
+
+      toast.success("Page deleted successfully", {
+        description: `Deleted page: ${deleteDialog.pageName}`,
+      });
+
+      setDeleteDialog({ isOpen: false, pageId: null, pageName: "" });
+    } catch (err) {
+      console.error("Error deleting page:", err);
+      toast.error("Failed to delete page", {
+        description: "There was an error deleting the page. Please try again.",
+      });
     }
   };
 
@@ -151,7 +265,7 @@ export default function SitePagesManagement() {
                     <td className="px-4 py-3">
                       <div className="flex space-x-2">
                         <Link
-                          href={`/studio/sites/${siteId}/pages/${page.slug}`}
+                          href={`/studio/sites/${siteId}/pages/${page.slug}?pageId=${page.id}`}
                           className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
                         >
                           Edit
@@ -163,6 +277,12 @@ export default function SitePagesManagement() {
                         >
                           Preview
                         </Link>
+                        <button
+                          onClick={() => handleDeleteClick(page.id, page.slug)}
+                          className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700"
+                        >
+                          Delete
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -172,6 +292,16 @@ export default function SitePagesManagement() {
           </div>
         )}
       </div>
+
+      <DeleteConfirmationDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={() =>
+          setDeleteDialog({ isOpen: false, pageId: null, pageName: "" })
+        }
+        onConfirm={handleDeleteConfirm}
+        pageName={deleteDialog.pageName}
+        isDeleting={deletePageMutation.isPending}
+      />
     </div>
   );
 }
