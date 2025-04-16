@@ -4,7 +4,7 @@ import React from "react";
 
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Search } from "lucide-react";
+import { Calendar as CalendarIcon, PlusCircle, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   parseAsArrayOf,
@@ -29,8 +29,15 @@ import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar-rac";
+import { Checkbox } from "@/components/ui/checkbox";
 import { DateInput } from "@/components/ui/datefield-rac";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -61,12 +68,9 @@ const ACTION_TYPES = {
   DELETE_RECORD: "delete_record",
 } as const;
 
-type ActionType = (typeof ACTION_TYPES)[keyof typeof ACTION_TYPES];
-
 export default function ActivityLogDataTable() {
   const t = useTranslations("ActivityLogPage.table");
   const [isActionFilterOpen, setIsActionFilterOpen] = React.useState(false);
-  const actionFilterRef = React.useRef<HTMLDivElement>(null);
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -130,10 +134,21 @@ export default function ActivityLogDataTable() {
     }
   };
 
+  // Handle action checkbox change
+  const handleActionChange = (action: string, checked: boolean) => {
+    setSelectedActions((prev) => {
+      if (checked) {
+        return [...prev, action];
+      } else {
+        return prev.filter((a) => a !== action);
+      }
+    });
+  };
+
   return (
     <div className="flex flex-col">
       {/* Filters Section */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="grid grid-cols-1 items-end justify-end gap-4 md:grid-cols-3">
           <div>
             <Label
@@ -178,22 +193,142 @@ export default function ActivityLogDataTable() {
               </PopoverAria>
             </DatePicker>
           </div>
+        </div>
 
-          <div className="flex items-center">
-            <Button
-              onClick={() => {
-                setCurrentPage(1); // Reset to first page when searching
-                refetch();
-              }}
-              disabled={isFetching}
-            >
-              <Search className="mr-2 h-4 w-4" /> {t("filters.apply")}
-            </Button>
-          </div>
+        <div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <PlusCircle className="size-3.5" />
+                Action Type
+              </span>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-0" align="start">
+              <div className="px-3 pt-3">
+                <h3 className="text-sm font-medium">Filter by Action Type</h3>
+              </div>
+              <ScrollArea className="max-h-72">
+                <div className="space-y-3 p-3">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={ACTION_TYPES.ACCESS_VIEW}
+                      checked={selectedActions.includes(
+                        ACTION_TYPES.ACCESS_VIEW
+                      )}
+                      onCheckedChange={(checked) =>
+                        handleActionChange(
+                          ACTION_TYPES.ACCESS_VIEW,
+                          checked === true
+                        )
+                      }
+                    />
+                    <label
+                      htmlFor={ACTION_TYPES.ACCESS_VIEW}
+                      className="text-sm"
+                    >
+                      Access View
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={ACTION_TYPES.SHOW_RECORD}
+                      checked={selectedActions.includes(
+                        ACTION_TYPES.SHOW_RECORD
+                      )}
+                      onCheckedChange={(checked) =>
+                        handleActionChange(
+                          ACTION_TYPES.SHOW_RECORD,
+                          checked === true
+                        )
+                      }
+                    />
+                    <label
+                      htmlFor={ACTION_TYPES.SHOW_RECORD}
+                      className="text-sm"
+                    >
+                      Show Record
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={ACTION_TYPES.CREATE_RECORD}
+                      checked={selectedActions.includes(
+                        ACTION_TYPES.CREATE_RECORD
+                      )}
+                      onCheckedChange={(checked) =>
+                        handleActionChange(
+                          ACTION_TYPES.CREATE_RECORD,
+                          checked === true
+                        )
+                      }
+                    />
+                    <label
+                      htmlFor={ACTION_TYPES.CREATE_RECORD}
+                      className="text-sm"
+                    >
+                      Create Record
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={ACTION_TYPES.UPDATE_RECORD}
+                      checked={selectedActions.includes(
+                        ACTION_TYPES.UPDATE_RECORD
+                      )}
+                      onCheckedChange={(checked) =>
+                        handleActionChange(
+                          ACTION_TYPES.UPDATE_RECORD,
+                          checked === true
+                        )
+                      }
+                    />
+                    <label
+                      htmlFor={ACTION_TYPES.UPDATE_RECORD}
+                      className="text-sm"
+                    >
+                      Update Record
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={ACTION_TYPES.DELETE_RECORD}
+                      checked={selectedActions.includes(
+                        ACTION_TYPES.DELETE_RECORD
+                      )}
+                      onCheckedChange={(checked) =>
+                        handleActionChange(
+                          ACTION_TYPES.DELETE_RECORD,
+                          checked === true
+                        )
+                      }
+                    />
+                    <label
+                      htmlFor={ACTION_TYPES.DELETE_RECORD}
+                      className="text-sm"
+                    >
+                      Delete Record
+                    </label>
+                  </div>
+                </div>
+              </ScrollArea>
+              <div className="flex items-center justify-between border-t border-gray-100 p-3">
+                <Button
+                  onClick={() => {
+                    setCurrentPage(1);
+                    refetch();
+                    setIsActionFilterOpen(false);
+                  }}
+                  className="w-full"
+                >
+                  Apply Filter
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Results Table or Empty State */}
-        <div className="mt-4 flex-grow">
+        <div className="flex-grow">
           {isFetching ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-center">
@@ -380,3 +515,4 @@ export default function ActivityLogDataTable() {
     </div>
   );
 }
+
