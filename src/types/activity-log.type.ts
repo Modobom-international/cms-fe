@@ -6,6 +6,7 @@ export interface IActivityLog {
   description: string;
   created_at: string;
   updated_at: string;
+  user_email: string;
 }
 
 export interface IActivityLogDetails {

@@ -8,6 +8,8 @@ import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
 import { IDomainActual } from "@/types/domain.type";
 
+import { formatDateTime } from "@/lib/utils";
+
 import { useGetDomainList } from "@/hooks/domain";
 import { useDebounce } from "@/hooks/use-debounce";
 
@@ -31,6 +33,7 @@ import {
 import { DomainStatusBadge } from "@/components/badge/domain-status-badge";
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
+import { SearchInput } from "@/components/inputs/search-input";
 
 export default function DomainDataTable() {
   const t = useTranslations("DomainPage.table");
@@ -120,46 +123,16 @@ export default function DomainDataTable() {
             >
               {t("filters.search")}
             </label>
-            <div className="relative">
-              <input
-                type="text"
-                id="search"
-                value={search}
-                className="w-full rounded-md border border-gray-300 px-4 py-2 pr-10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-                placeholder={t("placeholders.search")}
-                onChange={(e) => {
-                  setCurrentPage(1);
-                  setSearch(e.target.value);
-                }}
-              />
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                <Search className="h-4 w-4 text-gray-400" />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-end">
-            <Button
-              onClick={() => {
-                setCurrentPage(1); // Reset to first page when searching
-                refetch();
+            <SearchInput
+              type="text"
+              id="search"
+              value={search}
+              placeholder={t("placeholders.search")}
+              onChange={(e) => {
+                setCurrentPage(1);
+                setSearch(e.target.value);
               }}
-              disabled={isFetching}
-            >
-              <Search className="mr-2 h-4 w-4" /> {t("filters.search")}
-            </Button>
-
-            <Button
-              variant="outline"
-              className="ml-4"
-              onClick={handleRefresh}
-              disabled={isFetching}
-            >
-              <RefreshCw
-                className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
-              />
-              {t("actions.refresh") || "Refresh"}
-            </Button>
+            />
           </div>
         </div>
 
@@ -230,11 +203,11 @@ export default function DomainDataTable() {
                           className="border-b border-gray-200 hover:bg-gray-50"
                         >
                           <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                            {domain.id}
+                            {domain.id ?? "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3">
                             <span className="font-medium text-indigo-600">
-                              {domain.domain || "—"}
+                              {domain.domain ?? "—"}
                             </span>
                           </TableCell>
                           <TableCell className="py-3">
@@ -242,28 +215,21 @@ export default function DomainDataTable() {
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
                             {domain.updated_at
-                              ? format(
-                                  new Date(domain.updated_at),
-                                  "yyyy-MM-dd, h:mm a"
-                                )
+                              ? formatDateTime(new Date(domain.updated_at))
                               : "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
-                            {format(
-                              domain.renew_deadline,
-                              "yyyy-MM-dd, h:mm a"
-                            ) || "—"}
+                            {domain.renew_deadline
+                              ? formatDateTime(new Date(domain.renew_deadline))
+                              : "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
                             {domain.time_expired
-                              ? format(
-                                  new Date(domain.time_expired),
-                                  "yyyy-MM-dd"
-                                )
+                              ? formatDateTime(new Date(domain.time_expired))
                               : "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
-                            {domain.registrar || "—"}
+                            {domain.registrar ?? "—"}
                           </TableCell>
                           <TableCell className="py-3">
                             {domain.is_locked ? (
@@ -302,7 +268,7 @@ export default function DomainDataTable() {
                       value={pageSize.toString()}
                       onValueChange={(value) => setPageSize(Number(value))}
                     >
-                      <SelectTrigger className="h-8 w-14 border-gray-200 text-sm">
+                      <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
                         <SelectValue placeholder="10" />
                       </SelectTrigger>
                       <SelectContent className="text-sm">
@@ -315,7 +281,7 @@ export default function DomainDataTable() {
                   </div>
 
                   {/* Pagination controls */}
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -358,3 +324,4 @@ export default function DomainDataTable() {
     </div>
   );
 }
+

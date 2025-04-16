@@ -4,7 +4,7 @@ import React from "react";
 
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Search, User } from "lucide-react";
+import { Calendar as CalendarIcon, PlusCircle, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   parseAsArrayOf,
@@ -22,13 +22,22 @@ import {
 
 import { IActivityLog } from "@/types/activity-log.type";
 
+import { formatDateTime } from "@/lib/utils";
+
 import { useGetActivityLogs } from "@/hooks/activity-log";
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar-rac";
+import { Checkbox } from "@/components/ui/checkbox";
 import { DateInput } from "@/components/ui/datefield-rac";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -50,11 +59,6 @@ import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 import { SearchInput } from "@/components/inputs/search-input";
 
-interface ExtendedActivityLog extends Omit<IActivityLog, "description"> {
-  user_email?: string;
-  description?: string;
-}
-
 // Action type constants
 const ACTION_TYPES = {
   ACCESS_VIEW: "access_view",
@@ -64,12 +68,9 @@ const ACTION_TYPES = {
   DELETE_RECORD: "delete_record",
 } as const;
 
-type ActionType = (typeof ACTION_TYPES)[keyof typeof ACTION_TYPES];
-
 export default function ActivityLogDataTable() {
   const t = useTranslations("ActivityLogPage.table");
   const [isActionFilterOpen, setIsActionFilterOpen] = React.useState(false);
-  const actionFilterRef = React.useRef<HTMLDivElement>(null);
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -79,8 +80,8 @@ export default function ActivityLogDataTable() {
     "pageSize",
     parseAsInteger.withDefault(10)
   );
-  const [search, setSearch] = useQueryState(
-    "search",
+  const [email, setEmail] = useQueryState(
+    "email",
     parseAsString.withDefault("")
   );
   const [date, setDate] = useQueryState(
@@ -92,7 +93,7 @@ export default function ActivityLogDataTable() {
     parseAsArrayOf(parseAsString).withDefault([])
   );
 
-  const debouncedSearch = useDebounce(search, 500);
+  const debouncedSearch = useDebounce(email, 500);
 
   const {
     data: activityLogResponse,
@@ -103,7 +104,7 @@ export default function ActivityLogDataTable() {
 
   // Extract data from the response
   const activityLogData =
-    activityLogResponse?.data?.data || ([] as ExtendedActivityLog[]);
+    activityLogResponse?.data?.data || ([] as IActivityLog[]);
   const paginationInfo = activityLogResponse?.data || {
     from: 0,
     to: 0,
@@ -133,10 +134,21 @@ export default function ActivityLogDataTable() {
     }
   };
 
+  // Handle action checkbox change
+  const handleActionChange = (action: string, checked: boolean) => {
+    setSelectedActions((prev) => {
+      if (checked) {
+        return [...prev, action];
+      } else {
+        return prev.filter((a) => a !== action);
+      }
+    });
+  };
+
   return (
     <div className="flex flex-col">
       {/* Filters Section */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="grid grid-cols-1 items-end justify-end gap-4 md:grid-cols-3">
           <div>
             <Label
@@ -148,8 +160,8 @@ export default function ActivityLogDataTable() {
             <SearchInput
               className="w-full"
               placeholder="Search by email"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
@@ -181,22 +193,142 @@ export default function ActivityLogDataTable() {
               </PopoverAria>
             </DatePicker>
           </div>
+        </div>
 
-          <div className="flex items-center">
-            <Button
-              onClick={() => {
-                setCurrentPage(1); // Reset to first page when searching
-                refetch();
-              }}
-              disabled={isFetching}
-            >
-              <Search className="mr-2 h-4 w-4" /> {t("filters.apply")}
-            </Button>
-          </div>
+        <div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <PlusCircle className="size-3.5" />
+                Action Type
+              </span>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-0" align="start">
+              <div className="px-3 pt-3">
+                <h3 className="text-sm font-medium">Filter by Action Type</h3>
+              </div>
+              <ScrollArea className="max-h-72">
+                <div className="space-y-3 p-3">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={ACTION_TYPES.ACCESS_VIEW}
+                      checked={selectedActions.includes(
+                        ACTION_TYPES.ACCESS_VIEW
+                      )}
+                      onCheckedChange={(checked) =>
+                        handleActionChange(
+                          ACTION_TYPES.ACCESS_VIEW,
+                          checked === true
+                        )
+                      }
+                    />
+                    <label
+                      htmlFor={ACTION_TYPES.ACCESS_VIEW}
+                      className="text-sm"
+                    >
+                      Access View
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={ACTION_TYPES.SHOW_RECORD}
+                      checked={selectedActions.includes(
+                        ACTION_TYPES.SHOW_RECORD
+                      )}
+                      onCheckedChange={(checked) =>
+                        handleActionChange(
+                          ACTION_TYPES.SHOW_RECORD,
+                          checked === true
+                        )
+                      }
+                    />
+                    <label
+                      htmlFor={ACTION_TYPES.SHOW_RECORD}
+                      className="text-sm"
+                    >
+                      Show Record
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={ACTION_TYPES.CREATE_RECORD}
+                      checked={selectedActions.includes(
+                        ACTION_TYPES.CREATE_RECORD
+                      )}
+                      onCheckedChange={(checked) =>
+                        handleActionChange(
+                          ACTION_TYPES.CREATE_RECORD,
+                          checked === true
+                        )
+                      }
+                    />
+                    <label
+                      htmlFor={ACTION_TYPES.CREATE_RECORD}
+                      className="text-sm"
+                    >
+                      Create Record
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={ACTION_TYPES.UPDATE_RECORD}
+                      checked={selectedActions.includes(
+                        ACTION_TYPES.UPDATE_RECORD
+                      )}
+                      onCheckedChange={(checked) =>
+                        handleActionChange(
+                          ACTION_TYPES.UPDATE_RECORD,
+                          checked === true
+                        )
+                      }
+                    />
+                    <label
+                      htmlFor={ACTION_TYPES.UPDATE_RECORD}
+                      className="text-sm"
+                    >
+                      Update Record
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={ACTION_TYPES.DELETE_RECORD}
+                      checked={selectedActions.includes(
+                        ACTION_TYPES.DELETE_RECORD
+                      )}
+                      onCheckedChange={(checked) =>
+                        handleActionChange(
+                          ACTION_TYPES.DELETE_RECORD,
+                          checked === true
+                        )
+                      }
+                    />
+                    <label
+                      htmlFor={ACTION_TYPES.DELETE_RECORD}
+                      className="text-sm"
+                    >
+                      Delete Record
+                    </label>
+                  </div>
+                </div>
+              </ScrollArea>
+              <div className="flex items-center justify-between border-t border-gray-100 p-3">
+                <Button
+                  onClick={() => {
+                    setCurrentPage(1);
+                    refetch();
+                    setIsActionFilterOpen(false);
+                  }}
+                  className="w-full"
+                >
+                  Apply Filter
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Results Table or Empty State */}
-        <div className="mt-4 flex-grow">
+        <div className="flex-grow">
           {isFetching ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-center">
@@ -242,87 +374,74 @@ export default function ActivityLogDataTable() {
                       <TableHead className="w-[180px] py-3 font-medium text-gray-700">
                         {t("columns.userEmail")}
                       </TableHead>
-                      <TableHead className="py-3 font-medium text-gray-700">
-                        {t("columns.description")}
-                      </TableHead>
                       <TableHead className="w-[250px] py-3 font-medium text-gray-700">
                         {t("columns.details")}
+                      </TableHead>
+                      <TableHead className="py-3 font-medium text-gray-700">
+                        {t("columns.description")}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {activityLogData.map(
-                      (log: ExtendedActivityLog, index: number) => {
-                        return (
-                          <TableRow
-                            key={index}
-                            className="border-b border-gray-200 hover:bg-gray-50"
-                          >
-                            <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                              {log.id}
-                            </TableCell>
-                            <TableCell className="py-3">
-                              <ActivityLogBadge action={log.action} />
-                            </TableCell>
-                            <TableCell className="text-muted-foreground py-3 text-sm">
-                              {log.details && log.details.logged_at
-                                ? format(
-                                    new Date(log.details.logged_at),
-                                    "yyyy-MM-dd HH:mm"
-                                  )
-                                : format(
-                                    new Date(log.created_at),
-                                    "yyyy-MM-dd HH:mm"
-                                  )}
-                            </TableCell>
-                            <TableCell className="text-muted-foreground py-3 text-sm">
-                              <div className="flex items-center">
-                                <User className="mr-2 h-4 w-4 text-gray-500" />
-                                <span>{log.user_email || "N/A"}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-muted-foreground py-3 text-sm">
-                              {log.description || "No description available"}
-                            </TableCell>
-                            <TableCell className="text-muted-foreground py-3 text-sm">
-                              <div className="flex flex-col">
-                                <span className="mb-1 font-medium">
-                                  Filters:
-                                </span>
-                                <div className="grid grid-cols-1 gap-1 text-xs">
-                                  <div className="flex items-center">
-                                    <span className="mr-1 font-medium">
-                                      Page:
-                                    </span>
-                                    <span>
-                                      {log.details?.filters?.page || "-"}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center">
-                                    <span className="mr-1 font-medium">
-                                      Page Size:
-                                    </span>
-                                    <span>
-                                      {log.details?.filters?.pageSize || "-"}
-                                    </span>
-                                  </div>
-                                  {log.details?.filters?.search && (
-                                    <div className="flex items-center">
-                                      <span className="mr-1 font-medium">
-                                        Search:
-                                      </span>
-                                      <span>
-                                        {log.details?.filters?.search}
-                                      </span>
-                                    </div>
-                                  )}
+                    {activityLogData.map((log: IActivityLog, index: number) => {
+                      return (
+                        <TableRow
+                          key={index}
+                          className="border-b border-gray-200 hover:bg-gray-50"
+                        >
+                          <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                            {log.id}
+                          </TableCell>
+                          <TableCell className="py-3">
+                            <ActivityLogBadge action={log.action} />
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {log.details && log.details.logged_at
+                              ? formatDateTime(new Date(log.details.logged_at))
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            <div className="flex items-center">
+                              <span>{log.user_email || "—"}</span>
+                            </div>
+                          </TableCell>
+
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            <div className="flex flex-col">
+                              <div className="grid grid-cols-1 gap-1 text-xs">
+                                <div className="flex items-center">
+                                  <span className="mr-1 font-medium">
+                                    Page:
+                                  </span>
+                                  <span>
+                                    {log.details?.filters?.page || "-"}
+                                  </span>
                                 </div>
+                                <div className="flex items-center">
+                                  <span className="mr-1 font-medium">
+                                    Page Size:
+                                  </span>
+                                  <span>
+                                    {log.details?.filters?.pageSize || "-"}
+                                  </span>
+                                </div>
+                                {log.details?.filters?.search && (
+                                  <div className="flex items-center">
+                                    <span className="mr-1 font-medium">
+                                      Search:
+                                    </span>
+                                    <span>{log.details?.filters?.search}</span>
+                                  </div>
+                                )}
                               </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      }
-                    )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {log.description || "—"}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
@@ -340,7 +459,7 @@ export default function ActivityLogDataTable() {
                       value={pageSize.toString()}
                       onValueChange={(value) => setPageSize(Number(value))}
                     >
-                      <SelectTrigger className="h-8 w-14 border-gray-200 text-sm">
+                      <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
                         <SelectValue placeholder="10" />
                       </SelectTrigger>
                       <SelectContent className="text-sm">
@@ -353,7 +472,7 @@ export default function ActivityLogDataTable() {
                   </div>
 
                   {/* Pagination controls */}
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -396,3 +515,4 @@ export default function ActivityLogDataTable() {
     </div>
   );
 }
+
