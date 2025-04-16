@@ -230,11 +230,11 @@ export default function DomainDataTable() {
                           className="border-b border-gray-200 hover:bg-gray-50"
                         >
                           <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                            {domain.id}
+                            {domain.id ?? "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3">
                             <span className="font-medium text-indigo-600">
-                              {domain.domain || "—"}
+                              {domain.domain ?? "—"}
                             </span>
                           </TableCell>
                           <TableCell className="py-3">
@@ -249,10 +249,12 @@ export default function DomainDataTable() {
                               : "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
-                            {format(
-                              domain.renew_deadline,
-                              "yyyy-MM-dd, h:mm a"
-                            ) || "—"}
+                            {domain.renew_deadline
+                              ? format(
+                                  new Date(domain.renew_deadline),
+                                  "yyyy-MM-dd, h:mm a"
+                                )
+                              : "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
                             {domain.time_expired
@@ -263,7 +265,7 @@ export default function DomainDataTable() {
                               : "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
-                            {domain.registrar || "—"}
+                            {domain.registrar ?? "—"}
                           </TableCell>
                           <TableCell className="py-3">
                             {domain.is_locked ? (
@@ -358,3 +360,4 @@ export default function DomainDataTable() {
     </div>
   );
 }
+
