@@ -14,6 +14,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 
 import AvatarButton from "@/components/avatars/avatar-button";
 import CalendarSample from "@/components/calendar/calendar-sample";
+import LanguageSwitcher from "@/components/i18n/language-switcher";
 import { SearchForm } from "@/components/layouts/search-form";
 import NotificationsButton from "@/components/notifications";
 
@@ -79,6 +80,9 @@ export function SiteHeader() {
                 </div>
               </PopoverContent>
             </Popover>
+
+            {/* Language Switcher */}
+            <LanguageSwitcher />
 
             {user && user.email ? (
               <NotificationsButton email={user.email} />
