@@ -16,11 +16,13 @@ import { buttonBlock } from "./blocks/button";
 interface WebBuilderStudioProps {
   slug: string;
   siteId: string;
+  pageId: string;
 }
 
 export default function WebBuilderStudio({
   slug,
   siteId,
+  pageId,
 }: WebBuilderStudioProps) {
   const [saveStatus, setSaveStatus] = useState<{
     message: string;
@@ -29,7 +31,7 @@ export default function WebBuilderStudio({
 
   // React Query hooks
   const updatePageMutation = useUpdatePage();
-  const exportPageMutation = useExportPage();
+  const exportPageMutation = useExportPage(pageId);
   const deployPageMutation = useDeployPage();
 
   const saveToAPI = async (project: any) => {
@@ -37,7 +39,7 @@ export default function WebBuilderStudio({
       setSaveStatus({ message: "Saving...", type: "info" });
 
       await updatePageMutation.mutateAsync({
-        slug: slug,
+        pageId: pageId,
         content: JSON.stringify(project),
       });
 
@@ -60,7 +62,7 @@ export default function WebBuilderStudio({
 
   const loadFromAPI = async () => {
     try {
-      const response = await apiClient.get(`/api/page/${slug}`);
+      const response = await apiClient.get(`/api/page/${pageId}`);
 
       if (response.status !== 200) {
         throw new Error(`API error: ${response.status}`);
@@ -68,13 +70,16 @@ export default function WebBuilderStudio({
 
       const data = response.data.data;
       const content = JSON.parse(data.content);
-      console.log(`Loaded content for slug: ${slug}`, content);
+      console.log(`Loaded content for page ID: ${pageId}`, content);
       return content;
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to load project";
 
-      console.warn(`Could not load content for slug: ${slug}`, errorMessage);
+      console.warn(
+        `Could not load content for page ID: ${pageId}`,
+        errorMessage
+      );
       throw new Error(errorMessage);
     }
   };
@@ -103,7 +108,7 @@ export default function WebBuilderStudio({
       // Create FormData and append the file
       const formData = new FormData();
       formData.append("html_file", htmlBlob, "page.html");
-      formData.append("slug", slug);
+      formData.append("page_id", pageId);
       formData.append("site_id", siteId);
 
       await exportPageMutation.mutateAsync(formData);
@@ -118,7 +123,7 @@ export default function WebBuilderStudio({
         setSaveStatus({ message: "", type: null });
       }, 3000);
     } catch (error) {
-      console.error(`Failed to export HTML for slug: ${slug}`, error);
+      console.error(`Failed to export HTML for page ID: ${pageId}`, error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to export HTML";
       setSaveStatus({

@@ -18,8 +18,8 @@ export const pageQueryKeys = {
   all: ["pages"] as const,
   lists: () => [...pageQueryKeys.all, "list"] as const,
   list: (siteId: number) => [...pageQueryKeys.lists(), { siteId }] as const,
-  details: (pageSlug: string) =>
-    [...pageQueryKeys.all, "detail", pageSlug] as const,
+  details: (pageId: string) =>
+    [...pageQueryKeys.all, "detail", pageId] as const,
 };
 
 // Zod Schemas
@@ -31,7 +31,7 @@ export const CreatePageSchema = z.object({
 });
 
 export const UpdatePageSchema = z.object({
-  slug: z.string().min(1, "Slug is required"),
+  pageId: z.string().min(1, "Page ID is required"),
   content: z.string(),
 });
 
@@ -62,52 +62,44 @@ export const useGetPages = (siteId: number) => {
   });
 };
 
-export const useGetPageBySlug = (pageSlug: string) => {
+export const useGetPageById = (pageId: string) => {
   return useQuery({
-    queryKey: pageQueryKeys.details(pageSlug),
+    queryKey: pageQueryKeys.details(pageId),
     queryFn: async () => {
       try {
-        console.log(`Starting fetch for page slug: ${pageSlug}`);
-        const response = await apiClient.get(`/api/page/${pageSlug}`);
-        console.log(`Raw API response for ${pageSlug}:`, response);
+        console.log(`Starting fetch for page ID: ${pageId}`);
+        const response = await apiClient.get(`/api/page/${pageId}`);
+        console.log(`Raw API response for ${pageId}:`, response);
 
         if (!response.data) {
-          console.error(`No response data for ${pageSlug}`);
+          console.error(`No response data for ${pageId}`);
           throw new Error("No response data received");
         }
 
         if (!response.data.data) {
           console.error(
-            `Invalid response structure for ${pageSlug}:`,
+            `Invalid response structure for ${pageId}:`,
             response.data
           );
           throw new Error("Invalid response structure from API");
         }
 
-        const result = {
+        return {
           isSuccess: true,
           data: {
             data: response.data.data,
           },
           message: "Page fetched successfully",
         };
-
-        console.log(`Processed response for ${pageSlug}:`, result);
-        return result;
       } catch (error) {
-        console.error(`Error in useGetPageBySlug for ${pageSlug}:`, error);
         return {
           isSuccess: false,
           data: null,
-          message:
-            error instanceof Error ? error.message : "Failed to fetch page",
+          message: "Failed to fetch page",
         };
       }
     },
-    enabled: !!pageSlug,
-    retry: 1,
-    staleTime: 30000,
-    refetchOnWindowFocus: false,
+    enabled: !!pageId,
   });
 };
 
@@ -143,9 +135,12 @@ export const useUpdatePage = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: UpdatePageData) => {
+    mutationFn: async (data: UpdatePageData & { pageId: string }) => {
       try {
-        const response = await apiClient.post("/api/update-page", data);
+        const response = await apiClient.post(
+          `/api/update-page/${data.pageId}`,
+          data
+        );
         return {
           isSuccess: true,
           data: response.data,
@@ -161,21 +156,25 @@ export const useUpdatePage = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: pageQueryKeys.details(variables.slug),
+        queryKey: pageQueryKeys.details(variables.pageId),
       });
     },
   });
 };
 
-export const useExportPage = () => {
+export const useExportPage = (pageId: string) => {
   return useMutation({
     mutationFn: async (formData: FormData) => {
       try {
-        const response = await apiClient.post("/api/export-pages", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        const response = await apiClient.post(
+          `/api/export-pages/${pageId}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
         return {
           isSuccess: true,
           data: response.data,

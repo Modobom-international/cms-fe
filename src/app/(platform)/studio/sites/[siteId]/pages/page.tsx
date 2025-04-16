@@ -151,7 +151,7 @@ export default function SitePagesManagement() {
                     <td className="px-4 py-3">
                       <div className="flex space-x-2">
                         <Link
-                          href={`/studio/sites/${siteId}/pages/${page.slug}`}
+                          href={`/studio/sites/${siteId}/pages/${page.slug}?pageId=${page.id}`}
                           className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
                         >
                           Edit
