@@ -6,8 +6,13 @@ export default async function PageEditor({
   params,
   searchParams,
 }: {
-  params: Promise<{ slug: string; siteId: string }>;
-  searchParams: { pageId: string };
+  params: Promise<{
+    slug: string;
+    siteId: string;
+  }>;
+  searchParams: Promise<{
+    pageId: string;
+  }>;
 }) {
   const { slug, siteId } = await params;
   const { pageId } = await searchParams;
