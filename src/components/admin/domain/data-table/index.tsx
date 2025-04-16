@@ -8,6 +8,8 @@ import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
 import { IDomainActual } from "@/types/domain.type";
 
+import { formatDateTime } from "@/lib/utils";
+
 import { useGetDomainList } from "@/hooks/domain";
 import { useDebounce } from "@/hooks/use-debounce";
 
@@ -242,26 +244,17 @@ export default function DomainDataTable() {
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
                             {domain.updated_at
-                              ? format(
-                                  new Date(domain.updated_at),
-                                  "yyyy-MM-dd, h:mm a"
-                                )
+                              ? formatDateTime(new Date(domain.updated_at))
                               : "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
                             {domain.renew_deadline
-                              ? format(
-                                  new Date(domain.renew_deadline),
-                                  "yyyy-MM-dd, h:mm a"
-                                )
+                              ? formatDateTime(new Date(domain.renew_deadline))
                               : "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
                             {domain.time_expired
-                              ? format(
-                                  new Date(domain.time_expired),
-                                  "yyyy-MM-dd"
-                                )
+                              ? formatDateTime(new Date(domain.time_expired))
                               : "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">

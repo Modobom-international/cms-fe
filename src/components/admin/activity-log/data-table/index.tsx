@@ -22,6 +22,8 @@ import {
 
 import { IActivityLog } from "@/types/activity-log.type";
 
+import { formatDateTime } from "@/lib/utils";
+
 import { useGetActivityLogs } from "@/hooks/activity-log";
 import { useDebounce } from "@/hooks/use-debounce";
 
@@ -266,14 +268,10 @@ export default function ActivityLogDataTable() {
                             </TableCell>
                             <TableCell className="text-muted-foreground py-3 text-sm">
                               {log.details && log.details.logged_at
-                                ? format(
-                                    new Date(log.details.logged_at),
-                                    "yyyy-MM-dd HH:mm"
+                                ? formatDateTime(
+                                    new Date(log.details.logged_at)
                                   )
-                                : format(
-                                    new Date(log.created_at),
-                                    "yyyy-MM-dd HH:mm"
-                                  )}
+                                : formatDateTime(new Date(log.created_at))}
                             </TableCell>
                             <TableCell className="text-muted-foreground py-3 text-sm">
                               <div className="flex items-center">

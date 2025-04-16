@@ -19,7 +19,7 @@ import {
 import { IDomainActual } from "@/types/domain.type";
 import { IUserTracking } from "@/types/user-tracking.type";
 
-import { cn } from "@/lib/utils";
+import { cn, formatDateTime } from "@/lib/utils";
 
 import { useGetDomainList } from "@/hooks/domain";
 import { useGetUserTracking } from "@/hooks/user-tracking";
@@ -384,10 +384,7 @@ export default function UserTrackingDataTable() {
                             {record?.domain}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3">
-                            {format(
-                              new Date(record.timestamp),
-                              "yyyy-MM-dd HH:mm:ss"
-                            )}
+                            {formatDateTime(new Date(record.timestamp))}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3">
                             {record.ip}
