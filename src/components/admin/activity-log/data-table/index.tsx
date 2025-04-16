@@ -4,7 +4,7 @@ import React from "react";
 
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Search, User } from "lucide-react";
+import { Calendar as CalendarIcon, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   parseAsArrayOf,
@@ -271,22 +271,18 @@ export default function ActivityLogDataTable() {
                                 ? formatDateTime(
                                     new Date(log.details.logged_at)
                                   )
-                                : formatDateTime(new Date(log.created_at))}
+                                : "—"}
                             </TableCell>
                             <TableCell className="text-muted-foreground py-3 text-sm">
                               <div className="flex items-center">
-                                <User className="mr-2 h-4 w-4 text-gray-500" />
-                                <span>{log.user_email || "N/A"}</span>
+                                <span>{log.user_email || "—"}</span>
                               </div>
                             </TableCell>
                             <TableCell className="text-muted-foreground py-3 text-sm">
-                              {log.description || "No description available"}
+                              {log.description || "—"}
                             </TableCell>
                             <TableCell className="text-muted-foreground py-3 text-sm">
                               <div className="flex flex-col">
-                                <span className="mb-1 font-medium">
-                                  Filters:
-                                </span>
                                 <div className="grid grid-cols-1 gap-1 text-xs">
                                   <div className="flex items-center">
                                     <span className="mr-1 font-medium">
@@ -338,7 +334,7 @@ export default function ActivityLogDataTable() {
                       value={pageSize.toString()}
                       onValueChange={(value) => setPageSize(Number(value))}
                     >
-                      <SelectTrigger className="h-8 w-14 border-gray-200 text-sm">
+                      <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
                         <SelectValue placeholder="10" />
                       </SelectTrigger>
                       <SelectContent className="text-sm">

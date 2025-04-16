@@ -16,6 +16,6 @@ export const formatCurrency = (amount: number) => {
 export const formatDateTime = (
   date: string | Date | number | null | undefined
 ) => {
-  if (!date) return "—";
+  if (!date) return null;
   return format(date, "yyyy-MM-dd, h:mm a");
 };
