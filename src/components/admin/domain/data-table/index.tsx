@@ -33,6 +33,7 @@ import {
 import { DomainStatusBadge } from "@/components/badge/domain-status-badge";
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
+import { SearchInput } from "@/components/inputs/search-input";
 
 export default function DomainDataTable() {
   const t = useTranslations("DomainPage.table");
@@ -122,22 +123,16 @@ export default function DomainDataTable() {
             >
               {t("filters.search")}
             </label>
-            <div className="relative">
-              <input
-                type="text"
-                id="search"
-                value={search}
-                className="w-full rounded-md border border-gray-300 px-4 py-2 pr-10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
-                placeholder={t("placeholders.search")}
-                onChange={(e) => {
-                  setCurrentPage(1);
-                  setSearch(e.target.value);
-                }}
-              />
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                <Search className="h-4 w-4 text-gray-400" />
-              </div>
-            </div>
+            <SearchInput
+              type="text"
+              id="search"
+              value={search}
+              placeholder={t("placeholders.search")}
+              onChange={(e) => {
+                setCurrentPage(1);
+                setSearch(e.target.value);
+              }}
+            />
           </div>
 
           <div className="flex items-end">

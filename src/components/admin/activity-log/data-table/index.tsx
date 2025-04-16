@@ -28,7 +28,7 @@ import { useGetActivityLogs } from "@/hooks/activity-log";
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar-rac";
 import { DateInput } from "@/components/ui/datefield-rac";
 import { Label } from "@/components/ui/label";
 import {
@@ -76,8 +76,8 @@ export default function ActivityLogDataTable() {
     "pageSize",
     parseAsInteger.withDefault(10)
   );
-  const [search, setSearch] = useQueryState(
-    "search",
+  const [email, setEmail] = useQueryState(
+    "email",
     parseAsString.withDefault("")
   );
   const [date, setDate] = useQueryState(
@@ -89,7 +89,7 @@ export default function ActivityLogDataTable() {
     parseAsArrayOf(parseAsString).withDefault([])
   );
 
-  const debouncedSearch = useDebounce(search, 500);
+  const debouncedSearch = useDebounce(email, 500);
 
   const {
     data: activityLogResponse,
@@ -145,8 +145,8 @@ export default function ActivityLogDataTable() {
             <SearchInput
               className="w-full"
               placeholder="Search by email"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
