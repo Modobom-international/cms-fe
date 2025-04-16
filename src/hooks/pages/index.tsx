@@ -127,23 +127,14 @@ export const useUpdatePage = () => {
 
   return useMutation({
     mutationFn: async (data: UpdatePageData & { pageId: string }) => {
-      try {
-        const response = await apiClient.post(
-          `/api/update-page/${data.pageId}`,
-          data
-        );
-        return {
-          isSuccess: true,
-          data: response.data,
-          message: "Page updated successfully",
-        };
-      } catch (error) {
-        return {
-          isSuccess: false,
-          data: null,
-          message: "Failed to update page",
-        };
+      const response = await apiClient.post(
+        `/api/update-page/${data.pageId}`,
+        data
+      );
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Failed to update page");
       }
+      return response.data;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -156,28 +147,19 @@ export const useUpdatePage = () => {
 export const useExportPage = (pageId: string) => {
   return useMutation({
     mutationFn: async (formData: FormData) => {
-      try {
-        const response = await apiClient.post(
-          `/api/export-pages/${pageId}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        return {
-          isSuccess: true,
-          data: response.data,
-          message: "Page exported successfully",
-        };
-      } catch (error) {
-        return {
-          isSuccess: false,
-          data: null,
-          message: "Failed to export page",
-        };
+      const response = await apiClient.post(
+        `/api/export-pages/${pageId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Failed to export page");
       }
+      return response.data;
     },
   });
 };
@@ -185,23 +167,14 @@ export const useExportPage = (pageId: string) => {
 export const useDeployPage = () => {
   return useMutation({
     mutationFn: async (data: { site_id: number }) => {
-      try {
-        const response = await apiClient.post(
-          "/api/cloudflare/deploy-exports",
-          data
-        );
-        return {
-          isSuccess: true,
-          data: response.data,
-          message: "Page deployed successfully",
-        };
-      } catch (error) {
-        return {
-          isSuccess: false,
-          data: null,
-          message: "Failed to deploy page",
-        };
+      const response = await apiClient.post(
+        "/api/cloudflare/deploy-exports",
+        data
+      );
+      if (!response.data.success) {
+        throw new Error(response.data.message || "Failed to deploy page");
       }
+      return response.data;
     },
   });
 };

@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 
 import { env } from "@/env";
 import StudioEditor from "@grapesjs/studio-sdk/react";
 import "@grapesjs/studio-sdk/style";
+import { toast } from "sonner";
 
 import apiClient from "@/lib/api/client";
 
@@ -24,11 +25,6 @@ export default function WebBuilderStudio({
   siteId,
   pageId,
 }: WebBuilderStudioProps) {
-  const [saveStatus, setSaveStatus] = useState<{
-    message: string;
-    type: "success" | "error" | "info" | null;
-  }>({ message: "", type: null });
-
   // React Query hooks
   const updatePageMutation = useUpdatePage();
   const exportPageMutation = useExportPage(pageId);
@@ -36,25 +32,22 @@ export default function WebBuilderStudio({
 
   const saveToAPI = async (project: any) => {
     try {
-      setSaveStatus({ message: "Saving...", type: "info" });
-
-      await updatePageMutation.mutateAsync({
-        pageId: pageId,
-        content: JSON.stringify(project),
-      });
-
-      setSaveStatus({ message: "Page saved successfully!", type: "success" });
-
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setSaveStatus({ message: "", type: null });
-      }, 3000);
+      toast.promise(
+        updatePageMutation.mutateAsync({
+          pageId: pageId,
+          content: JSON.stringify(project),
+        }),
+        {
+          loading: "Saving page...",
+          success: "Page saved successfully!",
+          error: "Failed to save page",
+        }
+      );
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to save project";
-      setSaveStatus({
-        message: `Error saving page: ${errorMessage}`,
-        type: "error",
+      toast.error("Failed to save page", {
+        description: errorMessage,
       });
       throw new Error(errorMessage);
     }
@@ -85,10 +78,7 @@ export default function WebBuilderStudio({
   };
 
   const exportHTMLWithCSS = async (editor: any) => {
-    try {
-      setSaveStatus({ message: "Exporting HTML...", type: "info" });
-
-      const htmlContent = `<!DOCTYPE html>
+    const htmlContent = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
@@ -102,36 +92,18 @@ export default function WebBuilderStudio({
 </body>
 </html>`;
 
-      // Create a Blob containing the HTML content
-      const htmlBlob = new Blob([htmlContent], { type: "text/html" });
+    const htmlBlob = new Blob([htmlContent], { type: "text/html" });
+    const formData = new FormData();
+    formData.append("html_file", htmlBlob, "page.html");
+    formData.append("page_id", pageId);
+    formData.append("site_id", siteId);
 
-      // Create FormData and append the file
-      const formData = new FormData();
-      formData.append("html_file", htmlBlob, "page.html");
-      formData.append("page_id", pageId);
-      formData.append("site_id", siteId);
-
-      await exportPageMutation.mutateAsync(formData);
-
-      setSaveStatus({
-        message: "HTML exported successfully!",
-        type: "success",
-      });
-
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setSaveStatus({ message: "", type: null });
-      }, 3000);
-    } catch (error) {
-      console.error(`Failed to export HTML for page ID: ${pageId}`, error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to export HTML";
-      setSaveStatus({
-        message: `Export error: ${errorMessage}`,
-        type: "error",
-      });
-      throw new Error("Failed to export HTML");
-    }
+    return toast.promise(exportPageMutation.mutateAsync(formData), {
+      loading: "Exporting HTML...",
+      success: "HTML exported successfully!",
+      error: (err) =>
+        `Export failed: ${err instanceof Error ? err.message : "Unknown error"}`,
+    });
   };
 
   // Plugin to add export and deploy buttons using GrapeJS Panel API
@@ -179,23 +151,18 @@ export default function WebBuilderStudio({
 
     // Register deploy command
     editor.Commands.add("deploy-page", {
-      run: async () => {
-        try {
-          setSaveStatus({ message: "Deploying page...", type: "info" });
-          await deployPageMutation.mutateAsync({
+      run: () => {
+        return toast.promise(
+          deployPageMutation.mutateAsync({
             site_id: Number(siteId),
-          });
-          setSaveStatus({ message: "Deployment successful!", type: "success" });
-          setTimeout(() => {
-            setSaveStatus({ message: "", type: null });
-          }, 3000);
-        } catch (error) {
-          console.error("Deploy failed:", error);
-          setSaveStatus({
-            message: "Deploy failed. Please try again.",
-            type: "error",
-          });
-        }
+          }),
+          {
+            loading: "Deploying page...",
+            success: "Deployment successful!",
+            error: (err) =>
+              `Deploy failed: ${err instanceof Error ? err.message : "Please try again"}`,
+          }
+        );
       },
     });
 
@@ -228,26 +195,6 @@ export default function WebBuilderStudio({
 
   return (
     <div className="relative h-screen w-screen">
-      {/* Status notification */}
-      {saveStatus.type && (
-        <div
-          className={`fixed top-4 right-4 z-[9999] rounded px-4 py-2 shadow-md ${
-            saveStatus.type === "success"
-              ? "bg-green-500"
-              : saveStatus.type === "error"
-                ? "bg-red-500"
-                : "bg-blue-500"
-          } text-white`}
-        >
-          {(updatePageMutation.isPending ||
-            exportPageMutation.isPending ||
-            deployPageMutation.isPending) && (
-            <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-          )}
-          {saveStatus.message}
-        </div>
-      )}
-
       <StudioEditor
         options={{
           licenseKey: env.NEXT_PUBLIC_BACKEND_URL,
@@ -334,47 +281,33 @@ export default function WebBuilderStudio({
             storageType: "self",
             onUpload: async ({ files, editor }) => {
               try {
-                setSaveStatus({ message: "Uploading assets...", type: "info" });
+                toast.loading("Uploading assets...");
                 const uploadedAssets = await uploadAssets({ files, editor });
-                setSaveStatus({
-                  message: "Assets uploaded successfully!",
-                  type: "success",
-                });
-                setTimeout(() => {
-                  setSaveStatus({ message: "", type: null });
-                }, 3000);
+                toast.success("Assets uploaded successfully!");
                 return uploadedAssets;
               } catch (error) {
                 const errorMessage =
                   error instanceof Error
                     ? error.message
                     : "Failed to upload assets";
-                setSaveStatus({
-                  message: `Error uploading assets: ${errorMessage}`,
-                  type: "error",
+                toast.error("Failed to upload assets", {
+                  description: errorMessage,
                 });
                 throw error;
               }
             },
             onDelete: async ({ assets, editor }) => {
               try {
-                setSaveStatus({ message: "Deleting assets...", type: "info" });
+                toast.loading("Deleting assets...");
                 await deleteAssets({ assets, editor });
-                setSaveStatus({
-                  message: "Assets deleted successfully!",
-                  type: "success",
-                });
-                setTimeout(() => {
-                  setSaveStatus({ message: "", type: null });
-                }, 3000);
+                toast.success("Assets deleted successfully!");
               } catch (error) {
                 const errorMessage =
                   error instanceof Error
                     ? error.message
                     : "Failed to delete assets";
-                setSaveStatus({
-                  message: `Error deleting assets: ${errorMessage}`,
-                  type: "error",
+                toast.error("Failed to delete assets", {
+                  description: errorMessage,
                 });
                 throw error;
               }
@@ -383,7 +316,10 @@ export default function WebBuilderStudio({
               try {
                 return await loadAssets({ editor });
               } catch (error) {
-                console.error("Error loading assets from Firebase:", error);
+                console.error("Error loading assets:", error);
+                toast.error("Failed to load assets", {
+                  description: "Please try again later",
+                });
                 return [];
               }
             },
