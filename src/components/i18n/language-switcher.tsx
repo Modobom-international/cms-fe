@@ -2,10 +2,7 @@
 
 import { useTransition } from "react";
 
-import { usePathname, useRouter } from "next/navigation";
-
-import { type Locale } from "@/i18n/config";
-import { Globe } from "lucide-react";
+import { Locale } from "@/i18n/config";
 import { useLocale } from "next-intl";
 
 import { setUserLocale } from "@/lib/locale";
@@ -13,87 +10,39 @@ import { setUserLocale } from "@/lib/locale";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 
 type LanguageOption = {
   value: Locale;
   label: string;
-  flag: JSX.Element;
+  flag: string;
 };
 
-/**
- * Available language configurations with flag representations
- */
 const LANGUAGES = [
   {
     value: "en",
     label: "English",
-    flag: (
-      <div className="relative h-4 w-6 overflow-hidden rounded-sm">
-        <div className="absolute inset-0 bg-blue-700" />
-        <div className="absolute inset-0">
-          <div className="absolute inset-0">
-            {/* Union Jack pattern */}
-            <div className="absolute inset-0 border-r-[1px] border-white">
-              <div className="absolute top-0 left-0 h-[50%] w-[40%] bg-white">
-                <div className="absolute inset-0">
-                  <div className="absolute inset-0 bg-red-600">
-                    <div className="absolute top-0 left-[20%] h-full w-[20%] bg-white" />
-                    <div className="absolute top-[40%] left-0 h-[20%] w-full bg-white" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    ),
+    flag: "/img/flags/GB.svg",
   },
   {
     value: "vi",
     label: "Tiếng Việt",
-    flag: (
-      <div className="relative h-4 w-6 overflow-hidden rounded-sm">
-        <div className="absolute inset-0 bg-red-600" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="h-2 w-2 text-yellow-300">★</div>
-        </div>
-      </div>
-    ),
+    flag: "/img/flags/VN.svg",
   },
 ] satisfies LanguageOption[];
 
-/**
- * Language switcher component with flag representations
- * Implements a select dropdown with language options
- */
 export default function LanguageSwitcher() {
   const locale = useLocale() as Locale;
-  const router = useRouter();
-  const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
-  /**
-   * Handles language change and updates the application state
-   * @param newLocale - The new locale to switch to
-   */
-  const handleLanguageChange = (newLocale: Locale) => {
-    // Early return if same language or already in transition
-    if (newLocale === locale || isPending) return;
+  const selectedLanguage = LANGUAGES.find((lang) => lang.value === locale);
 
+  const handleLanguageChange = (value: Locale) => {
     startTransition(async () => {
-      try {
-        // Update locale in cookie and server state
-        document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
-        await setUserLocale(newLocale);
-
-        router.refresh();
-      } catch (error) {
-        console.error("Failed to switch language:", error);
-      }
+      setUserLocale(value as Locale);
     });
   };
 
@@ -105,30 +54,55 @@ export default function LanguageSwitcher() {
       disabled={isPending}
     >
       <SelectTrigger
-        className="hover:bg-accent h-9 w-9 border-0 bg-transparent p-0 shadow-none"
+        className="focus:ring-primary flex h-9 w-auto items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-100 focus:ring-2 focus:outline-none"
         aria-label="Select language"
       >
-        <SelectValue
-          placeholder={
-            <Globe className="text-muted-foreground mx-auto h-5 w-5" />
-          }
-        >
-          <Globe className="text-muted-foreground mx-auto h-5 w-5" />
-        </SelectValue>
-      </SelectTrigger>
-      <SelectContent align="end" className="min-w-[150px]">
-        {LANGUAGES.map(({ value, label, flag }) => (
-          <SelectItem
-            key={value}
-            value={value}
-            className="flex items-center gap-2"
+        {selectedLanguage && (
+          <div className="flex items-center gap-2">
+            <img
+              src={selectedLanguage.flag}
+              alt={selectedLanguage.label}
+              className="h-5 w-5"
+            />
+            <span>{selectedLanguage.label}</span>
+          </div>
+        )}
+        {isPending && (
+          <svg
+            className="text-muted-foreground ml-2 h-4 w-4 animate-spin"
+            viewBox="0 0 24 24"
           >
-            <div className="flex items-center gap-2">
-              {flag}
-              <span>{label}</span>
-            </div>
-          </SelectItem>
-        ))}
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+              fill="none"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
+          </svg>
+        )}
+      </SelectTrigger>
+      <SelectContent
+        align="end"
+        className="w-[180px] rounded-md border border-gray-300 bg-white shadow-lg"
+      >
+        <SelectGroup>
+          {LANGUAGES.map(({ value, label, flag }) => (
+            <SelectItem key={value} value={value}>
+              <div className="flex items-center gap-2">
+                <img src={flag} alt={label} className="h-5 w-5" />
+                <span>{label}</span>
+              </div>
+            </SelectItem>
+          ))}
+        </SelectGroup>
       </SelectContent>
     </Select>
   );

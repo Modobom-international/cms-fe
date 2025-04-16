@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/providers/auth-provider";
-import { Calendar, Settings2Icon, SidebarIcon } from "lucide-react";
+import { Calendar, SidebarIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,9 +14,10 @@ import { useSidebar } from "@/components/ui/sidebar";
 
 import AvatarButton from "@/components/avatars/avatar-button";
 import CalendarSample from "@/components/calendar/calendar-sample";
-import LanguageSwitcher from "@/components/i18n/language-switcher";
-import { SearchForm } from "@/components/layouts/search-form";
 import NotificationsButton from "@/components/notifications";
+
+import LanguageSwitcher from "../i18n/language-switcher";
+import { Skeleton } from "../ui/skeleton";
 
 export function SiteHeader() {
   const { toggleSidebar } = useSidebar();
@@ -38,9 +39,7 @@ export function SiteHeader() {
         </div>
 
         <div className="flex items-center gap-3">
-          <SearchForm className="w-[500px]" />
-
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
@@ -81,18 +80,13 @@ export function SiteHeader() {
               </PopoverContent>
             </Popover>
 
-            {/* Language Switcher */}
-            <LanguageSwitcher />
-
             {user && user.email ? (
               <NotificationsButton email={user.email} />
             ) : (
-              <div className="h-9 w-9" />
+              <Skeleton className="h-6 w-6 rounded-lg" />
             )}
 
-            <Button variant="ghost" size="icon" className="h-9 w-9">
-              <Settings2Icon className="text-muted-foreground h-[18px] w-[18px]" />
-            </Button>
+            <LanguageSwitcher />
 
             <AvatarButton />
           </div>
