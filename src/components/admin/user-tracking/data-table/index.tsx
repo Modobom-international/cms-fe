@@ -163,7 +163,7 @@ export default function UserTrackingDataTable() {
   return (
     <div className="flex min-h-[calc(100vh-200px)] flex-col">
       <div className="space-y-6">
-        <div className="grid grid-cols-1 items-end gap-6 md:grid-cols-3">
+        <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
           <div>
             <label
               className="mb-2 block text-sm font-medium text-gray-700"
@@ -270,30 +270,6 @@ export default function UserTrackingDataTable() {
                 </Dialog>
               </Popover>
             </DatePicker>
-          </div>
-
-          <div className="flex items-end">
-            <Button
-              onClick={() => {
-                setCurrentPage(1);
-                refetch();
-              }}
-              disabled={isFetching}
-            >
-              <Search className="mr-2 h-4 w-4" /> {t("filters.search")}
-            </Button>
-
-            <Button
-              variant="outline"
-              className="ml-4"
-              onClick={handleRefresh}
-              disabled={isFetching}
-            >
-              <RefreshCw
-                className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
-              />
-              Refresh
-            </Button>
           </div>
         </div>
         <div className="mb-6">
@@ -454,7 +430,7 @@ export default function UserTrackingDataTable() {
                     </Select>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
                       size="sm"

@@ -1,8 +1,4 @@
-import Link from "next/link";
-
-import { ChevronRight, Home, PlusIcon } from "lucide-react";
-
-import { buttonVariants } from "@/components/ui/button";
+import { ChevronRight, Home } from "lucide-react";
 
 import DomainDataTable from "@/components/admin/domain/data-table";
 

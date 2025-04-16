@@ -134,30 +134,6 @@ export default function DomainDataTable() {
               }}
             />
           </div>
-
-          <div className="flex items-end">
-            <Button
-              onClick={() => {
-                setCurrentPage(1); // Reset to first page when searching
-                refetch();
-              }}
-              disabled={isFetching}
-            >
-              <Search className="mr-2 h-4 w-4" /> {t("filters.search")}
-            </Button>
-
-            <Button
-              variant="outline"
-              className="ml-4"
-              onClick={handleRefresh}
-              disabled={isFetching}
-            >
-              <RefreshCw
-                className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
-              />
-              {t("actions.refresh") || "Refresh"}
-            </Button>
-          </div>
         </div>
 
         {/* Results Table or Empty State */}
@@ -305,7 +281,7 @@ export default function DomainDataTable() {
                   </div>
 
                   {/* Pagination controls */}
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
                       size="sm"
