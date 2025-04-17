@@ -17,7 +17,7 @@ export const siteQueryKeys = {
   all: ["sites"] as const,
   lists: () => [...siteQueryKeys.all, "list"] as const,
   list: (filters: string) => [...siteQueryKeys.lists(), { filters }] as const,
-  details: (siteId: number) =>
+  details: (siteId: string) =>
     [...siteQueryKeys.all, "detail", siteId] as const,
 };
 
@@ -55,7 +55,7 @@ export const useGetSites = () => {
   });
 };
 
-export const useGetSiteById = (siteId: number) => {
+export const useGetSiteById = (siteId: string) => {
   return useQuery({
     queryKey: siteQueryKeys.details(siteId),
     queryFn: async () => {
@@ -106,7 +106,7 @@ export const useCreateSite = () => {
   });
 };
 
-export const useUpdateSite = (siteId: number) => {
+export const useUpdateSite = (siteId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -141,7 +141,7 @@ export const useDeleteSite = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (siteId: number) => {
+    mutationFn: async (siteId: string) => {
       try {
         const response = await apiClient.delete(`/api/sites/${siteId}`);
         return {

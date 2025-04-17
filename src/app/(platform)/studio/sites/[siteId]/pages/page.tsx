@@ -5,12 +5,20 @@ import { useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
+import { ArrowLeft, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { useCreatePage, useDeletePage, useGetPages } from "@/hooks/pages";
 import { useGetSiteById } from "@/hooks/sites";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -18,8 +26,105 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+import { Spinner } from "@/components/global/spinner";
+
+function CreatePageDialog() {
+  const params = useParams();
+  const [newPage, setNewPage] = useState({ name: "", slug: "" });
+  const createPageMutation = useCreatePage();
+  const [open, setOpen] = useState(false);
+
+  const handleCreatePage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPage.name.trim() || !newPage.slug.trim()) return;
+
+    try {
+      await toast.promise(
+        createPageMutation.mutateAsync({
+          name: newPage.name,
+          slug: newPage.slug,
+          site_id: params.siteId?.toString() || "",
+          content: JSON.stringify({}),
+        }),
+        {
+          loading: "Creating page...",
+          success: "Page created successfully!",
+          error: "Failed to create page",
+        }
+      );
+      setNewPage({ name: "", slug: "" });
+      setOpen(false);
+    } catch (err) {
+      console.error("Error creating page:", err);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <PlusIcon className="mr-2 h-4 w-4" />
+          Create Page
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create New Page</DialogTitle>
+          <DialogDescription>
+            Add a new page to your site. Fill in the details below.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleCreatePage}>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <label htmlFor="name" className="text-sm font-medium">
+                Page Name
+              </label>
+              <Input
+                id="name"
+                value={newPage.name}
+                onChange={(e) =>
+                  setNewPage({ ...newPage, name: e.target.value })
+                }
+                placeholder="Home Page"
+              />
+            </div>
+            <div className="grid gap-2">
+              <label htmlFor="slug" className="text-sm font-medium">
+                Slug
+              </label>
+              <Input
+                id="slug"
+                value={newPage.slug}
+                onChange={(e) =>
+                  setNewPage({ ...newPage, slug: e.target.value })
+                }
+                placeholder="home"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit" disabled={createPageMutation.isPending}>
+              {createPageMutation.isPending ? "Creating..." : "Create Page"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 interface DeleteDialogProps {
   isOpen: boolean;
@@ -40,36 +145,56 @@ function DeleteConfirmationDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[400px]">
+        <DialogHeader className="space-y-3">
           <DialogTitle>Delete Page</DialogTitle>
           <DialogDescription>
             This action cannot be undone. This will permanently delete the page
             <span className="font-semibold"> {pageName}</span>.
           </DialogDescription>
         </DialogHeader>
-        <div className="py-4">
-          <p className="mb-2 text-sm text-gray-600">
-            To confirm, type{" "}
-            <span className="font-mono text-red-500">{pageName}</span> below:
-          </p>
-          <Input
-            value={confirmationText}
-            onChange={(e) => setConfirmationText(e.target.value)}
-            placeholder="Type page slug to confirm"
-            className="w-full"
-          />
+        <div className="space-y-3 py-4">
+          <div className="space-y-2">
+            <p className="text-muted-foreground text-sm">
+              To confirm, type{" "}
+              <span className="text-destructive font-mono font-medium">
+                {pageName}
+              </span>{" "}
+              below:
+            </p>
+            <Input
+              value={confirmationText}
+              onChange={(e) => setConfirmationText(e.target.value)}
+              placeholder="Type page slug to confirm"
+              className="w-full"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+            />
+          </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="w-full sm:w-auto"
+          >
             Cancel
           </Button>
           <Button
             variant="destructive"
             onClick={onConfirm}
             disabled={confirmationText !== pageName || isDeleting}
+            className="w-full sm:w-auto"
           >
-            {isDeleting ? "Deleting..." : "Delete Page"}
+            {isDeleting ? (
+              <>
+                <Spinner />
+                Deleting...
+              </>
+            ) : (
+              "Delete Page"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -85,8 +210,11 @@ interface Page {
   site_id: number;
 }
 
-export default function SitePagesManagement() {
-  const [newPageSlug, setNewPageSlug] = useState("");
+export default function PagesManagementPage() {
+  const params = useParams();
+  const siteId = params.siteId as string;
+  const { data: site } = useGetSiteById(siteId);
+  const { data: pagesData, isLoading } = useGetPages(siteId);
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean;
     pageId: number | null;
@@ -97,50 +225,7 @@ export default function SitePagesManagement() {
     pageName: "",
   });
 
-  const params = useParams();
-  const router = useRouter();
-  const siteId = Number(params.siteId);
-
-  // React Query hooks
-  const { data: siteData, isLoading: isSiteLoading } = useGetSiteById(siteId);
-  const { data: pagesData, isLoading: isPagesLoading } = useGetPages(siteId);
-  const createPageMutation = useCreatePage();
-  const deletePageMutation = useDeletePage();
-
-  const handleCreatePage = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!newPageSlug.trim()) return;
-
-    try {
-      const defaultProject = {
-        pages: [
-          {
-            name: newPageSlug,
-            component: `<h1>New page: ${newPageSlug}</h1><p>Start building your page here.</p>`,
-          },
-        ],
-      };
-
-      await createPageMutation.mutateAsync({
-        site_id: siteId,
-        name: newPageSlug,
-        slug: newPageSlug,
-        content: JSON.stringify(defaultProject),
-      });
-
-      toast.success("Page created successfully", {
-        description: `Created new page: ${newPageSlug}`,
-      });
-
-      setNewPageSlug("");
-    } catch (err) {
-      console.error("Error creating page:", err);
-      toast.error("Failed to create page", {
-        description: "There was an error creating the page. Please try again.",
-      });
-    }
-  };
+  const deleteMutation = useDeletePage();
 
   const handleDeleteClick = (pageId: number, pageName: string) => {
     setDeleteDialog({
@@ -154,7 +239,7 @@ export default function SitePagesManagement() {
     if (!deleteDialog.pageId) return;
 
     try {
-      await deletePageMutation.mutateAsync(deleteDialog.pageId);
+      await deleteMutation.mutateAsync(deleteDialog.pageId);
 
       toast.success("Page deleted successfully", {
         description: `Deleted page: ${deleteDialog.pageName}`,
@@ -169,129 +254,99 @@ export default function SitePagesManagement() {
     }
   };
 
-  if (isSiteLoading || isPagesLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!siteData?.data) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-lg text-red-600">Site not found</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <Link
-            href="/studio/sites"
-            className="mb-2 inline-block text-blue-600 hover:text-blue-800"
-          >
-            ← Back to Sites
-          </Link>
-          <h1 className="text-3xl font-bold">{siteData.data.name} - Pages</h1>
-        </div>
-      </div>
-
-      {/* Create new page form */}
-      <div className="mb-8 rounded-lg bg-white p-6 shadow-md">
-        <h2 className="mb-4 text-xl font-semibold">Create New Page</h2>
-        {createPageMutation.error && (
-          <div className="mb-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700">
-            {String(createPageMutation.error)}
-          </div>
-        )}
-
-        <form onSubmit={handleCreatePage} className="flex gap-4">
-          <div className="flex-grow">
-            <label
-              htmlFor="newPageSlug"
-              className="mb-1 block text-sm font-medium text-gray-700"
+    <div className="container space-y-6 p-6">
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Link
+              href="/studio/sites"
+              className={buttonVariants({
+                variant: "ghost",
+                size: "sm",
+                className: "gap-2",
+              })}
             >
-              Page Slug
-            </label>
-            <input
-              type="text"
-              id="newPageSlug"
-              value={newPageSlug}
-              onChange={(e) => setNewPageSlug(e.target.value)}
-              placeholder="e.g. about-us"
-              className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-            />
+              <ArrowLeft className="h-4 w-4" />
+              Back to Sites
+            </Link>
           </div>
-          <button
-            type="submit"
-            disabled={createPageMutation.isPending}
-            className="self-end rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:bg-blue-400"
-          >
-            {createPageMutation.isPending ? "Creating..." : "Create Page"}
-          </button>
-        </form>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Pages - {site?.data.name}
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Create and manage pages for your site
+          </p>
+        </div>
+        <CreatePageDialog />
       </div>
 
-      {/* Pages list */}
-      <div className="rounded-lg bg-white p-6 shadow-md">
-        <h2 className="mb-4 text-xl font-semibold">Pages</h2>
-
-        {!pagesData?.data || pagesData.data.length === 0 ? (
-          <div className="py-4 text-center text-gray-500">
-            No pages found. Create your first page above.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-4 py-3 text-left">Name</th>
-                  <th className="px-4 py-3 text-left">Slug</th>
-                  <th className="px-4 py-3 text-left">Last Updated</th>
-                  <th className="px-4 py-3 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
+      <Card>
+        <CardHeader>
+          <CardTitle>Your Pages</CardTitle>
+          <CardDescription>A list of all pages in this site</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="text-muted-foreground py-8 text-center">
+              Loading pages...
+            </div>
+          ) : !pagesData?.data || pagesData.data.length === 0 ? (
+            <div className="text-muted-foreground py-8 text-center">
+              No pages found. Create your first page using the button above.
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Slug</TableHead>
+                  <TableHead>Last Updated</TableHead>
+                  <TableHead className="w-[250px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {pagesData.data.map((page: Page) => (
-                  <tr key={page.id}>
-                    <td className="px-4 py-3">{page.name}</td>
-                    <td className="px-4 py-3">{page.slug}</td>
-                    <td className="px-4 py-3">
+                  <TableRow key={page.id}>
+                    <TableCell className="font-medium">{page.name}</TableCell>
+                    <TableCell>{page.slug}</TableCell>
+                    <TableCell>
                       {new Date(page.updated_at).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3">
+                    </TableCell>
+                    <TableCell>
                       <div className="flex space-x-2">
                         <Link
-                          href={`/studio/sites/${siteId}/pages/${page.slug}?pageId=${page.id}`}
-                          className="rounded bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-700"
+                          href={`/editor/${siteId}/${page.slug}?pageId=${page.id}`}
+                          className={buttonVariants({ size: "sm" })}
                         >
                           Edit
                         </Link>
                         <Link
                           href={`/preview/${page.slug}`}
                           target="_blank"
-                          className="rounded bg-gray-600 px-3 py-1 text-sm text-white hover:bg-gray-700"
+                          className={buttonVariants({
+                            variant: "outline",
+                            size: "sm",
+                          })}
                         >
                           Preview
                         </Link>
-                        <button
+                        <Button
+                          variant="destructive"
+                          size="sm"
                           onClick={() => handleDeleteClick(page.id, page.slug)}
-                          className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-700"
                         >
                           Delete
-                        </button>
+                        </Button>
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
       <DeleteConfirmationDialog
         isOpen={deleteDialog.isOpen}
@@ -300,7 +355,7 @@ export default function SitePagesManagement() {
         }
         onConfirm={handleDeleteConfirm}
         pageName={deleteDialog.pageName}
-        isDeleting={deletePageMutation.isPending}
+        isDeleting={deleteMutation.isPending}
       />
     </div>
   );

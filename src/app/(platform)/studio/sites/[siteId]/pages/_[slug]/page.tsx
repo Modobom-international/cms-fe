@@ -18,17 +18,17 @@ export default async function PageEditor({
   const { pageId } = await searchParams;
 
   return (
-    <div className="relative h-screen">
-      <div className="absolute top-0 right-0 left-0 z-10 bg-white px-6 py-4 shadow-md">
+    <div className="flex h-screen w-screen flex-col">
+      <div className="bg-background flex items-center gap-4 border-b px-6 py-4">
         <Link
           href={`/studio/sites/${siteId}/pages`}
-          className="text-blue-600 hover:text-blue-800"
+          className="text-muted-foreground hover:text-foreground"
         >
           ← Back to Pages
         </Link>
-        <h1 className="mt-2 text-2xl font-bold">Editing: {slug}</h1>
+        <h1 className="text-2xl font-semibold">Editing: {slug}</h1>
       </div>
-      <div className="h-full pt-24">
+      <div className="relative flex-1">
         <WebBuilderStudio slug={slug} siteId={siteId} pageId={pageId} />
       </div>
     </div>
