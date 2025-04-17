@@ -387,5 +387,81 @@
             "Title": "New Page: {slug}",
             "Description": "Start building your page here."
         }
+    },
+    "Studio": {
+        "Sites": {
+            "Title": "Sites Management",
+            "Description": "Manage your sites and their pages",
+            "CreateSite": {
+                "Button": "Create Site",
+                "Title": "Create New Site",
+                "Description": "Add a new site to your portfolio. Fill in the details below.",
+                "SiteName": {
+                    "Label": "Site Name",
+                    "Required": "*",
+                    "Placeholder": "My Awesome Site",
+                    "Helper": "This is the display name for your site"
+                },
+                "Domain": {
+                    "Label": "Domain",
+                    "Required": "*",
+                    "Placeholder": "example.com",
+                    "Helper": "The domain where your site will be hosted"
+                },
+                "Submit": "Create Site",
+                "Loading": "Creating site...",
+                "Success": "Site created successfully!",
+                "Error": "Failed to create site",
+                "Validation": {
+                    "Name": {
+                        "Required": "Site name is required",
+                        "MinLength": "Site name must be at least 3 characters",
+                        "MaxLength": "Site name cannot exceed 64 characters"
+                    },
+                    "Domain": {
+                        "Required": "Domain is required",
+                        "MinLength": "Domain must be at least 3 characters",
+                        "MaxLength": "Domain cannot exceed 253 characters",
+                        "Invalid": "Please enter a valid domain name (e.g., example.com)"
+                    }
+                }
+            },
+            "DeleteSite": {
+                "Title": "Delete Site",
+                "Description": "This action cannot be undone. This will permanently delete the site ",
+                "Description2": "and all its pages.",
+                "Confirmation": {
+                    "Text": "To confirm, type",
+                    "Text2": "below:",
+                    "Placeholder": "Type site name to confirm"
+                },
+                "Cancel": "Cancel",
+                "Delete": "Delete Site",
+                "Deleting": "Deleting...",
+                "Success": "Site deleted successfully!",
+                "Error": "Failed to delete site"
+            },
+            "Table": {
+                "Name": "Name",
+                "Domain": "Domain",
+                "CreatedAt": "Created At",
+                "UpdatedAt": "Updated At",
+                "Actions": "Actions",
+                "Edit": "Edit",
+                "Delete": "Delete",
+                "Pages": "Pages",
+                "NoSites": "No sites found",
+                "Search": "Search sites...",
+                "Description": "List of your sites",
+                "Showing": "Showing",
+                "Previous": "Previous",
+                "Page": "Page",
+                "Next": "Next",
+                "Loading": "Loading sites...",
+                "Saving": "Saving site...",
+                "Save": "Save",
+                "Cancel": "Cancel"
+            }
+        }
     }
 }
