@@ -510,8 +510,9 @@
         "Delete": {
           "Dialog": {
             "Title": "Xóa Trang",
-            "Description": "Hành động này không thể hoàn tác. Bạn sẽ xóa vĩnh viễn trang {pageName}.",
-            "ConfirmationText": "Để xác nhận, hãy nhập tên trang bên dưới:",
+            "Description": "Hành động này không thể hoàn tác. Bạn sẽ xóa vĩnh viễn trang ",
+            "ConfirmationText": "Để xác nhận, hãy nhập tên trang ",
+            "ConfirmationText2": "bên dưới:",
             "InputPlaceholder": "Nhập tên trang để xác nhận",
             "Cancel": "Hủy",
             "Confirm": "Xóa Trang",

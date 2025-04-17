@@ -222,13 +222,18 @@ function DeleteConfirmationDialog({
         <DialogHeader className="space-y-3">
           <DialogTitle>{t("Delete.Dialog.Title")}</DialogTitle>
           <DialogDescription>
-            {t("Delete.Dialog.Description", { pageName })}
+            {t("Delete.Dialog.Description")}
+            <span className="font-semibold"> {pageName}</span>.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3 py-4">
           <div className="space-y-2">
             <p className="text-muted-foreground text-sm">
-              {t("Delete.Dialog.ConfirmationText", { pageName })}
+            {t("Delete.Dialog.ConfirmationText")}{" "}
+              <span className="text-destructive font-mono font-medium">
+                {pageName}
+              </span>{" "}
+              {t("Delete.Dialog.ConfirmationText2")}
             </p>
             <Input
               value={confirmationText}
