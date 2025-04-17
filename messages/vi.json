@@ -452,7 +452,6 @@
         "Pages": "Trang",
         "NoSites": "Không tìm thấy trang web nào",
         "Search": "Tìm kiếm trang web...",
-        "Description": "Danh sách các trang web của bạn",
         "Showing": "Hiển thị",
         "Previous": "Trước",
         "Page": "Trang",
@@ -460,7 +459,12 @@
         "Loading": "Đang tải trang web...",
         "Saving": "Đang lưu trang web...",
         "Save": "Lưu",
-        "Cancel": "Hủy"
+        "Cancel": "Hủy",
+        "Description": "Mô tả",
+        "Cloudflare": "Cloudflare",
+        "Branch": "Nhánh",
+        "Status": "Trạng thái",
+        "Owner": "Chủ sở hữu"
       },
       "Pages": {
         "Title": "Trang - {siteName}",
