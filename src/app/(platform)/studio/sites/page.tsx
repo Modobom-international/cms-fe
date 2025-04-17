@@ -5,9 +5,12 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusIcon } from "lucide-react";
 import { Search } from "lucide-react";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import {
@@ -35,6 +38,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -140,78 +151,160 @@ function DeleteConfirmationDialog({
   );
 }
 
+// Form Schema
+const siteFormSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Site name is required")
+    .min(3, "Site name must be at least 3 characters")
+    .max(64, "Site name cannot exceed 64 characters"),
+  domain: z
+    .string()
+    .min(1, "Domain is required")
+    .min(3, "Domain must be at least 3 characters")
+    .max(253, "Domain cannot exceed 253 characters")
+    .regex(
+      /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/,
+      "Please enter a valid domain name (e.g., example.com)"
+    ),
+});
+
+type SiteFormValues = z.infer<typeof siteFormSchema>;
+
 function CreateSiteDialog() {
-  const [newSite, setNewSite] = useState({ name: "", domain: "" });
+  const form = useForm<SiteFormValues>({
+    resolver: zodResolver(siteFormSchema),
+    defaultValues: {
+      name: "",
+      domain: "",
+    },
+    mode: "onChange", // Enable real-time validation
+  });
+
   const createSiteMutation = useCreateSite();
   const [open, setOpen] = useState(false);
 
-  const handleCreateSite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newSite.name.trim() || !newSite.domain.trim()) return;
-
+  const handleCreateSite = async (data: SiteFormValues) => {
     try {
-      await toast.promise(createSiteMutation.mutateAsync(newSite), {
+      await toast.promise(createSiteMutation.mutateAsync(data), {
         loading: "Creating site...",
         success: "Site created successfully!",
         error: "Failed to create site",
       });
-      setNewSite({ name: "", domain: "" });
+      form.reset();
       setOpen(false);
     } catch (err) {
       console.error("Error creating site:", err);
     }
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      form.reset();
+    }
+    setOpen(open);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button>
-          <PlusIcon className="mr-2 h-4 w-4" />
+        <Button className="cursor-pointer gap-2">
+          <PlusIcon className="h-4 w-4" />
           Create Site
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[475px]">
         <DialogHeader>
           <DialogTitle>Create New Site</DialogTitle>
           <DialogDescription>
             Add a new site to your portfolio. Fill in the details below.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleCreateSite}>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <label htmlFor="name" className="text-sm font-medium">
-                Site Name
-              </label>
-              <Input
-                id="name"
-                value={newSite.name}
-                onChange={(e) =>
-                  setNewSite({ ...newSite, name: e.target.value })
-                }
-                placeholder="My Awesome Site"
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleCreateSite)}
+            className="space-y-6"
+          >
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel>
+                      Site Name
+                      <span className="text-destructive ml-1">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="My Awesome Site"
+                        {...field}
+                        disabled={createSiteMutation.isPending}
+                      />
+                    </FormControl>
+                    <p className="text-muted-foreground text-xs">
+                      This is the display name for your site
+                    </p>
+                    <FormMessage className="text-destructive text-sm font-medium" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="domain"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel>
+                      Domain
+                      <span className="text-destructive ml-1">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="example.com"
+                        {...field}
+                        className="font-mono text-sm"
+                        disabled={createSiteMutation.isPending}
+                      />
+                    </FormControl>
+                    <p className="text-muted-foreground text-xs">
+                      Enter your site's domain name without http:// or www
+                    </p>
+                    <FormMessage className="text-destructive text-sm font-medium" />
+                  </FormItem>
+                )}
               />
             </div>
-            <div className="grid gap-2">
-              <label htmlFor="domain" className="text-sm font-medium">
-                Domain
-              </label>
-              <Input
-                id="domain"
-                value={newSite.domain}
-                onChange={(e) =>
-                  setNewSite({ ...newSite, domain: e.target.value })
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+                disabled={createSiteMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={
+                  createSiteMutation.isPending ||
+                  !form.formState.isDirty ||
+                  !form.formState.isValid
                 }
-                placeholder="example.com"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit" disabled={createSiteMutation.isPending}>
-              {createSiteMutation.isPending ? "Creating..." : "Create Site"}
-            </Button>
-          </DialogFooter>
-        </form>
+              >
+                {createSiteMutation.isPending ? (
+                  <>
+                    <Spinner />
+                    Creating...
+                  </>
+                ) : (
+                  "Create Site"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
