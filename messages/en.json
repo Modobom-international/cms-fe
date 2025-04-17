@@ -366,5 +366,26 @@
         "noNotifications": "No notifications",
         "unRead": "Unread",
         "notifications": "Notifications"
+    },
+    "Editor": {
+        "BackToPages": "Back to Pages",
+        "Editing": "Editing: {slug}",
+        "SavePage": "Saving page...",
+        "SaveSuccess": "Page saved successfully!",
+        "SaveError": "Failed to save page",
+        "ExportHTML": "Exporting HTML...",
+        "ExportSuccess": "HTML exported successfully!",
+        "ExportError": "Export failed: {error}",
+        "DeployPage": "Deploying page...",
+        "DeploySuccess": "Deployment successful!",
+        "DeployError": "Deploy failed: {error}",
+        "ExportButton": "Export {slug}",
+        "Exporting": "Exporting...",
+        "DeployButton": "Deploy {slug}",
+        "Deploying": "Deploying...",
+        "NewPage": {
+            "Title": "New Page: {slug}",
+            "Description": "Start building your page here."
+        }
     }
 }

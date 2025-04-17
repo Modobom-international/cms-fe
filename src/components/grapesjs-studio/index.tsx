@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 
 import { env } from "@/env";
 import StudioEditor from "@grapesjs/studio-sdk/react";
@@ -13,6 +14,7 @@ import { useDeployPage, useExportPage, useUpdatePage } from "@/hooks/pages";
 
 import { deleteAssets, loadAssets, uploadAssets } from "./actions/upload";
 import { buttonBlock } from "./blocks/button";
+import { getTranslations } from "next-intl/server";
 
 interface WebBuilderStudioProps {
   slug: string;
@@ -20,11 +22,13 @@ interface WebBuilderStudioProps {
   pageId: string;
 }
 
-export default function WebBuilderStudio({
+export default  function WebBuilderStudio({
   slug,
   siteId,
   pageId,
 }: WebBuilderStudioProps) {
+  const t = useTranslations("Editor");
+  
   // React Query hooks
   const updatePageMutation = useUpdatePage();
   const exportPageMutation = useExportPage(pageId);
@@ -38,15 +42,15 @@ export default function WebBuilderStudio({
           content: JSON.stringify(project),
         }),
         {
-          loading: "Saving page...",
-          success: "Page saved successfully!",
-          error: "Failed to save page",
+          loading: t("SavePage"),
+          success: t("SaveSuccess"),
+          error: t("SaveError"),
         }
       );
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Failed to save project";
-      toast.error("Failed to save page", {
+        err instanceof Error ? err.message : t("SaveError");
+      toast.error(t("SaveError"), {
         description: errorMessage,
       });
       throw new Error(errorMessage);
@@ -67,7 +71,7 @@ export default function WebBuilderStudio({
       return content;
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Failed to load project";
+        err instanceof Error ? err.message : t("SaveError");
 
       console.warn(
         `Could not load content for page ID: ${pageId}`,
@@ -99,10 +103,10 @@ export default function WebBuilderStudio({
     formData.append("site_id", siteId);
 
     return toast.promise(exportPageMutation.mutateAsync(formData), {
-      loading: "Exporting HTML...",
-      success: "HTML exported successfully!",
+      loading: t("ExportHTML"),
+      success: t("ExportSuccess"),
       error: (err) =>
-        `Export failed: ${err instanceof Error ? err.message : "Unknown error"}`,
+        t("ExportError", { error: err instanceof Error ? err.message : "Unknown error" }),
     });
   };
 
@@ -157,10 +161,10 @@ export default function WebBuilderStudio({
             site_id: Number(siteId),
           }),
           {
-            loading: "Deploying page...",
-            success: "Deployment successful!",
+            loading: t("DeployPage"),
+            success: t("DeploySuccess"),
             error: (err) =>
-              `Deploy failed: ${err instanceof Error ? err.message : "Please try again"}`,
+              t("DeployError", { error: err instanceof Error ? err.message : "Please try again" }),
           }
         );
       },
@@ -174,8 +178,8 @@ export default function WebBuilderStudio({
         {
           id: "export-btn",
           label: exportPageMutation.isPending
-            ? "Exporting..."
-            : `Export ${slug}`,
+            ? t("Exporting")
+            : t("ExportButton", { slug }),
           command: "export-html",
           className: `custom-btn export-btn ${exportPageMutation.isPending ? "loading" : ""}`,
           attributes: { disabled: exportPageMutation.isPending },
@@ -183,8 +187,8 @@ export default function WebBuilderStudio({
         {
           id: "deploy-btn",
           label: deployPageMutation.isPending
-            ? "Deploying..."
-            : `Deploy ${slug}`,
+            ? t("Deploying")
+            : t("DeployButton", { slug }),
           command: "deploy-page",
           className: `custom-btn deploy-btn ${deployPageMutation.isPending ? "loading" : ""}`,
           attributes: { disabled: deployPageMutation.isPending },
@@ -225,8 +229,8 @@ export default function WebBuilderStudio({
                           name: slug,
                           component: `
                             <div style="padding: 20px; text-align: center;">
-                              <h1>New Page: ${slug}</h1>
-                              <p style="color: #666;">Start building your page here.</p>
+                              <h1>${t("NewPage.Title", { slug })}</h1>
+                              <p style="color: #666;">${t("NewPage.Description")}</p>
                             </div>
                           `,
                         },
@@ -248,9 +252,8 @@ export default function WebBuilderStudio({
                         name: slug,
                         component: `
                           <div style="padding: 20px; text-align: center;">
-                            <h1>Error Loading Page: ${slug}</h1>
-                            <p style="color: #666;">Error: ${error instanceof Error ? error.message : "Unknown error"}</p>
-                            <p style="color: #666;">You can start editing this page, but your changes may not be saved correctly until the issue is resolved.</p>
+                            <h1>${t("NewPage.Title", { slug })}</h1>
+                            <p style="color: #666;">${t("NewPage.Description")}</p>
                           </div>
                         `,
                       },
@@ -268,8 +271,8 @@ export default function WebBuilderStudio({
                   name: slug,
                   component: `
                     <div style="padding: 20px; text-align: center;">
-                      <h1>New Page: ${slug}</h1>
-                      <p style="color: #666;">Start building your page here.</p>
+                      <h1>${t("NewPage.Title", { slug })}</h1>
+                      <p style="color: #666;">${t("NewPage.Description")}</p>
                     </div>
                   `,
                 },

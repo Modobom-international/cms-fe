@@ -366,5 +366,26 @@
     "noNotifications": "Không có thông báo",
     "unRead": "Chưa đọc",
     "notifications": "Thông báo"
+  },
+  "Editor": {
+    "BackToPages": "Quay lại Trang",
+    "Editing": "Đang chỉnh sửa: {slug}",
+    "SavePage": "Đang lưu trang...",
+    "SaveSuccess": "Lưu trang thành công!",
+    "SaveError": "Lưu trang thất bại",
+    "ExportHTML": "Đang xuất HTML...",
+    "ExportSuccess": "Xuất HTML thành công!",
+    "ExportError": "Xuất thất bại: {error}",
+    "DeployPage": "Đang triển khai trang...",
+    "DeploySuccess": "Triển khai thành công!",
+    "DeployError": "Triển khai thất bại: {error}",
+    "ExportButton": "Xuất {slug}",
+    "Exporting": "Đang xuất...",
+    "DeployButton": "Triển khai {slug}",
+    "Deploying": "Đang triển khai...",
+    "NewPage": {
+      "Title": "Trang mới: {slug}",
+      "Description": "Bắt đầu xây dựng trang của bạn tại đây."
+    }
   }
 }
