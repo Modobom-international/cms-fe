@@ -469,6 +469,9 @@
         "List": {
           "Title": "Danh sách trang",
           "Description": "Quản lý và xem tất cả các trang của trang web",
+          "Search": "Tìm kiếm trang theo tên hoặc đường dẫn...",
+          "NoSearchResults": "Không tìm thấy trang nào khớp với tìm kiếm của bạn",
+          "NoPages": "Không tìm thấy trang nào",
           "Table": {
             "Name": "Tên",
             "Slug": "Đường dẫn",
