@@ -206,7 +206,8 @@
         "selectDomain": "Chọn tên miền",
         "datePicker": "Chọn ngày",
         "search": "Tìm kiếm",
-        "viewHeatmap": "Xem bản đồ nhiệt"
+        "viewHeatmap": "Xem bản đồ nhiệt",
+        "date": "Ngày"
       },
       "columns": {
         "id": "ID",

@@ -5,7 +5,14 @@ import { useEffect, useState } from "react";
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { CalendarIcon, Map, RefreshCw, Search, Users } from "lucide-react";
+import {
+  CalendarIcon,
+  Map,
+  PlusCircle,
+  RefreshCw,
+  Search,
+  Users,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import {
@@ -49,6 +56,7 @@ import {
   PopoverTrigger,
   Popover as PopoverUI,
 } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -162,7 +170,7 @@ export default function UserTrackingDataTable() {
 
   return (
     <div className="min-h- flex flex-col">
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
           <div>
             <label
@@ -181,7 +189,7 @@ export default function UserTrackingDataTable() {
                   variant="outline"
                   role="combobox"
                   aria-expanded={openDomainSelect}
-                  className="w-full justify-between"
+                  className="w-96 justify-between"
                   disabled={isLoadingDomains}
                 >
                   {domain
@@ -243,35 +251,44 @@ export default function UserTrackingDataTable() {
               </PopoverContent>
             </PopoverUI>
           </div>
-
-          <div>
-            <DatePicker
-              className="*:not-first:mt-2"
-              value={calendarDate}
-              onChange={handleDateChange}
-            >
-              <Label className="text-foreground text-sm font-medium">
-                {t("filters.datePicker")}
-              </Label>
-              <div className="flex">
-                <Group className="w-full">
-                  <DateInput className="pe-9" />
-                </Group>
-                <ButtonAria className="text-muted-foreground/80 hover:text-foreground data-focus-visible:border-ring data-focus-visible:ring-ring/50 z-10 -ms-9 -me-px flex w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none data-focus-visible:ring-[3px]">
-                  <CalendarIcon size={16} />
-                </ButtonAria>
-              </div>
-              <Popover
-                className="bg-background text-popover-foreground data-entering:animate-in data-exiting:animate-out data-[entering]:fade-in-0 data-[exiting]:fade-out-0 data-[entering]:zoom-in-95 data-[exiting]:zoom-out-95 data-[placement=bottom]:slide-in-from-top-2 data-[placement=left]:slide-in-from-right-2 data-[placement=right]:slide-in-from-left-2 data-[placement=top]:slide-in-from-bottom-2 z-50 rounded-lg border shadow-lg outline-hidden"
-                offset={4}
-              >
-                <Dialog className="max-h-[inherit] overflow-auto p-2">
-                  <Calendar />
-                </Dialog>
-              </Popover>
-            </DatePicker>
-          </div>
         </div>
+
+        {/* Second Row - Date Filter */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Date Picker */}
+          <PopoverUI>
+            <PopoverTrigger asChild>
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <PlusCircle className="size-3.5" />
+                {t("filters.date")}
+              </span>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-0" align="start">
+              <div className="px-3 pt-3">
+                <h3 className="text-sm font-medium">Select Date</h3>
+              </div>
+              <ScrollArea className="max-h-72">
+                <div className="p-3">
+                  <DatePicker value={calendarDate} onChange={handleDateChange}>
+                    <DateInput className="w-full" />
+                  </DatePicker>
+                </div>
+              </ScrollArea>
+              <div className="flex items-center justify-between border-t border-gray-100 p-3">
+                <Button
+                  onClick={() => {
+                    setCurrentPage(1);
+                    refetch();
+                  }}
+                  className="w-full"
+                >
+                  Apply Filter
+                </Button>
+              </div>
+            </PopoverContent>
+          </PopoverUI>
+        </div>
+
         <div className="mb-6">
           <div className="bg-card rounded-lg border p-4">
             <div className="flex items-center space-x-4">

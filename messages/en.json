@@ -206,7 +206,8 @@
                 "selectDomain": "Select domain",
                 "datePicker": "Date picker",
                 "search": "Search",
-                "viewHeatmap": "View heatmap"
+                "viewHeatmap": "View heatmap",
+                "date": "Date"
             },
             "columns": {
                 "id": "ID",
