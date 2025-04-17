@@ -319,7 +319,8 @@
         "endDate": "Ngày kết thúc",
         "actionTypes": "Loại hành động",
         "apply": "Áp dụng bộ lọc",
-        "clearAll": "Xóa tất cả"
+        "clearAll": "Xóa tất cả",
+        "date": "Ngày"
       },
       "columns": {
         "id": "ID",

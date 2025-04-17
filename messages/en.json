@@ -319,7 +319,8 @@
                 "endDate": "End date",
                 "actionTypes": "Action types",
                 "apply": "Apply filters",
-                "clearAll": "Clear all"
+                "clearAll": "Clear all",
+                "date": "Date"
             },
             "columns": {
                 "id": "ID",
