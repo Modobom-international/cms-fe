@@ -524,7 +524,8 @@
                     "Dialog": {
                         "Title": "Delete Page",
                         "Description": "This action cannot be undone. You will permanently delete the page {pageName}.",
-                        "ConfirmationText": "To confirm, type the page name below:",
+                        "ConfirmationText": "To confirm, type the page name",
+                        "ConfirmationText2": "below:",
                         "InputPlaceholder": "Type page name to confirm",
                         "Cancel": "Cancel",
                         "Confirm": "Delete Page",
