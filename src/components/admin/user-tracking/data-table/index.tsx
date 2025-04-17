@@ -354,16 +354,18 @@ export default function UserTrackingDataTable() {
                           className="border-b border-gray-200 hover:bg-gray-50"
                         >
                           <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                            {record?.id?.$oid}
+                            {record?.id?.$oid || "—"}
                           </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
-                            {record?.domain}
-                          </TableCell>
-                          <TableCell className="text-muted-foreground py-3">
-                            {formatDateTime(new Date(record.timestamp))}
+                          <TableCell className="py-3 text-sm font-medium text-indigo-600">
+                            {record?.domain || "—"}
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3">
-                            {record.ip}
+                            {record.timestamp
+                              ? formatDateTime(new Date(record.timestamp))
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3">
+                            {record.ip || "—"}
                           </TableCell>
                           <TableCell className="py-3">
                             <Badge
