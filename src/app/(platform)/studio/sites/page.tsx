@@ -71,8 +71,18 @@ interface Site {
   id: string;
   name: string;
   domain: string;
+  description: string | null;
+  cloudflare_project_name: string;
+  cloudflare_domain_status: string;
+  branch: string;
   created_at: string;
   updated_at: string;
+  status: string;
+  user: {
+    name: string;
+    email: string;
+    role: string;
+  };
 }
 
 interface DeleteDialogProps {
@@ -512,8 +522,12 @@ export default function SitesManagementPage() {
                   <TableRow>
                     <TableHead>{t("Table.Name")}</TableHead>
                     <TableHead>{t("Table.Domain")}</TableHead>
+                    <TableHead>{t("Table.Description")}</TableHead>
+                    <TableHead>{t("Table.Cloudflare")}</TableHead>
+                    <TableHead>{t("Table.Status")}</TableHead>
+                    <TableHead>{t("Table.Owner")}</TableHead>
                     <TableHead>{t("Table.CreatedAt")}</TableHead>
-                    <TableHead>{t("Table.UpdatedAt")}</TableHead>
+                    {/* <TableHead>{t("Table.UpdatedAt")}</TableHead> */}
                     <TableHead>{t("Table.Actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -522,12 +536,32 @@ export default function SitesManagementPage() {
                     <TableRow key={site.id}>
                       <TableCell className="font-medium">{site.name}</TableCell>
                       <TableCell>{site.domain}</TableCell>
+                      <TableCell className="max-w-[200px] truncate">
+                        {site.description || "-"}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col items-center ">
+                          <span className="capitalize">{site.cloudflare_domain_status}</span>
+                          <span className="text-muted-foreground text-xs ">
+                            ({site.cloudflare_project_name})
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="capitalize">{site.status}</span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{site.user.name}</span>
+                          <span className="text-muted-foreground text-xs">{site.user.email}</span>
+                        </div>
+                      </TableCell>
                       <TableCell>
                         {new Date(site.created_at).toLocaleDateString()}
                       </TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         {new Date(site.updated_at).toLocaleDateString()}
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
                         <div className="flex space-x-2">
                           <Link
