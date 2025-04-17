@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-import { ArrowLeft, PlusIcon } from "lucide-react";
+import { ArrowLeft, PlusIcon, Search } from "lucide-react";
 import { toast } from "sonner";
 
 import { useCreatePage, useDeletePage, useGetPages } from "@/hooks/pages";
 import { useGetSiteById } from "@/hooks/sites";
+import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -335,6 +336,10 @@ export default function PagesPage() {
   const site = siteData?.data as Site | undefined;
   const pages = pagesData?.data as Page[] | undefined;
 
+  // Add search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
   const [deleteDialogState, setDeleteDialogState] = useState<{
     isOpen: boolean;
     pageId: string;
@@ -344,6 +349,19 @@ export default function PagesPage() {
     pageId: "",
     pageName: "",
   });
+
+  // Filter pages based on search query
+  const filteredPages = useMemo(() => {
+    if (!pages) return [];
+    if (!debouncedSearch) return pages;
+
+    const searchLower = debouncedSearch.toLowerCase();
+    return pages.filter(
+      (page) =>
+        page.name.toLowerCase().includes(searchLower) ||
+        page.slug.toLowerCase().includes(searchLower)
+    );
+  }, [pages, debouncedSearch]);
 
   const handleDeletePage = async () => {
     try {
@@ -395,6 +413,19 @@ export default function PagesPage() {
           <CardDescription>{t("List.Description")}</CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Add search input */}
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+              <Input
+                placeholder={t("List.Search")}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+          </div>
+
           <Table>
             <TableHeader>
               <TableRow>
@@ -405,58 +436,66 @@ export default function PagesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pages?.map((page: Page) => (
-                <TableRow key={page.id}>
-                  <TableCell className="font-medium">{page.name}</TableCell>
-                  <TableCell className="font-mono">{page.slug}</TableCell>
-                  <TableCell>
-                    {new Date(page.updated_at || "").toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="default"
-                        size="sm"
-                        className="cursor-pointer"
-                        onClick={() =>
-                          router.push(
-                            `/editor/${params.siteId}/${page.slug}?pageId=${page.id}`
-                          )
-                        }
-                      >
-                        {t("List.Table.Edit")}
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="cursor-pointer"
-                        onClick={() =>
-                          setDeleteDialogState({
-                            isOpen: true,
-                            pageId: page.id,
-                            pageName: page.name,
-                          })
-                        }
-                      >
-                        {t("List.Table.Delete")}
-                      </Button>
-                      <Button
-                        variant="default"
-                        size="sm"
-                        className="cursor-pointer"
-                        onClick={() =>
-                          window.open(
-                            `https://${site?.domain}/${page.slug}`,
-                            "_blank"
-                          )
-                        }
-                      >
-                        {t("List.Table.View")}
-                      </Button>
-                    </div>
+              {filteredPages.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="h-24 text-center">
+                    {debouncedSearch ? t("List.NoSearchResults") : t("List.NoPages")}
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                filteredPages.map((page: Page) => (
+                  <TableRow key={page.id}>
+                    <TableCell className="font-medium">{page.name}</TableCell>
+                    <TableCell className="font-mono">{page.slug}</TableCell>
+                    <TableCell>
+                      {new Date(page.updated_at || "").toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="default"
+                          size="sm"
+                          className="cursor-pointer"
+                          onClick={() =>
+                            router.push(
+                              `/editor/${params.siteId}/${page.slug}?pageId=${page.id}`
+                            )
+                          }
+                        >
+                          {t("List.Table.Edit")}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="cursor-pointer"
+                          onClick={() =>
+                            setDeleteDialogState({
+                              isOpen: true,
+                              pageId: page.id,
+                              pageName: page.name,
+                            })
+                          }
+                        >
+                          {t("List.Table.Delete")}
+                        </Button>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          className="cursor-pointer"
+                          onClick={() =>
+                            window.open(
+                              `https://${site?.domain}/${page.slug}`,
+                              "_blank"
+                            )
+                          }
+                        >
+                          {t("List.Table.View")}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>

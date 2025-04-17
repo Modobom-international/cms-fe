@@ -473,6 +473,9 @@
                 "List": {
                     "Title": "Pages List",
                     "Description": "Manage and view all pages of the website",
+                    "Search": "Search pages by name or slug...",
+                    "NoSearchResults": "No pages found matching your search",
+                    "NoPages": "No pages found",
                     "Table": {
                         "Name": "Name",
                         "Slug": "Slug",
