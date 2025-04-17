@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -89,32 +90,32 @@ function DeleteConfirmationDialog({
   siteName,
   isDeleting,
 }: DeleteDialogProps) {
+  const t = useTranslations("Studio.Sites.DeleteSite");
   const [confirmationText, setConfirmationText] = useState("");
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader className="space-y-3">
-          <DialogTitle>Delete Site</DialogTitle>
+          <DialogTitle>{t("Title")}</DialogTitle>
           <DialogDescription>
-            This action cannot be undone. This will permanently delete the site
-            <span className="font-semibold"> {siteName}</span> and all its
-            pages.
+            {t("Description")}
+            <span className="font-semibold text-destructive"> {siteName}</span> {t("Description2")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3 py-4">
           <div className="space-y-2">
             <p className="text-muted-foreground text-sm">
-              To confirm, type{" "}
+              {t("Confirmation.Text")}{" "}
               <span className="text-destructive font-mono font-medium">
                 {siteName}
               </span>{" "}
-              below:
+              {t("Confirmation.Text2")}
             </p>
             <Input
               value={confirmationText}
               onChange={(e) => setConfirmationText(e.target.value)}
-              placeholder="Type site name to confirm"
+              placeholder={t("Confirmation.Placeholder")}
               className="w-full"
               autoComplete="off"
               autoCorrect="off"
@@ -128,7 +129,7 @@ function DeleteConfirmationDialog({
             onClick={onClose}
             className="w-full sm:w-auto"
           >
-            Cancel
+            {t("Cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -139,10 +140,10 @@ function DeleteConfirmationDialog({
             {isDeleting ? (
               <>
                 <Spinner />
-                Deleting...
+                {t("Deleting")}
               </>
             ) : (
-              "Delete Site"
+              t("Delete")
             )}
           </Button>
         </DialogFooter>
@@ -152,33 +153,34 @@ function DeleteConfirmationDialog({
 }
 
 // Form Schema
-const siteFormSchema = z.object({
+const siteFormSchema = (t: any) => z.object({
   name: z
     .string()
-    .min(1, "Site name is required")
-    .min(3, "Site name must be at least 3 characters")
-    .max(64, "Site name cannot exceed 64 characters"),
+    .min(1, t("Validation.Name.Required"))
+    .min(3, t("Validation.Name.MinLength"))
+    .max(64, t("Validation.Name.MaxLength")),
   domain: z
     .string()
-    .min(1, "Domain is required")
-    .min(3, "Domain must be at least 3 characters")
-    .max(253, "Domain cannot exceed 253 characters")
+    .min(1, t("Validation.Domain.Required"))
+    .min(3, t("Validation.Domain.MinLength"))
+    .max(253, t("Validation.Domain.MaxLength"))
     .regex(
       /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/,
-      "Please enter a valid domain name (e.g., example.com)"
+      t("Validation.Domain.Invalid")
     ),
 });
 
-type SiteFormValues = z.infer<typeof siteFormSchema>;
+type SiteFormValues = z.infer<ReturnType<typeof siteFormSchema>>;
 
 function CreateSiteDialog() {
+  const t = useTranslations("Studio.Sites.CreateSite");
   const form = useForm<SiteFormValues>({
-    resolver: zodResolver(siteFormSchema),
+    resolver: zodResolver(siteFormSchema(t)),
     defaultValues: {
       name: "",
       domain: "",
     },
-    mode: "onChange", // Enable real-time validation
+    mode: "onChange",
   });
 
   const createSiteMutation = useCreateSite();
@@ -187,9 +189,9 @@ function CreateSiteDialog() {
   const handleCreateSite = async (data: SiteFormValues) => {
     try {
       await toast.promise(createSiteMutation.mutateAsync(data), {
-        loading: "Creating site...",
-        success: "Site created successfully!",
-        error: "Failed to create site",
+        loading: t("Loading"),
+        success: t("Success"),
+        error: t("Error"),
       });
       form.reset();
       setOpen(false);
@@ -210,15 +212,13 @@ function CreateSiteDialog() {
       <DialogTrigger asChild>
         <Button className="cursor-pointer gap-2">
           <PlusIcon className="h-4 w-4" />
-          Create Site
+          {t("Button")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[475px]">
         <DialogHeader>
-          <DialogTitle>Create New Site</DialogTitle>
-          <DialogDescription>
-            Add a new site to your portfolio. Fill in the details below.
-          </DialogDescription>
+          <DialogTitle>{t("Title")}</DialogTitle>
+          <DialogDescription>{t("Description")}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -232,74 +232,60 @@ function CreateSiteDialog() {
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel>
-                      Site Name
-                      <span className="text-destructive ml-1">*</span>
+                      {t("SiteName.Label")}
+                      <span className="text-destructive ml-1">{t("SiteName.Required")}</span>
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="My Awesome Site"
+                        placeholder={t("SiteName.Placeholder")}
                         {...field}
                         disabled={createSiteMutation.isPending}
                       />
                     </FormControl>
                     <p className="text-muted-foreground text-xs">
-                      This is the display name for your site
+                      {t("SiteName.Helper")}
                     </p>
                     <FormMessage className="text-destructive text-sm font-medium" />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="domain"
                 render={({ field }) => (
                   <FormItem className="space-y-1">
                     <FormLabel>
-                      Domain
-                      <span className="text-destructive ml-1">*</span>
+                      {t("Domain.Label")}
+                      <span className="text-destructive ml-1">{t("Domain.Required")}</span>
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="example.com"
+                        placeholder={t("Domain.Placeholder")}
                         {...field}
-                        className="font-mono text-sm"
                         disabled={createSiteMutation.isPending}
                       />
                     </FormControl>
                     <p className="text-muted-foreground text-xs">
-                      Enter your site's domain name without http:// or www
+                      {t("Domain.Helper")}
                     </p>
                     <FormMessage className="text-destructive text-sm font-medium" />
                   </FormItem>
                 )}
               />
             </div>
-
             <DialogFooter>
               <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-                disabled={createSiteMutation.isPending}
-              >
-                Cancel
-              </Button>
-              <Button
                 type="submit"
-                disabled={
-                  createSiteMutation.isPending ||
-                  !form.formState.isDirty ||
-                  !form.formState.isValid
-                }
+                disabled={createSiteMutation.isPending}
+                className="w-full"
               >
                 {createSiteMutation.isPending ? (
                   <>
                     <Spinner />
-                    Creating...
+                    {t("Loading")}
                   </>
                 ) : (
-                  "Create Site"
+                  t("Submit")
                 )}
               </Button>
             </DialogFooter>
@@ -346,14 +332,16 @@ const paginateData = (
 };
 
 export default function SitesManagementPage() {
+  const t = useTranslations("Studio.Sites");
+  const router = useRouter();
   const [editingSite, setEditingSite] = useState<Site | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean;
-    siteId: string | null;
+    siteId: string;
     siteName: string;
   }>({
     isOpen: false,
-    siteId: null,
+    siteId: "",
     siteName: "",
   });
 
@@ -397,9 +385,9 @@ export default function SitesManagementPage() {
 
     try {
       await toast.promise(updateSiteMutation.mutateAsync(editingSite), {
-        loading: "Updating site...",
-        success: "Site updated successfully!",
-        error: "Failed to update site",
+        loading: t("CreateSite.Loading"),
+        success: t("CreateSite.Success"),
+        error: t("CreateSite.Error"),
       });
       setEditingSite(null);
     } catch (err) {
@@ -416,15 +404,20 @@ export default function SitesManagementPage() {
   };
 
   const handleDeleteConfirm = async () => {
-    if (!deleteDialog.siteId) return;
-
     try {
-      await toast.promise(deleteSiteMutation.mutateAsync(deleteDialog.siteId), {
-        loading: "Deleting site...",
-        success: `Site "${deleteDialog.siteName}" deleted successfully`,
-        error: "Failed to delete site",
+      await toast.promise(
+        deleteSiteMutation.mutateAsync(deleteDialog.siteId),
+        {
+          loading: t("DeleteSite.Deleting"),
+          success: t("DeleteSite.Success"),
+          error: t("DeleteSite.Error"),
+        }
+      );
+      setDeleteDialog({
+        isOpen: false,
+        siteId: "",
+        siteName: "",
       });
-      setDeleteDialog({ isOpen: false, siteId: null, siteName: "" });
     } catch (err) {
       console.error("Error deleting site:", err);
     }
@@ -446,10 +439,10 @@ export default function SitesManagementPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            Sites Management
+            {t("Title")}
           </h1>
           <p className="text-muted-foreground text-sm">
-            Create and manage your sites and their pages
+            {t("Description")}
           </p>
         </div>
         <CreateSiteDialog />
@@ -457,9 +450,9 @@ export default function SitesManagementPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Your Sites</CardTitle>
+          <CardTitle>{t("Table.Name")}</CardTitle>
           <CardDescription>
-            A list of all your sites and their details
+            {t("Table.Description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -469,7 +462,7 @@ export default function SitesManagementPage() {
               <div className="relative flex-1">
                 <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
                 <Input
-                  placeholder="Search sites..."
+                  placeholder={t("Table.Search")}
                   value={search}
                   onChange={(e) => {
                     setSearch(e.target.value);
@@ -479,7 +472,7 @@ export default function SitesManagementPage() {
                 />
               </div>
               <div className="flex items-center space-x-2">
-                <Label htmlFor="pageSize">Show:</Label>
+                <Label htmlFor="pageSize">{t("Table.Showing")}:</Label>
                 <Select
                   value={pageSize.toString()}
                   onValueChange={(value) => {
@@ -493,7 +486,7 @@ export default function SitesManagementPage() {
                   <SelectContent>
                     {[10, 20, 30, 50].map((size) => (
                       <SelectItem key={size} value={size.toString()}>
-                        {size} rows
+                        {size} 
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -506,21 +499,22 @@ export default function SitesManagementPage() {
           {isLoading ? (
             <div className="text-muted-foreground py-8 text-center">
               <Spinner />
-              <p className="mt-2">Loading sites...</p>
+              <p className="mt-2">{t("Table.Loading")}</p>
             </div>
           ) : !sitesData?.data || sitesData.data.length === 0 ? (
             <div className="text-muted-foreground py-8 text-center">
-              No sites found. Create your first site using the button above.
+              {t("Table.NoSites")}
             </div>
           ) : (
             <>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Domain</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="w-[200px]">Actions</TableHead>
+                    <TableHead>{t("Table.Name")}</TableHead>
+                    <TableHead>{t("Table.Domain")}</TableHead>
+                    <TableHead>{t("Table.CreatedAt")}</TableHead>
+                    <TableHead>{t("Table.UpdatedAt")}</TableHead>
+                    <TableHead>{t("Table.Actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -532,6 +526,9 @@ export default function SitesManagementPage() {
                         {new Date(site.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
+                        {new Date(site.updated_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
                         <div className="flex space-x-2">
                           <Link
                             href={`/studio/sites/${site.id}/pages`}
@@ -540,7 +537,7 @@ export default function SitesManagementPage() {
                               size: "sm",
                             })}
                           >
-                            Pages
+                            {t("Table.Pages")}
                           </Link>
                           {editingSite?.id === site.id ? (
                             <>
@@ -551,15 +548,15 @@ export default function SitesManagementPage() {
                                 disabled={updateSiteMutation.isPending}
                               >
                                 {updateSiteMutation.isPending
-                                  ? "Saving..."
-                                  : "Save"}
+                                  ? t("Table.Saving")
+                                  : t("Table.Save")}
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setEditingSite(null)}
                               >
-                                Cancel
+                                {t("Table.Cancel")}
                               </Button>
                             </>
                           ) : (
@@ -568,7 +565,7 @@ export default function SitesManagementPage() {
                               size="sm"
                               onClick={() => setEditingSite(site)}
                             >
-                              Edit
+                              {t("Table.Edit")}
                             </Button>
                           )}
                           <Button
@@ -578,7 +575,7 @@ export default function SitesManagementPage() {
                               handleDeleteClick(site.id, site.name)
                             }
                           >
-                            Delete
+                            {t("Table.Delete")}
                           </Button>
                         </div>
                       </TableCell>
@@ -590,8 +587,11 @@ export default function SitesManagementPage() {
               {/* Pagination Controls */}
               <div className="mt-4 flex items-center justify-between px-2">
                 <div className="text-muted-foreground text-sm">
-                  Showing {sitesData.meta.from} to {sitesData.meta.to} of{" "}
-                  {sitesData.meta.total} results
+                  {t("Table.Showing", {
+                    from: sitesData.meta.from,
+                    to: sitesData.meta.to,
+                    total: sitesData.meta.total,
+                  })}
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button
@@ -600,10 +600,13 @@ export default function SitesManagementPage() {
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
                   >
-                    Previous
+                    {t("Table.Previous")}
                   </Button>
                   <div className="text-sm">
-                    Page {currentPage} of {sitesData.meta.last_page}
+                    {t("Table.Page", {
+                      current: currentPage,
+                      total: sitesData.meta.last_page,
+                    })}
                   </div>
                   <Button
                     variant="outline"
@@ -611,7 +614,7 @@ export default function SitesManagementPage() {
                     onClick={handleNextPage}
                     disabled={currentPage === sitesData.meta.last_page}
                   >
-                    Next
+                    {t("Table.Next")}
                   </Button>
                 </div>
               </div>
@@ -623,7 +626,7 @@ export default function SitesManagementPage() {
       <DeleteConfirmationDialog
         isOpen={deleteDialog.isOpen}
         onClose={() =>
-          setDeleteDialog({ isOpen: false, siteId: null, siteName: "" })
+          setDeleteDialog({ isOpen: false, siteId: "", siteName: "" })
         }
         onConfirm={handleDeleteConfirm}
         siteName={deleteDialog.siteName}

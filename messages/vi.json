@@ -366,5 +366,171 @@
     "noNotifications": "Không có thông báo",
     "unRead": "Chưa đọc",
     "notifications": "Thông báo"
+  },
+  "Editor": {
+    "BackToPages": "Quay lại Trang",
+    "Editing": "Đang chỉnh sửa: {slug}",
+    "SavePage": "Đang lưu trang...",
+    "SaveSuccess": "Lưu trang thành công!",
+    "SaveError": "Lưu trang thất bại",
+    "ExportHTML": "Đang xuất HTML...",
+    "ExportSuccess": "Xuất HTML thành công!",
+    "ExportError": "Xuất thất bại: {error}",
+    "DeployPage": "Đang triển khai trang...",
+    "DeploySuccess": "Triển khai thành công!",
+    "DeployError": "Triển khai thất bại: {error}",
+    "ExportButton": "Xuất {slug}",
+    "Exporting": "Đang xuất...",
+    "DeployButton": "Triển khai {slug}",
+    "Deploying": "Đang triển khai...",
+    "NewPage": {
+      "Title": "Trang mới: {slug}",
+      "Description": "Bắt đầu xây dựng trang của bạn tại đây."
+    }
+  },
+  "Studio": {
+    "Sites": {
+      "Title": "Quản lý Trang web",
+      "Description": "Quản lý các trang web và trang của chúng",
+      "CreateSite": {
+        "Button": "Tạo Trang web",
+        "Title": "Tạo Trang web Mới",
+        "Description": "Thêm một trang web mới vào danh mục của bạn. Điền thông tin chi tiết bên dưới.",
+        "SiteName": {
+          "Label": "Tên Trang web",
+          "Required": "*",
+          "Placeholder": "Trang web Tuyệt vời của Tôi",
+          "Helper": "Đây là tên hiển thị cho trang web của bạn"
+        },
+        "Domain": {
+          "Label": "Tên miền",
+          "Required": "*",
+          "Placeholder": "example.com",
+          "Helper": "Tên miền nơi trang web của bạn sẽ được lưu trữ"
+        },
+        "Submit": "Tạo Trang web",
+        "Loading": "Đang tạo trang web...",
+        "Success": "Tạo trang web thành công!",
+        "Error": "Tạo trang web thất bại",
+        "Validation": {
+          "Name": {
+            "Required": "Tên trang web là bắt buộc",
+            "MinLength": "Tên trang web phải có ít nhất 3 ký tự",
+            "MaxLength": "Tên trang web không được vượt quá 64 ký tự"
+          },
+          "Domain": {
+            "Required": "Tên miền là bắt buộc",
+            "MinLength": "Tên miền phải có ít nhất 3 ký tự",
+            "MaxLength": "Tên miền không được vượt quá 253 ký tự",
+            "Invalid": "Vui lòng nhập tên miền hợp lệ (ví dụ: example.com)"
+          }
+        }
+      },
+      "DeleteSite": {
+        "Title": "Xóa Trang web",
+        "Description": "Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn trang web",
+        "Description2": "và tất cả các trang của nó.",
+        "Confirmation": {
+          "Text": "Để xác nhận, hãy nhập",
+          "Text2": "bên dưới:",
+          "Placeholder": "Nhập tên trang web để xác nhận"
+        },
+        "Cancel": "Hủy",
+        "Delete": "Xóa Trang web",
+        "Deleting": "Đang xóa...",
+        "Success": "Xóa trang web thành công!",
+        "Error": "Xóa trang web thất bại"
+      },
+      "Table": {
+        "Name": "Tên",
+        "Domain": "Tên miền",
+        "CreatedAt": "Ngày Tạo",
+        "UpdatedAt": "Ngày Cập nhật",
+        "Actions": "Thao tác",
+        "Edit": "Sửa",
+        "Delete": "Xóa",
+        "Pages": "Trang",
+        "NoSites": "Không tìm thấy trang web nào",
+        "Search": "Tìm kiếm trang web...",
+        "Description": "Danh sách các trang web của bạn",
+        "Showing": "Hiển thị",
+        "Previous": "Trước",
+        "Page": "Trang",
+        "Next": "Tiếp",
+        "Loading": "Đang tải trang web...",
+        "Saving": "Đang lưu trang web...",
+        "Save": "Lưu",
+        "Cancel": "Hủy"
+      },
+      "Pages": {
+        "Title": "Trang - {siteName}",
+        "Description": "Tạo và quản lý các trang cho trang web của bạn",
+        "BackToSites": "Quay lại Sites",
+        "List": {
+          "Title": "Danh sách trang",
+          "Description": "Quản lý và xem tất cả các trang của trang web",
+          "Table": {
+            "Name": "Tên",
+            "Slug": "Đường dẫn",
+            "LastUpdated": "Cập nhật lần cuối",
+            "Actions": "Thao tác",
+            "Edit": "Sửa",
+            "Preview": "Xem trước",
+            "Delete": "Xóa",
+            "View": "Xem"
+          }
+        },
+        "Create": {
+          "Button": "Tạo Trang",
+          "Dialog": {
+            "Title": "Tạo Trang Mới",
+            "Description": "Thêm một trang mới vào trang web của bạn. Điền thông tin bên dưới."
+          },
+          "Form": {
+            "Name": {
+              "Label": "Tên Trang",
+              "Placeholder": "ví dụ: Trang Chủ, Giới Thiệu, Liên Hệ",
+              "Help": "Đây là tên hiển thị cho trang của bạn"
+            },
+            "Slug": {
+              "Label": "URL Slug",
+              "Placeholder": "ví dụ: trang-chu, gioi-thieu, lien-he",
+              "Help": "Đường dẫn sẽ là: https://{site}/",
+              "Validation": {
+                "Required": "URL Slug là bắt buộc",
+                "Invalid": "URL Slug chỉ được chứa chữ thường, số và dấu gạch ngang",
+                "MinLength": "URL Slug phải có ít nhất 3 ký tự",
+                "MaxLength": "URL Slug không được vượt quá 64 ký tự"
+              }
+            },
+            "Cancel": "Hủy",
+            "Submit": "Tạo Trang",
+            "Submitting": "Đang tạo..."
+          },
+          "Toast": {
+            "Loading": "Đang tạo trang...",
+            "Success": "Tạo trang thành công!",
+            "Error": "Tạo trang thất bại"
+          }
+        },
+        "Delete": {
+          "Dialog": {
+            "Title": "Xóa Trang",
+            "Description": "Hành động này không thể hoàn tác. Bạn sẽ xóa vĩnh viễn trang ",
+            "ConfirmationText": "Để xác nhận, hãy nhập tên trang ",
+            "ConfirmationText2": "bên dưới:",
+            "InputPlaceholder": "Nhập tên trang để xác nhận",
+            "Cancel": "Hủy",
+            "Confirm": "Xóa Trang",
+            "Deleting": "Đang xóa..."
+          },
+          "Toast": {
+            "Loading": "Đang xóa trang...",
+            "Success": "Xóa trang thành công",
+            "Error": "Xóa trang thất bại"
+          }
+        }
+      }
+    }
   }
 }

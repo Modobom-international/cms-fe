@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import { ArrowLeft, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -42,9 +43,11 @@ import {
 import { Spinner } from "@/components/global/spinner";
 
 function CreatePageDialog({ site }: { site: string }) {
+  const t = useTranslations("Studio.Sites.Pages");
   const params = useParams();
   const [newPage, setNewPage] = useState({ name: "", slug: "" });
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
+  const [slugError, setSlugError] = useState<string | null>(null);
   const createPageMutation = useCreatePage();
   const [open, setOpen] = useState(false);
 
@@ -53,32 +56,66 @@ function CreatePageDialog({ site }: { site: string }) {
     return name
       .toLowerCase()
       .trim()
-      .replace(/[^\w\s-]/g, "") // Remove special characters
-      .replace(/\s+/g, "-") // Replace spaces with hyphens
-      .replace(/-+/g, "-"); // Replace multiple hyphens with single hyphen
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+  };
+
+  // Function to validate slug format
+  const validateSlug = (slug: string) => {
+    const slugRegex = /^[a-z0-9-]+$/;
+    return slugRegex.test(slug);
+  };
+
+  // Function to check slug validation and set error message
+  const checkSlugValidation = (slug: string) => {
+    if (!slug.trim()) {
+      setSlugError(t("Create.Form.Slug.Validation.Required"));
+      return false;
+    }
+    if (!validateSlug(slug)) {
+      setSlugError(t("Create.Form.Slug.Validation.Invalid"));
+      return false;
+    }
+    if (slug.length < 3) {
+      setSlugError(t("Create.Form.Slug.Validation.MinLength"));
+      return false;
+    }
+    if (slug.length > 64) {
+      setSlugError(t("Create.Form.Slug.Validation.MaxLength"));
+      return false;
+    }
+    setSlugError(null);
+    return true;
   };
 
   // Handle name change and auto-generate slug if not manually edited
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
+    const newSlug = isSlugManuallyEdited ? newPage.slug : generateSlug(newName);
     setNewPage((prev) => ({
       name: newName,
-      slug: isSlugManuallyEdited ? prev.slug : generateSlug(newName),
+      slug: newSlug,
     }));
+    checkSlugValidation(newSlug);
   };
 
   // Handle manual slug change
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsSlugManuallyEdited(true);
+    const newSlug = e.target.value.toLowerCase();
     setNewPage((prev) => ({
       ...prev,
-      slug: e.target.value.toLowerCase(),
+      slug: newSlug,
     }));
+    checkSlugValidation(newSlug);
   };
 
   const handleCreatePage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPage.name.trim() || !newPage.slug.trim()) return;
+    if (!checkSlugValidation(newPage.slug)) {
+      return;
+    }
 
     try {
       await toast.promise(
@@ -89,13 +126,14 @@ function CreatePageDialog({ site }: { site: string }) {
           content: JSON.stringify({}),
         }),
         {
-          loading: "Creating page...",
-          success: "Page created successfully!",
-          error: "Failed to create page",
+          loading: t("Create.Toast.Loading"),
+          success: t("Create.Toast.Success"),
+          error: t("Create.Toast.Error"),
         }
       );
       setNewPage({ name: "", slug: "" });
       setIsSlugManuallyEdited(false);
+      setSlugError(null);
       setOpen(false);
     } catch (err) {
       console.error("Error creating page:", err);
@@ -107,6 +145,7 @@ function CreatePageDialog({ site }: { site: string }) {
     if (!open) {
       setNewPage({ name: "", slug: "" });
       setIsSlugManuallyEdited(false);
+      setSlugError(null);
     }
     setOpen(open);
   };
@@ -116,52 +155,55 @@ function CreatePageDialog({ site }: { site: string }) {
       <DialogTrigger asChild>
         <Button className="cursor-pointer gap-2">
           <PlusIcon className="h-4 w-4" />
-          Create Page
+          {t("Create.Button")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[475px]">
         <DialogHeader>
-          <DialogTitle>Create New Page</DialogTitle>
+          <DialogTitle>{t("Create.Dialog.Title")}</DialogTitle>
           <DialogDescription>
-            Add a new page to your site. Fill in the details below.
+            {t("Create.Dialog.Description")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleCreatePage} className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">
-                Page Name
+                {t("Create.Form.Name.Label")}
                 <span className="text-destructive ml-1">*</span>
               </Label>
               <Input
                 id="name"
                 value={newPage.name}
                 onChange={handleNameChange}
-                placeholder="e.g. Home Page, About Us, Contact"
+                placeholder={t("Create.Form.Name.Placeholder")}
                 className="w-full"
               />
               <p className="text-muted-foreground text-xs">
-                This is the display name for your page
+                {t("Create.Form.Name.Help")}
               </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="slug">
-                Page URL Slug
+                {t("Create.Form.Slug.Label")}
                 <span className="text-destructive ml-1">*</span>
               </Label>
               <Input
                 id="slug"
                 value={newPage.slug}
                 onChange={handleSlugChange}
-                placeholder="e.g. home, about, contact"
+                placeholder={t("Create.Form.Slug.Placeholder")}
                 className="w-full font-mono text-sm"
               />
               <p className="text-muted-foreground text-xs">
-                This will be used in the URL: https://{site}/
+                {t("Create.Form.Slug.Help", { site })}
                 <span className="text-foreground font-medium">
                   {newPage.slug || "page-slug"}
                 </span>
               </p>
+              {slugError && (
+                <p className="text-destructive text-sm">{slugError}</p>
+              )}
             </div>
           </div>
           <DialogFooter>
@@ -170,23 +212,19 @@ function CreatePageDialog({ site }: { site: string }) {
               variant="outline"
               onClick={() => handleOpenChange(false)}
             >
-              Cancel
+              {t("Create.Form.Cancel")}
             </Button>
             <Button
               type="submit"
-              disabled={
-                createPageMutation.isPending ||
-                !newPage.name.trim() ||
-                !newPage.slug.trim()
-              }
+              disabled={createPageMutation.isPending || !!slugError}
             >
               {createPageMutation.isPending ? (
                 <>
                   <Spinner />
-                  Creating...
+                  {t("Create.Form.Submitting")}
                 </>
               ) : (
-                "Create Page"
+                t("Create.Form.Submit")
               )}
             </Button>
           </DialogFooter>
@@ -211,31 +249,32 @@ function DeleteConfirmationDialog({
   pageName,
   isDeleting,
 }: DeleteDialogProps) {
+  const t = useTranslations("Studio.Sites.Pages");
   const [confirmationText, setConfirmationText] = useState("");
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader className="space-y-3">
-          <DialogTitle>Delete Page</DialogTitle>
+          <DialogTitle>{t("Delete.Dialog.Title")}</DialogTitle>
           <DialogDescription>
-            This action cannot be undone. This will permanently delete the page
+            {t("Delete.Dialog.Description")}
             <span className="font-semibold"> {pageName}</span>.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3 py-4">
           <div className="space-y-2">
             <p className="text-muted-foreground text-sm">
-              To confirm, type{" "}
+            {t("Delete.Dialog.ConfirmationText")}{" "}
               <span className="text-destructive font-mono font-medium">
                 {pageName}
               </span>{" "}
-              below:
+              {t("Delete.Dialog.ConfirmationText2")}
             </p>
             <Input
               value={confirmationText}
               onChange={(e) => setConfirmationText(e.target.value)}
-              placeholder="Type page slug to confirm"
+              placeholder={t("Delete.Dialog.InputPlaceholder")}
               className="w-full"
               autoComplete="off"
               autoCorrect="off"
@@ -249,7 +288,7 @@ function DeleteConfirmationDialog({
             onClick={onClose}
             className="w-full sm:w-auto"
           >
-            Cancel
+            {t("Delete.Dialog.Cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -260,10 +299,10 @@ function DeleteConfirmationDialog({
             {isDeleting ? (
               <>
                 <Spinner />
-                Deleting...
+                {t("Delete.Dialog.Deleting")}
               </>
             ) : (
-              "Delete Page"
+              t("Delete.Dialog.Confirm")
             )}
           </Button>
         </DialogFooter>
@@ -273,159 +312,164 @@ function DeleteConfirmationDialog({
 }
 
 interface Page {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   updated_at: string;
-  site_id: number;
 }
 
-export default function PagesManagementPage() {
+interface Site {
+  id: string;
+  name: string;
+  domain: string;
+}
+
+export default function PagesPage() {
+  const t = useTranslations("Studio.Sites.Pages");
   const params = useParams();
-  const siteId = params.siteId as string;
-  const { data: site } = useGetSiteById(siteId);
-  const { data: pagesData, isLoading } = useGetPages(siteId);
-  const [deleteDialog, setDeleteDialog] = useState<{
+  const router = useRouter();
+  const { data: siteData } = useGetSiteById(params.siteId?.toString() || "");
+  const { data: pagesData, isLoading } = useGetPages(params.siteId?.toString() || "");
+  const deletePageMutation = useDeletePage();
+
+  const site = siteData?.data as Site | undefined;
+  const pages = pagesData?.data as Page[] | undefined;
+
+  const [deleteDialogState, setDeleteDialogState] = useState<{
     isOpen: boolean;
-    pageId: number | null;
+    pageId: string;
     pageName: string;
   }>({
     isOpen: false,
-    pageId: null,
+    pageId: "",
     pageName: "",
   });
 
-  const deleteMutation = useDeletePage();
-
-  const handleDeleteClick = (pageId: number, pageName: string) => {
-    setDeleteDialog({
-      isOpen: true,
-      pageId,
-      pageName,
-    });
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!deleteDialog.pageId) return;
-
+  const handleDeletePage = async () => {
     try {
-      await deleteMutation.mutateAsync(deleteDialog.pageId);
-
-      toast.success("Page deleted successfully", {
-        description: `Deleted page: ${deleteDialog.pageName}`,
-      });
-
-      setDeleteDialog({ isOpen: false, pageId: null, pageName: "" });
+      await toast.promise(
+        deletePageMutation.mutateAsync(parseInt(deleteDialogState.pageId)),
+        {
+          loading: t("Delete.Toast.Loading"),
+          success: t("Delete.Toast.Success"),
+          error: t("Delete.Toast.Error"),
+        }
+      );
+      setDeleteDialogState({ isOpen: false, pageId: "", pageName: "" });
     } catch (err) {
       console.error("Error deleting page:", err);
-      toast.error("Failed to delete page", {
-        description: "There was an error deleting the page. Please try again.",
-      });
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
   return (
-    <div className="container space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Link
-              href="/studio/sites"
-              className={buttonVariants({
-                variant: "ghost",
-                size: "sm",
-                className: "gap-2",
-              })}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Sites
-            </Link>
+    <div className="container mx-auto py-6">
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link
+            href={`/studio/sites`}
+            className={buttonVariants({ variant: "ghost", size: "icon" })}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold">{t("Title", { siteName: site?.domain || "" })}</h1>
+            <p className="text-muted-foreground">
+              {t("Description", { siteName: site?.name || "" })}
+            </p>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Pages - {site?.data.name}
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            Create and manage pages for your site
-          </p>
         </div>
-        <CreatePageDialog site={site?.data.domain} />
+        <CreatePageDialog site={site?.domain || ""} />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Your Pages</CardTitle>
-          <CardDescription>A list of all pages in this site</CardDescription>
+          <CardTitle>{t("List.Title")}</CardTitle>
+          <CardDescription>{t("List.Description")}</CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="text-muted-foreground py-8 text-center">
-              Loading pages...
-            </div>
-          ) : !pagesData?.data || pagesData.data.length === 0 ? (
-            <div className="text-muted-foreground py-8 text-center">
-              No pages found. Create your first page using the button above.
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Slug</TableHead>
-                  <TableHead>Last Updated</TableHead>
-                  <TableHead className="w-[250px]">Actions</TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("List.Table.Name")}</TableHead>
+                <TableHead>{t("List.Table.Slug")}</TableHead>
+                <TableHead>{t("List.Table.LastUpdated")}</TableHead>
+                <TableHead>{t("List.Table.Actions")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pages?.map((page: Page) => (
+                <TableRow key={page.id}>
+                  <TableCell className="font-medium">{page.name}</TableCell>
+                  <TableCell className="font-mono">{page.slug}</TableCell>
+                  <TableCell>
+                    {new Date(page.updated_at || "").toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="cursor-pointer"
+                        onClick={() =>
+                          router.push(
+                            `/editor/${params.siteId}/${page.slug}?pageId=${page.id}`
+                          )
+                        }
+                      >
+                        {t("List.Table.Edit")}
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="cursor-pointer"
+                        onClick={() =>
+                          setDeleteDialogState({
+                            isOpen: true,
+                            pageId: page.id,
+                            pageName: page.name,
+                          })
+                        }
+                      >
+                        {t("List.Table.Delete")}
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="cursor-pointer"
+                        onClick={() =>
+                          window.open(
+                            `https://${site?.domain}/${page.slug}`,
+                            "_blank"
+                          )
+                        }
+                      >
+                        {t("List.Table.View")}
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pagesData.data.map((page: Page) => (
-                  <TableRow key={page.id}>
-                    <TableCell className="font-medium">{page.name}</TableCell>
-                    <TableCell>{page.slug}</TableCell>
-                    <TableCell>
-                      {new Date(page.updated_at).toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Link
-                          href={`/editor/${siteId}/${page.slug}?pageId=${page.id}`}
-                          className={buttonVariants({ size: "sm" })}
-                        >
-                          Edit
-                        </Link>
-                        <Link
-                          href={`/preview/${page.slug}`}
-                          target="_blank"
-                          className={buttonVariants({
-                            variant: "outline",
-                            size: "sm",
-                          })}
-                        >
-                          Preview
-                        </Link>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeleteClick(page.id, page.slug)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
 
       <DeleteConfirmationDialog
-        isOpen={deleteDialog.isOpen}
+        isOpen={deleteDialogState.isOpen}
         onClose={() =>
-          setDeleteDialog({ isOpen: false, pageId: null, pageName: "" })
+          setDeleteDialogState({ isOpen: false, pageId: "", pageName: "" })
         }
-        onConfirm={handleDeleteConfirm}
-        pageName={deleteDialog.pageName}
-        isDeleting={deleteMutation.isPending}
+        onConfirm={handleDeletePage}
+        pageName={deleteDialogState.pageName}
+        isDeleting={deletePageMutation.isPending}
       />
     </div>
   );
