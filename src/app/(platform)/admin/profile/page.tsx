@@ -1,14 +1,13 @@
 "use client";
 
-import { useState } from "react";
-
+import { useAuth } from "@/providers/auth-provider";
+import { format } from "date-fns";
 import {
   Briefcase,
   Building,
   Calendar,
   ChevronRight,
   DollarSign,
-  Edit2,
   Home,
   ImageIcon,
   LogOut,
@@ -16,11 +15,10 @@ import {
   Shield,
   Terminal,
   User,
-  XCircle,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { cn, formatCurrency } from "@/lib/utils";
+import { formatDateTime } from "@/lib/utils";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -31,11 +29,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
@@ -43,36 +39,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-interface UserProfile {
-  name: string;
-  email: string;
-  title: string;
-  position: string;
-  team: string;
-  salary: number;
-  joinDate: string;
-  completionPercentage?: number;
-}
+import { PersonalInfoTab } from "@/components/profile/personal-info-tab";
+import { SecurityTab } from "@/components/profile/security-tab";
 
 export default function Page() {
   const t = useTranslations("ProfilePage");
 
-  const [user, _setUser] = useState<UserProfile>({
-    name: "John Doe",
-    email: "john@example.com",
-    title: "Staff",
-    position: "Developer",
-    team: "Engineering",
-    salary: 20000000,
-    joinDate: new Date().toLocaleDateString(),
-    completionPercentage: 85,
-  });
-
-  const getInitials = (name: string) => {
-    return name.charAt(0).toUpperCase();
-  };
-
-  const [activeTab, setActiveTab] = useState("profile");
+  const { user, isLoadingUser } = useAuth();
 
   return (
     <div className="space-y-8 pb-10">
@@ -89,7 +62,11 @@ export default function Page() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              {t("header.welcome", { name: user.name })}
+              {user?.name && !isLoadingUser ? (
+                <span>{t("header.welcome", { name: user.name })}</span>
+              ) : (
+                <Skeleton className="h-6 w-32" />
+              )}
             </h1>
             <p className="text-muted-foreground mt-1">{t("header.subtitle")}</p>
           </div>
@@ -104,11 +81,7 @@ export default function Page() {
             <div className="text-right">
               <p className="text-sm font-medium">{t("header.lastLogin")}</p>
               <p className="text-muted-foreground text-sm">
-                {new Date().toLocaleDateString("vi-VN", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {formatDateTime(new Date())}
               </p>
             </div>
           </div>
@@ -120,33 +93,15 @@ export default function Page() {
         <div className="space-y-6 lg:col-span-4">
           {/* Profile Summary Card with Work Information */}
           <div className="flex flex-col gap-4">
-            <div className="group overflow-hidden border-none transition-all duration-300">
+            <div className="group overflow-hidden rounded-xl border transition-all duration-300">
               <div className="relative">
                 <div className="from-primary/70 to-primary/90 h-32 bg-gradient-to-r"></div>
-                <div className="absolute inset-0 h-32 bg-[url('/profile-pattern.svg')] bg-center opacity-20"></div>
-                <div className="absolute right-0 bottom-0 p-4">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-8 w-8 rounded-full bg-white/20 text-white backdrop-blur-sm hover:bg-white/30"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{t("profile.actions.editCover")}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
+                <div className="absolute inset-0 h-32 bg-center opacity-20"></div>
                 <div className="absolute -bottom-12 left-6">
                   <div className="relative">
                     <Avatar className="border-background h-24 w-24 border-4 shadow-md transition-all duration-300 group-hover:scale-105">
                       <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-medium">
-                        {getInitials(user.name)}
+                        Mo
                       </AvatarFallback>
                     </Avatar>
                     <div className="absolute -right-1 -bottom-1">
@@ -173,17 +128,35 @@ export default function Page() {
               <CardContent className="pt-16 pb-5">
                 <div className="flex flex-col items-start">
                   <div className="flex w-full items-center justify-between">
-                    <h2 className="text-xl font-bold">{user.name}</h2>
-                    <Badge
-                      variant="outline"
-                      className="border-primary/20 bg-primary/10 text-primary hover:border-primary/30 hover:bg-primary/15 font-medium transition-all duration-300"
-                    >
-                      {user.title}
-                    </Badge>
+                    <h2 className="text-xl font-bold">
+                      {user?.name && !isLoadingUser ? (
+                        <span>{user.name}</span>
+                      ) : (
+                        <Skeleton className="h-6 w-20" />
+                      )}
+                    </h2>
+                    {user?.type_user && !isLoadingUser ? (
+                      <Badge
+                        variant="outline"
+                        className="border-primary/20 bg-primary/10 text-primary hover:border-primary/30 hover:bg-primary/15 font-medium transition-all duration-300"
+                      >
+                        <span className="first-letter:uppercase">
+                          {user.type_user}
+                        </span>
+                      </Badge>
+                    ) : (
+                      <Skeleton className="h-4 w-12" />
+                    )}
                   </div>
                   <div className="text-muted-foreground mt-1 flex items-center gap-1.5">
                     <Mail className="h-3.5 w-3.5" />
-                    <p className="text-sm">{user.email}</p>
+                    {user?.email && !isLoadingUser ? (
+                      <p className="text-sm">{user.email}</p>
+                    ) : (
+                      <span className="text-sm">
+                        <Skeleton className="h-4 w-28" />
+                      </span>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -204,9 +177,10 @@ export default function Page() {
                         <p className="text-muted-foreground text-xs font-medium">
                           {t("profile.workInfo.position")}
                         </p>
-                        <p className="mt-0.5 text-sm font-medium">
-                          {user.position}
-                        </p>
+                        {/* Position is not available in the IUser type yet */}
+                        <span className="mt-0.5 block text-sm font-medium">
+                          —
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -220,9 +194,10 @@ export default function Page() {
                         <p className="text-muted-foreground text-xs font-medium">
                           {t("profile.workInfo.team")}
                         </p>
-                        <p className="mt-0.5 text-sm font-medium">
-                          {user.team}
-                        </p>
+                        {/* Team is not available in the IUser type yet */}
+                        <span className="mt-0.5 block text-sm font-medium">
+                          —
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -236,9 +211,16 @@ export default function Page() {
                         <p className="text-muted-foreground text-xs font-medium">
                           {t("profile.workInfo.joinDate")}
                         </p>
-                        <p className="mt-0.5 text-sm font-medium">
-                          {user.joinDate}
-                        </p>
+                        {/* We can use created_at from IUser as joinDate */}
+                        {user?.created_at && !isLoadingUser ? (
+                          <p className="mt-0.5 text-sm font-medium">
+                            {format(new Date(user.created_at), "yyyy-MM-dd")}
+                          </p>
+                        ) : (
+                          <span className="mt-0.5 block text-sm font-medium">
+                            —
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -252,9 +234,10 @@ export default function Page() {
                         <p className="text-muted-foreground text-xs font-medium">
                           {t("profile.workInfo.salary")}
                         </p>
-                        <p className="mt-0.5 text-sm font-medium">
-                          {formatCurrency(user.salary)}
-                        </p>
+                        {/* Salary is not available in the IUser type yet */}
+                        <span className="mt-0.5 block text-sm font-medium">
+                          —
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -278,245 +261,27 @@ export default function Page() {
               <CardDescription>{t("profile.description")}</CardDescription>
             </CardHeader>
             <CardContent className="pt-4">
-              <Tabs
-                defaultValue="profile"
-                className="w-full"
-                onValueChange={setActiveTab}
-              >
-                <TabsList className="bg-muted/50 mb-6 grid w-full grid-cols-2 p-1">
+              <Tabs defaultValue="profile" className="w-full">
+                <TabsList className="mb-6 h-auto w-full justify-start rounded-none border-b bg-transparent p-0">
                   <TabsTrigger
                     value="profile"
-                    className={cn(
-                      "gap-2 rounded-md transition-all data-[state=active]:shadow-sm",
-                      activeTab === "profile"
-                        ? "bg-background text-foreground"
-                        : "text-muted-foreground hover:text-foreground/80"
-                    )}
+                    className="data-[state=active]:text-primary data-[state=active]:after:bg-primary relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                   >
-                    <User className="h-4 w-4" />
-                    <span>{t("profile.tabs.personal")}</span>
+                    <User className="size-4" />
+                    <span>Personal Info</span>
                   </TabsTrigger>
                   <TabsTrigger
                     value="security"
-                    className={cn(
-                      "gap-2 rounded-md transition-all data-[state=active]:shadow-sm",
-                      activeTab === "security"
-                        ? "bg-background text-foreground"
-                        : "text-muted-foreground hover:text-foreground/80"
-                    )}
+                    className="data-[state=active]:text-primary data-[state=active]:after:bg-primary relative gap-2 rounded-none py-2 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                   >
-                    <Shield className="h-4 w-4" />
-                    <span>{t("profile.tabs.security")}</span>
+                    <Shield className="size-4" />
+                    <span>Security</span>
                   </TabsTrigger>
                 </TabsList>
 
                 <div className="max-h-full overflow-visible">
-                  <TabsContent value="profile" className="mt-0 space-y-6 pb-4">
-                    <div className="space-y-6">
-                      <div className="bg-card text-card-foreground rounded-lg border p-5 shadow-sm">
-                        <h3 className="mb-4 font-medium">
-                          {t("personalInfo.basicInfo")}
-                        </h3>
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                          <div className="space-y-2">
-                            <Label
-                              htmlFor="name"
-                              className="text-sm font-medium"
-                            >
-                              {t("personalInfo.name")}
-                            </Label>
-                            <Input id="name" defaultValue={user.name} />
-                          </div>
-                          <div className="space-y-2">
-                            <Label
-                              htmlFor="email"
-                              className="text-sm font-medium"
-                            >
-                              {t("personalInfo.email")}
-                            </Label>
-                            <Input
-                              id="email"
-                              type="email"
-                              defaultValue={user.email}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Notification preferences */}
-                      <div className="bg-card text-card-foreground rounded-lg border p-5 shadow-sm">
-                        <h3 className="mb-4 font-medium">
-                          {t("personalInfo.notifications.title")}
-                        </h3>
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                              <Label className="text-sm font-medium">
-                                {t(
-                                  "personalInfo.notifications.emailNotifications.title"
-                                )}
-                              </Label>
-                              <p className="text-muted-foreground text-xs">
-                                {t(
-                                  "personalInfo.notifications.emailNotifications.description"
-                                )}
-                              </p>
-                            </div>
-                            <Switch defaultChecked />
-                          </div>
-                          <Separator />
-                          <div className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                              <Label className="text-sm font-medium">
-                                {t(
-                                  "personalInfo.notifications.systemNotifications.title"
-                                )}
-                              </Label>
-                              <p className="text-muted-foreground text-xs">
-                                {t(
-                                  "personalInfo.notifications.systemNotifications.description"
-                                )}
-                              </p>
-                            </div>
-                            <Switch defaultChecked />
-                          </div>
-                          <Separator />
-                          <div className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                              <Label className="text-sm font-medium">
-                                {t(
-                                  "personalInfo.notifications.updateNotifications.title"
-                                )}
-                              </Label>
-                              <p className="text-muted-foreground text-xs">
-                                {t(
-                                  "personalInfo.notifications.updateNotifications.description"
-                                )}
-                              </p>
-                            </div>
-                            <Switch />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end">
-                        <Button className="px-6 shadow-sm">
-                          {t("personalInfo.saveChanges")}
-                        </Button>
-                      </div>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="security" className="mt-0 space-y-6 pb-4">
-                    <div className="space-y-6">
-                      {/* Password form */}
-                      <div className="bg-card text-card-foreground rounded-lg border p-5 shadow-sm">
-                        <h3 className="mb-4 font-medium">
-                          {t("security.changePassword.title")}
-                        </h3>
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label
-                              htmlFor="current_password"
-                              className="text-sm font-medium"
-                            >
-                              {t("security.changePassword.currentPassword")}
-                            </Label>
-                            <Input id="current_password" type="password" />
-                          </div>
-
-                          <div className="border-border/30 border-t pt-2">
-                            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                              <div className="space-y-2">
-                                <Label
-                                  htmlFor="new_password"
-                                  className="text-sm font-medium"
-                                >
-                                  {t("security.changePassword.newPassword")}
-                                </Label>
-                                <Input id="new_password" type="password" />
-                              </div>
-                              <div className="space-y-2">
-                                <Label
-                                  htmlFor="confirm_password"
-                                  className="text-sm font-medium"
-                                >
-                                  {t("security.changePassword.confirmPassword")}
-                                </Label>
-                                <Input id="confirm_password" type="password" />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex justify-end">
-                            <Button className="mt-2">
-                              {t("security.changePassword.updatePassword")}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Login security section */}
-                      <div className="bg-card text-card-foreground rounded-lg border p-5 shadow-sm">
-                        <h3 className="mb-4 font-medium">
-                          {t("security.loginSecurity.title")}
-                        </h3>
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                              <Label className="text-sm font-medium">
-                                {t("security.loginSecurity.twoFactor.title")}
-                              </Label>
-                              <p className="text-muted-foreground text-xs">
-                                {t(
-                                  "security.loginSecurity.twoFactor.description"
-                                )}
-                              </p>
-                            </div>
-                            <Switch />
-                          </div>
-                          <Separator />
-                          <div className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                              <Label className="text-sm font-medium">
-                                {t(
-                                  "security.loginSecurity.newDeviceLogin.title"
-                                )}
-                              </Label>
-                              <p className="text-muted-foreground text-xs">
-                                {t(
-                                  "security.loginSecurity.newDeviceLogin.description"
-                                )}
-                              </p>
-                            </div>
-                            <Switch defaultChecked />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Danger Zone - Styled for emphasis */}
-                      <div className="border-destructive/20 bg-destructive/5 rounded-lg border p-5">
-                        <div className="flex items-start gap-3">
-                          <XCircle className="text-destructive mt-0.5 h-5 w-5" />
-                          <div className="flex-1">
-                            <h3 className="text-destructive font-medium">
-                              {t("security.dangerZone.title")}
-                            </h3>
-                            <p className="text-muted-foreground mt-1 mb-4 text-sm">
-                              {t("security.dangerZone.description")}
-                            </p>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              className="bg-destructive/90 hover:bg-destructive"
-                            >
-                              {t("security.dangerZone.deleteAccount")}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </TabsContent>
+                  <PersonalInfoTab />
+                  <SecurityTab />
                 </div>
               </Tabs>
             </CardContent>
