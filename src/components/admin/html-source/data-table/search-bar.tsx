@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { CalendarIcon, SearchIcon } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown, SearchIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -10,6 +12,14 @@ import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   Form,
   FormControl,
@@ -53,12 +63,19 @@ export function SearchBar({
   nations = [],
   platforms = [],
 }: SearchBarProps) {
+  // State for searchable dropdowns
+  const [openApp, setOpenApp] = useState(false);
+  const [openNation, setOpenNation] = useState(false);
+  const [openPlatform, setOpenPlatform] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       sourceKeyword: "",
       device: "",
       platform: "",
+      application: "",
+      nation: "",
     },
   });
 
@@ -113,7 +130,7 @@ export function SearchBar({
           />
         </div>
 
-        {/* Application Selection */}
+        {/* Application Selection with Command */}
         <div className="flex w-full flex-col space-y-1.5 md:w-auto md:flex-1">
           <FormField
             control={form.control}
@@ -121,30 +138,83 @@ export function SearchBar({
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>Application</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="h-10 w-full">
-                      <SelectValue placeholder="All applications" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="all">All applications</SelectItem>
-                    {applications.map((app) => (
-                      <SelectItem key={app.value} value={app.value}>
-                        {app.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={openApp} onOpenChange={setOpenApp}>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openApp}
+                        className="h-10 w-full justify-between"
+                      >
+                        {field.value && field.value !== "all"
+                          ? applications.find(
+                              (app) => app.value === field.value
+                            )?.label || "All applications"
+                          : "All applications"}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandInput
+                        placeholder="Search application..."
+                        className="h-9"
+                      />
+                      <CommandList>
+                        <CommandEmpty>No application found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="all"
+                            onSelect={() => {
+                              form.setValue("application", "all");
+                              setOpenApp(false);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            All applications
+                            <Check
+                              className={cn(
+                                "ml-auto",
+                                field.value === "all" || !field.value
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                          </CommandItem>
+                          {applications.map((app) => (
+                            <CommandItem
+                              key={app.value}
+                              value={app.value}
+                              onSelect={() => {
+                                form.setValue("application", app.value);
+                                setOpenApp(false);
+                              }}
+                              className="cursor-pointer"
+                            >
+                              {app.label}
+                              <Check
+                                className={cn(
+                                  "ml-auto",
+                                  field.value === app.value
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </FormItem>
             )}
           />
         </div>
 
-        {/* Nation Selection */}
+        {/* Nation Selection with Command */}
         <div className="flex w-full flex-col space-y-1.5 md:w-auto md:flex-1">
           <FormField
             control={form.control}
@@ -152,30 +222,83 @@ export function SearchBar({
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>Nation</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="h-10 w-full">
-                      <SelectValue placeholder="All nations" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="all">All nations</SelectItem>
-                    {nations.map((nation) => (
-                      <SelectItem key={nation.value} value={nation.value}>
-                        {nation.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={openNation} onOpenChange={setOpenNation}>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openNation}
+                        className="h-10 w-full justify-between"
+                      >
+                        {field.value && field.value !== "all"
+                          ? nations.find(
+                              (nation) => nation.value === field.value
+                            )?.label || "All nations"
+                          : "All nations"}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandInput
+                        placeholder="Search nation..."
+                        className="h-9"
+                      />
+                      <CommandList>
+                        <CommandEmpty>No nation found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="all"
+                            onSelect={() => {
+                              form.setValue("nation", "all");
+                              setOpenNation(false);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            All nations
+                            <Check
+                              className={cn(
+                                "ml-auto",
+                                field.value === "all" || !field.value
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                          </CommandItem>
+                          {nations.map((nation) => (
+                            <CommandItem
+                              key={nation.value}
+                              value={nation.value}
+                              onSelect={() => {
+                                form.setValue("nation", nation.value);
+                                setOpenNation(false);
+                              }}
+                              className="cursor-pointer"
+                            >
+                              {nation.label}
+                              <Check
+                                className={cn(
+                                  "ml-auto",
+                                  field.value === nation.value
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </FormItem>
             )}
           />
         </div>
 
-        {/* Platform Selection */}
+        {/* Platform Selection with Command */}
         <div className="flex w-full flex-col space-y-1.5 md:w-auto md:flex-1">
           <FormField
             control={form.control}
@@ -183,24 +306,77 @@ export function SearchBar({
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>Platform</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="h-10 w-full">
-                      <SelectValue placeholder="All platforms" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="all">All platforms</SelectItem>
-                    {platforms.map((platform) => (
-                      <SelectItem key={platform.value} value={platform.value}>
-                        {platform.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={openPlatform} onOpenChange={setOpenPlatform}>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openPlatform}
+                        className="h-10 w-full justify-between"
+                      >
+                        {field.value && field.value !== "all"
+                          ? platforms.find(
+                              (platform) => platform.value === field.value
+                            )?.label || "All platforms"
+                          : "All platforms"}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandInput
+                        placeholder="Search platform..."
+                        className="h-9"
+                      />
+                      <CommandList>
+                        <CommandEmpty>No platform found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="all"
+                            onSelect={() => {
+                              form.setValue("platform", "all");
+                              setOpenPlatform(false);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            All platforms
+                            <Check
+                              className={cn(
+                                "ml-auto",
+                                field.value === "all" || !field.value
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                          </CommandItem>
+                          {platforms.map((platform) => (
+                            <CommandItem
+                              key={platform.value}
+                              value={platform.value}
+                              onSelect={() => {
+                                form.setValue("platform", platform.value);
+                                setOpenPlatform(false);
+                              }}
+                              className="cursor-pointer"
+                            >
+                              {platform.label}
+                              <Check
+                                className={cn(
+                                  "ml-auto",
+                                  field.value === platform.value
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </FormItem>
             )}
           />

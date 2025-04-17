@@ -22,9 +22,14 @@ export const userTrackingQueryKeys = {
 };
 
 export const domainQueryKeys = {
-  origin: ["domains"] as const,
-  list: (page: number, pageSize: number, search: string) =>
-    [...domainQueryKeys.origin, "list", page, pageSize, search] as const,
+  all: ["domains"],
+  lists: () => [...domainQueryKeys.all, "list"],
+  list: (page: number, pageSize: number, search: string) => [
+    ...domainQueryKeys.lists(),
+    { page, pageSize, search },
+  ],
+  domains: () => [...domainQueryKeys.all, "domains"],
+  details: (id: string) => [...domainQueryKeys.all, "detail", id],
 };
 
 export const activityLogQueryKeys = {
@@ -37,4 +42,14 @@ export const notificationQueryKeys = {
   origin: ["notifications"] as const,
   list: (email: string) =>
     [...notificationQueryKeys.origin, "list", email] as const,
+};
+
+export const htmlSourceQueryKeys = {
+  all: ["htmlSources"],
+  lists: () => [...htmlSourceQueryKeys.all, "list"],
+  list: (page: number, pageSize: number, search: string) => [
+    ...htmlSourceQueryKeys.lists(),
+    { page, pageSize, search },
+  ],
+  details: (id: string) => [...htmlSourceQueryKeys.all, "detail", id],
 };

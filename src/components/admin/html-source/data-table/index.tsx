@@ -1,51 +1,20 @@
-/* eslint-disable unused-imports/no-unused-vars */
 "use client";
 
-import { CSSProperties, useState } from "react";
+import { useState } from "react";
 
-import {
-  Column,
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
-  ArrowLeftToLineIcon,
-  ArrowRightToLineIcon,
-  ChevronDownIcon,
-  ChevronFirstIcon,
-  ChevronLastIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronUpIcon,
-  EllipsisIcon,
-  GlobeIcon,
-  MoreHorizontalIcon,
-  PencilIcon,
-  PinOffIcon,
-  TrashIcon,
-  UserIcon,
-} from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
-import { cn } from "@/lib/utils";
+// Import types
+import { IHtmlSource } from "@/types/html-source.type";
+
+import { formatDateTime } from "@/lib/utils";
+
+// Import real hook instead of using mock implementation
+import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-} from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
@@ -62,619 +31,420 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { EmptyTable } from "@/components/data-table/empty-table";
+import { Spinner } from "@/components/global/spinner";
+
 import { SearchBar } from "./search-bar";
 
-/* eslint-disable unused-imports/no-unused-vars */
+// Mock Data
+const mockApplications = [
+  { value: "app1", label: "Mobile App" },
+  { value: "app2", label: "Web App" },
+  { value: "app3", label: "Desktop App" },
+];
 
-/* eslint-disable unused-imports/no-unused-vars */
+const mockNations = [
+  { value: "us", label: "United States" },
+  { value: "uk", label: "United Kingdom" },
+  { value: "ca", label: "Canada" },
+  { value: "vn", label: "Vietnam" },
+];
 
-type HtmlSourceItem = {
-  id: number;
-  url: string; // Pathway
-  country: string; // Nation
-  source: string;
-  device_id: string;
-  app_id: string;
-  version: string;
-  created_date: string; // Day creation
-  note: string;
-  platform: string; // Platform (TikTok, Google, Facebook, etc.)
-};
+const mockPlatforms = [
+  { value: "android", label: "Android" },
+  { value: "ios", label: "iOS" },
+  { value: "web", label: "Web" },
+  { value: "desktop", label: "Desktop" },
+];
 
-// Add Badge component definition
-const Badge = ({
-  variant,
-  children,
-}: {
-  variant: "success" | "error" | "warning" | "default";
-  children: React.ReactNode;
-}) => {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset",
-        variant === "success" && "bg-green-50 text-green-700 ring-green-600/20",
-        variant === "error" && "bg-red-50 text-red-700 ring-red-600/20",
-        variant === "warning" &&
-          "bg-yellow-50 text-yellow-700 ring-yellow-600/20",
-        variant === "default" && "bg-gray-50 text-gray-700 ring-gray-600/20"
-      )}
-    >
-      {children}
-    </span>
-  );
-};
-
-// Helper function to compute pinning styles for columns
-const getPinningStyles = (column: Column<HtmlSourceItem>): CSSProperties => {
-  const isPinned = column.getIsPinned();
-  return {
-    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
-    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
-    position: isPinned ? "sticky" : "relative",
-    width: column.getSize(),
-    zIndex: isPinned ? 1 : 0,
-    backgroundColor: isPinned ? "#fff" : "transparent",
-  };
-};
-
-const columns: ColumnDef<HtmlSourceItem>[] = [
+const mockData: IHtmlSource[] = [
   {
-    header: "ID",
-    accessorKey: "id",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground">{row.getValue("id")}</div>
-    ),
+    id: "1",
+    pathway: "home/products",
+    nation: "us",
+    platform: "android",
+    source: "organic",
+    device: "mobile",
+    application_id: "app1",
+    version: "1.0.5",
+    day_creation: "2023-10-15T14:22:00Z",
+    note: "Home page to products list navigation",
   },
   {
-    header: "Pathway",
-    accessorKey: "url",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <GlobeIcon className="text-muted-foreground h-4 w-4" />
-        <span className="truncate font-medium">{row.getValue("url")}</span>
-      </div>
-    ),
+    id: "2",
+    pathway: "products/detail",
+    nation: "uk",
+    platform: "ios",
+    source: "campaign",
+    device: "tablet",
+    application_id: "app1",
+    version: "1.0.6",
+    day_creation: "2023-10-16T09:15:30Z",
+    note: "Product detail page view",
   },
   {
-    header: "Nation",
-    accessorKey: "country",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <span className="truncate">{row.getValue("country")}</span>
-      </div>
-    ),
+    id: "3",
+    pathway: "checkout/complete",
+    nation: "ca",
+    platform: "web",
+    source: "direct",
+    device: "desktop",
+    application_id: "app2",
+    version: "2.1.0",
+    day_creation: "2023-10-17T16:40:12Z",
+    note: "Checkout completion",
   },
   {
-    header: "Platform",
-    accessorKey: "platform",
-    cell: ({ row }) => {
-      const platform = row.getValue("platform") as string;
-      let badgeVariant: "success" | "warning" | "error" | "default" = "default";
-
-      // Assign badge colors based on platform
-      if (["facebook", "instagram", "meta"].includes(platform.toLowerCase())) {
-        badgeVariant = "success";
-      } else if (["tiktok", "douyin"].includes(platform.toLowerCase())) {
-        badgeVariant = "warning";
-      } else if (["google", "youtube"].includes(platform.toLowerCase())) {
-        badgeVariant = "error";
-      }
-
-      return (
-        <div className="flex items-center gap-2">
-          <Badge variant={badgeVariant}>{platform}</Badge>
-        </div>
-      );
-    },
+    id: "4",
+    pathway: "account/settings",
+    nation: "vn",
+    platform: "web",
+    source: "referral",
+    device: "mobile",
+    application_id: "app2",
+    version: "2.1.2",
+    day_creation: "2023-10-18T11:05:22Z",
+    note: "Account settings update",
   },
   {
-    header: "Source",
-    accessorKey: "source",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <span className="max-w-[200px] truncate font-mono text-sm">
-          {(row.getValue("source") as string).substring(0, 50)}...
-        </span>
-      </div>
-    ),
-  },
-  {
-    header: "Device",
-    accessorKey: "device_id",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <UserIcon className="text-muted-foreground h-4 w-4" />
-        <span className="truncate">{row.getValue("device_id")}</span>
-      </div>
-    ),
-  },
-  {
-    header: "Application ID",
-    accessorKey: "app_id",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground truncate">
-        {row.getValue("app_id")}
-      </div>
-    ),
-  },
-  {
-    header: "Version",
-    accessorKey: "version",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground truncate">
-        {row.getValue("version")}
-      </div>
-    ),
-  },
-  {
-    header: "Day creation",
-    accessorKey: "created_date",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground truncate">
-        {row.getValue("created_date")}
-      </div>
-    ),
-  },
-  {
-    header: "Note",
-    accessorKey: "note",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground max-w-[200px] truncate">
-        {row.getValue("note") || "-"}
-      </div>
-    ),
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      const htmlSource = row.original;
-
-      return (
-        <div className="flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="data-[state=open]:bg-muted flex h-8 w-8 p-0"
-              >
-                <MoreHorizontalIcon className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[160px]">
-              <DropdownMenuItem>
-                <PencilIcon className="mr-2 h-4 w-4" />
-                View Source
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive focus:text-destructive">
-                <TrashIcon className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
-    },
+    id: "5",
+    pathway: "blog/article",
+    nation: "us",
+    platform: "android",
+    source: "social",
+    device: "mobile",
+    application_id: "app3",
+    version: "3.0.1",
+    day_creation: "2023-10-19T14:30:45Z",
+    note: "Blog article view",
   },
 ];
 
-export default function HtmlSourceDataTable() {
-  const [data, setData] = useState<HtmlSourceItem[]>([]);
-  const [sorting, setSorting] = useState<SortingState>([
-    {
-      id: "id",
-      desc: true,
+// Mock response
+const createMockResponse = (page: number, pageSize: number, search: string) => {
+  const filteredData = search
+    ? mockData.filter(
+        (item) =>
+          item.pathway?.toLowerCase().includes(search.toLowerCase()) ||
+          item.source?.toLowerCase().includes(search.toLowerCase()) ||
+          item.nation?.toLowerCase().includes(search.toLowerCase()) ||
+          item.platform?.toLowerCase().includes(search.toLowerCase()) ||
+          item.device?.toLowerCase().includes(search.toLowerCase()) ||
+          item.application_id?.toLowerCase().includes(search.toLowerCase())
+      )
+    : mockData;
+
+  const paginatedData = filteredData.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
+
+  return {
+    data: {
+      current_page: page,
+      data: paginatedData,
+      from: (page - 1) * pageSize + 1,
+      to: Math.min(page * pageSize, filteredData.length),
+      total: filteredData.length,
+      last_page: Math.ceil(filteredData.length / pageSize),
+      per_page: pageSize,
     },
-  ]);
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
+    success: true,
+    message: "HTML source data fetched successfully",
+  };
+};
 
-  // Data for select filters
-  const [applications, setApplications] = useState([
-    { value: "com.modobom.app1", label: "Modobom App 1" },
-    { value: "com.modobom.app2", label: "Modobom App 2" },
-    { value: "com.modobom.app3", label: "Modobom App 3" },
-  ]);
+export default function HtmlSourceDataTable() {
+  const t = useTranslations("HtmlSourcePage.table");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [nations, setNations] = useState([
-    { value: "us", label: "United States" },
-    { value: "uk", label: "United Kingdom" },
-    { value: "jp", label: "Japan" },
-    { value: "vn", label: "Vietnam" },
-  ]);
+  const [currentPage, setCurrentPage] = useQueryState(
+    "page",
+    parseAsInteger.withDefault(1)
+  );
+  const [pageSize, setPageSize] = useQueryState(
+    "pageSize",
+    parseAsInteger.withDefault(10)
+  );
+  const [search, setSearch] = useQueryState(
+    "search",
+    parseAsString.withDefault("")
+  );
 
-  const [platforms, setPlatforms] = useState([
-    { value: "facebook", label: "Facebook" },
-    { value: "instagram", label: "Instagram" },
-    { value: "tiktok", label: "TikTok" },
-    { value: "google", label: "Google" },
-    { value: "youtube", label: "YouTube" },
-    { value: "twitter", label: "Twitter" },
-    { value: "pinterest", label: "Pinterest" },
-    { value: "snapchat", label: "Snapchat" },
-    { value: "linkedin", label: "LinkedIn" },
-  ]);
+  const debouncedSearch = useDebounce(search, 500);
 
-  const handleSearch = (values: any) => {
-    console.log("Search values:", values);
-    // Here you would normally make an API call with these filters
-    // For now, we're just setting the global filter to simulate search
-    if (values.sourceKeyword) {
-      setGlobalFilter(values.sourceKeyword);
-    }
-
-    // In a real implementation, you would filter data based on all criteria
-    // including platform, application, nation, etc.
+  // Use mock data instead of real API call
+  const mockResponse = createMockResponse(
+    currentPage,
+    pageSize,
+    debouncedSearch
+  );
+  const isFetching = isLoading;
+  const isError = false;
+  const refetch = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
   };
 
-  const table = useReactTable({
-    data,
-    columns,
-    columnResizeMode: "onChange",
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    state: {
-      sorting,
-      globalFilter,
-      pagination,
-    },
-    onGlobalFilterChange: setGlobalFilter,
-    enableSortingRemoval: false,
-    manualPagination: false,
-    // Get filtered rows & total row counts
-    pageCount: Math.ceil(data.length / pagination.pageSize),
-  });
+  // Extract data from the mock response
+  const htmlSourceData = mockResponse.data.data;
+  const paginationInfo = mockResponse.data;
+  const isDataEmpty = !htmlSourceData || htmlSourceData.length === 0;
+
+  // Handle next page navigation - increment by 1
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Handle previous page navigation - decrement by 1
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Handle advanced search
+  const handleAdvancedSearch = (values: any) => {
+    console.log("Advanced search values:", values);
+
+    // Create a combined search string based on the values
+    let searchStr = "";
+    if (values.sourceKeyword) searchStr += values.sourceKeyword;
+    if (values.device) searchStr += " " + values.device;
+    if (values.platform && values.platform !== "all")
+      searchStr += " " + values.platform;
+    if (values.nation && values.nation !== "all")
+      searchStr += " " + values.nation;
+    if (values.application && values.application !== "all")
+      searchStr += " " + values.application;
+
+    setSearch(searchStr.trim());
+    setCurrentPage(1);
+  };
 
   return (
-    <>
-      {/* Search Bar */}
-      <div className="mb-6">
-        <SearchBar
-          onSearch={handleSearch}
-          applications={applications}
-          nations={nations}
-          platforms={platforms}
-        />
-      </div>
+    <div className="flex min-h-[calc(100vh-200px)] flex-col">
+      {/* Filters Section */}
+      <div className="space-y-6">
+        <div className="">
+          <SearchBar
+            onSearch={handleAdvancedSearch}
+            applications={mockApplications}
+            nations={mockNations}
+            platforms={mockPlatforms}
+          />
+        </div>
 
-      <div className="w-full">
-        <Table
-          className="[&_td]:border-border [&_th]:border-border w-full table-fixed border-separate border-spacing-0 [&_tfoot_td]:border-t [&_th]:border-b [&_tr]:border-none [&_tr:not(:last-child)_td]:border-b"
-          style={{
-            minWidth: "100%",
-          }}
-        >
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="bg-muted/50">
-                {headerGroup.headers.map((header) => {
-                  const { column } = header;
-                  const isPinned = column.getIsPinned();
-                  const isLastLeftPinned =
-                    isPinned === "left" && column.getIsLastColumn("left");
-                  const isFirstRightPinned =
-                    isPinned === "right" && column.getIsFirstColumn("right");
+        {/* Results Table or Empty State */}
+        <div className="mt-4 flex-grow">
+          {isFetching ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <Spinner />
+              </div>
+            </div>
+          ) : isError ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <p className="text-destructive text-sm">
+                  {t("loadingStates.error")}
+                </p>
+              </div>
+            </div>
+          ) : isDataEmpty ? (
+            <EmptyTable />
+          ) : (
+            <div className="flex flex-col space-y-6">
+              {/* First Data Table Section */}
+              <div className="relative w-full overflow-auto">
+                <Table className="w-full">
+                  <TableHeader className="sticky top-0 z-10 bg-white">
+                    <TableRow className="border-b border-gray-200 hover:bg-white">
+                      <TableHead className="w-[60px] py-3 font-medium text-gray-700">
+                        {t("columns.id")}
+                      </TableHead>
+                      <TableHead className="w-[140px] py-3 font-medium text-gray-700">
+                        {t("columns.pathway")}
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        {t("columns.nation")}
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        {t("columns.platform")}
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        {t("columns.source")}
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        {t("columns.device")}
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        {t("columns.applicationId")}
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        {t("columns.version")}
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {htmlSourceData.map(
+                      (source: IHtmlSource, index: number) => (
+                        <TableRow
+                          key={index}
+                          className="border-b border-gray-200 hover:bg-gray-50"
+                        >
+                          <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                            {source.id ?? "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3">
+                            <span className="font-medium text-indigo-600">
+                              {source.pathway ?? "—"}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.nation ?? "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.platform ?? "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.source ?? "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.device ?? "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.application_id ?? "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.version ?? "—"}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
 
-                  return (
-                    <TableHead
-                      key={header.id}
-                      className="[&[data-pinned][data-last-col]]:border-border data-pinned:bg-muted/90 relative h-10 truncate border-t data-pinned:backdrop-blur-xs [&:not([data-pinned]):has(+[data-pinned])_div.cursor-col-resize:last-child]:opacity-0 [&[data-last-col=left]_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=left][data-last-col=left]]:border-r [&[data-pinned=right]:last-child_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=right][data-last-col=right]]:border-l"
-                      colSpan={header.colSpan}
-                      style={{
-                        ...getPinningStyles(column),
-                      }}
-                      data-pinned={isPinned || undefined}
-                      data-last-col={
-                        isLastLeftPinned
-                          ? "left"
-                          : isFirstRightPinned
-                            ? "right"
-                            : undefined
-                      }
-                      aria-sort={
-                        header.column.getIsSorted() === "asc"
-                          ? "ascending"
-                          : header.column.getIsSorted() === "desc"
-                            ? "descending"
-                            : "none"
-                      }
-                    >
-                      <div
-                        className={cn(
-                          "flex items-center justify-between gap-2",
-                          header.column.getCanSort() &&
-                            "cursor-pointer select-none"
-                        )}
-                        onClick={
-                          header.column.getCanSort()
-                            ? header.column.getToggleSortingHandler()
-                            : undefined
-                        }
-                        onKeyDown={(e) => {
-                          if (
-                            header.column.getCanSort() &&
-                            (e.key === "Enter" || e.key === " ")
-                          ) {
-                            e.preventDefault();
-                            header.column.getToggleSortingHandler()?.(e);
-                          }
-                        }}
-                        tabIndex={header.column.getCanSort() ? 0 : undefined}
-                      >
-                        <div className="flex items-center gap-1">
-                          <span className="truncate">
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
-                          </span>
-                          {header.column.getCanSort() && (
-                            <div className="flex items-center">
-                              {header.column.getIsSorted() === "asc" ? (
-                                <ChevronUpIcon className="size-4 shrink-0 opacity-60" />
-                              ) : header.column.getIsSorted() === "desc" ? (
-                                <ChevronDownIcon className="size-4 shrink-0 opacity-60" />
-                              ) : null}
-                            </div>
-                          )}
-                        </div>
-                        {/* Pin/Unpin column controls with enhanced accessibility */}
-                        {!header.isPlaceholder &&
-                          header.column.getCanPin() &&
-                          (header.column.getIsPinned() ? (
+              {/* Second Data Table Section */}
+              <div className="relative w-full overflow-auto">
+                <Table className="w-full">
+                  <TableHeader className="sticky top-0 z-10 bg-white">
+                    <TableRow className="border-b border-gray-200 hover:bg-white">
+                      <TableHead className="w-[140px] py-3 font-medium text-gray-700">
+                        {t("columns.dayCreation")}
+                      </TableHead>
+                      <TableHead className="py-3 font-medium text-gray-700">
+                        {t("columns.note")}
+                      </TableHead>
+                      <TableHead className="w-[100px] py-3 font-medium text-gray-700">
+                        {t("columns.actions")}
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {htmlSourceData.map(
+                      (source: IHtmlSource, index: number) => (
+                        <TableRow
+                          key={index}
+                          className="border-b border-gray-200 hover:bg-gray-50"
+                        >
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.day_creation
+                              ? formatDateTime(new Date(source.day_creation))
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.note ?? "—"}
+                          </TableCell>
+                          <TableCell className="py-3">
                             <Button
-                              size="icon"
                               variant="ghost"
-                              className="-mr-1 size-7 shadow-none"
-                              onClick={() => header.column.pin(false)}
-                              aria-label={`Unpin ${
-                                header.column.columnDef.header as string
-                              } column`}
-                              title={`Unpin ${
-                                header.column.columnDef.header as string
-                              } column`}
+                              size="sm"
+                              className="h-8 w-8 p-0"
                             >
-                              <PinOffIcon
-                                className="opacity-60"
-                                size={16}
-                                aria-hidden="true"
-                              />
+                              <span className="sr-only">
+                                {t("actions.details")}
+                              </span>
+                              <MoreHorizontal className="h-4 w-4" />
                             </Button>
-                          ) : (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="-mr-1 size-7 shadow-none"
-                                  aria-label={`Pin options for ${
-                                    header.column.columnDef.header as string
-                                  } column`}
-                                  title={`Pin options for ${
-                                    header.column.columnDef.header as string
-                                  } column`}
-                                >
-                                  <EllipsisIcon
-                                    className="opacity-60"
-                                    size={16}
-                                    aria-hidden="true"
-                                  />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onClick={() => header.column.pin("left")}
-                                >
-                                  <ArrowLeftToLineIcon
-                                    size={16}
-                                    className="opacity-60"
-                                    aria-hidden="true"
-                                  />
-                                  Stick to left
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => header.column.pin("right")}
-                                >
-                                  <ArrowRightToLineIcon
-                                    size={16}
-                                    className="opacity-60"
-                                    aria-hidden="true"
-                                  />
-                                  Stick to right
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          ))}
-                        {header.column.getCanResize() && (
-                          <div
-                            {...{
-                              onDoubleClick: () => header.column.resetSize(),
-                              onMouseDown: header.getResizeHandler(),
-                              onTouchStart: header.getResizeHandler(),
-                              className:
-                                "absolute top-0 h-full w-4 cursor-col-resize user-select-none touch-none -right-2 z-10 flex justify-center before:absolute before:w-px before:inset-y-0 before:bg-border before:-translate-x-px",
-                            }}
-                          />
-                        )}
-                      </div>
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    const { column } = cell;
-                    const isPinned = column.getIsPinned();
-                    const isLastLeftPinned =
-                      isPinned === "left" && column.getIsLastColumn("left");
-                    const isFirstRightPinned =
-                      isPinned === "right" && column.getIsFirstColumn("right");
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
 
-                    return (
-                      <TableCell
-                        key={cell.id}
-                        className="[&[data-pinned][data-last-col]]:border-border data-pinned:bg-background/90 truncate data-pinned:backdrop-blur-xs [&[data-pinned=left][data-last-col=left]]:border-r [&[data-pinned=right][data-last-col=right]]:border-l"
-                        style={{
-                          ...getPinningStyles(column),
-                        }}
-                        data-pinned={isPinned || undefined}
-                        data-last-col={
-                          isLastLeftPinned
-                            ? "left"
-                            : isFirstRightPinned
-                              ? "right"
-                              : undefined
-                        }
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              {/* Pagination Section - Fixed at bottom when scrolling */}
+              <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
+                {/* Main pagination controls */}
+                <div className="flex items-center justify-between px-4 py-2">
+                  {/* Results per page */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600">
+                      {t("pagination.rowsPerPage")}
+                    </span>
+                    <Select
+                      value={pageSize.toString()}
+                      onValueChange={(value) => setPageSize(Number(value))}
+                    >
+                      <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
+                        <SelectValue placeholder="10" />
+                      </SelectTrigger>
+                      <SelectContent className="text-sm">
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-between gap-8 pt-4">
-        {/* Results per page */}
-        <div className="flex items-center gap-3">
-          <Label htmlFor="rows-per-page" className="max-sm:sr-only">
-            Rows per page
-          </Label>
-          <Select
-            value={table.getState().pagination.pageSize.toString()}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
-            }}
-          >
-            <SelectTrigger
-              id="rows-per-page"
-              className="w-fit whitespace-nowrap"
-            >
-              <SelectValue placeholder="Select number of results" />
-            </SelectTrigger>
-            <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
-              {[5, 10, 25, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={pageSize.toString()}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {/* Page number information */}
-        <div className="text-muted-foreground flex grow justify-end text-sm whitespace-nowrap">
-          <p
-            className="text-muted-foreground text-sm whitespace-nowrap"
-            aria-live="polite"
-          >
-            <span className="text-foreground">
-              {pagination.pageIndex * pagination.pageSize + 1}-
-              {Math.min(
-                (pagination.pageIndex + 1) * pagination.pageSize,
-                table.getFilteredRowModel().rows.length
-              )}
-            </span>{" "}
-            of{" "}
-            <span className="text-foreground">
-              {table.getFilteredRowModel().rows.length}
-            </span>
-          </p>
-        </div>
+                  {/* Pagination controls */}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1}
+                    >
+                      {t("pagination.previousPage")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      onClick={handleNextPage}
+                      disabled={currentPage === paginationInfo.last_page}
+                    >
+                      {t("pagination.nextPage")}
+                    </Button>
+                  </div>
+                </div>
 
-        {/* Pagination buttons */}
-        <div>
-          <Pagination>
-            <PaginationContent>
-              {/* First page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.firstPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  aria-label="Go to first page"
-                >
-                  <ChevronFirstIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Previous page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  aria-label="Go to previous page"
-                >
-                  <ChevronLeftIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Next page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                  aria-label="Go to next page"
-                >
-                  <ChevronRightIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Last page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.lastPage()}
-                  disabled={!table.getCanNextPage()}
-                  aria-label="Go to last page"
-                >
-                  <ChevronLastIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+                {/* Bottom status line */}
+                <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+                  <div>
+                    Viewing {paginationInfo.from || 1}-
+                    {paginationInfo.to ||
+                      Math.min(pageSize, paginationInfo.total || 0)}{" "}
+                    {t("pagination.of")} {paginationInfo.total || 0} results
+                  </div>
+                  <div>
+                    Page {currentPage} {t("pagination.of")}{" "}
+                    {paginationInfo.last_page || 1}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 }
+

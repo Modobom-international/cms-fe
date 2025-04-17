@@ -361,6 +361,49 @@
             }
         }
     },
+    "HtmlSourcePage": {
+        "title": "HTML Source Management",
+        "description": "Manage and monitor HTML source data from various applications",
+        "breadcrumb": "HTML Source",
+        "table": {
+            "filters": {
+                "search": "Search"
+            },
+            "columns": {
+                "id": "ID",
+                "pathway": "Pathway",
+                "nation": "Nation",
+                "platform": "Platform",
+                "source": "Source",
+                "device": "Device",
+                "applicationId": "Application ID",
+                "version": "Version",
+                "dayCreation": "Day creation",
+                "note": "Note",
+                "actions": "Actions"
+            },
+            "pagination": {
+                "rowsPerPage": "Rows per page",
+                "of": "of",
+                "firstPage": "Go to first page",
+                "previousPage": "Previous",
+                "nextPage": "Next",
+                "lastPage": "Go to last page"
+            },
+            "actions": {
+                "details": "Details",
+                "retry": "Retry",
+                "refresh": "Refresh"
+            },
+            "loadingStates": {
+                "loading": "Loading HTML source data...",
+                "error": "An error occurred while loading HTML source data"
+            },
+            "placeholders": {
+                "search": "Search by pathway or source"
+            }
+        }
+    },
     "Notification": {
         "markAllAsRead": "Mark all as read",
         "noNotifications": "No notifications",

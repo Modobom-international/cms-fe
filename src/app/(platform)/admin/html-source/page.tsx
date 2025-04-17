@@ -1,10 +1,6 @@
 "use client";
 
-import Link from "next/link";
-
-import { ChevronRight, Home, PlusIcon } from "lucide-react";
-
-import { buttonVariants } from "@/components/ui/button";
+import { ChevronRight, Home } from "lucide-react";
 
 import HtmlSourceDataTable from "@/components/admin/html-source/data-table";
 
@@ -29,19 +25,6 @@ export default function HtmlSourcePage() {
             <p className="text-muted-foreground text-sm">
               Quản lý và giám sát HTML Source từ các ứng dụng
             </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href="/admin/html-source/create"
-              className={buttonVariants({
-                variant: "default",
-                size: "sm",
-              })}
-            >
-              <PlusIcon className="mr-2 h-4 w-4" />
-              Thêm HTML Source
-            </Link>
           </div>
         </div>
       </div>

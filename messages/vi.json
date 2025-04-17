@@ -361,6 +361,49 @@
       }
     }
   },
+  "HtmlSourcePage": {
+    "title": "Quản lý HTML Source",
+    "description": "Quản lý và giám sát HTML Source từ các ứng dụng khác nhau",
+    "breadcrumb": "HTML Source",
+    "table": {
+      "filters": {
+        "search": "Tìm kiếm"
+      },
+      "columns": {
+        "id": "ID",
+        "pathway": "Pathway",
+        "nation": "Quốc gia",
+        "platform": "Nền tảng",
+        "source": "Nguồn",
+        "device": "Thiết bị",
+        "applicationId": "ID ứng dụng",
+        "version": "Phiên bản",
+        "dayCreation": "Ngày tạo",
+        "note": "Ghi chú",
+        "actions": "Hành động"
+      },
+      "pagination": {
+        "rowsPerPage": "Số dòng mỗi trang",
+        "of": "trong số",
+        "firstPage": "Đến trang đầu tiên",
+        "previousPage": "Trước",
+        "nextPage": "Tiếp",
+        "lastPage": "Đến trang cuối cùng"
+      },
+      "actions": {
+        "details": "Chi tiết",
+        "retry": "Thử lại",
+        "refresh": "Làm mới"
+      },
+      "loadingStates": {
+        "loading": "Đang tải dữ liệu HTML source...",
+        "error": "Đã xảy ra lỗi khi tải dữ liệu HTML source"
+      },
+      "placeholders": {
+        "search": "Tìm kiếm theo pathway hoặc nguồn"
+      }
+    }
+  },
   "Notification": {
     "markAllAsRead": "Đánh dấu tất cả đã đọc",
     "noNotifications": "Không có thông báo",
