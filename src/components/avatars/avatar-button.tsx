@@ -1,10 +1,6 @@
 import { useAuth } from "@/providers/auth-provider";
-import {
-  BoltIcon,
-  ChevronDownIcon,
-  Layers2Icon,
-  LogOutIcon,
-} from "lucide-react";
+import { BoltIcon, ChevronDownIcon, LogOutIcon } from "lucide-react";
+import { useRouter } from "nextjs-toploader/app";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -20,6 +16,7 @@ import {
 
 export default function AvatarButton() {
   const { logout, isLoggingOut } = useAuth();
+  const router = useRouter();
 
   return (
     <DropdownMenu dir="ltr">
@@ -52,13 +49,9 @@ export default function AvatarButton() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push("/admin/profile")}>
             <BoltIcon size={16} className="opacity-60" aria-hidden="true" />
             <span>Profile</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Layers2Icon size={16} className="opacity-60" aria-hidden="true" />
-            <span>Settings</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
 
