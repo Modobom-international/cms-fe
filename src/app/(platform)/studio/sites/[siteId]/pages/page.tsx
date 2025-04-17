@@ -29,6 +29,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -40,11 +41,40 @@ import {
 
 import { Spinner } from "@/components/global/spinner";
 
-function CreatePageDialog() {
+function CreatePageDialog({ site }: { site: string }) {
   const params = useParams();
   const [newPage, setNewPage] = useState({ name: "", slug: "" });
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
   const createPageMutation = useCreatePage();
   const [open, setOpen] = useState(false);
+
+  // Function to generate slug from name
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "") // Remove special characters
+      .replace(/\s+/g, "-") // Replace spaces with hyphens
+      .replace(/-+/g, "-"); // Replace multiple hyphens with single hyphen
+  };
+
+  // Handle name change and auto-generate slug if not manually edited
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    setNewPage((prev) => ({
+      name: newName,
+      slug: isSlugManuallyEdited ? prev.slug : generateSlug(newName),
+    }));
+  };
+
+  // Handle manual slug change
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsSlugManuallyEdited(true);
+    setNewPage((prev) => ({
+      ...prev,
+      slug: e.target.value.toLowerCase(),
+    }));
+  };
 
   const handleCreatePage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,59 +95,99 @@ function CreatePageDialog() {
         }
       );
       setNewPage({ name: "", slug: "" });
+      setIsSlugManuallyEdited(false);
       setOpen(false);
     } catch (err) {
       console.error("Error creating page:", err);
     }
   };
 
+  // Reset states when dialog closes
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setNewPage({ name: "", slug: "" });
+      setIsSlugManuallyEdited(false);
+    }
+    setOpen(open);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button>
-          <PlusIcon className="mr-2 h-4 w-4" />
+        <Button className="cursor-pointer gap-2">
+          <PlusIcon className="h-4 w-4" />
           Create Page
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[475px]">
         <DialogHeader>
           <DialogTitle>Create New Page</DialogTitle>
           <DialogDescription>
             Add a new page to your site. Fill in the details below.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleCreatePage}>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <label htmlFor="name" className="text-sm font-medium">
+        <form onSubmit={handleCreatePage} className="space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">
                 Page Name
-              </label>
+                <span className="text-destructive ml-1">*</span>
+              </Label>
               <Input
                 id="name"
                 value={newPage.name}
-                onChange={(e) =>
-                  setNewPage({ ...newPage, name: e.target.value })
-                }
-                placeholder="Home Page"
+                onChange={handleNameChange}
+                placeholder="e.g. Home Page, About Us, Contact"
+                className="w-full"
               />
+              <p className="text-muted-foreground text-xs">
+                This is the display name for your page
+              </p>
             </div>
-            <div className="grid gap-2">
-              <label htmlFor="slug" className="text-sm font-medium">
-                Slug
-              </label>
+            <div className="space-y-2">
+              <Label htmlFor="slug">
+                Page URL Slug
+                <span className="text-destructive ml-1">*</span>
+              </Label>
               <Input
                 id="slug"
                 value={newPage.slug}
-                onChange={(e) =>
-                  setNewPage({ ...newPage, slug: e.target.value })
-                }
-                placeholder="home"
+                onChange={handleSlugChange}
+                placeholder="e.g. home, about, contact"
+                className="w-full font-mono text-sm"
               />
+              <p className="text-muted-foreground text-xs">
+                This will be used in the URL: https://{site}/
+                <span className="text-foreground font-medium">
+                  {newPage.slug || "page-slug"}
+                </span>
+              </p>
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={createPageMutation.isPending}>
-              {createPageMutation.isPending ? "Creating..." : "Create Page"}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={
+                createPageMutation.isPending ||
+                !newPage.name.trim() ||
+                !newPage.slug.trim()
+              }
+            >
+              {createPageMutation.isPending ? (
+                <>
+                  <Spinner />
+                  Creating...
+                </>
+              ) : (
+                "Create Page"
+              )}
             </Button>
           </DialogFooter>
         </form>
@@ -278,7 +348,7 @@ export default function PagesManagementPage() {
             Create and manage pages for your site
           </p>
         </div>
-        <CreatePageDialog />
+        <CreatePageDialog site={site?.data.domain} />
       </div>
 
       <Card>

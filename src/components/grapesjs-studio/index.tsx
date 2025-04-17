@@ -281,7 +281,6 @@ export default function WebBuilderStudio({
             storageType: "self",
             onUpload: async ({ files, editor }) => {
               try {
-                toast.loading("Uploading assets...");
                 const uploadedAssets = await uploadAssets({ files, editor });
                 toast.success("Assets uploaded successfully!");
                 return uploadedAssets;
