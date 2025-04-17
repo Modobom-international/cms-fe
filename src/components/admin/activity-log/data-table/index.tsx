@@ -1,10 +1,8 @@
 "use client";
 
-import React from "react";
-
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, PlusCircle, Search } from "lucide-react";
+import { Calendar as CalendarIcon, PlusCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   parseAsArrayOf,
@@ -70,7 +68,6 @@ const ACTION_TYPES = {
 
 export default function ActivityLogDataTable() {
   const t = useTranslations("ActivityLogPage.table");
-  const [isActionFilterOpen, setIsActionFilterOpen] = React.useState(false);
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -316,7 +313,6 @@ export default function ActivityLogDataTable() {
                   onClick={() => {
                     setCurrentPage(1);
                     refetch();
-                    setIsActionFilterOpen(false);
                   }}
                   className="w-full"
                 >
@@ -515,4 +511,3 @@ export default function ActivityLogDataTable() {
     </div>
   );
 }
-
