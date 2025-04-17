@@ -461,6 +461,68 @@
                 "Saving": "Saving site...",
                 "Save": "Save",
                 "Cancel": "Cancel"
+            },
+            "Pages": {
+                "Title": "Pages - {siteName}",
+                "Description": "Create and manage pages for your website",
+                "BackToSites": "Back to Sites",
+                "List": {
+                    "Title": "Pages List",
+                    "Description": "Manage and view all pages of the website",
+                    "Table": {
+                        "Name": "Name",
+                        "Slug": "Slug",
+                        "LastUpdated": "Last Updated",
+                        "Actions": "Actions",
+                        "Edit": "Edit",
+                        "Preview": "Preview",
+                        "Delete": "Delete",
+                        "View": "View"
+                    }
+                },
+                "Create": {
+                    "Button": "Create Page",
+                    "Dialog": {
+                        "Title": "Create New Page",
+                        "Description": "Add a new page to your site. Fill in the details below."
+                    },
+                    "Form": {
+                        "Name": {
+                            "Label": "Page Name",
+                            "Placeholder": "e.g. Home Page, About Us, Contact",
+                            "Help": "This is the display name for your page"
+                        },
+                        "Slug": {
+                            "Label": "URL Slug",
+                            "Placeholder": "e.g. home, about, contact",
+                            "Help": "This will be used in the URL: https://{site}/"
+                        },
+                        "Cancel": "Cancel",
+                        "Submit": "Create Page",
+                        "Submitting": "Creating..."
+                    },
+                    "Toast": {
+                        "Loading": "Creating page...",
+                        "Success": "Page created successfully!",
+                        "Error": "Failed to create page"
+                    }
+                },
+                "Delete": {
+                    "Dialog": {
+                        "Title": "Delete Page",
+                        "Description": "This action cannot be undone. You will permanently delete the page {pageName}.",
+                        "ConfirmationText": "To confirm, type the page name below:",
+                        "InputPlaceholder": "Type page name to confirm",
+                        "Cancel": "Cancel",
+                        "Confirm": "Delete Page",
+                        "Deleting": "Deleting..."
+                    },
+                    "Toast": {
+                        "Loading": "Deleting page...",
+                        "Success": "Page deleted successfully",
+                        "Error": "Failed to delete page"
+                    }
+                }
             }
         }
     }

@@ -461,6 +461,68 @@
         "Saving": "Đang lưu trang web...",
         "Save": "Lưu",
         "Cancel": "Hủy"
+      },
+      "Pages": {
+        "Title": "Trang - {siteName}",
+        "Description": "Tạo và quản lý các trang cho trang web của bạn",
+        "BackToSites": "Quay lại Sites",
+        "List": {
+          "Title": "Danh sách trang",
+          "Description": "Quản lý và xem tất cả các trang của trang web",
+          "Table": {
+            "Name": "Tên",
+            "Slug": "Đường dẫn",
+            "LastUpdated": "Cập nhật lần cuối",
+            "Actions": "Thao tác",
+            "Edit": "Sửa",
+            "Preview": "Xem trước",
+            "Delete": "Xóa",
+            "View": "Xem"
+          }
+        },
+        "Create": {
+          "Button": "Tạo Trang",
+          "Dialog": {
+            "Title": "Tạo Trang Mới",
+            "Description": "Thêm một trang mới vào trang web của bạn. Điền thông tin bên dưới."
+          },
+          "Form": {
+            "Name": {
+              "Label": "Tên Trang",
+              "Placeholder": "ví dụ: Trang Chủ, Giới Thiệu, Liên Hệ",
+              "Help": "Đây là tên hiển thị cho trang của bạn"
+            },
+            "Slug": {
+              "Label": "URL Slug",
+              "Placeholder": "ví dụ: trang-chu, gioi-thieu, lien-he",
+              "Help": "Đường dẫn sẽ là: https://{site}/"
+            },
+            "Cancel": "Hủy",
+            "Submit": "Tạo Trang",
+            "Submitting": "Đang tạo..."
+          },
+          "Toast": {
+            "Loading": "Đang tạo trang...",
+            "Success": "Tạo trang thành công!",
+            "Error": "Tạo trang thất bại"
+          }
+        },
+        "Delete": {
+          "Dialog": {
+            "Title": "Xóa Trang",
+            "Description": "Hành động này không thể hoàn tác. Bạn sẽ xóa vĩnh viễn trang {pageName}.",
+            "ConfirmationText": "Để xác nhận, hãy nhập tên trang bên dưới:",
+            "InputPlaceholder": "Nhập tên trang để xác nhận",
+            "Cancel": "Hủy",
+            "Confirm": "Xóa Trang",
+            "Deleting": "Đang xóa..."
+          },
+          "Toast": {
+            "Loading": "Đang xóa trang...",
+            "Success": "Xóa trang thành công",
+            "Error": "Xóa trang thất bại"
+          }
+        }
       }
     }
   }
