@@ -17,14 +17,14 @@ export interface Page {
 export const pageQueryKeys = {
   all: ["pages"] as const,
   lists: () => [...pageQueryKeys.all, "list"] as const,
-  list: (siteId: number) => [...pageQueryKeys.lists(), { siteId }] as const,
+  list: (siteId: string) => [...pageQueryKeys.lists(), { siteId }] as const,
   details: (pageId: string) =>
     [...pageQueryKeys.all, "detail", pageId] as const,
 };
 
 // Zod Schemas
 export const CreatePageSchema = z.object({
-  site_id: z.number(),
+  site_id: z.string(),
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
   content: z.string(),
@@ -39,7 +39,7 @@ export type CreatePageData = z.infer<typeof CreatePageSchema>;
 export type UpdatePageData = z.infer<typeof UpdatePageSchema>;
 
 // Hooks
-export const useGetPages = (siteId: number) => {
+export const useGetPages = (siteId: string) => {
   return useQuery({
     queryKey: pageQueryKeys.list(siteId),
     queryFn: async () => {
