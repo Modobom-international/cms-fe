@@ -495,7 +495,13 @@
                         "Slug": {
                             "Label": "URL Slug",
                             "Placeholder": "e.g. home, about, contact",
-                            "Help": "This will be used in the URL: https://{site}/"
+                            "Help": "This will be used in the URL: https://{site}/",
+                            "Validation": {
+                                "Required": "URL Slug is required",
+                                "Invalid": "URL Slug must contain only lowercase letters, numbers, and hyphens",
+                                "MinLength": "URL Slug must be at least 3 characters",
+                                "MaxLength": "URL Slug cannot exceed 64 characters"
+                            }
                         },
                         "Cancel": "Cancel",
                         "Submit": "Create Page",

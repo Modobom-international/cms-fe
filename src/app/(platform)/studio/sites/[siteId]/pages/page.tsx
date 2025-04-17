@@ -47,6 +47,7 @@ function CreatePageDialog({ site }: { site: string }) {
   const params = useParams();
   const [newPage, setNewPage] = useState({ name: "", slug: "" });
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
+  const [slugError, setSlugError] = useState<string | null>(null);
   const createPageMutation = useCreatePage();
   const [open, setOpen] = useState(false);
 
@@ -60,27 +61,61 @@ function CreatePageDialog({ site }: { site: string }) {
       .replace(/-+/g, "-");
   };
 
+  // Function to validate slug format
+  const validateSlug = (slug: string) => {
+    const slugRegex = /^[a-z0-9-]+$/;
+    return slugRegex.test(slug);
+  };
+
+  // Function to check slug validation and set error message
+  const checkSlugValidation = (slug: string) => {
+    if (!slug.trim()) {
+      setSlugError(t("Create.Form.Slug.Validation.Required"));
+      return false;
+    }
+    if (!validateSlug(slug)) {
+      setSlugError(t("Create.Form.Slug.Validation.Invalid"));
+      return false;
+    }
+    if (slug.length < 3) {
+      setSlugError(t("Create.Form.Slug.Validation.MinLength"));
+      return false;
+    }
+    if (slug.length > 64) {
+      setSlugError(t("Create.Form.Slug.Validation.MaxLength"));
+      return false;
+    }
+    setSlugError(null);
+    return true;
+  };
+
   // Handle name change and auto-generate slug if not manually edited
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
+    const newSlug = isSlugManuallyEdited ? newPage.slug : generateSlug(newName);
     setNewPage((prev) => ({
       name: newName,
-      slug: isSlugManuallyEdited ? prev.slug : generateSlug(newName),
+      slug: newSlug,
     }));
+    checkSlugValidation(newSlug);
   };
 
   // Handle manual slug change
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsSlugManuallyEdited(true);
+    const newSlug = e.target.value.toLowerCase();
     setNewPage((prev) => ({
       ...prev,
-      slug: e.target.value.toLowerCase(),
+      slug: newSlug,
     }));
+    checkSlugValidation(newSlug);
   };
 
   const handleCreatePage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPage.name.trim() || !newPage.slug.trim()) return;
+    if (!checkSlugValidation(newPage.slug)) {
+      return;
+    }
 
     try {
       await toast.promise(
@@ -98,6 +133,7 @@ function CreatePageDialog({ site }: { site: string }) {
       );
       setNewPage({ name: "", slug: "" });
       setIsSlugManuallyEdited(false);
+      setSlugError(null);
       setOpen(false);
     } catch (err) {
       console.error("Error creating page:", err);
@@ -109,6 +145,7 @@ function CreatePageDialog({ site }: { site: string }) {
     if (!open) {
       setNewPage({ name: "", slug: "" });
       setIsSlugManuallyEdited(false);
+      setSlugError(null);
     }
     setOpen(open);
   };
@@ -164,6 +201,9 @@ function CreatePageDialog({ site }: { site: string }) {
                   {newPage.slug || "page-slug"}
                 </span>
               </p>
+              {slugError && (
+                <p className="text-destructive text-sm">{slugError}</p>
+              )}
             </div>
           </div>
           <DialogFooter>
@@ -176,11 +216,7 @@ function CreatePageDialog({ site }: { site: string }) {
             </Button>
             <Button
               type="submit"
-              disabled={
-                createPageMutation.isPending ||
-                !newPage.name.trim() ||
-                !newPage.slug.trim()
-              }
+              disabled={createPageMutation.isPending || !!slugError}
             >
               {createPageMutation.isPending ? (
                 <>

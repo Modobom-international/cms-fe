@@ -495,7 +495,13 @@
             "Slug": {
               "Label": "URL Slug",
               "Placeholder": "ví dụ: trang-chu, gioi-thieu, lien-he",
-              "Help": "Đường dẫn sẽ là: https://{site}/"
+              "Help": "Đường dẫn sẽ là: https://{site}/",
+              "Validation": {
+                "Required": "URL Slug là bắt buộc",
+                "Invalid": "URL Slug chỉ được chứa chữ thường, số và dấu gạch ngang",
+                "MinLength": "URL Slug phải có ít nhất 3 ký tự",
+                "MaxLength": "URL Slug không được vượt quá 64 ký tự"
+              }
             },
             "Cancel": "Hủy",
             "Submit": "Tạo Trang",
