@@ -3,9 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - dev
-      - product
-  
+      - main
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
