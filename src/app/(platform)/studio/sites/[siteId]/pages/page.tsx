@@ -5,7 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
-import { PlusIcon } from "lucide-react";
+import { ArrowLeft, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
 import { useCreatePage, useDeletePage, useGetPages } from "@/hooks/pages";
@@ -37,6 +37,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+import { Spinner } from "@/components/global/spinner";
 
 function CreatePageDialog() {
   const params = useParams();
@@ -143,36 +145,56 @@ function DeleteConfirmationDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[400px]">
+        <DialogHeader className="space-y-3">
           <DialogTitle>Delete Page</DialogTitle>
           <DialogDescription>
             This action cannot be undone. This will permanently delete the page
             <span className="font-semibold"> {pageName}</span>.
           </DialogDescription>
         </DialogHeader>
-        <div className="py-4">
-          <p className="mb-2 text-sm text-gray-600">
-            To confirm, type{" "}
-            <span className="font-mono text-red-500">{pageName}</span> below:
-          </p>
-          <Input
-            value={confirmationText}
-            onChange={(e) => setConfirmationText(e.target.value)}
-            placeholder="Type page slug to confirm"
-            className="w-full"
-          />
+        <div className="space-y-3 py-4">
+          <div className="space-y-2">
+            <p className="text-muted-foreground text-sm">
+              To confirm, type{" "}
+              <span className="text-destructive font-mono font-medium">
+                {pageName}
+              </span>{" "}
+              below:
+            </p>
+            <Input
+              value={confirmationText}
+              onChange={(e) => setConfirmationText(e.target.value)}
+              placeholder="Type page slug to confirm"
+              className="w-full"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+            />
+          </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="w-full sm:w-auto"
+          >
             Cancel
           </Button>
           <Button
             variant="destructive"
             onClick={onConfirm}
             disabled={confirmationText !== pageName || isDeleting}
+            className="w-full sm:w-auto"
           >
-            {isDeleting ? "Deleting..." : "Delete Page"}
+            {isDeleting ? (
+              <>
+                <Spinner />
+                Deleting...
+              </>
+            ) : (
+              "Delete Page"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -235,7 +257,20 @@ export default function PagesManagementPage() {
   return (
     <div className="container space-y-6 p-6">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Link
+              href="/studio/sites"
+              className={buttonVariants({
+                variant: "ghost",
+                size: "sm",
+                className: "gap-2",
+              })}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Sites
+            </Link>
+          </div>
           <h1 className="text-2xl font-semibold tracking-tight">
             Pages - {site?.data.name}
           </h1>
@@ -281,7 +316,7 @@ export default function PagesManagementPage() {
                     <TableCell>
                       <div className="flex space-x-2">
                         <Link
-                          href={`/studio/sites/${siteId}/pages/${page.slug}?pageId=${page.id}`}
+                          href={`/editor/${siteId}/${page.slug}?pageId=${page.id}`}
                           className={buttonVariants({ size: "sm" })}
                         >
                           Edit

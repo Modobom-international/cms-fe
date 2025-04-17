@@ -42,6 +42,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { Spinner } from "@/components/global/spinner";
+
 interface Site {
   id: string;
   name: string;
@@ -69,8 +71,8 @@ function DeleteConfirmationDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[400px]">
+        <DialogHeader className="space-y-3">
           <DialogTitle>Delete Site</DialogTitle>
           <DialogDescription>
             This action cannot be undone. This will permanently delete the site
@@ -78,28 +80,48 @@ function DeleteConfirmationDialog({
             pages.
           </DialogDescription>
         </DialogHeader>
-        <div className="py-4">
-          <p className="mb-2 text-sm text-gray-600">
-            To confirm, type{" "}
-            <span className="font-mono text-red-500">{siteName}</span> below:
-          </p>
-          <Input
-            value={confirmationText}
-            onChange={(e) => setConfirmationText(e.target.value)}
-            placeholder="Type site name to confirm"
-            className="w-full"
-          />
+        <div className="space-y-3 py-4">
+          <div className="space-y-2">
+            <p className="text-muted-foreground text-sm">
+              To confirm, type{" "}
+              <span className="text-destructive font-mono font-medium">
+                {siteName}
+              </span>{" "}
+              below:
+            </p>
+            <Input
+              value={confirmationText}
+              onChange={(e) => setConfirmationText(e.target.value)}
+              placeholder="Type site name to confirm"
+              className="w-full"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+            />
+          </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="w-full sm:w-auto"
+          >
             Cancel
           </Button>
           <Button
             variant="destructive"
             onClick={onConfirm}
             disabled={confirmationText !== siteName || isDeleting}
+            className="w-full sm:w-auto"
           >
-            {isDeleting ? "Deleting..." : "Delete Site"}
+            {isDeleting ? (
+              <>
+                <Spinner />
+                Deleting...
+              </>
+            ) : (
+              "Delete Site"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
