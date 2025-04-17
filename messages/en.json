@@ -206,7 +206,8 @@
                 "selectDomain": "Select domain",
                 "datePicker": "Date picker",
                 "search": "Search",
-                "viewHeatmap": "View heatmap"
+                "viewHeatmap": "View heatmap",
+                "date": "Date"
             },
             "columns": {
                 "id": "ID",
@@ -319,7 +320,8 @@
                 "endDate": "End date",
                 "actionTypes": "Action types",
                 "apply": "Apply filters",
-                "clearAll": "Clear all"
+                "clearAll": "Clear all",
+                "date": "Date"
             },
             "columns": {
                 "id": "ID",
@@ -358,6 +360,51 @@
                 "CREATE_RECORD": "Create Record",
                 "UPDATE_RECORD": "Update Record",
                 "DELETE_RECORD": "Delete Record"
+            }
+        }
+    },
+    "HtmlSourcePage": {
+        "title": "HTML Source Management",
+        "description": "Manage and monitor HTML source data from various applications",
+        "breadcrumb": "HTML Source",
+        "table": {
+            "filters": {
+                "search": "Search",
+                "date": "Date"
+                
+            },
+            "columns": {
+                "id": "ID",
+                "pathway": "Pathway",
+                "nation": "Nation",
+                "platform": "Platform",
+                "source": "Source",
+                "device": "Device",
+                "applicationId": "Application ID",
+                "version": "Version",
+                "dayCreation": "Day creation",
+                "note": "Note",
+                "actions": "Actions"
+            },
+            "pagination": {
+                "rowsPerPage": "Rows per page",
+                "of": "of",
+                "firstPage": "Go to first page",
+                "previousPage": "Previous",
+                "nextPage": "Next",
+                "lastPage": "Go to last page"
+            },
+            "actions": {
+                "details": "Details",
+                "retry": "Retry",
+                "refresh": "Refresh"
+            },
+            "loadingStates": {
+                "loading": "Loading HTML source data...",
+                "error": "An error occurred while loading HTML source data"
+            },
+            "placeholders": {
+                "search": "Search by pathway or source"
             }
         }
     },

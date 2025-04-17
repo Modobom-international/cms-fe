@@ -1,51 +1,38 @@
-/* eslint-disable unused-imports/no-unused-vars */
 "use client";
 
-import { CSSProperties, useState } from "react";
+import { useState } from "react";
 
+import { CalendarDate, parseDate } from "@internationalized/date";
+import { format } from "date-fns";
+import { CalendarIcon, MoreHorizontal, PlusCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import {
-  Column,
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
-  ArrowLeftToLineIcon,
-  ArrowRightToLineIcon,
-  ChevronDownIcon,
-  ChevronFirstIcon,
-  ChevronLastIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronUpIcon,
-  EllipsisIcon,
-  GlobeIcon,
-  MoreHorizontalIcon,
-  PencilIcon,
-  PinOffIcon,
-  TrashIcon,
-  UserIcon,
-} from "lucide-react";
+  Button as ButtonAria,
+  DatePicker,
+  Dialog,
+  Group,
+  Popover as PopoverAria,
+} from "react-aria-components";
 
-import { cn } from "@/lib/utils";
+// Import types
+import { IHtmlSource } from "@/types/html-source.type";
+
+import { formatDateTime } from "@/lib/utils";
+
+import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Calendar } from "@/components/ui/calendar-rac";
+import { DateInput } from "@/components/ui/datefield-rac";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-} from "@/components/ui/pagination";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -62,619 +49,530 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { SearchBar } from "./search-bar";
-
-/* eslint-disable unused-imports/no-unused-vars */
-
-/* eslint-disable unused-imports/no-unused-vars */
-
-type HtmlSourceItem = {
-  id: number;
-  url: string; // Pathway
-  country: string; // Nation
-  source: string;
-  device_id: string;
-  app_id: string;
-  version: string;
-  created_date: string; // Day creation
-  note: string;
-  platform: string; // Platform (TikTok, Google, Facebook, etc.)
-};
-
-// Add Badge component definition
-const Badge = ({
-  variant,
-  children,
-}: {
-  variant: "success" | "error" | "warning" | "default";
-  children: React.ReactNode;
-}) => {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset",
-        variant === "success" && "bg-green-50 text-green-700 ring-green-600/20",
-        variant === "error" && "bg-red-50 text-red-700 ring-red-600/20",
-        variant === "warning" &&
-          "bg-yellow-50 text-yellow-700 ring-yellow-600/20",
-        variant === "default" && "bg-gray-50 text-gray-700 ring-gray-600/20"
-      )}
-    >
-      {children}
-    </span>
-  );
-};
-
-// Helper function to compute pinning styles for columns
-const getPinningStyles = (column: Column<HtmlSourceItem>): CSSProperties => {
-  const isPinned = column.getIsPinned();
-  return {
-    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
-    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
-    position: isPinned ? "sticky" : "relative",
-    width: column.getSize(),
-    zIndex: isPinned ? 1 : 0,
-    backgroundColor: isPinned ? "#fff" : "transparent",
-  };
-};
-
-const columns: ColumnDef<HtmlSourceItem>[] = [
-  {
-    header: "ID",
-    accessorKey: "id",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground">{row.getValue("id")}</div>
-    ),
-  },
-  {
-    header: "Pathway",
-    accessorKey: "url",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <GlobeIcon className="text-muted-foreground h-4 w-4" />
-        <span className="truncate font-medium">{row.getValue("url")}</span>
-      </div>
-    ),
-  },
-  {
-    header: "Nation",
-    accessorKey: "country",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <span className="truncate">{row.getValue("country")}</span>
-      </div>
-    ),
-  },
-  {
-    header: "Platform",
-    accessorKey: "platform",
-    cell: ({ row }) => {
-      const platform = row.getValue("platform") as string;
-      let badgeVariant: "success" | "warning" | "error" | "default" = "default";
-
-      // Assign badge colors based on platform
-      if (["facebook", "instagram", "meta"].includes(platform.toLowerCase())) {
-        badgeVariant = "success";
-      } else if (["tiktok", "douyin"].includes(platform.toLowerCase())) {
-        badgeVariant = "warning";
-      } else if (["google", "youtube"].includes(platform.toLowerCase())) {
-        badgeVariant = "error";
-      }
-
-      return (
-        <div className="flex items-center gap-2">
-          <Badge variant={badgeVariant}>{platform}</Badge>
-        </div>
-      );
-    },
-  },
-  {
-    header: "Source",
-    accessorKey: "source",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <span className="max-w-[200px] truncate font-mono text-sm">
-          {(row.getValue("source") as string).substring(0, 50)}...
-        </span>
-      </div>
-    ),
-  },
-  {
-    header: "Device",
-    accessorKey: "device_id",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <UserIcon className="text-muted-foreground h-4 w-4" />
-        <span className="truncate">{row.getValue("device_id")}</span>
-      </div>
-    ),
-  },
-  {
-    header: "Application ID",
-    accessorKey: "app_id",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground truncate">
-        {row.getValue("app_id")}
-      </div>
-    ),
-  },
-  {
-    header: "Version",
-    accessorKey: "version",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground truncate">
-        {row.getValue("version")}
-      </div>
-    ),
-  },
-  {
-    header: "Day creation",
-    accessorKey: "created_date",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground truncate">
-        {row.getValue("created_date")}
-      </div>
-    ),
-  },
-  {
-    header: "Note",
-    accessorKey: "note",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground max-w-[200px] truncate">
-        {row.getValue("note") || "-"}
-      </div>
-    ),
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      const htmlSource = row.original;
-
-      return (
-        <div className="flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="data-[state=open]:bg-muted flex h-8 w-8 p-0"
-              >
-                <MoreHorizontalIcon className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[160px]">
-              <DropdownMenuItem>
-                <PencilIcon className="mr-2 h-4 w-4" />
-                View Source
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive focus:text-destructive">
-                <TrashIcon className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
-    },
-  },
-];
+import { EmptyTable } from "@/components/data-table/empty-table";
+import { Spinner } from "@/components/global/spinner";
 
 export default function HtmlSourceDataTable() {
-  const [data, setData] = useState<HtmlSourceItem[]>([]);
-  const [sorting, setSorting] = useState<SortingState>([
-    {
-      id: "id",
-      desc: true,
-    },
-  ]);
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
+  const t = useTranslations("HtmlSourcePage.table");
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<string | null>(
+    null
+  );
+  const [selectedNation, setSelectedNation] = useState<string | null>(null);
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
 
-  // Data for select filters
-  const [applications, setApplications] = useState([
-    { value: "com.modobom.app1", label: "Modobom App 1" },
-    { value: "com.modobom.app2", label: "Modobom App 2" },
-    { value: "com.modobom.app3", label: "Modobom App 3" },
-  ]);
+  const [currentPage, setCurrentPage] = useQueryState(
+    "page",
+    parseAsInteger.withDefault(1)
+  );
+  const [pageSize, setPageSize] = useQueryState(
+    "pageSize",
+    parseAsInteger.withDefault(10)
+  );
+  const [search, setSearch] = useQueryState(
+    "search",
+    parseAsString.withDefault("")
+  );
+  const [date, setDate] = useQueryState(
+    "date",
+    parseAsString.withDefault(format(new Date(), "yyyy-MM-dd"))
+  );
 
-  const [nations, setNations] = useState([
-    { value: "us", label: "United States" },
-    { value: "uk", label: "United Kingdom" },
-    { value: "jp", label: "Japan" },
-    { value: "vn", label: "Vietnam" },
-  ]);
+  const debouncedSearch = useDebounce(search, 500);
 
-  const [platforms, setPlatforms] = useState([
-    { value: "facebook", label: "Facebook" },
-    { value: "instagram", label: "Instagram" },
-    { value: "tiktok", label: "TikTok" },
-    { value: "google", label: "Google" },
-    { value: "youtube", label: "YouTube" },
-    { value: "twitter", label: "Twitter" },
-    { value: "pinterest", label: "Pinterest" },
-    { value: "snapchat", label: "Snapchat" },
-    { value: "linkedin", label: "LinkedIn" },
-  ]);
+  // Extract data from the mock response
+  const htmlSourceData: IHtmlSource[] = [];
+  const paginationInfo = {
+    from: 0,
+    to: 0,
+    total: 0,
+    last_page: 1,
+    current_page: 1,
+  };
+  const isDataEmpty = true;
+  const isFetching = isLoading;
+  const isError = false;
 
-  const handleSearch = (values: any) => {
-    console.log("Search values:", values);
-    // Here you would normally make an API call with these filters
-    // For now, we're just setting the global filter to simulate search
-    if (values.sourceKeyword) {
-      setGlobalFilter(values.sourceKeyword);
-    }
-
-    // In a real implementation, you would filter data based on all criteria
-    // including platform, application, nation, etc.
+  // Handle next page navigation - increment by 1
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const table = useReactTable({
-    data,
-    columns,
-    columnResizeMode: "onChange",
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    state: {
-      sorting,
-      globalFilter,
-      pagination,
-    },
-    onGlobalFilterChange: setGlobalFilter,
-    enableSortingRemoval: false,
-    manualPagination: false,
-    // Get filtered rows & total row counts
-    pageCount: Math.ceil(data.length / pagination.pageSize),
-  });
+  // Handle previous page navigation - decrement by 1
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Date picker handling
+  const calendarDate = date ? parseDate(date) : undefined;
+  const handleDateChange = (newDate: CalendarDate | null) => {
+    if (newDate) {
+      setDate(newDate.toString());
+    } else {
+      setDate("");
+    }
+  };
+
+  // Clear a specific filter
+  const clearFilter = (type: "application" | "nation" | "platform") => {
+    if (type === "application") setSelectedApplication(null);
+    if (type === "nation") setSelectedNation(null);
+    if (type === "platform") setSelectedPlatform(null);
+  };
 
   return (
-    <>
-      {/* Search Bar */}
-      <div className="mb-6">
-        <SearchBar
-          onSearch={handleSearch}
-          applications={applications}
-          nations={nations}
-          platforms={platforms}
-        />
-      </div>
-
-      <div className="w-full">
-        <Table
-          className="[&_td]:border-border [&_th]:border-border w-full table-fixed border-separate border-spacing-0 [&_tfoot_td]:border-t [&_th]:border-b [&_tr]:border-none [&_tr:not(:last-child)_td]:border-b"
-          style={{
-            minWidth: "100%",
-          }}
-        >
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="bg-muted/50">
-                {headerGroup.headers.map((header) => {
-                  const { column } = header;
-                  const isPinned = column.getIsPinned();
-                  const isLastLeftPinned =
-                    isPinned === "left" && column.getIsLastColumn("left");
-                  const isFirstRightPinned =
-                    isPinned === "right" && column.getIsFirstColumn("right");
-
-                  return (
-                    <TableHead
-                      key={header.id}
-                      className="[&[data-pinned][data-last-col]]:border-border data-pinned:bg-muted/90 relative h-10 truncate border-t data-pinned:backdrop-blur-xs [&:not([data-pinned]):has(+[data-pinned])_div.cursor-col-resize:last-child]:opacity-0 [&[data-last-col=left]_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=left][data-last-col=left]]:border-r [&[data-pinned=right]:last-child_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=right][data-last-col=right]]:border-l"
-                      colSpan={header.colSpan}
-                      style={{
-                        ...getPinningStyles(column),
-                      }}
-                      data-pinned={isPinned || undefined}
-                      data-last-col={
-                        isLastLeftPinned
-                          ? "left"
-                          : isFirstRightPinned
-                            ? "right"
-                            : undefined
-                      }
-                      aria-sort={
-                        header.column.getIsSorted() === "asc"
-                          ? "ascending"
-                          : header.column.getIsSorted() === "desc"
-                            ? "descending"
-                            : "none"
-                      }
-                    >
-                      <div
-                        className={cn(
-                          "flex items-center justify-between gap-2",
-                          header.column.getCanSort() &&
-                            "cursor-pointer select-none"
-                        )}
-                        onClick={
-                          header.column.getCanSort()
-                            ? header.column.getToggleSortingHandler()
-                            : undefined
-                        }
-                        onKeyDown={(e) => {
-                          if (
-                            header.column.getCanSort() &&
-                            (e.key === "Enter" || e.key === " ")
-                          ) {
-                            e.preventDefault();
-                            header.column.getToggleSortingHandler()?.(e);
-                          }
-                        }}
-                        tabIndex={header.column.getCanSort() ? 0 : undefined}
-                      >
-                        <div className="flex items-center gap-1">
-                          <span className="truncate">
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
-                          </span>
-                          {header.column.getCanSort() && (
-                            <div className="flex items-center">
-                              {header.column.getIsSorted() === "asc" ? (
-                                <ChevronUpIcon className="size-4 shrink-0 opacity-60" />
-                              ) : header.column.getIsSorted() === "desc" ? (
-                                <ChevronDownIcon className="size-4 shrink-0 opacity-60" />
-                              ) : null}
-                            </div>
-                          )}
-                        </div>
-                        {/* Pin/Unpin column controls with enhanced accessibility */}
-                        {!header.isPlaceholder &&
-                          header.column.getCanPin() &&
-                          (header.column.getIsPinned() ? (
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="-mr-1 size-7 shadow-none"
-                              onClick={() => header.column.pin(false)}
-                              aria-label={`Unpin ${
-                                header.column.columnDef.header as string
-                              } column`}
-                              title={`Unpin ${
-                                header.column.columnDef.header as string
-                              } column`}
-                            >
-                              <PinOffIcon
-                                className="opacity-60"
-                                size={16}
-                                aria-hidden="true"
-                              />
-                            </Button>
-                          ) : (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="-mr-1 size-7 shadow-none"
-                                  aria-label={`Pin options for ${
-                                    header.column.columnDef.header as string
-                                  } column`}
-                                  title={`Pin options for ${
-                                    header.column.columnDef.header as string
-                                  } column`}
-                                >
-                                  <EllipsisIcon
-                                    className="opacity-60"
-                                    size={16}
-                                    aria-hidden="true"
-                                  />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onClick={() => header.column.pin("left")}
-                                >
-                                  <ArrowLeftToLineIcon
-                                    size={16}
-                                    className="opacity-60"
-                                    aria-hidden="true"
-                                  />
-                                  Stick to left
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => header.column.pin("right")}
-                                >
-                                  <ArrowRightToLineIcon
-                                    size={16}
-                                    className="opacity-60"
-                                    aria-hidden="true"
-                                  />
-                                  Stick to right
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          ))}
-                        {header.column.getCanResize() && (
-                          <div
-                            {...{
-                              onDoubleClick: () => header.column.resetSize(),
-                              onMouseDown: header.getResizeHandler(),
-                              onTouchStart: header.getResizeHandler(),
-                              className:
-                                "absolute top-0 h-full w-4 cursor-col-resize user-select-none touch-none -right-2 z-10 flex justify-center before:absolute before:w-px before:inset-y-0 before:bg-border before:-translate-x-px",
-                            }}
-                          />
-                        )}
-                      </div>
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    const { column } = cell;
-                    const isPinned = column.getIsPinned();
-                    const isLastLeftPinned =
-                      isPinned === "left" && column.getIsLastColumn("left");
-                    const isFirstRightPinned =
-                      isPinned === "right" && column.getIsFirstColumn("right");
-
-                    return (
-                      <TableCell
-                        key={cell.id}
-                        className="[&[data-pinned][data-last-col]]:border-border data-pinned:bg-background/90 truncate data-pinned:backdrop-blur-xs [&[data-pinned=left][data-last-col=left]]:border-r [&[data-pinned=right][data-last-col=right]]:border-l"
-                        style={{
-                          ...getPinningStyles(column),
-                        }}
-                        data-pinned={isPinned || undefined}
-                        data-last-col={
-                          isLastLeftPinned
-                            ? "left"
-                            : isFirstRightPinned
-                              ? "right"
-                              : undefined
-                        }
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between gap-8 pt-4">
-        {/* Results per page */}
-        <div className="flex items-center gap-3">
-          <Label htmlFor="rows-per-page" className="max-sm:sr-only">
-            Rows per page
-          </Label>
-          <Select
-            value={table.getState().pagination.pageSize.toString()}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
-            }}
-          >
-            <SelectTrigger
-              id="rows-per-page"
-              className="w-fit whitespace-nowrap"
+    <div className="flex flex-col">
+      {/* Filters Section */}
+      <div className="space-y-4">
+        {/* First Row - Source Keyword */}
+        <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-2">
+          {/* Source Keyword Input */}
+          <div>
+            <Label
+              className="mb-2 block text-sm font-medium text-gray-700"
+              htmlFor="search"
             >
-              <SelectValue placeholder="Select number of results" />
-            </SelectTrigger>
-            <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
-              {[5, 10, 25, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={pageSize.toString()}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {/* Page number information */}
-        <div className="text-muted-foreground flex grow justify-end text-sm whitespace-nowrap">
-          <p
-            className="text-muted-foreground text-sm whitespace-nowrap"
-            aria-live="polite"
-          >
-            <span className="text-foreground">
-              {pagination.pageIndex * pagination.pageSize + 1}-
-              {Math.min(
-                (pagination.pageIndex + 1) * pagination.pageSize,
-                table.getFilteredRowModel().rows.length
-              )}
-            </span>{" "}
-            of{" "}
-            <span className="text-foreground">
-              {table.getFilteredRowModel().rows.length}
-            </span>
-          </p>
+              {t("filters.search")}
+            </Label>
+            <Input
+              id="search"
+              placeholder={t("placeholders.search")}
+              value={search}
+              onChange={(e) => {
+                setCurrentPage(1);
+                setSearch(e.target.value);
+              }}
+              className="w-full"
+            />
+          </div>
         </div>
 
-        {/* Pagination buttons */}
-        <div>
-          <Pagination>
-            <PaginationContent>
-              {/* First page button */}
-              <PaginationItem>
+        {/* Second Row - Filter Pills and Date Picker */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Date Picker */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <PlusCircle className="size-3.5" />
+                {t("filters.date")}
+              </span>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-0" align="start">
+              <div className="px-3 pt-3">
+                <h3 className="text-sm font-medium">Select Date</h3>
+              </div>
+              <ScrollArea className="max-h-72">
+                <div className="p-3">
+                  <DatePicker value={calendarDate} onChange={handleDateChange}>
+                    <DateInput className="w-full" />
+                  </DatePicker>
+                </div>
+              </ScrollArea>
+              <div className="flex items-center justify-between border-t border-gray-100 p-3">
                 <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.firstPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  aria-label="Go to first page"
+                  onClick={() => {
+                    setCurrentPage(1);
+                  }}
+                  className="w-full"
                 >
-                  <ChevronFirstIcon size={16} aria-hidden="true" />
+                  Apply Filter
                 </Button>
-              </PaginationItem>
-              {/* Previous page button */}
-              <PaginationItem>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Application Filter */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <PlusCircle className="size-3.5" />
+                Application
+              </span>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-0" align="start">
+              <div className="px-3 pt-3">
+                <h3 className="text-sm font-medium">Filter by Application</h3>
+              </div>
+              <ScrollArea className="max-h-72">
+                <div className="p-3">
+                  <Select
+                    onValueChange={(value) => setSelectedApplication(value)}
+                    value={selectedApplication || undefined}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select application" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="app1">Mobile App</SelectItem>
+                      <SelectItem value="app2">Web App</SelectItem>
+                      <SelectItem value="app3">Desktop App</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </ScrollArea>
+              <div className="flex items-center justify-between border-t border-gray-100 p-3">
                 <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  aria-label="Go to previous page"
+                  onClick={() => {
+                    setCurrentPage(1);
+                  }}
+                  className="w-full"
                 >
-                  <ChevronLeftIcon size={16} aria-hidden="true" />
+                  Apply Filter
                 </Button>
-              </PaginationItem>
-              {/* Next page button */}
-              <PaginationItem>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Nation Filter */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <PlusCircle className="size-3.5" />
+                Nation
+              </span>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-0" align="start">
+              <div className="px-3 pt-3">
+                <h3 className="text-sm font-medium">Filter by Nation</h3>
+              </div>
+              <ScrollArea className="max-h-72">
+                <div className="p-3">
+                  <Select
+                    onValueChange={(value) => setSelectedNation(value)}
+                    value={selectedNation || undefined}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select nation" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="us">United States</SelectItem>
+                      <SelectItem value="uk">United Kingdom</SelectItem>
+                      <SelectItem value="ca">Canada</SelectItem>
+                      <SelectItem value="vn">Vietnam</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </ScrollArea>
+              <div className="flex items-center justify-between border-t border-gray-100 p-3">
                 <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                  aria-label="Go to next page"
+                  onClick={() => {
+                    setCurrentPage(1);
+                  }}
+                  className="w-full"
                 >
-                  <ChevronRightIcon size={16} aria-hidden="true" />
+                  Apply Filter
                 </Button>
-              </PaginationItem>
-              {/* Last page button */}
-              <PaginationItem>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Platform Filter */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <PlusCircle className="size-3.5" />
+                Platform
+              </span>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-0" align="start">
+              <div className="px-3 pt-3">
+                <h3 className="text-sm font-medium">Filter by Platform</h3>
+              </div>
+              <ScrollArea className="max-h-72">
+                <div className="p-3">
+                  <Select
+                    onValueChange={(value) => setSelectedPlatform(value)}
+                    value={selectedPlatform || undefined}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select platform" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="android">Android</SelectItem>
+                      <SelectItem value="ios">iOS</SelectItem>
+                      <SelectItem value="web">Web</SelectItem>
+                      <SelectItem value="desktop">Desktop</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </ScrollArea>
+              <div className="flex items-center justify-between border-t border-gray-100 p-3">
                 <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.lastPage()}
-                  disabled={!table.getCanNextPage()}
-                  aria-label="Go to last page"
+                  onClick={() => {
+                    setCurrentPage(1);
+                  }}
+                  className="w-full"
                 >
-                  <ChevronLastIcon size={16} aria-hidden="true" />
+                  Apply Filter
                 </Button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Active Filters - Only show if selected */}
+          {selectedApplication && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-600">
+              {selectedApplication === "app1"
+                ? "Mobile App"
+                : selectedApplication === "app2"
+                  ? "Web App"
+                  : "Desktop App"}
+              <button
+                onClick={() => clearFilter("application")}
+                className="ml-1 text-indigo-500 hover:text-indigo-700"
+              >
+                ×
+              </button>
+            </span>
+          )}
+
+          {selectedNation && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
+              {selectedNation === "us"
+                ? "United States"
+                : selectedNation === "uk"
+                  ? "United Kingdom"
+                  : selectedNation === "ca"
+                    ? "Canada"
+                    : "Vietnam"}
+              <button
+                onClick={() => clearFilter("nation")}
+                className="ml-1 text-green-500 hover:text-green-700"
+              >
+                ×
+              </button>
+            </span>
+          )}
+
+          {selectedPlatform && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-600">
+              {selectedPlatform === "android"
+                ? "Android"
+                : selectedPlatform === "ios"
+                  ? "iOS"
+                  : selectedPlatform === "web"
+                    ? "Web"
+                    : "Desktop"}
+              <button
+                onClick={() => clearFilter("platform")}
+                className="ml-1 text-amber-500 hover:text-amber-700"
+              >
+                ×
+              </button>
+            </span>
+          )}
+        </div>
+
+        {/* Results Table or Empty State */}
+        <div className="mt-4 flex-grow">
+          {isFetching ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <Spinner />
+              </div>
+            </div>
+          ) : isError ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <p className="text-destructive text-sm">
+                  {t("loadingStates.error")}
+                </p>
+              </div>
+            </div>
+          ) : isDataEmpty ? (
+            <EmptyTable />
+          ) : (
+            <div className="flex flex-col space-y-6">
+              {/* First Data Table Section */}
+              <div className="relative w-full overflow-auto">
+                <Table className="w-full">
+                  <TableHeader className="sticky top-0 z-10 bg-white">
+                    <TableRow className="border-b border-gray-200 hover:bg-white">
+                      <TableHead className="w-[60px] py-3 font-medium text-gray-700">
+                        {t("columns.id")}
+                      </TableHead>
+                      <TableHead className="w-[140px] py-3 font-medium text-gray-700">
+                        {t("columns.pathway")}
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        {t("columns.nation")}
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        {t("columns.platform")}
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        {t("columns.source")}
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        {t("columns.device")}
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        {t("columns.applicationId")}
+                      </TableHead>
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        {t("columns.version")}
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {htmlSourceData.map(
+                      (source: IHtmlSource, index: number) => (
+                        <TableRow
+                          key={index}
+                          className="border-b border-gray-200 hover:bg-gray-50"
+                        >
+                          <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                            {source.id ?? "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3">
+                            <span className="font-medium text-indigo-600">
+                              {source.pathway ?? "—"}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.nation ?? "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.platform ?? "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.source ?? "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.device ?? "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.application_id ?? "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.version ?? "—"}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Second Data Table Section */}
+              <div className="relative w-full overflow-auto">
+                <Table className="w-full">
+                  <TableHeader className="sticky top-0 z-10 bg-white">
+                    <TableRow className="border-b border-gray-200 hover:bg-white">
+                      <TableHead className="w-[140px] py-3 font-medium text-gray-700">
+                        {t("columns.dayCreation")}
+                      </TableHead>
+                      <TableHead className="py-3 font-medium text-gray-700">
+                        {t("columns.note")}
+                      </TableHead>
+                      <TableHead className="w-[100px] py-3 font-medium text-gray-700">
+                        {t("columns.actions")}
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {htmlSourceData.map(
+                      (source: IHtmlSource, index: number) => (
+                        <TableRow
+                          key={index}
+                          className="border-b border-gray-200 hover:bg-gray-50"
+                        >
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.day_creation
+                              ? formatDateTime(new Date(source.day_creation))
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {source.note ?? "—"}
+                          </TableCell>
+                          <TableCell className="py-3">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <span className="sr-only">
+                                {t("actions.details")}
+                              </span>
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Pagination Section - Fixed at bottom when scrolling */}
+              <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
+                {/* Main pagination controls */}
+                <div className="flex items-center justify-between px-4 py-2">
+                  {/* Results per page */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600">
+                      {t("pagination.rowsPerPage")}
+                    </span>
+                    <Select
+                      value={pageSize.toString()}
+                      onValueChange={(value) => setPageSize(Number(value))}
+                    >
+                      <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
+                        <SelectValue placeholder="10" />
+                      </SelectTrigger>
+                      <SelectContent className="text-sm">
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Pagination controls */}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1}
+                    >
+                      {t("pagination.previousPage")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      onClick={handleNextPage}
+                      disabled={currentPage === paginationInfo.last_page}
+                    >
+                      {t("pagination.nextPage")}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Bottom status line */}
+                <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+                  <div>
+                    Viewing {paginationInfo.from || 1}-
+                    {paginationInfo.to ||
+                      Math.min(pageSize, paginationInfo.total || 0)}{" "}
+                    {t("pagination.of")} {paginationInfo.total || 0} results
+                  </div>
+                  <div>
+                    Page {currentPage} {t("pagination.of")}{" "}
+                    {paginationInfo.last_page || 1}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 }
+

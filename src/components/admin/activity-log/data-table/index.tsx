@@ -161,166 +161,179 @@ export default function ActivityLogDataTable() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-
-          {/* Date Filters */}
-          <div>
-            <DatePicker
-              className="*:not-first:mt-2"
-              value={calendarDate}
-              onChange={handleDateChange}
-            >
-              <Label className="text-foreground text-sm font-medium">
-                {t("filters.datePicker")}
-              </Label>
-              <div className="flex">
-                <Group className="w-full">
-                  <DateInput className="pe-9" />
-                </Group>
-                <ButtonAria className="text-muted-foreground/80 hover:text-foreground data-focus-visible:border-ring data-focus-visible:ring-ring/50 z-10 -ms-9 -me-px flex w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none data-focus-visible:ring-[3px]">
-                  <CalendarIcon size={16} />
-                </ButtonAria>
-              </div>
-              <PopoverAria
-                className="bg-background text-popover-foreground data-entering:animate-in data-exiting:animate-out data-[entering]:fade-in-0 data-[exiting]:fade-out-0 data-[entering]:zoom-in-95 data-[exiting]:zoom-out-95 data-[placement=bottom]:slide-in-from-top-2 data-[placement=left]:slide-in-from-right-2 data-[placement=right]:slide-in-from-left-2 data-[placement=top]:slide-in-from-bottom-2 z-50 rounded-lg border shadow-lg outline-hidden"
-                offset={4}
-              >
-                <Dialog className="max-h-[inherit] overflow-auto p-2">
-                  <Calendar />
-                </Dialog>
-              </PopoverAria>
-            </DatePicker>
-          </div>
         </div>
 
-        <div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
-                <PlusCircle className="size-3.5" />
-                Action Type
-              </span>
-            </PopoverTrigger>
-            <PopoverContent className="w-72 p-0" align="start">
-              <div className="px-3 pt-3">
-                <h3 className="text-sm font-medium">Filter by Action Type</h3>
-              </div>
-              <ScrollArea className="max-h-72">
-                <div className="space-y-3 p-3">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id={ACTION_TYPES.ACCESS_VIEW}
-                      checked={selectedActions.includes(
-                        ACTION_TYPES.ACCESS_VIEW
-                      )}
-                      onCheckedChange={(checked) =>
-                        handleActionChange(
-                          ACTION_TYPES.ACCESS_VIEW,
-                          checked === true
-                        )
-                      }
-                    />
-                    <label
-                      htmlFor={ACTION_TYPES.ACCESS_VIEW}
-                      className="text-sm"
-                    >
-                      Access View
-                    </label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id={ACTION_TYPES.SHOW_RECORD}
-                      checked={selectedActions.includes(
-                        ACTION_TYPES.SHOW_RECORD
-                      )}
-                      onCheckedChange={(checked) =>
-                        handleActionChange(
-                          ACTION_TYPES.SHOW_RECORD,
-                          checked === true
-                        )
-                      }
-                    />
-                    <label
-                      htmlFor={ACTION_TYPES.SHOW_RECORD}
-                      className="text-sm"
-                    >
-                      Show Record
-                    </label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id={ACTION_TYPES.CREATE_RECORD}
-                      checked={selectedActions.includes(
-                        ACTION_TYPES.CREATE_RECORD
-                      )}
-                      onCheckedChange={(checked) =>
-                        handleActionChange(
-                          ACTION_TYPES.CREATE_RECORD,
-                          checked === true
-                        )
-                      }
-                    />
-                    <label
-                      htmlFor={ACTION_TYPES.CREATE_RECORD}
-                      className="text-sm"
-                    >
-                      Create Record
-                    </label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id={ACTION_TYPES.UPDATE_RECORD}
-                      checked={selectedActions.includes(
-                        ACTION_TYPES.UPDATE_RECORD
-                      )}
-                      onCheckedChange={(checked) =>
-                        handleActionChange(
-                          ACTION_TYPES.UPDATE_RECORD,
-                          checked === true
-                        )
-                      }
-                    />
-                    <label
-                      htmlFor={ACTION_TYPES.UPDATE_RECORD}
-                      className="text-sm"
-                    >
-                      Update Record
-                    </label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id={ACTION_TYPES.DELETE_RECORD}
-                      checked={selectedActions.includes(
-                        ACTION_TYPES.DELETE_RECORD
-                      )}
-                      onCheckedChange={(checked) =>
-                        handleActionChange(
-                          ACTION_TYPES.DELETE_RECORD,
-                          checked === true
-                        )
-                      }
-                    />
-                    <label
-                      htmlFor={ACTION_TYPES.DELETE_RECORD}
-                      className="text-sm"
-                    >
-                      Delete Record
-                    </label>
-                  </div>
+        {/* Second Row - Date Filter and Action Type Filter */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Date Filters */}
+          <div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                  <PlusCircle className="size-3.5" />
+                  {t("filters.date")}
+                </span>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-0" align="start">
+                <div className="px-3 pt-3">
+                  <h3 className="text-sm font-medium">Select Date</h3>
                 </div>
-              </ScrollArea>
-              <div className="flex items-center justify-between border-t border-gray-100 p-3">
-                <Button
-                  onClick={() => {
-                    setCurrentPage(1);
-                    refetch();
-                  }}
-                  className="w-full"
-                >
-                  Apply Filter
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
+                <ScrollArea className="max-h-72">
+                  <div className="p-3">
+                    <DatePicker
+                      value={calendarDate}
+                      onChange={handleDateChange}
+                    >
+                      <DateInput className="w-full" />
+                    </DatePicker>
+                  </div>
+                </ScrollArea>
+                <div className="flex items-center justify-between border-t border-gray-100 p-3">
+                  <Button
+                    onClick={() => {
+                      setCurrentPage(1);
+                      refetch();
+                    }}
+                    className="w-full"
+                  >
+                    Apply Filter
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* Action Type Filter */}
+          <div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                  <PlusCircle className="size-3.5" />
+                  Action Type
+                </span>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-0" align="start">
+                <div className="px-3 pt-3">
+                  <h3 className="text-sm font-medium">Filter by Action Type</h3>
+                </div>
+                <ScrollArea className="max-h-72">
+                  <div className="space-y-3 p-3">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={ACTION_TYPES.ACCESS_VIEW}
+                        checked={selectedActions.includes(
+                          ACTION_TYPES.ACCESS_VIEW
+                        )}
+                        onCheckedChange={(checked) =>
+                          handleActionChange(
+                            ACTION_TYPES.ACCESS_VIEW,
+                            checked === true
+                          )
+                        }
+                      />
+                      <label
+                        htmlFor={ACTION_TYPES.ACCESS_VIEW}
+                        className="text-sm"
+                      >
+                        Access View
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={ACTION_TYPES.SHOW_RECORD}
+                        checked={selectedActions.includes(
+                          ACTION_TYPES.SHOW_RECORD
+                        )}
+                        onCheckedChange={(checked) =>
+                          handleActionChange(
+                            ACTION_TYPES.SHOW_RECORD,
+                            checked === true
+                          )
+                        }
+                      />
+                      <label
+                        htmlFor={ACTION_TYPES.SHOW_RECORD}
+                        className="text-sm"
+                      >
+                        Show Record
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={ACTION_TYPES.CREATE_RECORD}
+                        checked={selectedActions.includes(
+                          ACTION_TYPES.CREATE_RECORD
+                        )}
+                        onCheckedChange={(checked) =>
+                          handleActionChange(
+                            ACTION_TYPES.CREATE_RECORD,
+                            checked === true
+                          )
+                        }
+                      />
+                      <label
+                        htmlFor={ACTION_TYPES.CREATE_RECORD}
+                        className="text-sm"
+                      >
+                        Create Record
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={ACTION_TYPES.UPDATE_RECORD}
+                        checked={selectedActions.includes(
+                          ACTION_TYPES.UPDATE_RECORD
+                        )}
+                        onCheckedChange={(checked) =>
+                          handleActionChange(
+                            ACTION_TYPES.UPDATE_RECORD,
+                            checked === true
+                          )
+                        }
+                      />
+                      <label
+                        htmlFor={ACTION_TYPES.UPDATE_RECORD}
+                        className="text-sm"
+                      >
+                        Update Record
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={ACTION_TYPES.DELETE_RECORD}
+                        checked={selectedActions.includes(
+                          ACTION_TYPES.DELETE_RECORD
+                        )}
+                        onCheckedChange={(checked) =>
+                          handleActionChange(
+                            ACTION_TYPES.DELETE_RECORD,
+                            checked === true
+                          )
+                        }
+                      />
+                      <label
+                        htmlFor={ACTION_TYPES.DELETE_RECORD}
+                        className="text-sm"
+                      >
+                        Delete Record
+                      </label>
+                    </div>
+                  </div>
+                </ScrollArea>
+                <div className="flex items-center justify-between border-t border-gray-100 p-3">
+                  <Button
+                    onClick={() => {
+                      setCurrentPage(1);
+                      refetch();
+                    }}
+                    className="w-full"
+                  >
+                    Apply Filter
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
 
         {/* Results Table or Empty State */}
