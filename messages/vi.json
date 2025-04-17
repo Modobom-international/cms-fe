@@ -367,7 +367,8 @@
     "breadcrumb": "HTML Source",
     "table": {
       "filters": {
-        "search": "Tìm kiếm"
+        "search": "Tìm kiếm",
+        "date": "Ngày"
       },
       "columns": {
         "id": "ID",

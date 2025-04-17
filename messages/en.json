@@ -367,7 +367,9 @@
         "breadcrumb": "HTML Source",
         "table": {
             "filters": {
-                "search": "Search"
+                "search": "Search",
+                "date": "Date"
+                
             },
             "columns": {
                 "id": "ID",

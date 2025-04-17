@@ -161,7 +161,7 @@ export default function UserTrackingDataTable() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-200px)] flex-col">
+    <div className="min-h- flex flex-col">
       <div className="space-y-6">
         <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
           <div>

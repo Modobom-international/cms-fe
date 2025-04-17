@@ -112,7 +112,7 @@ export default function DomainDataTable() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-200px)] flex-col">
+    <div className="flex flex-col">
       {/* Filters Section */}
       <div className="space-y-6">
         <div className="grid grid-cols-1 items-end gap-6 md:grid-cols-2">
@@ -324,4 +324,3 @@ export default function DomainDataTable() {
     </div>
   );
 }
-

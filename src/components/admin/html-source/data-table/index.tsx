@@ -2,19 +2,37 @@
 
 import { useState } from "react";
 
-import { MoreHorizontal } from "lucide-react";
+import { CalendarDate, parseDate } from "@internationalized/date";
+import { format } from "date-fns";
+import { CalendarIcon, MoreHorizontal, PlusCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
+import {
+  Button as ButtonAria,
+  DatePicker,
+  Dialog,
+  Group,
+  Popover as PopoverAria,
+} from "react-aria-components";
 
 // Import types
 import { IHtmlSource } from "@/types/html-source.type";
 
 import { formatDateTime } from "@/lib/utils";
 
-// Import real hook instead of using mock implementation
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar-rac";
+import { DateInput } from "@/components/ui/datefield-rac";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -34,129 +52,14 @@ import {
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 
-import { SearchBar } from "./search-bar";
-
-// Mock Data
-const mockApplications = [
-  { value: "app1", label: "Mobile App" },
-  { value: "app2", label: "Web App" },
-  { value: "app3", label: "Desktop App" },
-];
-
-const mockNations = [
-  { value: "us", label: "United States" },
-  { value: "uk", label: "United Kingdom" },
-  { value: "ca", label: "Canada" },
-  { value: "vn", label: "Vietnam" },
-];
-
-const mockPlatforms = [
-  { value: "android", label: "Android" },
-  { value: "ios", label: "iOS" },
-  { value: "web", label: "Web" },
-  { value: "desktop", label: "Desktop" },
-];
-
-const mockData: IHtmlSource[] = [
-  {
-    id: "1",
-    pathway: "home/products",
-    nation: "us",
-    platform: "android",
-    source: "organic",
-    device: "mobile",
-    application_id: "app1",
-    version: "1.0.5",
-    day_creation: "2023-10-15T14:22:00Z",
-    note: "Home page to products list navigation",
-  },
-  {
-    id: "2",
-    pathway: "products/detail",
-    nation: "uk",
-    platform: "ios",
-    source: "campaign",
-    device: "tablet",
-    application_id: "app1",
-    version: "1.0.6",
-    day_creation: "2023-10-16T09:15:30Z",
-    note: "Product detail page view",
-  },
-  {
-    id: "3",
-    pathway: "checkout/complete",
-    nation: "ca",
-    platform: "web",
-    source: "direct",
-    device: "desktop",
-    application_id: "app2",
-    version: "2.1.0",
-    day_creation: "2023-10-17T16:40:12Z",
-    note: "Checkout completion",
-  },
-  {
-    id: "4",
-    pathway: "account/settings",
-    nation: "vn",
-    platform: "web",
-    source: "referral",
-    device: "mobile",
-    application_id: "app2",
-    version: "2.1.2",
-    day_creation: "2023-10-18T11:05:22Z",
-    note: "Account settings update",
-  },
-  {
-    id: "5",
-    pathway: "blog/article",
-    nation: "us",
-    platform: "android",
-    source: "social",
-    device: "mobile",
-    application_id: "app3",
-    version: "3.0.1",
-    day_creation: "2023-10-19T14:30:45Z",
-    note: "Blog article view",
-  },
-];
-
-// Mock response
-const createMockResponse = (page: number, pageSize: number, search: string) => {
-  const filteredData = search
-    ? mockData.filter(
-        (item) =>
-          item.pathway?.toLowerCase().includes(search.toLowerCase()) ||
-          item.source?.toLowerCase().includes(search.toLowerCase()) ||
-          item.nation?.toLowerCase().includes(search.toLowerCase()) ||
-          item.platform?.toLowerCase().includes(search.toLowerCase()) ||
-          item.device?.toLowerCase().includes(search.toLowerCase()) ||
-          item.application_id?.toLowerCase().includes(search.toLowerCase())
-      )
-    : mockData;
-
-  const paginatedData = filteredData.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
-
-  return {
-    data: {
-      current_page: page,
-      data: paginatedData,
-      from: (page - 1) * pageSize + 1,
-      to: Math.min(page * pageSize, filteredData.length),
-      total: filteredData.length,
-      last_page: Math.ceil(filteredData.length / pageSize),
-      per_page: pageSize,
-    },
-    success: true,
-    message: "HTML source data fetched successfully",
-  };
-};
-
 export default function HtmlSourceDataTable() {
   const t = useTranslations("HtmlSourcePage.table");
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<string | null>(
+    null
+  );
+  const [selectedNation, setSelectedNation] = useState<string | null>(null);
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -170,28 +73,25 @@ export default function HtmlSourceDataTable() {
     "search",
     parseAsString.withDefault("")
   );
+  const [date, setDate] = useQueryState(
+    "date",
+    parseAsString.withDefault(format(new Date(), "yyyy-MM-dd"))
+  );
 
   const debouncedSearch = useDebounce(search, 500);
 
-  // Use mock data instead of real API call
-  const mockResponse = createMockResponse(
-    currentPage,
-    pageSize,
-    debouncedSearch
-  );
+  // Extract data from the mock response
+  const htmlSourceData: IHtmlSource[] = [];
+  const paginationInfo = {
+    from: 0,
+    to: 0,
+    total: 0,
+    last_page: 1,
+    current_page: 1,
+  };
+  const isDataEmpty = true;
   const isFetching = isLoading;
   const isError = false;
-  const refetch = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-  };
-
-  // Extract data from the mock response
-  const htmlSourceData = mockResponse.data.data;
-  const paginationInfo = mockResponse.data;
-  const isDataEmpty = !htmlSourceData || htmlSourceData.length === 0;
 
   // Handle next page navigation - increment by 1
   const handleNextPage = () => {
@@ -205,36 +105,264 @@ export default function HtmlSourceDataTable() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Handle advanced search
-  const handleAdvancedSearch = (values: any) => {
-    console.log("Advanced search values:", values);
+  // Date picker handling
+  const calendarDate = date ? parseDate(date) : undefined;
+  const handleDateChange = (newDate: CalendarDate | null) => {
+    if (newDate) {
+      setDate(newDate.toString());
+    } else {
+      setDate("");
+    }
+  };
 
-    // Create a combined search string based on the values
-    let searchStr = "";
-    if (values.sourceKeyword) searchStr += values.sourceKeyword;
-    if (values.device) searchStr += " " + values.device;
-    if (values.platform && values.platform !== "all")
-      searchStr += " " + values.platform;
-    if (values.nation && values.nation !== "all")
-      searchStr += " " + values.nation;
-    if (values.application && values.application !== "all")
-      searchStr += " " + values.application;
-
-    setSearch(searchStr.trim());
-    setCurrentPage(1);
+  // Clear a specific filter
+  const clearFilter = (type: "application" | "nation" | "platform") => {
+    if (type === "application") setSelectedApplication(null);
+    if (type === "nation") setSelectedNation(null);
+    if (type === "platform") setSelectedPlatform(null);
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-200px)] flex-col">
+    <div className="flex flex-col">
       {/* Filters Section */}
-      <div className="space-y-6">
-        <div className="">
-          <SearchBar
-            onSearch={handleAdvancedSearch}
-            applications={mockApplications}
-            nations={mockNations}
-            platforms={mockPlatforms}
-          />
+      <div className="space-y-4">
+        {/* First Row - Source Keyword */}
+        <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-2">
+          {/* Source Keyword Input */}
+          <div>
+            <Label
+              className="mb-2 block text-sm font-medium text-gray-700"
+              htmlFor="search"
+            >
+              {t("filters.search")}
+            </Label>
+            <Input
+              id="search"
+              placeholder={t("placeholders.search")}
+              value={search}
+              onChange={(e) => {
+                setCurrentPage(1);
+                setSearch(e.target.value);
+              }}
+              className="w-full"
+            />
+          </div>
+        </div>
+
+        {/* Second Row - Filter Pills and Date Picker */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Date Picker */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <PlusCircle className="size-3.5" />
+                {t("filters.date")}
+              </span>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-0" align="start">
+              <div className="px-3 pt-3">
+                <h3 className="text-sm font-medium">Select Date</h3>
+              </div>
+              <ScrollArea className="max-h-72">
+                <div className="p-3">
+                  <DatePicker value={calendarDate} onChange={handleDateChange}>
+                    <DateInput className="w-full" />
+                  </DatePicker>
+                </div>
+              </ScrollArea>
+              <div className="flex items-center justify-between border-t border-gray-100 p-3">
+                <Button
+                  onClick={() => {
+                    setCurrentPage(1);
+                  }}
+                  className="w-full"
+                >
+                  Apply Filter
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Application Filter */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <PlusCircle className="size-3.5" />
+                Application
+              </span>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-0" align="start">
+              <div className="px-3 pt-3">
+                <h3 className="text-sm font-medium">Filter by Application</h3>
+              </div>
+              <ScrollArea className="max-h-72">
+                <div className="p-3">
+                  <Select
+                    onValueChange={(value) => setSelectedApplication(value)}
+                    value={selectedApplication || undefined}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select application" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="app1">Mobile App</SelectItem>
+                      <SelectItem value="app2">Web App</SelectItem>
+                      <SelectItem value="app3">Desktop App</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </ScrollArea>
+              <div className="flex items-center justify-between border-t border-gray-100 p-3">
+                <Button
+                  onClick={() => {
+                    setCurrentPage(1);
+                  }}
+                  className="w-full"
+                >
+                  Apply Filter
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Nation Filter */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <PlusCircle className="size-3.5" />
+                Nation
+              </span>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-0" align="start">
+              <div className="px-3 pt-3">
+                <h3 className="text-sm font-medium">Filter by Nation</h3>
+              </div>
+              <ScrollArea className="max-h-72">
+                <div className="p-3">
+                  <Select
+                    onValueChange={(value) => setSelectedNation(value)}
+                    value={selectedNation || undefined}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select nation" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="us">United States</SelectItem>
+                      <SelectItem value="uk">United Kingdom</SelectItem>
+                      <SelectItem value="ca">Canada</SelectItem>
+                      <SelectItem value="vn">Vietnam</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </ScrollArea>
+              <div className="flex items-center justify-between border-t border-gray-100 p-3">
+                <Button
+                  onClick={() => {
+                    setCurrentPage(1);
+                  }}
+                  className="w-full"
+                >
+                  Apply Filter
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Platform Filter */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <PlusCircle className="size-3.5" />
+                Platform
+              </span>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-0" align="start">
+              <div className="px-3 pt-3">
+                <h3 className="text-sm font-medium">Filter by Platform</h3>
+              </div>
+              <ScrollArea className="max-h-72">
+                <div className="p-3">
+                  <Select
+                    onValueChange={(value) => setSelectedPlatform(value)}
+                    value={selectedPlatform || undefined}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select platform" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="android">Android</SelectItem>
+                      <SelectItem value="ios">iOS</SelectItem>
+                      <SelectItem value="web">Web</SelectItem>
+                      <SelectItem value="desktop">Desktop</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </ScrollArea>
+              <div className="flex items-center justify-between border-t border-gray-100 p-3">
+                <Button
+                  onClick={() => {
+                    setCurrentPage(1);
+                  }}
+                  className="w-full"
+                >
+                  Apply Filter
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Active Filters - Only show if selected */}
+          {selectedApplication && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-600">
+              {selectedApplication === "app1"
+                ? "Mobile App"
+                : selectedApplication === "app2"
+                  ? "Web App"
+                  : "Desktop App"}
+              <button
+                onClick={() => clearFilter("application")}
+                className="ml-1 text-indigo-500 hover:text-indigo-700"
+              >
+                ×
+              </button>
+            </span>
+          )}
+
+          {selectedNation && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
+              {selectedNation === "us"
+                ? "United States"
+                : selectedNation === "uk"
+                  ? "United Kingdom"
+                  : selectedNation === "ca"
+                    ? "Canada"
+                    : "Vietnam"}
+              <button
+                onClick={() => clearFilter("nation")}
+                className="ml-1 text-green-500 hover:text-green-700"
+              >
+                ×
+              </button>
+            </span>
+          )}
+
+          {selectedPlatform && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-600">
+              {selectedPlatform === "android"
+                ? "Android"
+                : selectedPlatform === "ios"
+                  ? "iOS"
+                  : selectedPlatform === "web"
+                    ? "Web"
+                    : "Desktop"}
+              <button
+                onClick={() => clearFilter("platform")}
+                className="ml-1 text-amber-500 hover:text-amber-700"
+              >
+                ×
+              </button>
+            </span>
+          )}
         </div>
 
         {/* Results Table or Empty State */}
