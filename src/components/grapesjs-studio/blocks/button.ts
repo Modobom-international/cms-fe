@@ -1,14 +1,19 @@
 export const buttonBlock = (editor: any) => {
   const blockManager = editor.BlockManager;
 
+  // Simplified approach - use the built-in component type with droppable set to true
   blockManager.add("custom-button", {
     label: "Download Button",
     category: "Basic",
     content: {
       type: "link",
       content: "Download",
+      draggable: true,
+      droppable: true,
+      attributes: {
+        class: "custom-button download"
+      },
       style: {
-        // Base styles
         background: "linear-gradient(90deg, #FF4081, #F50057)",
         color: "white",
         border: "none",
@@ -19,7 +24,6 @@ export const buttonBlock = (editor: any) => {
         cursor: "pointer",
         "box-shadow": "0 4px 14px rgba(0,0,0,0.3)",
         transition: "all 0.3s ease-in-out",
-        // Fixed position styles
         position: "fixed",
         top: "0",
         left: "50%",
@@ -33,10 +37,7 @@ export const buttonBlock = (editor: any) => {
         "background-color": "rgba(255,255,255,0.95)",
         "z-index": "9999",
         "text-decoration": "none",
-      },
-      attributes: {
-        class: "custom-button download",
-      },
+      }
     },
     media: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -44,6 +45,13 @@ export const buttonBlock = (editor: any) => {
       <line x1="12" y1="15" x2="12" y2="3" />
     </svg>
     `,
+  });
+
+  // We'll add an ID protection rule to the editor
+  editor.on('component:add', (component: any) => {
+    if (component.getAttributes().class?.includes('custom-button download')) {
+      component.setAttributes({...component.getAttributes(), id: 'Download'});
+    }
   });
 
   // Update the styles in the link component
