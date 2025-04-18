@@ -2,52 +2,29 @@
 
 import { useState } from "react";
 
-import Link from "next/link";
-
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  ArrowLeft,
-  ChevronDown,
-  ChevronRight,
-  ChevronUp,
-  Home,
-} from "lucide-react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+  defaultPermissions,
+  type ITeamForm,
+  type Permission,
+} from "@/validations/team.validation";
+import { ChevronDown, ChevronRight, ChevronUp, Home } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-import { buttonVariants } from "@/components/ui/button";
+import { useCreateTeam } from "@/hooks/team";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-// Types
-interface PermissionRoute {
-  id: number;
-  name: string;
-  prefix: string;
-}
-
-interface Permission {
-  [key: string]: PermissionRoute[];
-}
-
-// Form Schema
-const teamFormSchema = z.object({
-  name: z.string().min(1, "Tên phòng ban không được để trống"),
-  permissions: z.record(z.string(), z.boolean()),
-});
-
-type TeamFormValues = z.infer<typeof teamFormSchema>;
-
 export default function CreateTeamPage() {
-  const form = useForm<TeamFormValues>({
-    resolver: zodResolver(teamFormSchema),
-    defaultValues: {
-      name: "",
-      permissions: {},
-    },
-  });
+  const t = useTranslations("AddTeamPage");
+
+  const {
+    createTeamMutation: createTeam,
+    isCreatingTeam,
+    createTeamForm,
+  } = useCreateTeam();
 
   const {
     register,
@@ -55,50 +32,9 @@ export default function CreateTeamPage() {
     formState: { errors, isSubmitting },
     setValue,
     watch,
-  } = form;
+  } = createTeamForm;
 
-  const [permissions] = useState<Permission>({
-    "push-system": [
-      { id: 1, name: "push.view", prefix: "push" },
-      { id: 2, name: "push.create", prefix: "push" },
-      { id: 3, name: "push.edit", prefix: "push" },
-      { id: 4, name: "push.delete", prefix: "push" },
-    ],
-    "log-behavior": [
-      { id: 5, name: "log.view", prefix: "log" },
-      { id: 6, name: "log.export", prefix: "log" },
-      { id: 7, name: "log.delete", prefix: "log" },
-    ],
-    users: [
-      { id: 8, name: "users.view", prefix: "users" },
-      { id: 9, name: "users.create", prefix: "users" },
-      { id: 10, name: "users.edit", prefix: "users" },
-      { id: 11, name: "users.delete", prefix: "users" },
-    ],
-    domain: [
-      { id: 12, name: "domain.view", prefix: "domain" },
-      { id: 13, name: "domain.create", prefix: "domain" },
-      { id: 14, name: "domain.edit", prefix: "domain" },
-      { id: 15, name: "domain.delete", prefix: "domain" },
-    ],
-    "html-source": [
-      { id: 16, name: "html.view", prefix: "html" },
-      { id: 17, name: "html.create", prefix: "html" },
-      { id: 18, name: "html.edit", prefix: "html" },
-      { id: 19, name: "html.delete", prefix: "html" },
-    ],
-    "users-tracking": [
-      { id: 20, name: "tracking.view", prefix: "tracking" },
-      { id: 21, name: "tracking.export", prefix: "tracking" },
-      { id: 22, name: "tracking.delete", prefix: "tracking" },
-    ],
-    team: [
-      { id: 23, name: "team.view", prefix: "team" },
-      { id: 24, name: "team.create", prefix: "team" },
-      { id: 25, name: "team.edit", prefix: "team" },
-      { id: 26, name: "team.delete", prefix: "team" },
-    ],
-  });
+  const [permissions] = useState<Permission>(defaultPermissions);
 
   const [openSections, setOpenSections] = useState<{
     [key: string]: boolean;
@@ -112,8 +48,14 @@ export default function CreateTeamPage() {
     team: false,
   });
 
-  const onSubmit = async (data: TeamFormValues) => {
-    console.log(data);
+  const onSubmit = async (data: ITeamForm) => {
+    createTeam(data);
+  };
+
+  // Helper function to get section display name
+  const getSectionDisplayName = (section: string) => {
+    const sectionKey = section.replace(/-/g, "");
+    return t(`create.permissionSections.${sectionKey}`);
   };
 
   return (
@@ -123,55 +65,37 @@ export default function CreateTeamPage() {
         <nav className="text-muted-foreground flex items-center gap-2 text-sm">
           <Home className="h-4 w-4" />
           <ChevronRight className="h-4 w-4" />
-          <span>Quản lý phòng ban</span>
+          <span>{t("breadcrumb")}</span>
           <ChevronRight className="h-4 w-4" />
-          <span>Thêm phòng ban</span>
+          <span>{t("create.breadcrumb")}</span>
         </nav>
         <div className="flex items-start justify-between">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-semibold tracking-tight">
-              Thêm phòng ban
+              {t("create.title")}
             </h1>
             <p className="text-muted-foreground text-sm">
-              Thêm phòng ban mới vào hệ thống và phân quyền truy cập
+              {t("create.description")}
             </p>
           </div>
-          <Link
-            href="/admin/teams"
-            className={buttonVariants({
-              variant: "outline",
-              size: "sm",
-            })}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Quay lại danh sách
-          </Link>
         </div>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="space-y-6">
             <div className="rounded-lg bg-white">
-              <div className="mb-6">
-                <h2 className="font-medium text-gray-800">
-                  Thông tin phòng ban
-                </h2>
-                <p className="text-xs text-gray-500">
-                  Nhập thông tin cơ bản của phòng ban
-                </p>
-              </div>
               <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="name">Tên phòng ban</Label>
+                  <Label htmlFor="name">{t("create.form.name")}</Label>
                   <Input
                     id="name"
                     {...register("name")}
-                    disabled={isSubmitting}
-                    placeholder="Nhập tên phòng ban"
+                    disabled={isSubmitting || isCreatingTeam}
+                    placeholder={t("create.form.namePlaceholder")}
                   />
                   {errors.name && (
                     <p className="text-destructive text-sm">
-                      {errors.name.message}
+                      {t("create.form.validation.nameRequired")}
                     </p>
                   )}
                 </div>
@@ -179,13 +103,13 @@ export default function CreateTeamPage() {
             </div>
           </div>
           <div className="space-y-6 lg:col-span-2">
-            <div className="rounded-lg bg-white p-6">
+            <div className="bg-white">
               <div className="mb-6">
                 <h2 className="font-medium text-gray-800">
-                  Phân quyền truy cập
+                  {t("create.form.permissions")}
                 </h2>
                 <p className="text-xs text-gray-500">
-                  Thiết lập quyền truy cập cho phòng ban
+                  {t("create.form.permissionsDescription")}
                 </p>
               </div>
               <div className="space-y-4">
@@ -207,16 +131,10 @@ export default function CreateTeamPage() {
                               );
                             });
                           }}
-                          disabled={isSubmitting}
+                          disabled={isSubmitting || isCreatingTeam}
                         />
                         <Label htmlFor={`section-${section}`}>
-                          {section
-                            .split("-")
-                            .map(
-                              (word) =>
-                                word.charAt(0).toUpperCase() + word.slice(1)
-                            )
-                            .join(" ")}
+                          {getSectionDisplayName(section)}
                         </Label>
                       </div>
                       <Button
@@ -247,7 +165,7 @@ export default function CreateTeamPage() {
                                 {...register(
                                   `permissions.${section}_${route.name}`
                                 )}
-                                disabled={isSubmitting}
+                                disabled={isSubmitting || isCreatingTeam}
                               />
                               <Label htmlFor={`permission-${route.id}`}>
                                 {route.name
@@ -271,11 +189,14 @@ export default function CreateTeamPage() {
           </div>
         </div>
         <div className="flex justify-end border-t pt-6">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Đang xử lý..." : "Tạo phòng ban"}
+          <Button type="submit" disabled={isSubmitting || isCreatingTeam}>
+            {isSubmitting || isCreatingTeam
+              ? t("create.form.processing")
+              : t("create.form.saveButton")}
           </Button>
         </div>
       </form>
     </div>
   );
 }
+

@@ -1,7 +1,7 @@
 "use client";
 
 import { DomainStatusEnum } from "@/enums/domain-status";
-import { Lock, LockOpen, RefreshCw, Search } from "lucide-react";
+import { Lock, LockOpen, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useState } from "react";
@@ -114,8 +114,8 @@ export default function DomainDataTable() {
     <div className="flex flex-col">
       {/* Bộ lọc */}
       <div className="space-y-6">
-        <div className="grid grid-cols-1 items-end gap-6 md:grid-cols-2">
-          <div>
+        <div className="flex items-end justify-between">
+          <div className="w-1/2">
             <label
               className="mb-2 block text-sm font-medium text-gray-700"
               htmlFor="search"
@@ -147,7 +147,7 @@ export default function DomainDataTable() {
         </div>
 
         <div className="mt-4 flex-grow">
-          {isFetching ? (
+          {isFetching || isRefreshing ? (
             <div className="flex items-center justify-center py-8">
               <Spinner />
             </div>

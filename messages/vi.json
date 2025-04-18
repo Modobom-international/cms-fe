@@ -288,7 +288,8 @@
       "actions": {
         "details": "Xem chi tiết",
         "retry": "Thử lại",
-        "refresh": "Làm mới"
+        "refresh": "Làm mới",
+        "refreshDomains": "Làm mới danh sách tên miền"
       },
       "loadingStates": {
         "loading": "Đang tải dữ liệu tên miền...",
@@ -583,6 +584,174 @@
             "Error": "Xóa trang thất bại"
           }
         }
+      }
+    }
+  },
+  "TeamManagement": {
+    "title": "Quản lý phòng ban",
+    "description": "Quản lý phòng ban và phân quyền truy cập trong hệ thống",
+    "breadcrumb": "Quản lý phòng ban",
+    "list": {
+      "title": "Phòng ban",
+      "description": "Quản lý phòng ban",
+      "addTeam": "Thêm phòng ban",
+      "employees": "Nhân viên"
+    },
+    "create": {
+      "title": "Thêm phòng ban",
+      "description": "Thêm phòng ban mới vào hệ thống và phân quyền truy cập",
+      "breadcrumb": "Thêm phòng ban",
+      "form": {
+        "name": "Tên phòng ban",
+        "namePlaceholder": "Nhập tên phòng ban",
+        "permissions": "Phân quyền truy cập",
+        "permissionsDescription": "Thiết lập quyền truy cập cho phòng ban",
+        "saveButton": "Tạo phòng ban",
+        "processing": "Đang xử lý...",
+        "validation": {
+          "nameRequired": "Tên phòng ban không được để trống"
+        }
+      },
+      "permissionSections": {
+        "pushSystem": "Push System",
+        "logBehavior": "Log Behavior",
+        "users": "Users",
+        "domain": "Domain",
+        "htmlSource": "HTML Source",
+        "usersTracking": "Users Tracking",
+        "team": "Team"
+      },
+      "success": "Tạo phòng ban thành công",
+      "error": "Tạo phòng ban không thành công"
+    },
+    "table": {
+      "columns": {
+        "id": "ID",
+        "name": "Tên",
+        "permissions": "Quyền truy cập",
+        "createdAt": "Ngày tạo",
+        "updatedAt": "Cập nhật lần cuối",
+        "actions": "Thao tác"
+      },
+      "actions": {
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa"
+      },
+      "empty": "Không tìm thấy phòng ban nào",
+      "search": "Tìm kiếm phòng ban...",
+      "loading": "Đang tải danh sách phòng ban..."
+    }
+  },
+  "AddTeamPage": {
+    "title": "Quản lý phòng ban",
+    "description": "Quản lý phòng ban và phân quyền truy cập trong hệ thống",
+    "breadcrumb": "Quản lý phòng ban",
+    "create": {
+      "title": "Thêm phòng ban",
+      "description": "Thêm phòng ban mới vào hệ thống và phân quyền truy cập",
+      "breadcrumb": "Thêm phòng ban",
+      "form": {
+        "name": "Tên phòng ban",
+        "namePlaceholder": "Nhập tên phòng ban",
+        "permissions": "Phân quyền truy cập",
+        "permissionsDescription": "Thiết lập quyền truy cập cho phòng ban",
+        "saveButton": "Tạo phòng ban",
+        "processing": "Đang xử lý...",
+        "validation": {
+          "nameRequired": "Tên phòng ban không được để trống"
+        }
+      },
+      "permissionSections": {
+        "pushsystem": "Push System",
+        "logbehavior": "Log Behavior",
+        "users": "Users",
+        "domain": "Domain",
+        "htmlsource": "HTML Source",
+        "userstracking": "Users Tracking",
+        "team": "Team"
+      },
+      "success": "Tạo phòng ban thành công",
+      "error": "Tạo phòng ban không thành công"
+    }
+  },
+  "TeamPage": {
+    "breadcrumb": "Quản lý phòng ban",
+    "title": "Phòng ban",
+    "description": "Quản lý phòng ban",
+    "employees": "Nhân viên",
+    "addTeam": "Thêm phòng ban",
+    "table": {
+      "search": "Tìm kiếm phòng ban...",
+      "loading": "Đang tải danh sách phòng ban...",
+      "error": "Đã xảy ra lỗi khi tải danh sách phòng ban",
+      "empty": "Không tìm thấy phòng ban nào",
+      "columns": {
+        "id": "ID",
+        "name": "Tên",
+        "permissions": "Quyền truy cập",
+        "createdAt": "Ngày tạo",
+        "updatedAt": "Cập nhật lần cuối",
+        "actions": "Thao tác"
+      },
+      "actions": {
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa",
+        "retry": "Thử lại"
+      },
+      "pagination": {
+        "rowsPerPage": "Số dòng mỗi trang",
+        "of": "trong số",
+        "previousPage": "Trước",
+        "nextPage": "Tiếp",
+        "showing": "Hiển thị {from}-{to} trong tổng số {total} kết quả",
+        "page": "Trang {current} trong tổng số {total}"
+      }
+    }
+  },
+  "UserPage": {
+    "breadcrumb": "Quản lý nhân viên",
+    "title": "Nhân viên",
+    "description": "Quản lý nhân viên và quyền của họ",
+    "teams": "Phòng ban",
+    "addUser": "Thêm nhân viên",
+    "table": {
+      "search": "Tìm kiếm nhân viên...",
+      "loading": "Đang tải danh sách nhân viên...",
+      "error": "Đã xảy ra lỗi khi tải danh sách nhân viên",
+      "empty": "Không tìm thấy nhân viên nào",
+      "columns": {
+        "id": "ID",
+        "name": "Tên",
+        "email": "Email",
+        "team": "Phòng ban",
+        "role": "Vai trò",
+        "status": "Trạng thái",
+        "createdAt": "Ngày tạo",
+        "updatedAt": "Cập nhật lần cuối",
+        "actions": "Thao tác"
+      },
+      "actions": {
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa",
+        "retry": "Thử lại"
+      },
+      "pagination": {
+        "rowsPerPage": "Số dòng mỗi trang",
+        "of": "trong số",
+        "previousPage": "Trước",
+        "nextPage": "Tiếp",
+        "showing": "Hiển thị {from}-{to} trong tổng số {total} kết quả",
+        "page": "Trang {current} trong tổng số {total}"
+      },
+      "status": {
+        "active": "Hoạt động",
+        "inactive": "Không hoạt động",
+        "pending": "Đang chờ"
+      },
+      "roles": {
+        "admin": "Quản trị viên",
+        "user": "Người dùng",
+        "manager": "Quản lý"
       }
     }
   }

@@ -6,21 +6,14 @@ import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
 import { Check, ChevronsUpDown } from "lucide-react";
 import {
-  CalendarIcon,
   Map,
   PlusCircle,
-  RefreshCw,
-  Search,
   Users,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import {
-  Button as ButtonAria,
   DatePicker,
-  Dialog,
-  Group,
-  Popover,
 } from "react-aria-components";
 
 import { IDomainActual } from "@/types/domain.type";
@@ -34,7 +27,6 @@ import { useActiveUsers } from "@/hooks/user-tracking/use-active-users";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar-rac";
 import {
   Command,
   CommandEmpty,
@@ -50,7 +42,6 @@ import {
   DialogTitle,
   Dialog as DialogUI,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import {
   PopoverContent,
   PopoverTrigger,

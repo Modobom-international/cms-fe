@@ -288,7 +288,8 @@
             "actions": {
                 "details": "Details",
                 "retry": "Retry",
-                "refresh": "Refresh"
+                "refresh": "Refresh",
+                "refreshDomains": "Refresh Domains"
             },
             "loadingStates": {
                 "loading": "Loading domain data...",
@@ -371,7 +372,6 @@
             "filters": {
                 "search": "Search",
                 "date": "Date"
-                
             },
             "columns": {
                 "id": "ID",
@@ -584,6 +584,174 @@
                         "Error": "Failed to delete page"
                     }
                 }
+            }
+        }
+    },
+    "TeamManagement": {
+        "title": "Team Management",
+        "description": "Manage teams and access permissions within the system",
+        "breadcrumb": "Team Management",
+        "list": {
+            "title": "Teams",
+            "description": "Manage teams",
+            "addTeam": "Add Team",
+            "employees": "Employees"
+        },
+        "create": {
+            "title": "Add Team",
+            "description": "Add a new team to the system and assign access permissions",
+            "breadcrumb": "Add Team",
+            "form": {
+                "name": "Team Name",
+                "namePlaceholder": "Enter team name",
+                "permissions": "Access Permissions",
+                "permissionsDescription": "Set up access permissions for the team",
+                "saveButton": "Create Team",
+                "processing": "Processing...",
+                "validation": {
+                    "nameRequired": "Team name is required"
+                }
+            },
+            "permissionSections": {
+                "pushSystem": "Push System",
+                "logBehavior": "Log Behavior",
+                "users": "Users",
+                "domain": "Domain",
+                "htmlSource": "HTML Source",
+                "usersTracking": "Users Tracking",
+                "team": "Team"
+            },
+            "success": "Team created successfully",
+            "error": "Failed to create team"
+        },
+        "table": {
+            "columns": {
+                "id": "ID",
+                "name": "Name",
+                "permissions": "Permissions",
+                "createdAt": "Created At",
+                "updatedAt": "Last Updated",
+                "actions": "Actions"
+            },
+            "actions": {
+                "edit": "Edit",
+                "delete": "Delete"
+            },
+            "empty": "No teams found",
+            "search": "Search teams...",
+            "loading": "Loading teams list..."
+        }
+    },
+    "AddTeamPage": {
+        "title": "Team Management",
+        "description": "Manage teams and access permissions within the system",
+        "breadcrumb": "Team Management",
+        "create": {
+            "title": "Add Team",
+            "description": "Add a new team to the system and assign access permissions",
+            "breadcrumb": "Add Team",
+            "form": {
+                "name": "Team Name",
+                "namePlaceholder": "Enter team name",
+                "permissions": "Access Permissions",
+                "permissionsDescription": "Set up access permissions for the team",
+                "saveButton": "Create Team",
+                "processing": "Processing...",
+                "validation": {
+                    "nameRequired": "Team name is required"
+                }
+            },
+            "permissionSections": {
+                "pushsystem": "Push System",
+                "logbehavior": "Log Behavior",
+                "users": "Users",
+                "domain": "Domain",
+                "htmlsource": "HTML Source",
+                "userstracking": "Users Tracking",
+                "team": "Team"
+            },
+            "success": "Team created successfully",
+            "error": "Failed to create team"
+        }
+    },
+    "TeamPage": {
+        "breadcrumb": "Team Management",
+        "title": "Teams",
+        "description": "Manage teams",
+        "employees": "Employees",
+        "addTeam": "Add Team",
+        "table": {
+            "search": "Search teams...",
+            "loading": "Loading teams...",
+            "error": "An error occurred while loading teams",
+            "empty": "No teams found",
+            "columns": {
+                "id": "ID",
+                "name": "Name",
+                "permissions": "Permissions",
+                "createdAt": "Created At",
+                "updatedAt": "Updated At",
+                "actions": "Actions"
+            },
+            "actions": {
+                "edit": "Edit",
+                "delete": "Delete",
+                "retry": "Retry"
+            },
+            "pagination": {
+                "rowsPerPage": "Rows per page",
+                "of": "of",
+                "previousPage": "Previous",
+                "nextPage": "Next",
+                "showing": "Viewing {from}-{to} of {total} results",
+                "page": "Page {current} of {total}"
+            }
+        }
+    },
+    "UserPage": {
+        "breadcrumb": "User Management",
+        "title": "Users",
+        "description": "Manage users and their permissions",
+        "teams": "Teams",
+        "addUser": "Add User",
+        "table": {
+            "search": "Search users...",
+            "loading": "Loading users...",
+            "error": "An error occurred while loading users",
+            "empty": "No users found",
+            "columns": {
+                "id": "ID",
+                "name": "Name",
+                "email": "Email",
+                "team": "Team",
+                "role": "Role",
+                "status": "Status",
+                "createdAt": "Created At",
+                "updatedAt": "Updated At",
+                "actions": "Actions"
+            },
+            "actions": {
+                "edit": "Edit",
+                "delete": "Delete",
+                "retry": "Retry"
+            },
+            "pagination": {
+                "rowsPerPage": "Rows per page",
+                "of": "of",
+                "previousPage": "Previous",
+                "nextPage": "Next",
+                "showing": "Viewing {from}-{to} of {total} results",
+                "page": "Page {current} of {total}"
+            },
+            "status": {
+                "active": "Active",
+                "inactive": "Inactive",
+                "pending": "Pending"
+            },
+            "roles": {
+                "admin": "Administrator",
+                "user": "User",
+                "manager": "Manager"
             }
         }
     }
