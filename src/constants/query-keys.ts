@@ -30,6 +30,7 @@ export const domainQueryKeys = {
   ],
   domains: () => [...domainQueryKeys.all, "domains"],
   details: (id: string) => [...domainQueryKeys.all, "detail", id],
+  refresh: () => [...domainQueryKeys.all, "refresh"],
 };
 
 export const activityLogQueryKeys = {

@@ -1,7 +1,7 @@
 "use client";
 
 import { DomainStatusEnum } from "@/enums/domain-status";
-import { Lock, LockOpen } from "lucide-react";
+import { Lock, LockOpen, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
@@ -9,10 +9,11 @@ import { IDomainActual } from "@/types/domain.type";
 
 import { formatDateTime } from "@/lib/utils";
 
-import { useGetDomainList } from "@/hooks/domain";
+import { useGetDomainList, useRefreshDomains } from "@/hooks/domain";
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -28,6 +29,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import { DomainStatusBadge } from "@/components/badge/domain-status-badge";
 import { EmptyTable } from "@/components/data-table/empty-table";
@@ -59,6 +66,14 @@ export default function DomainDataTable() {
     refetch,
   } = useGetDomainList(currentPage, pageSize, debouncedSearch);
 
+  const {
+    refreshDomains,
+    isRefreshing,
+    progress,
+    error: refreshError,
+    resetError,
+  } = useRefreshDomains();
+
   // Extract data from the response
   const domainData =
     domainResponse && "data" in domainResponse
@@ -89,7 +104,7 @@ export default function DomainDataTable() {
 
   // Handler for refresh button click
   const handleRefresh = () => {
-    refetch();
+    refreshDomains();
   };
 
   // Function to determine domain status based on expiration date
@@ -114,8 +129,8 @@ export default function DomainDataTable() {
     <div className="flex flex-col">
       {/* Filters Section */}
       <div className="space-y-6">
-        <div className="grid grid-cols-1 items-end gap-6 md:grid-cols-2">
-          <div>
+        <div className="flex items-end justify-between">
+          <div className="w-1/2">
             <label
               className="mb-2 block text-sm font-medium text-gray-700"
               htmlFor="search"
@@ -133,11 +148,48 @@ export default function DomainDataTable() {
               }}
             />
           </div>
+
+          {/* Refresh Domain Button */}
+          <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip
+                open={!!refreshError}
+                onOpenChange={(open) => !open && resetError()}
+              >
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-1.5"
+                    onClick={handleRefresh}
+                    disabled={isRefreshing}
+                  >
+                    <RefreshCw
+                      className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+                    />
+                    {t("actions.refreshDomains")}
+                  </Button>
+                </TooltipTrigger>
+                {refreshError && (
+                  <TooltipContent className="bg-destructive text-destructive-foreground">
+                    <p>{refreshError}</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
+
+            {isRefreshing && (
+              <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                <Progress value={progress} className="h-2 w-24" />
+                <span>{progress}%</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Results Table or Empty State */}
         <div className="mt-4 flex-grow">
-          {isFetching ? (
+          {isFetching || isRefreshing ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-center">
                 <Spinner />
