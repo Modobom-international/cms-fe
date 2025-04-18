@@ -72,38 +72,35 @@ export const useRefreshDomains = () => {
       setProgress(0);
       setError(null);
 
-      try {
-        const { data } = await apiClient.post<RefreshDomainsResponse>(
-          "/api/refresh-domain"
-        );
-        setProgress(data.progress || 0);
+      // Simulate a loading delay of 10 seconds
+      return new Promise((resolve, reject) => {
+        const totalDuration = 10000; // 10 seconds
+        const interval = 100; // Update progress every 100ms
+        const totalSteps = totalDuration / interval; // Total number of updates
+        let currentStep = 0;
 
-        // Poll for progress updates if not complete
-        if (data.progress < 100) {
-          const pollInterval = setInterval(async () => {
-            try {
-              const { data: pollData } =
-                await apiClient.post<RefreshDomainsResponse>(
-                  "/api/refresh-domain"
-                );
-              setProgress(pollData.progress || 0);
+        const progressInterval = setInterval(() => {
+          currentStep++;
+          const currentProgress = Math.min(
+            Math.floor((currentStep / totalSteps) * 100),
+            100
+          );
+          setProgress(currentProgress);
 
-              if (pollData.progress >= 100) {
-                clearInterval(pollInterval);
-              }
-            } catch (err) {
-              clearInterval(pollInterval);
-              setError("Failed to refresh. Please try again.");
-              throw err;
-            }
-          }, 1000);
-        }
+          if (currentProgress >= 100) {
+            clearInterval(progressInterval);
+            //@ts-expect-error type error
+            resolve({ success: true, data: [], progress: 100 }); // Simulate successful response
+          }
+        }, interval);
 
-        return data;
-      } catch (err) {
-        setError("Failed to refresh. Please try again.");
-        throw err;
-      }
+        // Simulate an error condition (optional)
+        // setTimeout(() => {
+        //   clearInterval(progressInterval);
+        //   setError("Failed to refresh. Please try again.");
+        //   reject(new Error("Simulated error"));
+        // }, 5000); // Uncomment to simulate an error after 5 seconds
+      });
     },
     onSuccess: (data) => {
       // Invalidate queries to refetch the domain list

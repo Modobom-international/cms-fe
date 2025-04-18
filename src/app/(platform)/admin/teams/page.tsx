@@ -1,19 +1,12 @@
-"use client";
-
-import { useState } from "react";
-
 import Link from "next/link";
 
-import { ChevronRight, Home, PlusIcon, Search } from "lucide-react";
+import { ChevronRight, Home, PlusIcon } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 import TeamsDataTable from "@/components/admin/teams/data-table";
 
 export default function TeamsPage() {
-  const [search, setSearch] = useState("");
-
   return (
     <div className="flex flex-col gap-8">
       {/* Header Section */}
@@ -56,26 +49,8 @@ export default function TeamsPage() {
         </div>
       </div>
 
-      {/* Search and Table Container */}
       <div>
-        {/* Search Section */}
-        <div className="py-4">
-          <div className="relative max-w-sm">
-            <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
-            <Input
-              type="search"
-              placeholder="Tìm kiếm phòng ban..."
-              className="pl-8"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-        </div>
-
-        {/* Table Section */}
-        <div>
-          <TeamsDataTable />
-        </div>
+        <TeamsDataTable />
       </div>
     </div>
   );

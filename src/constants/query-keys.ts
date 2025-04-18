@@ -54,3 +54,14 @@ export const htmlSourceQueryKeys = {
   ],
   details: (id: string) => [...htmlSourceQueryKeys.all, "detail", id],
 };
+
+export const teamQueryKeys = {
+  all: ["teams"],
+  lists: () => [...teamQueryKeys.all, "list"],
+  list: (page: number, pageSize: number, search: string = "") => [
+    ...teamQueryKeys.lists(),
+    { page, pageSize, search },
+  ],
+  details: (id: string) => [...teamQueryKeys.all, "detail", id],
+  create: () => [...teamQueryKeys.all, "create"],
+};
