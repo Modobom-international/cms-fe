@@ -75,7 +75,7 @@ export function RefreshDialog({
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{t("actions.refresh.title")}</DialogTitle>
+                    <DialogTitle>{t("modal.refresh.title")}</DialogTitle>
                 </DialogHeader>
                 <div className="py-4">
                     {isRefreshing ? (
@@ -94,7 +94,7 @@ export function RefreshDialog({
                         onClick={handleClose}
                         disabled={isRefreshing}
                     >
-                        {t("actions.refresh.title")}
+                        {t("modal.refresh.button.close")}
                     </Button>
                 </div>
             </DialogContent>

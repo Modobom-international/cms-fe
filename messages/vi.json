@@ -289,8 +289,7 @@
         "details": "Xem chi tiết",
         "retry": "Thử lại",
         "refresh": "Làm mới",
-        "refreshDomains": "Làm mới danh sách tên miền",
-        "title": "Làm mới danh sách tên miền"
+        "refreshDomains": "Làm mới danh sách tên miền"
       },
       "loadingStates": {
         "loading": "Đang tải dữ liệu tên miền...",
@@ -302,8 +301,15 @@
       "actionTypes": {
         "create": "Tạo mới",
         "update": "Cập nhật",
-        "delete": "Xóa",
-        "close": "Đóng"
+        "delete": "Xóa"
+      },
+      "modal": {
+        "refresh": {
+          "title": "Làm mới danh sách tên miền",
+          "button": {
+            "close": "Đóng"
+          }
+        }
       }
     }
   },
