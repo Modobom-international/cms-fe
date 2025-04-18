@@ -383,6 +383,8 @@
     "Exporting": "Đang xuất...",
     "DeployButton": "Triển khai {slug}",
     "Deploying": "Đang triển khai...",
+    "ExportAndDeployButton": "Triển khai",
+    "ExportAndDeployError": "Xuất và triển khai thất bại",
     "NewPage": {
       "Title": "Trang mới: {slug}",
       "Description": "Bắt đầu xây dựng trang của bạn tại đây."

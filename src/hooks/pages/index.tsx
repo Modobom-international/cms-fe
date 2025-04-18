@@ -166,7 +166,7 @@ export const useExportPage = (pageId: string) => {
 
 export const useDeployPage = () => {
   return useMutation({
-    mutationFn: async (data: { site_id: number }) => {
+    mutationFn: async (data: { site_id: number; page_slug: string }) => {
       const response = await apiClient.post(
         "/api/cloudflare/deploy-exports",
         data
