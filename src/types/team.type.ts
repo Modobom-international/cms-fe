@@ -1,21 +1,14 @@
-export interface IUser {
+export interface ITeam {
   id: string;
   name: string;
-  email: string;
-  team_id?: string;
-  team_name?: string;
-  role: string;
-  status: string;
+  permissions: string[];
   created_at: string;
   updated_at: string;
-  type_user: string;
-  profile_photo_path: string;
-  exclude_token: string;
 }
 
-export interface IUserResponse {
+export interface ITeamResponse {
   success: true;
-  data: IPaginationResponse<IUser>;
+  data: IPaginationResponse<ITeam>;
   message?: string;
   type?: string;
 }

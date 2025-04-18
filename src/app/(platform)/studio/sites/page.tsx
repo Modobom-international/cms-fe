@@ -313,7 +313,7 @@ const paginateData = (
   searchTerm: string
 ) => {
   // First, filter the data based on search term
-  let filteredData = searchTerm
+  const filteredData = searchTerm
     ? data.filter(
         (item) =>
           item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

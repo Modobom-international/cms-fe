@@ -1,47 +1,19 @@
 "use client";
 
-import { CSSProperties, useState } from "react";
+import Link from "next/link";
 
-import {
-  Column,
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-} from "@tanstack/react-table";
-import {
-  ArrowLeftToLineIcon,
-  ArrowRightToLineIcon,
-  ChevronDownIcon,
-  ChevronFirstIcon,
-  ChevronLastIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronUpIcon,
-  EllipsisIcon,
-  MoreHorizontalIcon,
-  PencilIcon,
-  PinOffIcon,
-  TrashIcon,
-} from "lucide-react";
+import { Edit, Trash } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
-import { cn } from "@/lib/utils";
+import { ITeam } from "@/types/team.type";
+
+import { formatDateTime } from "@/lib/utils";
+
+import { useGetTeamList } from "@/hooks/team";
+import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-} from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
@@ -58,465 +30,270 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-type Item = {
-  id: string;
-  name: string;
-  permissions: string[];
-  created_at: string;
-  updated_at: string;
-};
-
-// Helper function to compute pinning styles for columns
-const getPinningStyles = (column: Column<Item>): CSSProperties => {
-  const isPinned = column.getIsPinned();
-  return {
-    left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
-    right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
-    position: isPinned ? "sticky" : "relative",
-    width: column.getSize(),
-    zIndex: isPinned ? 1 : 0,
-    backgroundColor: isPinned ? "#fff" : "transparent",
-  };
-};
-
-const columns: ColumnDef<Item>[] = [
-  {
-    header: "ID",
-    accessorKey: "id",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground truncate font-medium">
-        {row.getValue("id")}
-      </div>
-    ),
-  },
-  {
-    header: "Name",
-    accessorKey: "name",
-    cell: ({ row }) => (
-      <div className="truncate font-medium">{row.getValue("name")}</div>
-    ),
-    sortUndefined: "last",
-    sortDescFirst: false,
-  },
-  {
-    header: "Permissions",
-    accessorKey: "permissions",
-    cell: ({ row }) => {
-      const permissions = row.getValue("permissions") as string[];
-      return <div className="truncate">{permissions.join(", ")}</div>;
-    },
-  },
-  {
-    header: "Created At",
-    accessorKey: "created_at",
-    cell: ({ row }) => (
-      <div className="truncate">{row.getValue("created_at")}</div>
-    ),
-  },
-  {
-    header: "Updated At",
-    accessorKey: "updated_at",
-    cell: ({ row }) => (
-      <div className="truncate">{row.getValue("updated_at")}</div>
-    ),
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      const team = row.original;
-
-      return (
-        <div className="flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="data-[state=open]:bg-muted flex h-8 w-8 p-0"
-              >
-                <MoreHorizontalIcon className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[160px]">
-              <DropdownMenuItem>
-                <PencilIcon className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive focus:text-destructive">
-                <TrashIcon className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
-    },
-  },
-];
+import { EmptyTable } from "@/components/data-table/empty-table";
+import { Spinner } from "@/components/global/spinner";
+import { SearchInput } from "@/components/inputs/search-input";
 
 export default function TeamsDataTable() {
-  const [data, setData] = useState<Item[]>([]);
-  const [sorting, setSorting] = useState<SortingState>([
-    {
-      id: "name",
-      desc: false,
-    },
-  ]);
+  const t = useTranslations("TeamPage.table");
 
-  const table = useReactTable({
-    data,
-    columns,
-    columnResizeMode: "onChange",
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSorting,
-    state: {
-      sorting,
-    },
-    enableSortingRemoval: false,
-  });
+  const [currentPage, setCurrentPage] = useQueryState(
+    "page",
+    parseAsInteger.withDefault(1)
+  );
+  const [pageSize, setPageSize] = useQueryState(
+    "pageSize",
+    parseAsInteger.withDefault(10)
+  );
+  const [search, setSearch] = useQueryState(
+    "search",
+    parseAsString.withDefault("")
+  );
+
+  const debouncedSearch = useDebounce(search, 500);
+
+  const {
+    data: teamResponse,
+    isFetching,
+    isError,
+    refetch,
+  } = useGetTeamList(currentPage, pageSize, debouncedSearch);
+
+  // Extract data from the response with proper typing
+  const teamData = teamResponse?.success ? teamResponse.data.data : [];
+
+  const paginationInfo = {
+    total: teamResponse?.success ? teamResponse.data.total : 0,
+    page: currentPage,
+    pageSize: pageSize,
+    totalPages: teamResponse?.success ? teamResponse.data.totalPages : 1,
+  };
+
+  const isDataEmpty = !teamData || teamData.length === 0;
+
+  // Handle next page navigation
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(paginationInfo.totalPages, prev + 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Handle previous page navigation
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
-    <>
-      <div className="w-full">
-        <Table
-          className="[&_td]:border-border [&_th]:border-border w-full table-fixed border-separate border-spacing-0 [&_tfoot_td]:border-t [&_th]:border-b [&_tr]:border-none [&_tr:not(:last-child)_td]:border-b"
-          style={{
-            minWidth: "100%",
-          }}
-        >
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="bg-muted/50">
-                {headerGroup.headers.map((header) => {
-                  const { column } = header;
-                  const isPinned = column.getIsPinned();
-                  const isLastLeftPinned =
-                    isPinned === "left" && column.getIsLastColumn("left");
-                  const isFirstRightPinned =
-                    isPinned === "right" && column.getIsFirstColumn("right");
+    <div className="flex flex-col">
+      {/* Search Bar */}
+      <div className="mb-4">
+        <SearchInput
+          className="w-full sm:max-w-xs"
+          placeholder={t("search")}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
 
-                  return (
-                    <TableHead
-                      key={header.id}
-                      className="[&[data-pinned][data-last-col]]:border-border data-pinned:bg-muted/90 relative h-10 truncate border-t data-pinned:backdrop-blur-xs [&:not([data-pinned]):has(+[data-pinned])_div.cursor-col-resize:last-child]:opacity-0 [&[data-last-col=left]_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=left][data-last-col=left]]:border-r [&[data-pinned=right]:last-child_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=right][data-last-col=right]]:border-l"
-                      colSpan={header.colSpan}
-                      style={{
-                        ...getPinningStyles(column),
-                      }}
-                      data-pinned={isPinned || undefined}
-                      data-last-col={
-                        isLastLeftPinned
-                          ? "left"
-                          : isFirstRightPinned
-                            ? "right"
-                            : undefined
-                      }
-                      aria-sort={
-                        header.column.getIsSorted() === "asc"
-                          ? "ascending"
-                          : header.column.getIsSorted() === "desc"
-                            ? "descending"
-                            : "none"
-                      }
+      {/* Results Table or Empty State */}
+      <div className="flex-grow">
+        {isFetching ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="text-center">
+              <Spinner />
+              <p className="mt-2 text-sm text-gray-500">{t("loading")}</p>
+            </div>
+          </div>
+        ) : isError ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="text-center">
+              <p className="text-destructive text-sm">{t("error")}</p>
+              <Button
+                onClick={() => {
+                  setCurrentPage(1);
+                  refetch();
+                }}
+                variant="outline"
+                className="mt-4"
+              >
+                {t("actions.retry")}
+              </Button>
+            </div>
+          </div>
+        ) : isDataEmpty ? (
+          <EmptyTable />
+        ) : (
+          <div className="flex flex-col">
+            {/* Data Table Section */}
+            <div className="relative w-full overflow-auto">
+              <Table className="w-full">
+                <TableHeader className="sticky top-0 z-10 bg-white">
+                  <TableRow className="border-b border-gray-200 hover:bg-white">
+                    <TableHead className="w-[60px] py-3 font-medium text-gray-700">
+                      {t("columns.id")}
+                    </TableHead>
+                    <TableHead className="w-[180px] py-3 font-medium text-gray-700">
+                      {t("columns.name")}
+                    </TableHead>
+                    <TableHead className="w-[200px] py-3 font-medium text-gray-700">
+                      {t("columns.permissions")}
+                    </TableHead>
+                    <TableHead className="w-[150px] py-3 font-medium text-gray-700">
+                      {t("columns.createdAt")}
+                    </TableHead>
+                    <TableHead className="w-[150px] py-3 font-medium text-gray-700">
+                      {t("columns.updatedAt")}
+                    </TableHead>
+                    <TableHead className="w-[100px] py-3 font-medium text-gray-700">
+                      {t("columns.actions")}
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {teamData.map((team: ITeam) => (
+                    <TableRow
+                      key={team.id}
+                      className="border-b border-gray-200 hover:bg-gray-50"
                     >
-                      <div
-                        className={cn(
-                          "flex items-center justify-between gap-2",
-                          header.column.getCanSort() &&
-                            "cursor-pointer select-none"
-                        )}
-                        onClick={
-                          header.column.getCanSort()
-                            ? header.column.getToggleSortingHandler()
-                            : undefined
-                        }
-                        onKeyDown={(e) => {
-                          if (
-                            header.column.getCanSort() &&
-                            (e.key === "Enter" || e.key === " ")
-                          ) {
-                            e.preventDefault();
-                            header.column.getToggleSortingHandler()?.(e);
-                          }
-                        }}
-                        tabIndex={header.column.getCanSort() ? 0 : undefined}
-                      >
-                        <div className="flex items-center gap-1">
-                          <span className="truncate">
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
-                          </span>
-                          {header.column.getCanSort() && (
-                            <div className="flex items-center">
-                              {header.column.getIsSorted() === "asc" ? (
-                                <ChevronUpIcon className="size-4 shrink-0 opacity-60" />
-                              ) : header.column.getIsSorted() === "desc" ? (
-                                <ChevronDownIcon className="size-4 shrink-0 opacity-60" />
-                              ) : null}
-                            </div>
+                      <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                        {team.id}
+                      </TableCell>
+                      <TableCell className="py-3 text-sm font-medium">
+                        {team.name}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground py-3 text-sm">
+                        <div className="flex flex-wrap gap-1">
+                          {team.permissions.length > 0 ? (
+                            team.permissions
+                              .slice(0, 3)
+                              .map((permission: string, index: number) => (
+                                <span
+                                  key={index}
+                                  className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800"
+                                >
+                                  {permission.split("_").slice(-1)[0]}
+                                </span>
+                              ))
+                          ) : (
+                            <span className="text-gray-400">—</span>
+                          )}
+                          {team.permissions.length > 3 && (
+                            <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                              +{team.permissions.length - 3}
+                            </span>
                           )}
                         </div>
-                        {/* Pin/Unpin column controls with enhanced accessibility */}
-                        {!header.isPlaceholder &&
-                          header.column.getCanPin() &&
-                          (header.column.getIsPinned() ? (
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="-mr-1 size-7 shadow-none"
-                              onClick={() => header.column.pin(false)}
-                              aria-label={`Unpin ${
-                                header.column.columnDef.header as string
-                              } column`}
-                              title={`Unpin ${
-                                header.column.columnDef.header as string
-                              } column`}
-                            >
-                              <PinOffIcon
-                                className="opacity-60"
-                                size={16}
-                                aria-hidden="true"
-                              />
-                            </Button>
-                          ) : (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="-mr-1 size-7 shadow-none"
-                                  aria-label={`Pin options for ${
-                                    header.column.columnDef.header as string
-                                  } column`}
-                                  title={`Pin options for ${
-                                    header.column.columnDef.header as string
-                                  } column`}
-                                >
-                                  <EllipsisIcon
-                                    className="opacity-60"
-                                    size={16}
-                                    aria-hidden="true"
-                                  />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onClick={() => header.column.pin("left")}
-                                >
-                                  <ArrowLeftToLineIcon
-                                    size={16}
-                                    className="opacity-60"
-                                    aria-hidden="true"
-                                  />
-                                  Stick to left
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => header.column.pin("right")}
-                                >
-                                  <ArrowRightToLineIcon
-                                    size={16}
-                                    className="opacity-60"
-                                    aria-hidden="true"
-                                  />
-                                  Stick to right
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          ))}
-                        {header.column.getCanResize() && (
-                          <div
-                            {...{
-                              onDoubleClick: () => header.column.resetSize(),
-                              onMouseDown: header.getResizeHandler(),
-                              onTouchStart: header.getResizeHandler(),
-                              className:
-                                "absolute top-0 h-full w-4 cursor-col-resize user-select-none touch-none -right-2 z-10 flex justify-center before:absolute before:w-px before:inset-y-0 before:bg-border before:-translate-x-px",
-                            }}
-                          />
-                        )}
-                      </div>
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    const { column } = cell;
-                    const isPinned = column.getIsPinned();
-                    const isLastLeftPinned =
-                      isPinned === "left" && column.getIsLastColumn("left");
-                    const isFirstRightPinned =
-                      isPinned === "right" && column.getIsFirstColumn("right");
-
-                    return (
-                      <TableCell
-                        key={cell.id}
-                        className="[&[data-pinned][data-last-col]]:border-border data-pinned:bg-background/90 truncate data-pinned:backdrop-blur-xs [&[data-pinned=left][data-last-col=left]]:border-r [&[data-pinned=right][data-last-col=right]]:border-l"
-                        style={{
-                          ...getPinningStyles(column),
-                        }}
-                        data-pinned={isPinned || undefined}
-                        data-last-col={
-                          isLastLeftPinned
-                            ? "left"
-                            : isFirstRightPinned
-                              ? "right"
-                              : undefined
-                        }
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
                       </TableCell>
-                    );
+                      <TableCell className="text-muted-foreground py-3 text-sm">
+                        {team.created_at
+                          ? formatDateTime(new Date(team.created_at))
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground py-3 text-sm">
+                        {team.updated_at
+                          ? formatDateTime(new Date(team.updated_at))
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <div className="flex items-center gap-2">
+                          <Link href={`/admin/teams/edit/${team.id}`}>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
+                              <Edit className="h-4 w-4" />
+                              <span className="sr-only">
+                                {t("actions.edit")}
+                              </span>
+                            </Button>
+                          </Link>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive h-8 w-8"
+                          >
+                            <Trash className="h-4 w-4" />
+                            <span className="sr-only">
+                              {t("actions.delete")}
+                            </span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Pagination Section */}
+            <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
+              {/* Main pagination controls */}
+              <div className="flex items-center justify-between px-4 py-2">
+                {/* Results per page */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">
+                    {t("pagination.rowsPerPage")}
+                  </span>
+                  <Select
+                    value={pageSize.toString()}
+                    onValueChange={(value) => setPageSize(Number(value))}
+                  >
+                    <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
+                      <SelectValue placeholder="10" />
+                    </SelectTrigger>
+                    <SelectContent className="text-sm">
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Pagination controls */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                  >
+                    {t("pagination.previousPage")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                    onClick={handleNextPage}
+                    disabled={currentPage === paginationInfo.totalPages}
+                  >
+                    {t("pagination.nextPage")}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Bottom status line */}
+              <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+                <div>
+                  {t("pagination.showing", {
+                    from: (currentPage - 1) * pageSize + 1,
+                    to: Math.min(currentPage * pageSize, paginationInfo.total),
+                    total: paginationInfo.total,
                   })}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                </div>
+                <div>
+                  {t("pagination.page", {
+                    current: currentPage,
+                    total: paginationInfo.totalPages,
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between gap-8">
-        {/* Results per page */}
-        <div className="flex items-center gap-3">
-          <Label htmlFor="rows-per-page" className="max-sm:sr-only">
-            Rows per page
-          </Label>
-          <Select
-            value={table.getState().pagination.pageSize.toString()}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
-            }}
-          >
-            <SelectTrigger
-              id="rows-per-page"
-              className="w-fit whitespace-nowrap"
-            >
-              <SelectValue placeholder="Select number of results" />
-            </SelectTrigger>
-            <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
-              {[5, 10, 25, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={pageSize.toString()}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {/* Page number information */}
-        <div className="text-muted-foreground flex grow justify-end text-sm whitespace-nowrap">
-          <p
-            className="text-muted-foreground text-sm whitespace-nowrap"
-            aria-live="polite"
-          >
-            <span className="text-foreground">
-              {table.getState().pagination.pageIndex *
-                table.getState().pagination.pageSize +
-                1}
-              -
-              {Math.min(
-                Math.max(
-                  table.getState().pagination.pageIndex *
-                    table.getState().pagination.pageSize +
-                    table.getState().pagination.pageSize,
-                  0
-                ),
-                table.getRowCount()
-              )}
-            </span>{" "}
-            of{" "}
-            <span className="text-foreground">
-              {table.getRowCount().toString()}
-            </span>
-          </p>
-        </div>
-
-        {/* Pagination buttons */}
-        <div>
-          <Pagination>
-            <PaginationContent>
-              {/* First page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.firstPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  aria-label="Go to first page"
-                >
-                  <ChevronFirstIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Previous page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.previousPage()}
-                  disabled={!table.getCanPreviousPage()}
-                  aria-label="Go to previous page"
-                >
-                  <ChevronLeftIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Next page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.nextPage()}
-                  disabled={!table.getCanNextPage()}
-                  aria-label="Go to next page"
-                >
-                  <ChevronRightIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-              {/* Last page button */}
-              <PaginationItem>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  className="disabled:pointer-events-none disabled:opacity-50"
-                  onClick={() => table.lastPage()}
-                  disabled={!table.getCanNextPage()}
-                  aria-label="Go to last page"
-                >
-                  <ChevronLastIcon size={16} aria-hidden="true" />
-                </Button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      </div>
-    </>
+    </div>
   );
 }
