@@ -6,9 +6,7 @@ import { Edit, Trash } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
-import { IPaginationResponse, IUser } from "@/types/user.type";
-
-import { formatDateTime } from "@/lib/utils";
+import { IUser } from "@/types/user.type";
 
 import { useDebounce } from "@/hooks/use-debounce";
 import { useGetUserList } from "@/hooks/user";
@@ -129,9 +127,6 @@ export default function UsersDataTable() {
               <Table className="w-full">
                 <TableHeader className="sticky top-0 z-10 bg-white">
                   <TableRow className="border-b border-gray-200 hover:bg-white">
-                    <TableHead className="w-[100px] py-3 font-medium text-gray-700">
-                      {t("columns.id")}
-                    </TableHead>
                     <TableHead className="w-[200px] py-3 font-medium text-gray-700">
                       {t("columns.name")}
                     </TableHead>
@@ -149,12 +144,9 @@ export default function UsersDataTable() {
                 <TableBody>
                   {userData.map((user: IUser) => (
                     <TableRow
-                      key={user.id}
+                      key={user.email}
                       className="border-b border-gray-200 hover:bg-gray-50"
                     >
-                      <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                        {user.id}
-                      </TableCell>
                       <TableCell className="py-3 text-sm font-medium">
                         {user.name}
                       </TableCell>
@@ -166,7 +158,7 @@ export default function UsersDataTable() {
                       </TableCell>
                       <TableCell className="py-3">
                         <div className="flex items-center gap-2">
-                          <Link href={`/admin/users/edit/${user.id}`}>
+                          <Link href={`/admin/users/edit/${user.email}`}>
                             <Button
                               variant="ghost"
                               size="icon"

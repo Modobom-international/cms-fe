@@ -14,9 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/global/spinner";
 
 interface Domain {
-    domain: string;
-    status: string;
-    time_checked: string;
+    message: string;
 }
 
 interface RefreshDialogProps {
@@ -58,11 +56,8 @@ export function RefreshDialog({
         if (isOpen) {
             echo
                 .channel("domains")
-                .listen("RefreshDomain", (e: { message: string; domains: Domain[] }) => {
+                .listen("RefreshDomain", (e: { message: string; }) => {
                     setRefreshMessage(e.message);
-                    if (e.domains && e.domains.length > 0) {
-                        setNewDomains(e.domains);
-                    }
                 });
 
             return () => {
@@ -80,7 +75,7 @@ export function RefreshDialog({
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Làm mới danh sách Domain</DialogTitle>
+                    <DialogTitle>{t("actions.refresh.title")}</DialogTitle>
                 </DialogHeader>
                 <div className="py-4">
                     {isRefreshing ? (
@@ -90,18 +85,6 @@ export function RefreshDialog({
                     ) : (
                         <div>
                             <p className="text-sm text-gray-600">{refreshMessage}</p>
-                            {newDomains.length > 0 && (
-                                <div className="mt-4">
-                                    <h4 className="text-sm font-medium text-gray-700">Domain mới:</h4>
-                                    <ul className="mt-2 space-y-2">
-                                        {newDomains.map((domain, index) => (
-                                            <li key={index} className="text-sm text-gray-600">
-                                                {domain.domain} ({domain.status}, kiểm tra lúc {domain.time_checked})
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
                         </div>
                     )}
                 </div>
@@ -111,7 +94,7 @@ export function RefreshDialog({
                         onClick={handleClose}
                         disabled={isRefreshing}
                     >
-                        Đóng
+                        {t("actions.refresh.title")}
                     </Button>
                 </div>
             </DialogContent>

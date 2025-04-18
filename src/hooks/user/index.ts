@@ -17,7 +17,7 @@ export const useGetUserList = (
     queryFn: async (): Promise<IUserResponse> => {
       try {
         const { data } = await apiClient.get<IUserResponse>(
-          `/api/user?${params}`
+          `/api/users?${params}`
         );
         return data;
       } catch (error) {

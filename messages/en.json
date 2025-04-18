@@ -289,7 +289,8 @@
                 "details": "Details",
                 "retry": "Retry",
                 "refresh": "Refresh",
-                "refreshDomains": "Refresh Domains"
+                "refreshDomains": "Refresh Domains",
+                "title": "Refresh list Domains"
             },
             "loadingStates": {
                 "loading": "Loading domain data...",
@@ -301,7 +302,8 @@
             "actionTypes": {
                 "create": "Create",
                 "update": "Update",
-                "delete": "Delete"
+                "delete": "Delete",
+                "close": "Close"
             }
         }
     },
