@@ -46,7 +46,7 @@ export const useGetUserById = (id: string) => {
     queryFn: async (): Promise<IUser | null> => {
       try {
         const { data } = await apiClient.get<{ data: IUser }>(
-          `/api/user/${id}`
+          `/api/users/${id}`
         );
         return data.data;
       } catch {
@@ -64,7 +64,7 @@ export const useCreateUser = () => {
     mutationFn: async (userData: Partial<IUser>) => {
       try {
         const response = await apiClient.post<{ data: IUser }>(
-          "/api/user",
+          "/api/users",
           userData
         );
         return response.data.data;
@@ -85,7 +85,7 @@ export const useUpdateUser = (id: string) => {
     mutationFn: async (userData: Partial<IUser>) => {
       try {
         const response = await apiClient.put<{ data: IUser }>(
-          `/api/user/${id}`,
+          `/api/users/${id}`,
           userData
         );
         return response.data.data;
@@ -106,7 +106,7 @@ export const useDeleteUser = () => {
   return useMutation({
     mutationFn: async (id: string) => {
       try {
-        await apiClient.delete(`/api/user/${id}`);
+        await apiClient.delete(`/api/users/${id}`);
         return id;
       } catch (error) {
         throw new Error("Failed to delete user");
