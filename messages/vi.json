@@ -673,5 +673,12 @@
       "success": "Tạo phòng ban thành công",
       "error": "Tạo phòng ban không thành công"
     }
+  },
+  "TeamPage": {
+    "breadcrumb": "Quản lý phòng ban",
+    "title": "Phòng ban",
+    "description": "Quản lý phòng ban",
+    "employees": "Nhân viên",
+    "addTeam": "Thêm phòng ban"
   }
 }

@@ -15,20 +15,8 @@ export interface ITeam {
 }
 
 export interface ITeamResponse {
-  success: boolean;
-  data: {
-    data: ITeam[];
-    total: number;
-    page: number;
-    pageSize: number;
-    totalPages: number;
-  };
+  success: true;
+  data: IPaginationResponse<ITeam>;
   message?: string;
   type?: string;
-}
-
-export interface IErrorResponse {
-  success: false;
-  message: string;
-  type: string;
 }

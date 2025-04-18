@@ -674,5 +674,12 @@
             "success": "Team created successfully",
             "error": "Failed to create team"
         }
+    },
+    "TeamPage": {
+        "breadcrumb": "Team Management",
+        "title": "Teams",
+        "description": "Manage teams",
+        "employees": "Employees",
+        "addTeam": "Add Team"
     }
 }

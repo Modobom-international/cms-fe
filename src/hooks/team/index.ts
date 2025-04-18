@@ -5,12 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import qs from "qs";
 import { useForm } from "react-hook-form";
 
-import {
-  IErrorResponse,
-  ITeam,
-  ITeamMember,
-  ITeamResponse,
-} from "@/types/team.type";
+import { ITeam, ITeamResponse } from "@/types/team.type";
 
 import apiClient from "@/lib/api/client";
 
