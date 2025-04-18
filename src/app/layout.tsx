@@ -9,6 +9,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import NextTopLoader from "nextjs-toploader";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "sonner";
+import { EchoProvider } from "@/components/context/echo";
 
 import { cn } from "@/lib/utils";
 
@@ -48,10 +49,12 @@ export default async function RootLayout({
                 <NextTopLoader height={4} color="#7c3aed" showSpinner={false} />
                 <NuqsAdapter>
                   <Toaster />
-                  <main className="bg-background relative flex min-h-svh flex-col">
-                    {children}
-                    <ScrollToTop />
-                  </main>
+                  <EchoProvider>
+                    <main className="bg-background relative flex min-h-svh flex-col">
+                      {children}
+                      <ScrollToTop />
+                    </main>
+                  </EchoProvider>
                 </NuqsAdapter>
               </ThemeProvider>
             </AuthProvider>

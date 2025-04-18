@@ -3,6 +3,7 @@
 import { env } from "@/env";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { updateEchoAuthToken } from "@/lib/echo";
 
 const apiClient = axios.create({
   baseURL: env.NEXT_PUBLIC_BACKEND_URL,
@@ -13,18 +14,6 @@ const apiClient = axios.create({
   withXSRFToken: true,
   withCredentials: true,
 });
-
-let isRefreshing = false;
-//TODO: Implement token expiration check when BE is set expires_in
-// const isTokenExpiringSoon = () => {
-//   const expiresAt = Cookies.get("token_expires_at");
-//   if (!expiresAt) return true;
-//   const expiryDate = new Date(expiresAt);
-//   if (isNaN(expiryDate.getTime())) return true;
-//   const now = new Date();
-//   const timeLeft = expiryDate.getTime() - now.getTime();
-//   return timeLeft <= 0 || timeLeft < 5 * 60 * 1000;
-// };
 
 const refreshCsrfToken = async () => {
   try {
@@ -47,26 +36,6 @@ apiClient.interceptors.request.use(async (config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-
-  // if (token && isTokenExpiringSoon() && !isRefreshing) {
-  //   isRefreshing = true;
-  //   try {
-  //     const response = await apiClient.post("/api/refresh-token");
-  //     Cookies.set("access_token", response.data.token, { secure: true, sameSite: "strict" });
-  //     if (response.data.expires_in) {
-  //       const expiresAt = new Date(Date.now() + response.data.expires_in * 1000);
-  //       Cookies.set("token_expires_at", expiresAt.toISOString(), { secure: true, sameSite: "strict" });
-  //     }
-  //     config.headers.Authorization = `Bearer ${response.data.token}`;
-  //   } catch (error) {
-  //     console.error("Failed to refresh token:", error);
-  //     Cookies.remove("access_token");
-  //     Cookies.remove("token_expires_at");
-  //     window.location.href = "/login";
-  //   } finally {
-  //     isRefreshing = false;
-  //   }
-  // }
 
   const methodsRequiringCsrf = ["POST", "PUT", "DELETE"];
   if (
@@ -94,6 +63,9 @@ apiClient.interceptors.response.use(
             secure: true,
             sameSite: "strict",
           });
+
+          updateEchoAuthToken(response.data.token);
+
           error.config.headers.Authorization = `Bearer ${response.data.token}`;
           return apiClient(error.config);
         } catch (refreshError) {

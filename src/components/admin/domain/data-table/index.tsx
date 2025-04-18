@@ -1,16 +1,16 @@
 "use client";
 
 import { DomainStatusEnum } from "@/enums/domain-status";
-import { format } from "date-fns";
 import { Lock, LockOpen, RefreshCw, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
+import { useState } from "react";
 
 import { IDomainActual } from "@/types/domain.type";
 
 import { formatDateTime } from "@/lib/utils";
 
-import { useGetDomainList } from "@/hooks/domain";
+import { useGetDomainList, useRefreshDomainList } from "@/hooks/domain";
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ import { DomainStatusBadge } from "@/components/badge/domain-status-badge";
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 import { SearchInput } from "@/components/inputs/search-input";
+import { RefreshDialog } from "@/components/admin/domain/data-table/dialog";
 
 export default function DomainDataTable() {
   const t = useTranslations("DomainPage.table");
@@ -50,6 +51,7 @@ export default function DomainDataTable() {
     "search",
     parseAsString.withDefault("")
   );
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const debouncedSearch = useDebounce(search, 500);
 
@@ -60,7 +62,9 @@ export default function DomainDataTable() {
     refetch,
   } = useGetDomainList(currentPage, pageSize, debouncedSearch);
 
-  // Extract data from the response
+  const { mutate: refreshDomains, isPending: isRefreshing } =
+    useRefreshDomainList();
+
   const domainData =
     domainResponse && "data" in domainResponse
       ? domainResponse.data.data || []
@@ -76,31 +80,26 @@ export default function DomainDataTable() {
         };
   const isDataEmpty = !domainData || domainData.length === 0;
 
-  // Handle next page navigation - increment by 1
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Handle previous page navigation - decrement by 1
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Handler for refresh button click
   const handleRefresh = () => {
-    refetch();
+    setIsModalOpen(true);
   };
 
-  // Function to determine domain status based on expiration date
   const getDomainStatus = (domain: IDomainActual): DomainStatusEnum => {
     if (!domain.time_expired) return DomainStatusEnum.INACTIVE;
 
     const today = new Date();
     const expiry = new Date(domain.time_expired);
 
-    // Calculate days until expiration
     const daysUntilExpiry = Math.floor(
       (expiry.getTime() - today.getTime()) / (1000 * 3600 * 24)
     );
@@ -113,7 +112,7 @@ export default function DomainDataTable() {
 
   return (
     <div className="flex flex-col">
-      {/* Filters Section */}
+      {/* Bộ lọc */}
       <div className="space-y-6">
         <div className="grid grid-cols-1 items-end gap-6 md:grid-cols-2">
           <div>
@@ -134,15 +133,23 @@ export default function DomainDataTable() {
               }}
             />
           </div>
+          <div className="flex justify-end">
+            <Button
+              onClick={handleRefresh}
+              variant="outline"
+              className="h-10"
+              disabled={isFetching || isRefreshing}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              {t("actions.refresh")}
+            </Button>
+          </div>
         </div>
 
-        {/* Results Table or Empty State */}
         <div className="mt-4 flex-grow">
           {isFetching ? (
             <div className="flex items-center justify-center py-8">
-              <div className="text-center">
-                <Spinner />
-              </div>
+              <Spinner />
             </div>
           ) : isError ? (
             <div className="flex items-center justify-center py-8">
@@ -163,7 +170,6 @@ export default function DomainDataTable() {
             <EmptyTable />
           ) : (
             <div className="flex flex-col">
-              {/* Data Table Section */}
               <div className="relative w-full overflow-auto">
                 <Table className="w-full">
                   <TableHeader className="sticky top-0 z-10 bg-white">
@@ -255,11 +261,8 @@ export default function DomainDataTable() {
                 </Table>
               </div>
 
-              {/* Pagination Section - Fixed at bottom when scrolling */}
               <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
-                {/* Main pagination controls */}
                 <div className="flex items-center justify-between px-4 py-2">
-                  {/* Results per page */}
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-600">
                       {t("pagination.rowsPerPage")}
@@ -280,7 +283,6 @@ export default function DomainDataTable() {
                     </Select>
                   </div>
 
-                  {/* Pagination controls */}
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
@@ -303,16 +305,15 @@ export default function DomainDataTable() {
                   </div>
                 </div>
 
-                {/* Bottom status line */}
                 <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
                   <div>
-                    Viewing {paginationInfo.from || 1}-
+                    Đang xem {paginationInfo.from || 1}-
                     {paginationInfo.to ||
                       Math.min(pageSize, paginationInfo.total || 0)}{" "}
-                    {t("pagination.of")} {paginationInfo.total || 0} results
+                    {t("pagination.of")} {paginationInfo.total || 0} kết quả
                   </div>
                   <div>
-                    Page {currentPage} {t("pagination.of")}{" "}
+                    Trang {currentPage} {t("pagination.of")}{" "}
                     {paginationInfo.last_page || 1}
                   </div>
                 </div>
@@ -321,6 +322,14 @@ export default function DomainDataTable() {
           )}
         </div>
       </div>
+
+      <RefreshDialog
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        refreshDomains={refreshDomains}
+        isRefreshing={isRefreshing}
+        refetch={refetch}
+      />
     </div>
   );
 }
