@@ -679,6 +679,33 @@
     "title": "Phòng ban",
     "description": "Quản lý phòng ban",
     "employees": "Nhân viên",
-    "addTeam": "Thêm phòng ban"
+    "addTeam": "Thêm phòng ban",
+    "table": {
+        "search": "Tìm kiếm phòng ban...",
+        "loading": "Đang tải danh sách phòng ban...",
+        "error": "Đã xảy ra lỗi khi tải danh sách phòng ban",
+        "empty": "Không tìm thấy phòng ban nào",
+        "columns": {
+            "id": "ID",
+            "name": "Tên",
+            "permissions": "Quyền truy cập",
+            "createdAt": "Ngày tạo",
+            "updatedAt": "Cập nhật lần cuối",
+            "actions": "Thao tác"
+        },
+        "actions": {
+            "edit": "Chỉnh sửa",
+            "delete": "Xóa",
+            "retry": "Thử lại"
+        },
+        "pagination": {
+            "rowsPerPage": "Số dòng mỗi trang",
+            "of": "trong số",
+            "previousPage": "Trước",
+            "nextPage": "Tiếp",
+            "showing": "Hiển thị {from}-{to} trong tổng số {total} kết quả",
+            "page": "Trang {current} trong tổng số {total}"
+        }
+    }
   }
 }
