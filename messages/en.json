@@ -372,7 +372,6 @@
             "filters": {
                 "search": "Search",
                 "date": "Date"
-                
             },
             "columns": {
                 "id": "ID",
@@ -706,6 +705,53 @@
                 "nextPage": "Next",
                 "showing": "Viewing {from}-{to} of {total} results",
                 "page": "Page {current} of {total}"
+            }
+        }
+    },
+    "UserPage": {
+        "breadcrumb": "User Management",
+        "title": "Users",
+        "description": "Manage users and their permissions",
+        "teams": "Teams",
+        "addUser": "Add User",
+        "table": {
+            "search": "Search users...",
+            "loading": "Loading users...",
+            "error": "An error occurred while loading users",
+            "empty": "No users found",
+            "columns": {
+                "id": "ID",
+                "name": "Name",
+                "email": "Email",
+                "team": "Team",
+                "role": "Role",
+                "status": "Status",
+                "createdAt": "Created At",
+                "updatedAt": "Updated At",
+                "actions": "Actions"
+            },
+            "actions": {
+                "edit": "Edit",
+                "delete": "Delete",
+                "retry": "Retry"
+            },
+            "pagination": {
+                "rowsPerPage": "Rows per page",
+                "of": "of",
+                "previousPage": "Previous",
+                "nextPage": "Next",
+                "showing": "Viewing {from}-{to} of {total} results",
+                "page": "Page {current} of {total}"
+            },
+            "status": {
+                "active": "Active",
+                "inactive": "Inactive",
+                "pending": "Pending"
+            },
+            "roles": {
+                "admin": "Administrator",
+                "user": "User",
+                "manager": "Manager"
             }
         }
     }

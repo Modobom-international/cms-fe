@@ -65,3 +65,14 @@ export const teamQueryKeys = {
   details: (id: string) => [...teamQueryKeys.all, "detail", id],
   create: () => [...teamQueryKeys.all, "create"],
 };
+
+export const userQueryKeys = {
+  all: ["users"],
+  lists: () => [...userQueryKeys.all, "list"],
+  list: (page: number, pageSize: number, search: string = "") => [
+    ...userQueryKeys.lists(),
+    { page, pageSize, search },
+  ],
+  details: (id: string) => [...userQueryKeys.all, "detail", id],
+  create: () => [...userQueryKeys.all, "create"],
+};
