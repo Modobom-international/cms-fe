@@ -8,6 +8,27 @@ body,
   width: 100%;
 }
 
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+body[style] {
+  margin: 0 auto !important;
+  
+}
+
+body[data-scroll-locked] {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -123,6 +144,7 @@ body,
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
