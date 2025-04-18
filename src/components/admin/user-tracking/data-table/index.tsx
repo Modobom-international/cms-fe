@@ -4,17 +4,9 @@ import { useEffect, useState } from "react";
 
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
-import { Check, ChevronsUpDown } from "lucide-react";
-import {
-  Map,
-  PlusCircle,
-  Users,
-} from "lucide-react";
+import { Map, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import {
-  DatePicker,
-} from "react-aria-components";
 
 import { IDomainActual } from "@/types/domain.type";
 import { IUserTracking } from "@/types/user-tracking.type";
@@ -28,26 +20,11 @@ import { useActiveUsers } from "@/hooks/user-tracking/use-active-users";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { DateInput } from "@/components/ui/datefield-rac";
-import {
   DialogContent,
   DialogHeader,
   DialogTitle,
   Dialog as DialogUI,
 } from "@/components/ui/dialog";
-import {
-  PopoverContent,
-  PopoverTrigger,
-  Popover as PopoverUI,
-} from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -67,6 +44,8 @@ import {
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 
+import { FilterBar } from "./filter-bar";
+
 export default function UserTrackingDataTable() {
   const t = useTranslations("UserTrackingPage.table");
   const [showHeatmapModal, setShowHeatmapModal] = useState(false);
@@ -74,6 +53,7 @@ export default function UserTrackingDataTable() {
     null
   );
   const [openDomainSelect, setOpenDomainSelect] = useState(false);
+  const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -106,6 +86,9 @@ export default function UserTrackingDataTable() {
   useEffect(() => {
     if (domain === "" && domains.length > 0) {
       setDomain(domains[0].domain);
+      setSelectedDomains([domains[0].domain]);
+    } else if (domain) {
+      setSelectedDomains([domain]);
     }
   }, [domains, domain, setDomain]);
 
@@ -159,126 +142,40 @@ export default function UserTrackingDataTable() {
     setShowHeatmapModal(true);
   };
 
-  return (
-    <div className="min-h- flex flex-col">
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
-          <div>
-            <label
-              className="mb-2 block text-sm font-medium text-gray-700"
-              htmlFor="domain"
-            >
-              {t("filters.selectDomain")}
-            </label>
-            <PopoverUI
-              open={openDomainSelect}
-              onOpenChange={setOpenDomainSelect}
-            >
-              <PopoverTrigger asChild>
-                <Button
-                  id="domain-select"
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={openDomainSelect}
-                  className="w-96 justify-between"
-                  disabled={isLoadingDomains}
-                >
-                  {domain
-                    ? domains.find((d) => d.domain === domain)?.domain || domain
-                    : t("placeholders.selectDomain")}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-[24rem] p-0"
-                side="bottom"
-                align="start"
-              >
-                <Command>
-                  <CommandInput
-                    placeholder={t("placeholders.searchDomain")}
-                    className="h-9"
-                  />
-                  <CommandList>
-                    <CommandEmpty>{t("loadingStates.noDomains")}</CommandEmpty>
-                    <CommandGroup>
-                      {isLoadingDomains ? (
-                        <div className="py-2 text-center text-sm text-gray-500">
-                          {t("loadingStates.loadingDomains")}
-                        </div>
-                      ) : domainError ? (
-                        <div className="py-2 text-center text-sm text-red-500">
-                          {t("errors.fetchDomainsFailed")}
-                        </div>
-                      ) : domains.length === 0 ? (
-                        <div className="py-2 text-center text-sm text-gray-500">
-                          {t("loadingStates.noDomains")}
-                        </div>
-                      ) : (
-                        domains.map((domainItem: IDomainActual) => (
-                          <CommandItem
-                            key={domainItem.id}
-                            value={domainItem.domain}
-                            onSelect={(currentValue: string) => {
-                              setDomain(currentValue);
-                              setOpenDomainSelect(false);
-                            }}
-                          >
-                            {domainItem.domain}
-                            <Check
-                              className={cn(
-                                "ml-auto h-4 w-4",
-                                domain === domainItem.domain
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                          </CommandItem>
-                        ))
-                      )}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </PopoverUI>
-          </div>
-        </div>
+  const handleDomainSelect = (value: string) => {
+    setSelectedDomains([value]);
+    setDomain(value);
+    setOpenDomainSelect(false);
+  };
 
-        {/* Second Row - Date Filter */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Date Picker */}
-          <PopoverUI>
-            <PopoverTrigger asChild>
-              <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
-                <PlusCircle className="size-3.5" />
-                {t("filters.date")}
-              </span>
-            </PopoverTrigger>
-            <PopoverContent className="w-72 p-0" align="start">
-              <div className="px-3 pt-3">
-                <h3 className="text-sm font-medium">Select Date</h3>
-              </div>
-              <ScrollArea className="max-h-72">
-                <div className="p-3">
-                  <DatePicker value={calendarDate} onChange={handleDateChange}>
-                    <DateInput className="w-full" />
-                  </DatePicker>
-                </div>
-              </ScrollArea>
-              <div className="flex items-center justify-between border-t border-gray-100 p-3">
-                <Button
-                  onClick={() => {
-                    setCurrentPage(1);
-                    refetch();
-                  }}
-                  className="w-full"
-                >
-                  Apply Filter
-                </Button>
-              </div>
-            </PopoverContent>
-          </PopoverUI>
-        </div>
+  const clearDomainFilter = () => {
+    setSelectedDomains([]);
+    setDomain("");
+  };
+
+  const resetFilters = () => {
+    clearDomainFilter();
+    setDate(format(new Date(), "yyyy-MM-dd"));
+  };
+
+  return (
+    <div className="flex flex-col">
+      <div className="space-y-4">
+        <FilterBar
+          selectedDomains={selectedDomains}
+          onDomainSelect={handleDomainSelect}
+          onClearDomains={clearDomainFilter}
+          openDomainSelect={openDomainSelect}
+          setOpenDomainSelect={setOpenDomainSelect}
+          date={date}
+          setDate={setDate}
+          calendarDate={calendarDate}
+          handleDateChange={handleDateChange}
+          refetch={refetch}
+          setCurrentPage={setCurrentPage}
+          resetFilters={resetFilters}
+          t={t}
+        />
 
         <div className="mb-6">
           <div className="bg-card rounded-lg border p-4">
@@ -639,3 +536,4 @@ const renderUserBehavior = (
       );
   }
 };
+
