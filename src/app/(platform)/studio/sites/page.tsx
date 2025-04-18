@@ -175,7 +175,7 @@ const siteFormSchema = (t: any) => z.object({
     .min(3, t("Validation.Domain.MinLength"))
     .max(253, t("Validation.Domain.MaxLength"))
     .regex(
-      /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/,
+      /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/,
       t("Validation.Domain.Invalid")
     ),
 });

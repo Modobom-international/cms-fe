@@ -101,12 +101,7 @@ export default  function WebBuilderStudio({
     formData.append("page_id", pageId);
     formData.append("site_id", siteId);
 
-    return toast.promise(exportPageMutation.mutateAsync(formData), {
-      loading: t("ExportHTML"),
-      success: t("ExportSuccess"),
-      error: (err) =>
-        t("ExportError", { error: err instanceof Error ? err.message : "Unknown error" }),
-    });
+    return exportPageMutation.mutateAsync(formData);
   };
 
   // Plugin to add export and deploy buttons using GrapeJS Panel API
@@ -144,6 +139,12 @@ export default  function WebBuilderStudio({
         opacity: 0.7;
         cursor: not-allowed;
       }
+      .export-deploy-btn {
+        background-color: #7c3aed;
+      }
+      .export-deploy-btn:hover {
+        background-color: #6d28d9;
+      }
     `;
     document.head.appendChild(style);
 
@@ -158,6 +159,7 @@ export default  function WebBuilderStudio({
         return toast.promise(
           deployPageMutation.mutateAsync({
             site_id: Number(siteId),
+            page_slug: slug,
           }),
           {
             loading: t("DeployPage"),
@@ -169,28 +171,56 @@ export default  function WebBuilderStudio({
       },
     });
 
-    // Add a panel with the export and deploy buttons
+    // Combined export and deploy command
+    editor.Commands.add("export-and-deploy", {
+      run: async () => {
+        try {
+          // First export
+          await toast.promise(
+            exportHTMLWithCSS(editor),
+            {
+              loading: t("ExportHTML"),
+              success: t("ExportSuccess"),
+              error: (err) =>
+                t("ExportError", { error: err instanceof Error ? err.message : "Please try again" }),
+            }
+          );
+          
+          // Then deploy
+          return toast.promise(
+            deployPageMutation.mutateAsync({
+              site_id: Number(siteId),
+              page_slug: slug,
+            }),
+            {
+              loading: t("DeployPage"),
+              success: t("DeploySuccess"),
+              error: (err) =>
+                t("DeployError", { error: err instanceof Error ? err.message : "Please try again" }),
+            }
+          );
+        } catch (err) {
+          toast.error(t("ExportAndDeployError"), {
+            description: err instanceof Error ? err.message : "Please try again",
+          });
+          throw err;
+        }
+      }
+    });
+
+    // Add a panel with the combined export and deploy button
     editor.Panels.addPanel({
       id: "custom-panel",
       visible: true,
       buttons: [
         {
-          id: "export-btn",
-          label: exportPageMutation.isPending
-            ? t("Exporting")
-            : t("ExportButton", { slug }),
-          command: "export-html",
-          className: `custom-btn export-btn ${exportPageMutation.isPending ? "loading" : ""}`,
-          attributes: { disabled: exportPageMutation.isPending },
-        },
-        {
-          id: "deploy-btn",
-          label: deployPageMutation.isPending
-            ? t("Deploying")
-            : t("DeployButton", { slug }),
-          command: "deploy-page",
-          className: `custom-btn deploy-btn ${deployPageMutation.isPending ? "loading" : ""}`,
-          attributes: { disabled: deployPageMutation.isPending },
+          id: "export-deploy-btn",
+          label: exportPageMutation.isPending || deployPageMutation.isPending
+            ? exportPageMutation.isPending ? t("Exporting") : t("Deploying")
+            : t("ExportAndDeployButton"),
+          command: "export-and-deploy",
+          className: `custom-btn export-deploy-btn ${(exportPageMutation.isPending || deployPageMutation.isPending) ? "loading" : ""}`,
+          attributes: { disabled: exportPageMutation.isPending || deployPageMutation.isPending },
         },
       ],
     });
