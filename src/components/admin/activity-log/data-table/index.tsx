@@ -2,7 +2,7 @@
 
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, PlusCircle } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   parseAsArrayOf,
@@ -11,11 +11,7 @@ import {
   useQueryState,
 } from "nuqs";
 import {
-  Button as ButtonAria,
   DatePicker,
-  Dialog,
-  Group,
-  Popover as PopoverAria,
 } from "react-aria-components";
 
 import { IActivityLog } from "@/types/activity-log.type";
@@ -26,7 +22,6 @@ import { useGetActivityLogs } from "@/hooks/activity-log";
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar-rac";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DateInput } from "@/components/ui/datefield-rac";
 import { Label } from "@/components/ui/label";

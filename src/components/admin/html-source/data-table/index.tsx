@@ -4,15 +4,11 @@ import { useState } from "react";
 
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
-import { CalendarIcon, MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import {
-  Button as ButtonAria,
   DatePicker,
-  Dialog,
-  Group,
-  Popover as PopoverAria,
 } from "react-aria-components";
 
 // Import types
@@ -23,7 +19,6 @@ import { formatDateTime } from "@/lib/utils";
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar-rac";
 import { DateInput } from "@/components/ui/datefield-rac";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

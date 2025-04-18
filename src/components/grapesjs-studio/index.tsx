@@ -14,7 +14,6 @@ import { useDeployPage, useExportPage, useUpdatePage } from "@/hooks/pages";
 
 import { deleteAssets, loadAssets, uploadAssets } from "./actions/upload";
 import { buttonBlock } from "./blocks/button";
-import { getTranslations } from "next-intl/server";
 
 interface WebBuilderStudioProps {
   slug: string;

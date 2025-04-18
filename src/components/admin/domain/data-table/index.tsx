@@ -1,8 +1,7 @@
 "use client";
 
 import { DomainStatusEnum } from "@/enums/domain-status";
-import { format } from "date-fns";
-import { Lock, LockOpen, RefreshCw, Search } from "lucide-react";
+import { Lock, LockOpen } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
