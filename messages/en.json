@@ -432,6 +432,8 @@
         "Exporting": "Exporting...",
         "DeployButton": "Deploy {slug}",
         "Deploying": "Deploying...",
+        "ExportAndDeployButton": "Deploy",
+        "ExportAndDeployError": "Export and deploy failed",
         "NewPage": {
             "Title": "New Page: {slug}",
             "Description": "Start building your page here."
