@@ -1,11 +1,9 @@
 "use client";
 
-import React from "react";
-import { useTranslations } from "next-intl";
-
 import { env } from "@/env";
 import StudioEditor from "@grapesjs/studio-sdk/react";
 import "@grapesjs/studio-sdk/style";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import apiClient from "@/lib/api/client";
@@ -21,13 +19,13 @@ interface WebBuilderStudioProps {
   pageId: string;
 }
 
-export default  function WebBuilderStudio({
+export default function WebBuilderStudio({
   slug,
   siteId,
   pageId,
 }: WebBuilderStudioProps) {
   const t = useTranslations("Editor");
-  
+
   // React Query hooks
   const updatePageMutation = useUpdatePage();
   const exportPageMutation = useExportPage(pageId);
@@ -47,8 +45,7 @@ export default  function WebBuilderStudio({
         }
       );
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : t("SaveError");
+      const errorMessage = err instanceof Error ? err.message : t("SaveError");
       toast.error(t("SaveError"), {
         description: errorMessage,
       });
@@ -69,8 +66,7 @@ export default  function WebBuilderStudio({
       console.log(`Loaded content for page ID: ${pageId}`, content);
       return content;
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : t("SaveError");
+      const errorMessage = err instanceof Error ? err.message : t("SaveError");
 
       console.warn(
         `Could not load content for page ID: ${pageId}`,
@@ -165,7 +161,9 @@ export default  function WebBuilderStudio({
             loading: t("DeployPage"),
             success: t("DeploySuccess"),
             error: (err) =>
-              t("DeployError", { error: err instanceof Error ? err.message : "Please try again" }),
+              t("DeployError", {
+                error: err instanceof Error ? err.message : "Please try again",
+              }),
           }
         );
       },
@@ -176,16 +174,15 @@ export default  function WebBuilderStudio({
       run: async () => {
         try {
           // First export
-          await toast.promise(
-            exportHTMLWithCSS(editor),
-            {
-              loading: t("ExportHTML"),
-              success: t("ExportSuccess"),
-              error: (err) =>
-                t("ExportError", { error: err instanceof Error ? err.message : "Please try again" }),
-            }
-          );
-          
+          await toast.promise(exportHTMLWithCSS(editor), {
+            loading: t("ExportHTML"),
+            success: t("ExportSuccess"),
+            error: (err) =>
+              t("ExportError", {
+                error: err instanceof Error ? err.message : "Please try again",
+              }),
+          });
+
           // Then deploy
           return toast.promise(
             deployPageMutation.mutateAsync({
@@ -196,16 +193,20 @@ export default  function WebBuilderStudio({
               loading: t("DeployPage"),
               success: t("DeploySuccess"),
               error: (err) =>
-                t("DeployError", { error: err instanceof Error ? err.message : "Please try again" }),
+                t("DeployError", {
+                  error:
+                    err instanceof Error ? err.message : "Please try again",
+                }),
             }
           );
         } catch (err) {
           toast.error(t("ExportAndDeployError"), {
-            description: err instanceof Error ? err.message : "Please try again",
+            description:
+              err instanceof Error ? err.message : "Please try again",
           });
           throw err;
         }
-      }
+      },
     });
 
     // Add a panel with the combined export and deploy button
@@ -215,12 +216,18 @@ export default  function WebBuilderStudio({
       buttons: [
         {
           id: "export-deploy-btn",
-          label: exportPageMutation.isPending || deployPageMutation.isPending
-            ? exportPageMutation.isPending ? t("Exporting") : t("Deploying")
-            : t("ExportAndDeployButton"),
+          label:
+            exportPageMutation.isPending || deployPageMutation.isPending
+              ? exportPageMutation.isPending
+                ? t("Exporting")
+                : t("Deploying")
+              : t("ExportAndDeployButton"),
           command: "export-and-deploy",
-          className: `custom-btn export-deploy-btn ${(exportPageMutation.isPending || deployPageMutation.isPending) ? "loading" : ""}`,
-          attributes: { disabled: exportPageMutation.isPending || deployPageMutation.isPending },
+          className: `custom-btn export-deploy-btn ${exportPageMutation.isPending || deployPageMutation.isPending ? "loading" : ""}`,
+          attributes: {
+            disabled:
+              exportPageMutation.isPending || deployPageMutation.isPending,
+          },
         },
       ],
     });
@@ -313,7 +320,12 @@ export default  function WebBuilderStudio({
             storageType: "self",
             onUpload: async ({ files, editor }) => {
               try {
-                const uploadedAssets = await uploadAssets({ files, editor });
+                const uploadedAssets = await uploadAssets({
+                  files,
+                  editor,
+                  siteId,
+                  slug,
+                });
                 toast.success("Assets uploaded successfully!");
                 return uploadedAssets;
               } catch (error) {
@@ -330,7 +342,11 @@ export default  function WebBuilderStudio({
             onDelete: async ({ assets, editor }) => {
               try {
                 toast.loading("Deleting assets...");
-                await deleteAssets({ assets, editor });
+                await deleteAssets({
+                  assets,
+                  editor,
+                  siteId,
+                });
                 toast.success("Assets deleted successfully!");
               } catch (error) {
                 const errorMessage =
@@ -345,7 +361,10 @@ export default  function WebBuilderStudio({
             },
             onLoad: async ({ editor }) => {
               try {
-                return await loadAssets({ editor });
+                return await loadAssets({
+                  editor,
+                  siteId,
+                });
               } catch (error) {
                 console.error("Error loading assets:", error);
                 toast.error("Failed to load assets", {
