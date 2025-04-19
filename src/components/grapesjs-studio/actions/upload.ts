@@ -6,15 +6,11 @@ import {
   ref,
   uploadBytes,
 } from "firebase/storage";
-import { v4 as uuidv4 } from "uuid";
 
 import { app } from "@/lib/firebase";
 
 // Initialize Firebase Storage
 const storage = getStorage(app);
-
-// Base folder path for CMS assets
-const CMS_FOLDER_PATH = "cms/assets";
 
 // Define InputAssetProps type based on what GrapeJS expects
 interface InputAssetProps {
@@ -35,7 +31,16 @@ interface Asset {
 // Define WithEditorProps type
 interface WithEditorProps {
   editor: any;
+  siteId: string;
+  slug?: string;
 }
+
+/**
+ * Get the CMS folder path for a specific site
+ */
+const getCMSFolderPath = (siteId: string) => {
+  return `cms/${siteId}/assets`;
+};
 
 /**
  * Upload assets to Firebase Storage
@@ -43,6 +48,8 @@ interface WithEditorProps {
 export const uploadAssets = async ({
   files,
   editor,
+  siteId,
+  slug = "",
 }: {
   files: File[];
 } & WithEditorProps): Promise<InputAssetProps[]> => {
@@ -50,12 +57,15 @@ export const uploadAssets = async ({
 
   try {
     const uploadedAssets: InputAssetProps[] = [];
+    const timestamp = Date.now();
+    const folderPath = getCMSFolderPath(siteId);
 
     for (const file of files) {
-      // Generate a unique file name to avoid conflicts
+      // Generate filename with slug and timestamp
       const fileExtension = file.name.split(".").pop();
-      const uniqueFileName = `${uuidv4()}.${fileExtension}`;
-      const filePath = `${CMS_FOLDER_PATH}/${uniqueFileName}`;
+      const slugPrefix = slug ? `${slug}-` : "";
+      const uniqueFileName = `${slugPrefix}${timestamp}.${fileExtension}`;
+      const filePath = `${folderPath}/${uniqueFileName}`;
 
       // Create a reference to the file location
       const storageRef = ref(storage, filePath);
@@ -75,6 +85,7 @@ export const uploadAssets = async ({
           size: file.size,
           type: file.type,
           firebasePath: filePath,
+          timestamp: timestamp,
         },
       };
 
@@ -94,6 +105,7 @@ export const uploadAssets = async ({
 export const deleteAssets = async ({
   assets,
   editor,
+  siteId,
 }: {
   assets: Asset[];
 } & WithEditorProps): Promise<void> => {
@@ -120,35 +132,47 @@ export const deleteAssets = async ({
  */
 export const loadAssets = async ({
   editor,
+  siteId,
 }: WithEditorProps): Promise<InputAssetProps[]> => {
   try {
-    // Create a reference to the CMS assets folder
-    const cmsFolderRef = ref(storage, CMS_FOLDER_PATH);
+    // Create a reference to the site-specific CMS assets folder
+    const folderPath = getCMSFolderPath(siteId);
+    const cmsFolderRef = ref(storage, folderPath);
 
     // List all items in the folder
     const result = await listAll(cmsFolderRef);
 
     // Get download URLs and metadata for all items
-    const assets = await Promise.all(
-      result.items.map(async (itemRef) => {
-        const downloadURL = await getDownloadURL(itemRef);
-        const fileName = itemRef.name;
+    const assetsPromises = result.items.map(async (itemRef) => {
+      const downloadURL = await getDownloadURL(itemRef);
+      const fileName = itemRef.name;
 
-        // Determine file type based on name extension
-        const fileExtension = fileName.split(".").pop()?.toLowerCase() || "";
+      // Extract timestamp from filename if present
+      let timestamp = 0;
+      const timestampMatch = fileName.match(/-(\d+)-/);
+      if (timestampMatch && timestampMatch[1]) {
+        timestamp = parseInt(timestampMatch[1], 10);
+      }
 
-        return {
-          src: downloadURL,
-          name: fileName,
-          metadata: {
-            originalName: fileName,
-            firebasePath: itemRef.fullPath,
-          },
-        } as InputAssetProps;
-      })
-    );
+      return {
+        src: downloadURL,
+        name: fileName,
+        metadata: {
+          originalName: fileName,
+          firebasePath: itemRef.fullPath,
+          timestamp: timestamp,
+        },
+      } as InputAssetProps;
+    });
 
-    return assets;
+    const assets = await Promise.all(assetsPromises);
+
+    // Sort assets by timestamp, newest first
+    return assets.sort((a, b) => {
+      const timestampA = a.metadata?.timestamp || 0;
+      const timestampB = b.metadata?.timestamp || 0;
+      return timestampB - timestampA;
+    });
   } catch (error) {
     console.error("Error loading assets from Firebase:", error);
     return []; // Return empty array on error to avoid breaking the UI
