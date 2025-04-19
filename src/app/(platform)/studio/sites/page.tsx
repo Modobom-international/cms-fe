@@ -168,7 +168,8 @@ const siteFormSchema = (t: any) => z.object({
     .string()
     .min(1, t("Validation.Name.Required"))
     .min(3, t("Validation.Name.MinLength"))
-    .max(64, t("Validation.Name.MaxLength")),
+    .max(64, t("Validation.Name.MaxLength"))
+    .transform(value => value.trim()),
   domain: z
     .string()
     .min(1, t("Validation.Domain.Required"))
@@ -198,7 +199,12 @@ function CreateSiteDialog() {
 
   const handleCreateSite = async (data: SiteFormValues) => {
     try {
-      await toast.promise(createSiteMutation.mutateAsync(data), {
+      const trimmedData = {
+        ...data,
+        name: data.name.trim()
+      };
+      
+      await toast.promise(createSiteMutation.mutateAsync(trimmedData), {
         loading: t("Loading"),
         success: t("Success"),
         error: t("Error"),
@@ -394,7 +400,12 @@ export default function SitesManagementPage() {
     if (!editingSite) return;
 
     try {
-      await toast.promise(updateSiteMutation.mutateAsync(editingSite), {
+      const updatedSite = {
+        ...editingSite,
+        name: editingSite.name.trim()
+      };
+      
+      await toast.promise(updateSiteMutation.mutateAsync(updatedSite), {
         loading: t("CreateSite.Loading"),
         success: t("CreateSite.Success"),
         error: t("CreateSite.Error"),
