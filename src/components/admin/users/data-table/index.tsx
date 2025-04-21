@@ -158,7 +158,7 @@ export default function UsersDataTable() {
                       </TableCell>
                       <TableCell className="py-3">
                         <div className="flex items-center gap-2">
-                          <Link href={`/admin/users/edit/${user.email}`}>
+                          <Link href={`/admin/users/edit/${user.id}`}>
                             <Button
                               variant="ghost"
                               size="icon"
