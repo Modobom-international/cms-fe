@@ -22,12 +22,12 @@ export interface IEventData {
   x?: number;
   y?: number;
   mouseMovements?: number;
-  device: string;
   height?: number;
   start?: number;
   end?: number;
   total?: number;
   target?: string;
+  device: string;
 }
 
 export interface IUserTrackingResponse {

@@ -105,7 +105,7 @@ export default function UserTrackingDataTable() {
       ? domainResponse.data.data
       : [];
 
-  const paths = ["all", "/schedule-i-mobil/", "/home/", "/about/"];
+  const paths = ["all", "schedule-i-mobil", "home", "about"];
 
   useEffect(() => {
     if (domain === "" && domains.length > 0) {
@@ -301,7 +301,6 @@ export default function UserTrackingDataTable() {
           </div>
         </div>
 
-        {/* Date Filter */}
         <div className="flex flex-wrap items-center gap-2">
           <PopoverUI>
             <PopoverTrigger asChild>
@@ -415,60 +414,66 @@ export default function UserTrackingDataTable() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {userTrackingData.map((record: IUserTracking, index: number) => (
-                      <TableRow
-                        key={index}
-                        className="border-b border-gray-200 hover:bg-gray-50"
-                      >
-                        <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                          {record?.id?.$oid || "—"}
-                        </TableCell>
-                        <TableCell className="py-3 text-sm font-medium text-indigo-600">
-                          {record?.domain || "—"}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground py-3">
-                          {record.timestamp
-                            ? formatDateTime(new Date(record.timestamp))
-                            : "—"}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground py-3">
-                          {record.ip || "—"}
-                        </TableCell>
-                        <TableCell className="py-3">
-                          <Badge
-                            variant="outline"
-                            className={getBadgeColor(record.event_data.device)}
-                          >
-                            {getLocalizedDeviceType(t, record.event_data.device)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground py-3 text-sm">
-                          {renderUserBehavior(record, t)}
-                        </TableCell>
-                        <TableCell className="py-3 text-right">
-                          <div className="flex justify-end space-x-2">
-                            {hasHeatmapData(record) && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-emerald-600 hover:text-emerald-900"
-                                onClick={() => handleOpenHeatmap(record)}
-                              >
-                                <Map className="mr-2 h-3 w-3" />
-                                Heatmap
-                              </Button>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-indigo-600 hover:text-indigo-900"
+                    {userTrackingData.map((record: IUserTracking, index: number) => {
+                      if (!record.event_name || !record.event_data.device) {
+                        return null;
+                      }
+
+                      return (
+                        <TableRow
+                          key={index}
+                          className="border-b border-gray-200 hover:bg-gray-50"
+                        >
+                          <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                            {record?.id?.$oid || "—"}
+                          </TableCell>
+                          <TableCell className="py-3 text-sm font-medium text-indigo-600">
+                            {record?.domain || "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3">
+                            {record.timestamp
+                              ? formatDateTime(new Date(record.timestamp))
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3">
+                            {record.ip || "—"}
+                          </TableCell>
+                          <TableCell className="py-3">
+                            <Badge
+                              variant="outline"
+                              className={getBadgeColor(record.event_data.device)}
                             >
-                              {t("actions.details")}
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                              {getLocalizedDeviceType(t, record.event_data.device)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {renderUserBehavior(record, t)}
+                          </TableCell>
+                          <TableCell className="py-3 text-right">
+                            <div className="flex justify-end space-x-2">
+                              {hasHeatmapData(record) && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-emerald-600 hover:text-emerald-900"
+                                  onClick={() => handleOpenHeatmap(record)}
+                                >
+                                  <Map className="mr-2 h-3 w-3" />
+                                  Heatmap
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-indigo-600 hover:text-indigo-900"
+                              >
+                                {t("actions.details")}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
@@ -571,7 +576,6 @@ export default function UserTrackingDataTable() {
   );
 }
 
-// Hàm hỗ trợ giữ nguyên
 const getBadgeColor = (device: string) => {
   switch (device.toLowerCase()) {
     case "mobile":
