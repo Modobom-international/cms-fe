@@ -57,10 +57,12 @@ export const uploadAssets = async ({
 
   try {
     const uploadedAssets: InputAssetProps[] = [];
-    const timestamp = Date.now();
     const folderPath = getCMSFolderPath(siteId);
 
     for (const file of files) {
+      // Generate a unique timestamp for each file
+      const timestamp = Date.now();
+
       // Generate filename with slug and timestamp
       const fileExtension = file.name.split(".").pop();
       const slugPrefix = slug ? `${slug}-` : "";
