@@ -11,19 +11,11 @@ export interface IUser {
   type_user: string;
   profile_photo_path: string;
   exclude_token: string;
+  phone_number?: string;
+  address?: string;
 }
 
-export interface IUserResponse {
-  success: true;
-  data: IPaginationResponse<IUser>;
-  message?: string;
+export interface IUserResponse extends IPaginationResponse<IUser> {
   type?: string;
 }
 
-export interface IPaginationResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-}

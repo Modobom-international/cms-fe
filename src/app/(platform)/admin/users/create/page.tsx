@@ -3,8 +3,9 @@
 import { useState } from "react";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-import * as z from "zod";
+import { CreateUserFormSchema } from "@/validations/user.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowLeft,
@@ -13,7 +14,10 @@ import {
   ChevronUp,
   Home,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
+
+import { useCreateUser } from "@/hooks/user";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -26,19 +30,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-// Define the form schema with Zod
-const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  phone_number: z.string().optional(),
-  address: z.string().optional(),
-  team: z.string().min(1, "Please select a team"),
-  permissions: z.record(z.boolean()).default({}),
-});
-
-type FormValues = z.infer<typeof formSchema>;
 
 interface Team {
   id: number;
@@ -57,15 +48,25 @@ interface Permission {
 }
 
 export default function Page() {
+  const t = useTranslations("UserPage");
+  const router = useRouter();
+  const createUser = useCreateUser();
+
   const {
     register,
     handleSubmit,
     setValue,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  } = useForm({
+    resolver: zodResolver(CreateUserFormSchema(t)),
     defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      phone_number: "",
+      address: "",
+      team_id: "",
       permissions: {},
     },
   });
@@ -123,13 +124,12 @@ export default function Page() {
     {}
   );
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (data: any) => {
     try {
-      // Handle form submission
-      console.log(data);
-      // Add your API call here
+      await createUser.mutateAsync(data);
+      router.push("/admin/users");
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("Error creating user:", error);
     }
   };
 
@@ -141,19 +141,19 @@ export default function Page() {
         <nav className="text-muted-foreground flex items-center gap-2 text-sm">
           <Home className="h-4 w-4" />
           <ChevronRight className="h-4 w-4" />
-          <span>Quản lý nhân viên</span>
+          <span>{t("navigation.title")}</span>
           <ChevronRight className="h-4 w-4" />
-          <span>Thêm nhân viên</span>
+          <span>{t("navigation.create")}</span>
         </nav>
 
         {/* Title and Actions Section */}
         <div className="flex items-start justify-between">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-semibold tracking-tight">
-              Thêm nhân viên
+              {t("create.title")}
             </h1>
             <p className="text-muted-foreground text-sm">
-              Thêm nhân viên mới vào hệ thống và phân quyền truy cập
+              {t("create.subtitle")}
             </p>
           </div>
 
@@ -165,7 +165,7 @@ export default function Page() {
             })}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Quay lại danh sách
+            {t("actions.backToList")}
           </Link>
         </div>
       </div>
@@ -178,9 +178,11 @@ export default function Page() {
             <div className="bg-card rounded-lg">
               <div className="mb-6 flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-medium">Thông tin cá nhân</h2>
+                  <h2 className="text-lg font-medium">
+                    {t("form.personalInfo")}
+                  </h2>
                   <p className="text-muted-foreground text-sm">
-                    Nhập thông tin cơ bản của nhân viên
+                    {t("form.personalInfoDesc")}
                   </p>
                 </div>
               </div>
@@ -188,11 +190,11 @@ export default function Page() {
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {/* Name Field */}
                 <div className="space-y-2">
-                  <Label htmlFor="name">Tên</Label>
+                  <Label htmlFor="name">{t("form.name")}</Label>
                   <Input
                     {...register("name")}
                     id="name"
-                    placeholder="Nhập tên nhân viên"
+                    placeholder={t("form.namePlaceholder")}
                   />
                   {errors.name && (
                     <p className="text-destructive text-sm">
@@ -203,7 +205,7 @@ export default function Page() {
 
                 {/* Email Field */}
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("form.email")}</Label>
                   <Input
                     {...register("email")}
                     id="email"
@@ -219,7 +221,7 @@ export default function Page() {
 
                 {/* Password Field */}
                 <div className="space-y-2">
-                  <Label htmlFor="password">Mật khẩu</Label>
+                  <Label htmlFor="password">{t("form.password")}</Label>
                   <Input
                     {...register("password")}
                     id="password"
@@ -235,33 +237,33 @@ export default function Page() {
 
                 {/* Phone Number Field */}
                 <div className="space-y-2">
-                  <Label htmlFor="phone_number">Số điện thoại</Label>
+                  <Label htmlFor="phone_number">{t("form.phone")}</Label>
                   <Input
                     {...register("phone_number")}
                     id="phone_number"
-                    placeholder="Nhập số điện thoại"
+                    placeholder={t("form.phonePlaceholder")}
                   />
                 </div>
 
                 {/* Address Field */}
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="address">Địa chỉ</Label>
+                  <Label htmlFor="address">{t("form.address")}</Label>
                   <Input
                     {...register("address")}
                     id="address"
-                    placeholder="Nhập địa chỉ"
+                    placeholder={t("form.addressPlaceholder")}
                   />
                 </div>
 
                 {/* Team Selection */}
                 <div className="space-y-2 md:col-span-1">
-                  <Label htmlFor="team">Phòng ban</Label>
+                  <Label htmlFor="team_id">{t("form.team")}</Label>
                   <Select
-                    onValueChange={(value) => setValue("team", value)}
-                    defaultValue={watch("team")}
+                    onValueChange={(value) => setValue("team_id", value)}
+                    defaultValue={watch("team_id")}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Chọn phòng ban" />
+                      <SelectValue placeholder={t("form.teamPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {teams.map((team) => (
@@ -271,9 +273,9 @@ export default function Page() {
                       ))}
                     </SelectContent>
                   </Select>
-                  {errors.team && (
+                  {errors.team_id && (
                     <p className="text-destructive text-sm">
-                      {errors.team.message}
+                      {errors.team_id.message}
                     </p>
                   )}
                 </div>
@@ -285,9 +287,9 @@ export default function Page() {
           <div className="space-y-6">
             <div className="bg-card rounded-lg">
               <div className="mb-6">
-                <h2 className="text-lg font-medium">Phân quyền truy cập</h2>
+                <h2 className="text-lg font-medium">{t("form.permissions")}</h2>
                 <p className="text-muted-foreground text-sm">
-                  Thiết lập quyền truy cập cho nhân viên
+                  {t("form.permissionsDesc")}
                 </p>
               </div>
 
@@ -372,11 +374,12 @@ export default function Page() {
 
         {/* Submit Button */}
         <div className="flex justify-end border-t pt-6">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Đang xử lý..." : "Tạo nhân viên"}
+          <Button type="submit" disabled={isSubmitting || createUser.isPending}>
+            {createUser.isPending ? t("actions.creating") : t("actions.create")}
           </Button>
         </div>
       </form>
     </div>
   );
 }
+
