@@ -11,8 +11,6 @@ export function CreateUserFormSchema(
       .min(1, { message: t("validation.email.required") })
       .email({ message: t("validation.email.invalid") }),
     password: z.string().min(8, { message: t("validation.password.min") }),
-    phone_number: z.string().optional(),
-    address: z.string().optional(),
     team_id: z.string().min(1, { message: t("validation.team.required") }),
     permissions: z.record(z.boolean()).default({}),
   });
@@ -31,8 +29,6 @@ export function UpdateUserFormSchema(
       .string()
       .min(8, { message: t("validation.password.min") })
       .optional(),
-    phone_number: z.string().optional(),
-    address: z.string().optional(),
     team_id: z.string().min(1, { message: t("validation.team.required") }),
     permissions: z.record(z.boolean()).default({}),
   });
