@@ -70,10 +70,9 @@ import { Spinner } from "@/components/global/spinner";
 export default function UserTrackingDataTable() {
   const t = useTranslations("UserTrackingPage.table");
   const [showHeatmapModal, setShowHeatmapModal] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<IUserTracking | null>(
-    null
-  );
+  const [selectedRecord, setSelectedRecord] = useState<IUserTracking | null>(null);
   const [openDomainSelect, setOpenDomainSelect] = useState(false);
+  const [openPathSelect, setOpenPathSelect] = useState(false);
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -91,11 +90,14 @@ export default function UserTrackingDataTable() {
     "domains",
     parseAsString.withDefault("")
   );
+  const [path, setPath] = useQueryState(
+    "path",
+    parseAsString.withDefault("all")
+  );
 
   const {
     data: domainResponse = { data: { data: [] } },
     isLoading: isLoadingDomains,
-    error: domainError,
   } = useGetDomainList(1, 100, "");
 
   const domains =
@@ -103,21 +105,16 @@ export default function UserTrackingDataTable() {
       ? domainResponse.data.data
       : [];
 
+  const paths = ["all", "/schedule-i-mobil/", "/home/", "/about/"];
+
   useEffect(() => {
     if (domain === "" && domains.length > 0) {
       setDomain(domains[0].domain);
     }
   }, [domains, domain, setDomain]);
 
-  const {
-    data: userTrackingResponse,
-    isFetching,
-    isError,
-    refetch,
-  } = useGetUserTracking(currentPage, pageSize, date, domain);
-
-  const activeUsers = useActiveUsers(domains);
-
+  const { data: userTrackingResponse, isFetching, isError, refetch } = useGetUserTracking(currentPage, pageSize, date, domain);
+  const { data: activeUsers, isLoading: isLoadingActiveUsers } = useActiveUsers(domain, path);
   const userTrackingData = userTrackingResponse?.data?.data || [];
   const paginationInfo = userTrackingResponse?.data || {
     from: 0,
@@ -206,10 +203,6 @@ export default function UserTrackingDataTable() {
                         <div className="py-2 text-center text-sm text-gray-500">
                           {t("loadingStates.loadingDomains")}
                         </div>
-                      ) : domainError ? (
-                        <div className="py-2 text-center text-sm text-red-500">
-                          {t("errors.fetchDomainsFailed")}
-                        </div>
                       ) : domains.length === 0 ? (
                         <div className="py-2 text-center text-sm text-gray-500">
                           {t("loadingStates.noDomains")}
@@ -242,11 +235,74 @@ export default function UserTrackingDataTable() {
               </PopoverContent>
             </PopoverUI>
           </div>
+
+          <div>
+            <label
+              className="mb-2 block text-sm font-medium text-gray-700"
+              htmlFor="path"
+            >
+              {t("filters.selectPath")}
+            </label>
+            <PopoverUI open={openPathSelect} onOpenChange={setOpenPathSelect}>
+              <PopoverTrigger asChild>
+                <Button
+                  id="path-select"
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={openPathSelect}
+                  className="w-96 justify-between"
+                >
+                  {path === "all" ? "All Paths" : path || t("placeholders.selectPath")}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-[24rem] p-0"
+                side="bottom"
+                align="start"
+              >
+                <Command>
+                  <CommandInput
+                    placeholder={t("placeholders.searchPath")}
+                    className="h-9"
+                  />
+                  <CommandList>
+                    <CommandEmpty>{t("loadingStates.noPaths")}</CommandEmpty>
+                    <CommandGroup>
+                      {paths.length === 0 ? (
+                        <div className="py-2 text-center text-sm text-gray-500">
+                          {t("loadingStates.noPaths")}
+                        </div>
+                      ) : (
+                        paths.map((pathItem) => (
+                          <CommandItem
+                            key={pathItem}
+                            value={pathItem}
+                            onSelect={(currentValue: string) => {
+                              setPath(currentValue);
+                              setOpenPathSelect(false);
+                            }}
+                          >
+                            {pathItem === "all" ? "All Paths" : pathItem}
+                            <Check
+                              className={cn(
+                                "ml-auto h-4 w-4",
+                                path === pathItem ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                          </CommandItem>
+                        ))
+                      )}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </PopoverUI>
+          </div>
         </div>
 
-        {/* Second Row - Date Filter */}
+        {/* Date Filter */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Date Picker */}
           <PopoverUI>
             <PopoverTrigger asChild>
               <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
@@ -289,12 +345,18 @@ export default function UserTrackingDataTable() {
                   {t("activeUsers.title")}
                 </h3>
                 <div className="flex items-baseline space-x-2">
-                  <span className="text-2xl font-bold">
-                    {activeUsers.total}
-                  </span>
-                  <span className="text-muted-foreground text-sm">
-                    {t("activeUsers.description")}
-                  </span>
+                  {isLoadingActiveUsers ? (
+                    <Spinner />
+                  ) : (
+                    <>
+                      <span className="text-2xl font-bold">
+                        {activeUsers?.count || 0}
+                      </span>
+                      <span className="text-muted-foreground text-sm">
+                        {t("activeUsers.description")}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -304,9 +366,7 @@ export default function UserTrackingDataTable() {
         <div className="mt-4 flex-grow">
           {isFetching ? (
             <div className="flex items-center justify-center py-8">
-              <div className="text-center">
-                <Spinner />
-              </div>
+              <Spinner />
             </div>
           ) : isError ? (
             <div className="flex items-center justify-center py-8">
@@ -355,67 +415,60 @@ export default function UserTrackingDataTable() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {userTrackingData.map(
-                      (record: IUserTracking, index: number) => (
-                        <TableRow
-                          key={index}
-                          className="border-b border-gray-200 hover:bg-gray-50"
-                        >
-                          <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                            {record?.id?.$oid || "—"}
-                          </TableCell>
-                          <TableCell className="py-3 text-sm font-medium text-indigo-600">
-                            {record?.domain || "—"}
-                          </TableCell>
-                          <TableCell className="text-muted-foreground py-3">
-                            {record.timestamp
-                              ? formatDateTime(new Date(record.timestamp))
-                              : "—"}
-                          </TableCell>
-                          <TableCell className="text-muted-foreground py-3">
-                            {record.ip || "—"}
-                          </TableCell>
-                          <TableCell className="py-3">
-                            <Badge
-                              variant="outline"
-                              className={getBadgeColor(
-                                record.event_data.device
-                              )}
-                            >
-                              {getLocalizedDeviceType(
-                                t,
-                                record.event_data.device
-                              )}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
-                            {renderUserBehavior(record, t)}
-                          </TableCell>
-                          <TableCell className="py-3 text-right">
-                            <div className="flex justify-end space-x-2">
-                              {hasHeatmapData(record) && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="text-emerald-600 hover:text-emerald-900"
-                                  onClick={() => handleOpenHeatmap(record)}
-                                >
-                                  <Map className="mr-2 h-3 w-3" />
-                                  Heatmap
-                                </Button>
-                              )}
+                    {userTrackingData.map((record: IUserTracking, index: number) => (
+                      <TableRow
+                        key={index}
+                        className="border-b border-gray-200 hover:bg-gray-50"
+                      >
+                        <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                          {record?.id?.$oid || "—"}
+                        </TableCell>
+                        <TableCell className="py-3 text-sm font-medium text-indigo-600">
+                          {record?.domain || "—"}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground py-3">
+                          {record.timestamp
+                            ? formatDateTime(new Date(record.timestamp))
+                            : "—"}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground py-3">
+                          {record.ip || "—"}
+                        </TableCell>
+                        <TableCell className="py-3">
+                          <Badge
+                            variant="outline"
+                            className={getBadgeColor(record.event_data.device)}
+                          >
+                            {getLocalizedDeviceType(t, record.event_data.device)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground py-3 text-sm">
+                          {renderUserBehavior(record, t)}
+                        </TableCell>
+                        <TableCell className="py-3 text-right">
+                          <div className="flex justify-end space-x-2">
+                            {hasHeatmapData(record) && (
                               <Button
-                                variant="ghost"
+                                variant="outline"
                                 size="sm"
-                                className="text-indigo-600 hover:text-indigo-900"
+                                className="text-emerald-600 hover:text-emerald-900"
+                                onClick={() => handleOpenHeatmap(record)}
                               >
-                                {t("actions.details")}
+                                <Map className="mr-2 h-3 w-3" />
+                                Heatmap
                               </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )}
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              {t("actions.details")}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                   </TableBody>
                 </Table>
               </div>
@@ -518,6 +571,7 @@ export default function UserTrackingDataTable() {
   );
 }
 
+// Hàm hỗ trợ giữ nguyên
 const getBadgeColor = (device: string) => {
   switch (device.toLowerCase()) {
     case "mobile":

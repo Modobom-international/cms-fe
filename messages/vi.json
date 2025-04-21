@@ -207,7 +207,8 @@
         "datePicker": "Chọn ngày",
         "search": "Tìm kiếm",
         "viewHeatmap": "Xem bản đồ nhiệt",
-        "date": "Ngày"
+        "date": "Ngày",
+        "selectPath": "Chọn đường dẫn"
       },
       "columns": {
         "id": "ID",
@@ -248,12 +249,14 @@
       "placeholders": {
         "selectDomain": "Chọn tên miền",
         "selectResults": "Chọn số kết quả hiển thị",
-        "searchDomain": "Tìm kiếm tên miền..."
+        "searchDomain": "Tìm kiếm tên miền...",
+        "searchPath": "Search path..."
       },
       "loadingStates": {
         "loadingDomains": "Đang tải domain...",
         "noDomains": "Không tìm thấy tên miền",
-        "error": "Đã xảy ra lỗi khi tải dữ liệu"
+        "error": "Đã xảy ra lỗi khi tải dữ liệu",
+        "noPaths": "No path found"
       },
       "activeUsers": {
         "title": "Người dùng đang hoạt động",

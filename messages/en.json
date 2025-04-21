@@ -207,7 +207,8 @@
                 "datePicker": "Date picker",
                 "search": "Search",
                 "viewHeatmap": "View heatmap",
-                "date": "Date"
+                "date": "Date",
+                "selectPath": "Select path"
             },
             "columns": {
                 "id": "ID",
@@ -248,12 +249,14 @@
             "placeholders": {
                 "selectDomain": "Select domain",
                 "selectResults": "Select number of results",
-                "searchDomain": "Search domain..."
+                "searchDomain": "Search domain...",
+                "searchPath": "Search path..."
             },
             "loadingStates": {
                 "loadingDomains": "Domain is loading...",
                 "noDomains": "No domains found",
-                "error": "An error occurred while loading data"
+                "error": "An error occurred while loading data",
+                "noPaths": "No path found"
             },
             "activeUsers": {
                 "title": "Total Active Users",
