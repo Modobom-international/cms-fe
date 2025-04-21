@@ -415,10 +415,6 @@ export default function UserTrackingDataTable() {
                   </TableHeader>
                   <TableBody>
                     {userTrackingData.map((record: IUserTracking, index: number) => {
-                      if (!record.event_name || !record.event_data.device) {
-                        return null;
-                      }
-
                       return (
                         <TableRow
                           key={index}
