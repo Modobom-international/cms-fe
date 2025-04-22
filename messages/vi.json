@@ -765,6 +765,11 @@
         "admin": "Quản trị viên",
         "user": "Người dùng",
         "manager": "Quản lý"
+      },
+      "delete": {
+        "title": "Xóa nhân viên",
+        "description": "Bạn có chắc chắn muốn xóa nhân viên này? Hành động này không thể hoàn tác.",
+        "error": "Không thể xóa nhân viên"
       }
     },
     "navigation": {
@@ -804,34 +809,6 @@
       "updating": "Đang cập nhật...",
       "backToList": "Quay lại danh sách",
       "delete": "Xóa nhân viên"
-    },
-    "table": {
-      "search": "Tìm kiếm nhân viên...",
-      "loading": "Đang tải dữ liệu...",
-      "error": "Không thể tải dữ liệu",
-      "columns": {
-        "name": "Tên",
-        "email": "Email",
-        "team": "Phòng ban",
-        "actions": "Thao tác"
-      },
-      "actions": {
-        "edit": "Sửa",
-        "delete": "Xóa",
-        "retry": "Thử lại"
-      },
-      "pagination": {
-        "rowsPerPage": "Dòng mỗi trang:",
-        "previousPage": "Trước",
-        "nextPage": "Tiếp",
-        "showing": "Hiển thị {from} đến {to} của {total} kết quả",
-        "page": "Trang {current} / {total}"
-      },
-      "delete": {
-        "title": "Xóa nhân viên",
-        "description": "Bạn có chắc chắn muốn xóa nhân viên này? Hành động này không thể hoàn tác.",
-        "error": "Không thể xóa nhân viên"
-      }
     },
     "error": {
       "notFound": "Không tìm thấy nhân viên"
