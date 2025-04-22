@@ -766,6 +766,170 @@
         "user": "Người dùng",
         "manager": "Quản lý"
       }
+    },
+    "navigation": {
+      "title": "Quản lý nhân viên",
+      "create": "Thêm nhân viên",
+      "edit": "Chỉnh sửa nhân viên"
+    },
+    "create": {
+      "title": "Thêm nhân viên",
+      "subtitle": "Thêm nhân viên mới vào hệ thống và phân quyền truy cập"
+    },
+    "edit": {
+      "title": "Chỉnh sửa nhân viên",
+      "subtitle": "Cập nhật thông tin và quyền truy cập cho nhân viên"
+    },
+    "form": {
+      "personalInfo": "Thông tin cá nhân",
+      "personalInfoDesc": "Nhập thông tin cơ bản của nhân viên",
+      "name": "Tên",
+      "namePlaceholder": "Nhập tên nhân viên",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "passwordHint": "Để trống nếu muốn giữ mật khẩu hiện tại",
+      "phone": "Số điện thoại",
+      "phonePlaceholder": "Nhập số điện thoại",
+      "address": "Địa chỉ",
+      "addressPlaceholder": "Nhập địa chỉ",
+      "team": "Phòng ban",
+      "teamPlaceholder": "Chọn phòng ban",
+      "permissions": "Phân quyền truy cập",
+      "permissionsDesc": "Thiết lập quyền truy cập cho nhân viên"
+    },
+    "actions": {
+      "create": "Tạo nhân viên",
+      "creating": "Đang xử lý...",
+      "update": "Cập nhật",
+      "updating": "Đang cập nhật...",
+      "backToList": "Quay lại danh sách",
+      "delete": "Xóa nhân viên"
+    },
+    "table": {
+      "search": "Tìm kiếm nhân viên...",
+      "loading": "Đang tải dữ liệu...",
+      "error": "Không thể tải dữ liệu",
+      "columns": {
+        "name": "Tên",
+        "email": "Email",
+        "team": "Phòng ban",
+        "actions": "Thao tác"
+      },
+      "actions": {
+        "edit": "Sửa",
+        "delete": "Xóa",
+        "retry": "Thử lại"
+      },
+      "pagination": {
+        "rowsPerPage": "Dòng mỗi trang:",
+        "previousPage": "Trước",
+        "nextPage": "Tiếp",
+        "showing": "Hiển thị {from} đến {to} của {total} kết quả",
+        "page": "Trang {current} / {total}"
+      },
+      "delete": {
+        "title": "Xóa nhân viên",
+        "description": "Bạn có chắc chắn muốn xóa nhân viên này? Hành động này không thể hoàn tác.",
+        "error": "Không thể xóa nhân viên"
+      }
+    },
+    "error": {
+      "notFound": "Không tìm thấy nhân viên"
+    }
+  },
+  "validation": {
+    "name": {
+      "min": "Tên phải có ít nhất 2 ký tự"
+    },
+    "email": {
+      "required": "Email là bắt buộc",
+      "invalid": "Email không hợp lệ"
+    },
+    "password": {
+      "required": "Mật khẩu là bắt buộc",
+      "min": "Mật khẩu phải có ít nhất 8 ký tự"
+    },
+    "team": {
+      "required": "Vui lòng chọn phòng ban"
+    }
+  },
+  "CreateUserPage": {
+    "title": "Thêm nhân viên",
+    "subtitle": "Thêm nhân viên mới vào hệ thống và phân quyền truy cập",
+    "breadcrumb": "Thêm nhân viên",
+    "form": {
+      "personalInfo": "Thông tin cá nhân",
+      "personalInfoDesc": "Nhập thông tin cơ bản của nhân viên",
+      "name": "Tên",
+      "namePlaceholder": "Nhập tên nhân viên",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "team": "Phòng ban",
+      "teamPlaceholder": "Chọn phòng ban",
+      "permissions": "Phân quyền truy cập",
+      "permissionsDesc": "Thiết lập quyền truy cập cho nhân viên"
+    },
+    "actions": {
+      "create": "Tạo nhân viên",
+      "creating": "Đang xử lý...",
+      "backToList": "Quay lại danh sách"
+    },
+    "validation": {
+      "name": {
+        "min": "Tên phải có ít nhất 2 ký tự"
+      },
+      "email": {
+        "required": "Email là bắt buộc",
+        "invalid": "Email không hợp lệ"
+      },
+      "password": {
+        "required": "Mật khẩu là bắt buộc",
+        "min": "Mật khẩu phải có ít nhất 8 ký tự"
+      },
+      "team": {
+        "required": "Vui lòng chọn phòng ban"
+      }
+    }
+  },
+  "UpdateUserPage": {
+    "title": "Chỉnh sửa nhân viên",
+    "subtitle": "Cập nhật thông tin và quyền truy cập cho nhân viên",
+    "breadcrumb": "Chỉnh sửa nhân viên",
+    "form": {
+      "personalInfo": "Thông tin cá nhân",
+      "personalInfoDesc": "Nhập thông tin cơ bản của nhân viên",
+      "name": "Tên",
+      "namePlaceholder": "Nhập tên nhân viên",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "passwordHint": "Để trống nếu muốn giữ mật khẩu hiện tại",
+      "team": "Phòng ban",
+      "teamPlaceholder": "Chọn phòng ban",
+      "permissions": "Phân quyền truy cập",
+      "permissionsDesc": "Thiết lập quyền truy cập cho nhân viên"
+    },
+    "actions": {
+      "update": "Cập nhật",
+      "updating": "Đang cập nhật...",
+      "backToList": "Quay lại danh sách"
+    },
+    "error": {
+      "notFound": "Không tìm thấy nhân viên"
+    },
+    "validation": {
+      "name": {
+        "min": "Tên phải có ít nhất 2 ký tự"
+      },
+      "email": {
+        "required": "Email là bắt buộc",
+        "invalid": "Email không hợp lệ"
+      },
+      "password": {
+        "min": "Mật khẩu phải có ít nhất 8 ký tự"
+      },
+      "team": {
+        "required": "Vui lòng chọn phòng ban"
+      }
     }
   }
 }

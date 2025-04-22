@@ -727,20 +727,52 @@
         "description": "Manage users and their permissions",
         "teams": "Teams",
         "addUser": "Add User",
+        "navigation": {
+            "title": "User Management",
+            "create": "Create User",
+            "edit": "Edit User"
+        },
+        "create": {
+            "title": "Create User",
+            "subtitle": "Add a new user to the system and set access permissions"
+        },
+        "edit": {
+            "title": "Edit User",
+            "subtitle": "Modify user information and access permissions"
+        },
+        "form": {
+            "personalInfo": "Personal Information",
+            "personalInfoDesc": "Enter basic user information",
+            "name": "Name",
+            "namePlaceholder": "Enter user name",
+            "email": "Email",
+            "password": "Password",
+            "passwordHint": "Leave empty to keep current password",
+            "phone": "Phone Number",
+            "phonePlaceholder": "Enter phone number",
+            "address": "Address",
+            "addressPlaceholder": "Enter address",
+            "team": "Team",
+            "teamPlaceholder": "Select a team",
+            "permissions": "Access Permissions",
+            "permissionsDesc": "Set access permissions for the user"
+        },
+        "actions": {
+            "create": "Create User",
+            "creating": "Creating...",
+            "update": "Update User",
+            "updating": "Updating...",
+            "backToList": "Back to list",
+            "delete": "Delete User"
+        },
         "table": {
             "search": "Search users...",
             "loading": "Loading users...",
-            "error": "An error occurred while loading users",
-            "empty": "No users found",
+            "error": "Failed to load users",
             "columns": {
-                "id": "ID",
                 "name": "Name",
                 "email": "Email",
                 "team": "Team",
-                "role": "Role",
-                "status": "Status",
-                "createdAt": "Created At",
-                "updatedAt": "Updated At",
                 "actions": "Actions"
             },
             "actions": {
@@ -749,22 +781,114 @@
                 "retry": "Retry"
             },
             "pagination": {
-                "rowsPerPage": "Rows per page",
-                "of": "of",
+                "rowsPerPage": "Rows per page:",
                 "previousPage": "Previous",
                 "nextPage": "Next",
-                "showing": "Viewing {from}-{to} of {total} results",
+                "showing": "Showing {from} to {to} of {total} results",
                 "page": "Page {current} of {total}"
             },
-            "status": {
-                "active": "Active",
-                "inactive": "Inactive",
-                "pending": "Pending"
+            "delete": {
+                "title": "Delete User",
+                "description": "Are you sure you want to delete this user? This action cannot be undone.",
+                "error": "Failed to delete user"
+            }
+        },
+        "error": {
+            "notFound": "User not found"
+        }
+    },
+    "validation": {
+        "name": {
+            "min": "Name must be at least 2 characters"
+        },
+        "email": {
+            "required": "Email is required",
+            "invalid": "Email is invalid"
+        },
+        "password": {
+            "required": "Password is required",
+            "min": "Password must be at least 8 characters"
+        },
+        "team": {
+            "required": "Please select a team"
+        }
+    },
+    "CreateUserPage": {
+        "title": "Create User",
+        "subtitle": "Add a new user to the system and set access permissions",
+        "breadcrumb": "Create User",
+        "form": {
+            "personalInfo": "Personal Information",
+            "personalInfoDesc": "Enter basic user information",
+            "name": "Name",
+            "namePlaceholder": "Enter user name",
+            "email": "Email",
+            "password": "Password",
+            "team": "Team",
+            "teamPlaceholder": "Select a team",
+            "permissions": "Access Permissions",
+            "permissionsDesc": "Set access permissions for the user"
+        },
+        "actions": {
+            "create": "Create User",
+            "creating": "Creating...",
+            "backToList": "Back to list"
+        },
+        "validation": {
+            "name": {
+                "min": "Name must be at least 2 characters"
             },
-            "roles": {
-                "admin": "Administrator",
-                "user": "User",
-                "manager": "Manager"
+            "email": {
+                "required": "Email is required",
+                "invalid": "Email is invalid"
+            },
+            "password": {
+                "required": "Password is required",
+                "min": "Password must be at least 8 characters"
+            },
+            "team": {
+                "required": "Please select a team"
+            }
+        }
+    },
+    "UpdateUserPage": {
+        "title": "Edit User",
+        "subtitle": "Modify user information and access permissions",
+        "breadcrumb": "Edit User",
+        "form": {
+            "personalInfo": "Personal Information",
+            "personalInfoDesc": "Enter basic user information",
+            "name": "Name",
+            "namePlaceholder": "Enter user name",
+            "email": "Email",
+            "password": "Password",
+            "passwordHint": "Leave empty to keep current password",
+            "team": "Team",
+            "teamPlaceholder": "Select a team",
+            "permissions": "Access Permissions",
+            "permissionsDesc": "Set access permissions for the user"
+        },
+        "actions": {
+            "update": "Update User",
+            "updating": "Updating...",
+            "backToList": "Back to list"
+        },
+        "error": {
+            "notFound": "User not found"
+        },
+        "validation": {
+            "name": {
+                "min": "Name must be at least 2 characters"
+            },
+            "email": {
+                "required": "Email is required",
+                "invalid": "Email is invalid"
+            },
+            "password": {
+                "min": "Password must be at least 8 characters"
+            },
+            "team": {
+                "required": "Please select a team"
             }
         }
     }

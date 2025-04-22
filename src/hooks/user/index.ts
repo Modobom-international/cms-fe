@@ -1,8 +1,19 @@
 import { userQueryKeys } from "@/constants/query-keys";
+import {
+  ICreateUserForm,
+  IUpdateUserForm,
+} from "@/validations/user.validation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import qs from "qs";
+import { toast } from "sonner";
 
-import { IPaginationResponse, IUser, IUserResponse } from "@/types/user.type";
+import {
+  ICreateUserResponse,
+  IGetAllUserResponse,
+  IUpdateUserResponse,
+  IUser,
+} from "@/types/user.type";
 
 import apiClient from "@/lib/api/client";
 
@@ -14,26 +25,31 @@ export const useGetUserList = (
   const params = qs.stringify({ page, pageSize, search });
   return useQuery({
     queryKey: userQueryKeys.list(page, pageSize, search),
-    queryFn: async (): Promise<IUserResponse> => {
+    queryFn: async () => {
       try {
-        const { data } = await apiClient.get<IUserResponse>(
-          `/api/users?${params}`
-        );
+        const { data } = await apiClient.get(`/api/users?${params}`);
+
         return data;
       } catch (error) {
-        const emptyResponse: IPaginationResponse<IUser> = {
-          data: [],
-          total: 0,
-          page: 1,
-          pageSize: 10,
-          totalPages: 1,
-        };
-
         return {
-          success: true,
-          data: emptyResponse,
+          success: false,
+          data: {
+            current_page: page,
+            data: [],
+            first_page_url: "",
+            from: null,
+            last_page: 1,
+            last_page_url: "",
+            links: [],
+            next_page_url: null,
+            path: "",
+            per_page: pageSize,
+            prev_page_url: null,
+            to: null,
+            total: 0,
+          },
           message: "Failed to fetch users",
-          type: "fetch_users_fail",
+          type: "list_user_success",
         };
       }
     },
@@ -61,19 +77,39 @@ export const useCreateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (userData: Partial<IUser>) => {
+    mutationFn: async (
+      userData: ICreateUserForm
+    ): Promise<ICreateUserResponse | IBackendErrorRes> => {
       try {
-        const response = await apiClient.post<{ data: IUser }>(
+        const { data } = await apiClient.post<ICreateUserResponse>(
           "/api/users",
           userData
         );
-        return response.data.data;
+        return data;
       } catch (error) {
-        throw new Error("Failed to create user");
+        const errRes =
+          error instanceof AxiosError
+            ? (error.response?.data as IBackendErrorRes)
+            : null;
+
+        return {
+          success: false,
+          message: errRes?.message ?? "Failed to create user",
+          type: errRes?.type ?? "create_user_fail",
+        };
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
+    onSuccess: (data) => {
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
+        toast.success("User created successfully", {
+          description: `${data.data.name} has been added to the system`,
+        });
+      } else {
+        toast.error("Failed to create user", {
+          description: data.message,
+        });
+      }
     },
   });
 };
@@ -82,20 +118,40 @@ export const useUpdateUser = (id: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (userData: Partial<IUser>) => {
+    mutationFn: async (
+      userData: IUpdateUserForm
+    ): Promise<IUpdateUserResponse | IBackendErrorRes> => {
       try {
-        const response = await apiClient.put<{ data: IUser }>(
-          `/api/users/${id}`,
+        const { data } = await apiClient.put<IUpdateUserResponse>(
+          `/api/users/update/${id}`,
           userData
         );
-        return response.data.data;
+        return data;
       } catch (error) {
-        throw new Error("Failed to update user");
+        const errRes =
+          error instanceof AxiosError
+            ? (error.response?.data as IBackendErrorRes)
+            : null;
+
+        return {
+          success: false,
+          message: errRes?.message ?? "Failed to update user",
+          type: errRes?.type ?? "update_user_fail",
+        };
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: userQueryKeys.details(id) });
+    onSuccess: (data) => {
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: userQueryKeys.details(id) });
+        toast.success("User updated successfully", {
+          description: `${data.data.name}'s information has been updated`,
+        });
+      } else {
+        toast.error("Failed to update user", {
+          description: data.message,
+        });
+      }
     },
   });
 };
@@ -104,16 +160,46 @@ export const useDeleteUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (
+      id: string
+    ): Promise<{
+      success: boolean;
+      message: string;
+      id?: string;
+      type?: string;
+    }> => {
       try {
-        await apiClient.delete(`/api/users/${id}`);
-        return id;
+        const { data } = await apiClient.delete(`/api/users/delete/${id}`);
+        return {
+          success: true,
+          message: "User deleted successfully",
+          id,
+        };
       } catch (error) {
-        throw new Error("Failed to delete user");
+        const errRes =
+          error instanceof AxiosError
+            ? (error.response?.data as IBackendErrorRes)
+            : null;
+
+        return {
+          success: false,
+          message: errRes?.message ?? "Failed to delete user",
+          type: errRes?.type ?? "delete_user_fail",
+        };
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
+    onSuccess: (data) => {
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
+        toast.success("User deleted successfully", {
+          description: "The user has been removed from the system",
+        });
+      } else {
+        toast.error("Failed to delete user", {
+          description: data.message,
+        });
+      }
     },
   });
 };
+

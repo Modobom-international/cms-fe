@@ -2,16 +2,24 @@
 
 import Link from "next/link";
 
-import { Edit, Trash } from "lucide-react";
+import { Ellipsis } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
+import { toast } from "sonner";
 
 import { IUser } from "@/types/user.type";
 
 import { useDebounce } from "@/hooks/use-debounce";
-import { useGetUserList } from "@/hooks/user";
+import { useDeleteUser, useGetUserList } from "@/hooks/user";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -29,11 +37,13 @@ import {
 } from "@/components/ui/table";
 
 import { EmptyTable } from "@/components/data-table/empty-table";
+import ConfirmationAlertDialog from "@/components/dialogs/confirmation-alert-dialog";
 import { Spinner } from "@/components/global/spinner";
 import { SearchInput } from "@/components/inputs/search-input";
 
 export default function UsersDataTable() {
   const t = useTranslations("UserPage.table");
+  const deleteUser = useDeleteUser();
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -57,14 +67,43 @@ export default function UsersDataTable() {
     refetch,
   } = useGetUserList(currentPage, pageSize, debouncedSearch);
 
-  // Extract data from the response with proper typing
-  const userData = userResponse?.success ? userResponse.data.data : [];
+  // Extract data from the response based on the actual API structure
+  const userData =
+    userResponse?.success && userResponse?.data?.data
+      ? userResponse.data.data
+      : [];
 
   const paginationInfo = {
-    total: userResponse?.success ? userResponse.data.total : 0,
-    page: currentPage,
-    pageSize: pageSize,
-    totalPages: userResponse?.success ? userResponse.data.totalPages : 1,
+    total:
+      userResponse?.success && userResponse?.data ? userResponse.data.total : 0,
+    page:
+      userResponse?.success && userResponse?.data
+        ? userResponse.data.current_page
+        : currentPage,
+    pageSize:
+      userResponse?.success && userResponse?.data
+        ? userResponse.data.per_page
+        : pageSize,
+    totalPages:
+      userResponse?.success && userResponse?.data
+        ? userResponse.data.last_page
+        : 1,
+    from:
+      userResponse?.success && userResponse?.data
+        ? userResponse.data.from || 0
+        : 0,
+    to:
+      userResponse?.success && userResponse?.data
+        ? userResponse.data.to || 0
+        : 0,
+    hasNextPage:
+      userResponse?.success && userResponse?.data
+        ? !!userResponse.data.next_page_url
+        : false,
+    hasPreviousPage:
+      userResponse?.success && userResponse?.data
+        ? !!userResponse.data.prev_page_url
+        : false,
   };
 
   const isDataEmpty = !userData || userData.length === 0;
@@ -79,6 +118,16 @@ export default function UsersDataTable() {
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      await deleteUser.mutateAsync(userId);
+    } catch (error: any) {
+      toast.error(t("delete.error"), {
+        description: error.message,
+      });
+    }
   };
 
   return (
@@ -136,7 +185,7 @@ export default function UsersDataTable() {
                     <TableHead className="w-[150px] py-3 font-medium text-gray-700">
                       {t("columns.team")}
                     </TableHead>
-                    <TableHead className="w-[100px] py-3 font-medium text-gray-700">
+                    <TableHead className="w-[60px] py-3 font-medium text-gray-700">
                       {t("columns.actions")}
                     </TableHead>
                   </TableRow>
@@ -157,30 +206,43 @@ export default function UsersDataTable() {
                         {user.team_name || "—"}
                       </TableCell>
                       <TableCell className="py-3">
-                        <div className="flex items-center gap-2">
-                          <Link href={`/admin/users/edit/${user.id}`}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
                             <Button
-                              variant="ghost"
                               size="icon"
+                              variant="ghost"
                               className="h-8 w-8"
                             >
-                              <Edit className="h-4 w-4" />
-                              <span className="sr-only">
-                                {t("actions.edit")}
-                              </span>
+                              <Ellipsis className="h-4 w-4" />
+                              <span className="sr-only">Actions</span>
                             </Button>
-                          </Link>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive h-8 w-8"
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            align="end"
+                            className="w-[180px]"
                           >
-                            <Trash className="h-4 w-4" />
-                            <span className="sr-only">
-                              {t("actions.delete")}
-                            </span>
-                          </Button>
-                        </div>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/admin/users/${user.id}`}>
+                                <span>{t("actions.edit")}</span>
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <ConfirmationAlertDialog
+                              title={t("delete.title")}
+                              description={t("delete.description")}
+                              onConfirm={() => handleDeleteUser(user.id)}
+                            >
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onSelect={(e) => {
+                                  e.preventDefault();
+                                }}
+                              >
+                                <span>{t("actions.delete")}</span>
+                              </DropdownMenuItem>
+                            </ConfirmationAlertDialog>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -220,7 +282,7 @@ export default function UsersDataTable() {
                     size="sm"
                     className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
                     onClick={handlePreviousPage}
-                    disabled={currentPage === 1}
+                    disabled={currentPage <= 1}
                   >
                     {t("pagination.previousPage")}
                   </Button>
@@ -229,7 +291,7 @@ export default function UsersDataTable() {
                     size="sm"
                     className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
                     onClick={handleNextPage}
-                    disabled={currentPage === paginationInfo.totalPages}
+                    disabled={currentPage >= paginationInfo.totalPages}
                   >
                     {t("pagination.nextPage")}
                   </Button>
@@ -240,14 +302,14 @@ export default function UsersDataTable() {
               <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
                 <div>
                   {t("pagination.showing", {
-                    from: (currentPage - 1) * pageSize + 1,
-                    to: Math.min(currentPage * pageSize, paginationInfo.total),
+                    from: paginationInfo.from,
+                    to: paginationInfo.to,
                     total: paginationInfo.total,
                   })}
                 </div>
                 <div>
                   {t("pagination.page", {
-                    current: currentPage,
+                    current: paginationInfo.page,
                     total: paginationInfo.totalPages,
                   })}
                 </div>
@@ -259,3 +321,4 @@ export default function UsersDataTable() {
     </div>
   );
 }
+

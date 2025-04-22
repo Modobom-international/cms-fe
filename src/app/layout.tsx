@@ -9,10 +9,10 @@ import { getLocale, getMessages } from "next-intl/server";
 import NextTopLoader from "nextjs-toploader";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "sonner";
-import { EchoProvider } from "@/components/context/echo";
 
 import { cn } from "@/lib/utils";
 
+import { EchoProvider } from "@/components/context/echo";
 import ScrollToTop from "@/components/layouts/scroll-to-top";
 
 import "@/styles/globals.css";

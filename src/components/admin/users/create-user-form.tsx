@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { CreateUserFormSchema } from "@/validations/user.validation";
+import { UpdateUserFormSchema } from "@/validations/user.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowLeft,
@@ -13,11 +13,12 @@ import {
   ChevronRight,
   ChevronUp,
   Home,
+  Loader2,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 
-import { useCreateUser } from "@/hooks/user";
+import { useGetUserById, useUpdateUser } from "@/hooks/user";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -34,7 +35,6 @@ import {
 interface Team {
   id: number;
   name: string;
-  permissions?: string[];
 }
 
 interface PermissionRoute {
@@ -47,27 +47,16 @@ interface Permission {
   [key: string]: PermissionRoute[];
 }
 
-export default function Page() {
-  const t = useTranslations("CreateUserPage");
-  const router = useRouter();
-  const createUser = useCreateUser();
+interface EditUserFormProps {
+  userId: string;
+}
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm({
-    resolver: zodResolver(CreateUserFormSchema(t)),
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      team_id: "",
-      permissions: {},
-    },
-  });
+export default function EditUserForm({ userId }: EditUserFormProps) {
+  const t = useTranslations("UpdateUserPage");
+  const router = useRouter();
+
+  const { data: user, isLoading, isError } = useGetUserById(userId);
+  const updateUser = useUpdateUser(userId);
 
   const [teams] = useState<Team[]>([
     { id: 1, name: "Development Team" },
@@ -122,14 +111,68 @@ export default function Page() {
     {}
   );
 
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(UpdateUserFormSchema(t)),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: undefined,
+      team_id: "",
+      permissions: {},
+    },
+  });
+
+  useEffect(() => {
+    if (user) {
+      reset({
+        name: user.name,
+        email: user.email,
+        team_id: user.team_id || "",
+        permissions: {}, // Set default permissions from API if available
+      });
+    }
+  }, [user, reset]);
+
   const onSubmit = async (data: any) => {
     try {
-      await createUser.mutateAsync(data);
+      await updateUser.mutateAsync(data);
       router.push("/admin/users");
     } catch (error) {
-      console.error("Error creating user:", error);
+      console.error("Error updating user:", error);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center p-8">
+        <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError || !user) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4 p-8">
+        <p className="text-destructive">{t("error.notFound")}</p>
+        <Link
+          href="/admin/users"
+          className={buttonVariants({
+            variant: "outline",
+          })}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          {t("actions.backToList")}
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -166,7 +209,7 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Rest of the form */}
+      {/* Form Section */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Left Column - User Information */}
@@ -224,6 +267,9 @@ export default function Page() {
                     type="password"
                     placeholder="••••••••"
                   />
+                  <p className="text-muted-foreground text-xs">
+                    {t("form.passwordHint")}
+                  </p>
                   {errors.password && (
                     <p className="text-destructive text-sm">
                       {errors.password.message}
@@ -233,7 +279,7 @@ export default function Page() {
 
                 {/* Team Selection */}
                 <div className="space-y-2 md:col-span-1">
-                  <Label htmlFor="team_id">{t("form.team")}</Label>
+                  <Label htmlFor="team">{t("form.team")}</Label>
                   <Select
                     onValueChange={(value) => setValue("team_id", value)}
                     defaultValue={watch("team_id")}
@@ -350,12 +396,11 @@ export default function Page() {
 
         {/* Submit Button */}
         <div className="flex justify-end border-t pt-6">
-          <Button type="submit" disabled={isSubmitting || createUser.isPending}>
-            {createUser.isPending ? t("actions.creating") : t("actions.create")}
+          <Button type="submit" disabled={isSubmitting || updateUser.isPending}>
+            {updateUser.isPending ? t("actions.updating") : t("actions.update")}
           </Button>
         </div>
       </form>
     </div>
   );
 }
-
