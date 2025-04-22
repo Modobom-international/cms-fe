@@ -25,36 +25,32 @@ export const useGetUserList = (
   const params = qs.stringify({ page, pageSize, search });
   return useQuery({
     queryKey: userQueryKeys.list(page, pageSize, search),
-    queryFn: async (): Promise<IGetAllUserResponse> => {
+    queryFn: async () => {
       try {
-        const { data } = await apiClient.get<IGetAllUserResponse>(
-          `/api/users?${params}`
-        );
+        const { data } = await apiClient.get(`/api/users?${params}`);
 
         return data;
       } catch (error) {
-        const emptyResponse: IPaginatedResponse<IUser> = {
-          current_page: 1,
-          data: [],
-          first_page_url: "",
-          from: null,
-          last_page: 1,
-          last_page_url: "",
-          links: [],
-          next_page_url: null,
-          path: "",
-          per_page: 10,
-          prev_page_url: null,
-          to: null,
-          total: 0,
-        };
-
         return {
-          success: true,
+          success: false,
+          data: {
+            current_page: page,
+            data: [],
+            first_page_url: "",
+            from: null,
+            last_page: 1,
+            last_page_url: "",
+            links: [],
+            next_page_url: null,
+            path: "",
+            per_page: pageSize,
+            prev_page_url: null,
+            to: null,
+            total: 0,
+          },
           message: "Failed to fetch users",
-          value: emptyResponse,
-          type: "fetch_users_fail",
-        } as IGetAllUserResponse;
+          type: "list_user_success",
+        };
       }
     },
   });

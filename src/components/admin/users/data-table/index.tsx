@@ -67,44 +67,42 @@ export default function UsersDataTable() {
     refetch,
   } = useGetUserList(currentPage, pageSize, debouncedSearch);
 
-  // Extract data from the response safely with null checks
+  // Extract data from the response based on the actual API structure
   const userData =
-    userResponse?.success && userResponse?.value?.data
-      ? userResponse.value.data
+    userResponse?.success && userResponse?.data?.data
+      ? userResponse.data.data
       : [];
 
   const paginationInfo = {
     total:
-      userResponse?.success && userResponse?.value
-        ? userResponse.value.total
-        : 0,
+      userResponse?.success && userResponse?.data ? userResponse.data.total : 0,
     page:
-      userResponse?.success && userResponse?.value
-        ? userResponse.value.current_page
+      userResponse?.success && userResponse?.data
+        ? userResponse.data.current_page
         : currentPage,
     pageSize:
-      userResponse?.success && userResponse?.value
-        ? userResponse.value.per_page
+      userResponse?.success && userResponse?.data
+        ? userResponse.data.per_page
         : pageSize,
     totalPages:
-      userResponse?.success && userResponse?.value
-        ? userResponse.value.last_page
+      userResponse?.success && userResponse?.data
+        ? userResponse.data.last_page
         : 1,
     from:
-      userResponse?.success && userResponse?.value
-        ? userResponse.value.from || 0
+      userResponse?.success && userResponse?.data
+        ? userResponse.data.from || 0
         : 0,
     to:
-      userResponse?.success && userResponse?.value
-        ? userResponse.value.to || 0
+      userResponse?.success && userResponse?.data
+        ? userResponse.data.to || 0
         : 0,
     hasNextPage:
-      userResponse?.success && userResponse?.value
-        ? !!userResponse.value.next_page_url
+      userResponse?.success && userResponse?.data
+        ? !!userResponse.data.next_page_url
         : false,
     hasPreviousPage:
-      userResponse?.success && userResponse?.value
-        ? !!userResponse.value.prev_page_url
+      userResponse?.success && userResponse?.data
+        ? !!userResponse.data.prev_page_url
         : false,
   };
 
