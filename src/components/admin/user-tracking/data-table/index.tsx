@@ -4,17 +4,10 @@ import { useEffect, useState } from "react";
 
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
-import { Check, ChevronsUpDown } from "lucide-react";
-import {
-  Map,
-  PlusCircle,
-  Users,
-} from "lucide-react";
+import { Check, ChevronsUpDown, Map, PlusCircle, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import {
-  DatePicker,
-} from "react-aria-components";
+import { DatePicker } from "react-aria-components";
 
 import { IDomainActual } from "@/types/domain.type";
 import { IUserTracking } from "@/types/user-tracking.type";
@@ -22,6 +15,7 @@ import { IUserTracking } from "@/types/user-tracking.type";
 import { cn, formatDateTime } from "@/lib/utils";
 
 import { useGetDomainList } from "@/hooks/domain";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useGetUserTracking } from "@/hooks/user-tracking";
 import { useActiveUsers } from "@/hooks/user-tracking/use-active-users";
 
@@ -70,9 +64,13 @@ import { Spinner } from "@/components/global/spinner";
 export default function UserTrackingDataTable() {
   const t = useTranslations("UserTrackingPage.table");
   const [showHeatmapModal, setShowHeatmapModal] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<IUserTracking | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<IUserTracking | null>(
+    null
+  );
   const [openDomainSelect, setOpenDomainSelect] = useState(false);
   const [openPathSelect, setOpenPathSelect] = useState(false);
+  const [searchInputValue, setSearchInputValue] = useState("");
+  const debouncedSearchValue = useDebounce(searchInputValue, 500);
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -98,14 +96,14 @@ export default function UserTrackingDataTable() {
   const {
     data: domainResponse = { data: { data: [] } },
     isLoading: isLoadingDomains,
-  } = useGetDomainList(1, 100, "");
+  } = useGetDomainList(1, 10, debouncedSearchValue);
 
   const domains =
     "data" in domainResponse && domainResponse.data?.data
       ? domainResponse.data.data
       : [];
 
-  const paths = ["all", "schedule-i-mobil", "home", "about"];
+  const paths = ["all", "/schedule-i-mobil/", "/home/", "/about/"];
 
   useEffect(() => {
     if (domain === "" && domains.length > 0) {
@@ -113,8 +111,20 @@ export default function UserTrackingDataTable() {
     }
   }, [domains, domain, setDomain]);
 
-  const { data: userTrackingResponse, isFetching, isError, refetch } = useGetUserTracking(currentPage, pageSize, date, domain);
-  const { data: activeUsers, isLoading: isLoadingActiveUsers } = useActiveUsers(domain, path);
+  const handleDomainSearchChange = (value: string) => {
+    setSearchInputValue(value);
+  };
+
+  const {
+    data: userTrackingResponse,
+    isFetching,
+    isError,
+    refetch,
+  } = useGetUserTracking(currentPage, pageSize, date, domain);
+  const { data: activeUsers, isLoading: isLoadingActiveUsers } = useActiveUsers(
+    domain,
+    path
+  );
   const userTrackingData = userTrackingResponse?.data?.data || [];
   const paginationInfo = userTrackingResponse?.data || {
     from: 0,
@@ -192,20 +202,27 @@ export default function UserTrackingDataTable() {
                 align="start"
               >
                 <Command>
-                  <CommandInput
-                    placeholder={t("placeholders.searchDomain")}
-                    className="h-9"
-                  />
+                  <div className="relative">
+                    <CommandInput
+                      placeholder={t("placeholders.searchDomain")}
+                      className="h-9"
+                      onValueChange={handleDomainSearchChange}
+                    />
+                  </div>
                   <CommandList>
-                    <CommandEmpty>{t("loadingStates.noDomains")}</CommandEmpty>
-                    <CommandGroup>
+                    <CommandEmpty>
                       {isLoadingDomains ? (
-                        <div className="py-2 text-center text-sm text-gray-500">
-                          {t("loadingStates.loadingDomains")}
+                        <div className="py-6">
+                          <Spinner noPadding />
                         </div>
-                      ) : domains.length === 0 ? (
-                        <div className="py-2 text-center text-sm text-gray-500">
-                          {t("loadingStates.noDomains")}
+                      ) : (
+                        t("loadingStates.noDomains")
+                      )}
+                    </CommandEmpty>
+                    <CommandGroup>
+                      {isLoadingDomains && domains.length === 0 ? (
+                        <div className="flex items-center justify-center py-6">
+                          <Spinner noPadding />
                         </div>
                       ) : (
                         domains.map((domainItem: IDomainActual) => (
@@ -252,7 +269,9 @@ export default function UserTrackingDataTable() {
                   aria-expanded={openPathSelect}
                   className="w-96 justify-between"
                 >
-                  {path === "all" ? "All Paths" : path || t("placeholders.selectPath")}
+                  {path === "all"
+                    ? "All Paths"
+                    : path || t("placeholders.selectPath")}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -262,10 +281,12 @@ export default function UserTrackingDataTable() {
                 align="start"
               >
                 <Command>
-                  <CommandInput
-                    placeholder={t("placeholders.searchPath")}
-                    className="h-9"
-                  />
+                  <div className="relative">
+                    <CommandInput
+                      placeholder={t("placeholders.searchPath")}
+                      className="h-9"
+                    />
+                  </div>
                   <CommandList>
                     <CommandEmpty>{t("loadingStates.noPaths")}</CommandEmpty>
                     <CommandGroup>
@@ -301,6 +322,7 @@ export default function UserTrackingDataTable() {
           </div>
         </div>
 
+        {/* Date Filter */}
         <div className="flex flex-wrap items-center gap-2">
           <PopoverUI>
             <PopoverTrigger asChild>
@@ -414,8 +436,8 @@ export default function UserTrackingDataTable() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {userTrackingData.map((record: IUserTracking, index: number) => {
-                      return (
+                    {userTrackingData.map(
+                      (record: IUserTracking, index: number) => (
                         <TableRow
                           key={index}
                           className="border-b border-gray-200 hover:bg-gray-50"
@@ -437,9 +459,14 @@ export default function UserTrackingDataTable() {
                           <TableCell className="py-3">
                             <Badge
                               variant="outline"
-                              className={getBadgeColor(record.event_data.device)}
+                              className={getBadgeColor(
+                                record.event_data.device
+                              )}
                             >
-                              {getLocalizedDeviceType(t, record.event_data.device)}
+                              {getLocalizedDeviceType(
+                                t,
+                                record.event_data.device
+                              )}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
@@ -468,8 +495,8 @@ export default function UserTrackingDataTable() {
                             </div>
                           </TableCell>
                         </TableRow>
-                      );
-                    })}
+                      )
+                    )}
                   </TableBody>
                 </Table>
               </div>
@@ -572,6 +599,7 @@ export default function UserTrackingDataTable() {
   );
 }
 
+// Hàm hỗ trợ giữ nguyên
 const getBadgeColor = (device: string) => {
   switch (device.toLowerCase()) {
     case "mobile":
