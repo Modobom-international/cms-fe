@@ -268,17 +268,30 @@
     "title": "Quản lý tên miền",
     "description": "Quản lý và giám sát hoạt động các tên miền trong hệ thống",
     "breadcrumb": "Tên miền",
+    "pageHeader": {
+      "title": "Domain",
+      "description": "Quản lý và giám sát hệ thống domain"
+    },
     "table": {
       "filters": {
         "search": "Tìm kiếm tên miền"
       },
       "columns": {
         "id": "ID",
-        "action": "Hành động",
+        "domain": "Tên miền",
+        "status": "Trạng thái",
         "timestamp": "Cập nhật lần cuối",
+        "renewDeadline": "Hạn gia hạn",
+        "expires": "Hết hạn",
+        "registrar": "Đơn vị đăng ký",
+        "security": "Bảo mật",
         "user": "Người dùng",
         "details": "Chi tiết",
         "actions": "Thao tác"
+      },
+      "securityStatus": {
+        "locked": "Đã khóa",
+        "unlocked": "Mở khóa"
       },
       "pagination": {
         "rowsPerPage": "Số dòng mỗi trang",
@@ -286,7 +299,10 @@
         "firstPage": "Đến trang đầu tiên",
         "previousPage": "Đến trang trước",
         "nextPage": "Đến trang tiếp theo",
-        "lastPage": "Đến trang cuối cùng"
+        "lastPage": "Đến trang cuối cùng",
+        "viewing": "Đang xem",
+        "results": "kết quả",
+        "page": "Trang"
       },
       "actions": {
         "details": "Xem chi tiết",
@@ -309,6 +325,12 @@
       "modal": {
         "refresh": {
           "title": "Làm mới danh sách tên miền",
+          "messages": {
+            "initializing": "Đang khởi tạo...",
+            "sending": "Đang gửi yêu cầu làm mới...",
+            "waiting": "Đã gửi yêu cầu, chờ server phản hồi...",
+            "error": "Lỗi khi gửi yêu cầu làm mới."
+          },
           "button": {
             "close": "Đóng"
           }

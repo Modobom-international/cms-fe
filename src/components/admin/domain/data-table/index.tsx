@@ -1,10 +1,11 @@
 "use client";
 
+import { useState } from "react";
+
 import { DomainStatusEnum } from "@/enums/domain-status";
 import { Lock, LockOpen, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import { useState } from "react";
 
 import { IDomainActual } from "@/types/domain.type";
 
@@ -30,11 +31,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { RefreshDialog } from "@/components/admin/domain/data-table/dialog";
 import { DomainStatusBadge } from "@/components/badge/domain-status-badge";
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 import { SearchInput } from "@/components/inputs/search-input";
-import { RefreshDialog } from "@/components/admin/domain/data-table/dialog";
 
 export default function DomainDataTable() {
   const t = useTranslations("DomainPage.table");
@@ -178,25 +179,25 @@ export default function DomainDataTable() {
                         {t("columns.id")}
                       </TableHead>
                       <TableHead className="w-[140px] py-3 font-medium text-gray-700">
-                        Domain
+                        {t("columns.domain")}
                       </TableHead>
                       <TableHead className="w-[120px] py-3 font-medium text-gray-700">
-                        Status
+                        {t("columns.status")}
                       </TableHead>
                       <TableHead className="w-[120px] py-3 font-medium text-gray-700">
                         {t("columns.timestamp")}
                       </TableHead>
                       <TableHead className="w-[90px] py-3 font-medium text-gray-700">
-                        Renew Deadline
+                        {t("columns.renewDeadline")}
                       </TableHead>
                       <TableHead className="w-[120px] py-3 font-medium text-gray-700">
-                        Expires
+                        {t("columns.expires")}
                       </TableHead>
                       <TableHead className="w-[120px] py-3 font-medium text-gray-700">
-                        Registrar
+                        {t("columns.registrar")}
                       </TableHead>
                       <TableHead className="w-[90px] py-3 font-medium text-gray-700">
-                        Security
+                        {t("columns.security")}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -242,14 +243,14 @@ export default function DomainDataTable() {
                               <div className="flex items-center">
                                 <Lock className="mr-1 h-4 w-4 text-green-600" />
                                 <span className="text-xs text-green-600">
-                                  Locked
+                                  {t("securityStatus.locked")}
                                 </span>
                               </div>
                             ) : (
                               <div className="flex items-center">
                                 <LockOpen className="mr-1 h-4 w-4 text-amber-600" />
                                 <span className="text-xs text-amber-600">
-                                  Unlocked
+                                  {t("securityStatus.unlocked")}
                                 </span>
                               </div>
                             )}
@@ -307,13 +308,14 @@ export default function DomainDataTable() {
 
                 <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
                   <div>
-                    Đang xem {paginationInfo.from || 1}-
+                    {t("pagination.viewing")} {paginationInfo.from || 1}-
                     {paginationInfo.to ||
                       Math.min(pageSize, paginationInfo.total || 0)}{" "}
-                    {t("pagination.of")} {paginationInfo.total || 0} kết quả
+                    {t("pagination.of")} {paginationInfo.total || 0}{" "}
+                    {t("pagination.results")}
                   </div>
                   <div>
-                    Trang {currentPage} {t("pagination.of")}{" "}
+                    {t("pagination.page")} {currentPage} {t("pagination.of")}{" "}
                     {paginationInfo.last_page || 1}
                   </div>
                 </div>

@@ -268,17 +268,30 @@
         "title": "Domain Management",
         "description": "Manage and monitor domain activities across the system",
         "breadcrumb": "Domains",
+        "pageHeader": {
+            "title": "Domain",
+            "description": "Manage and monitor system domains"
+        },
         "table": {
             "filters": {
                 "search": "Search"
             },
             "columns": {
                 "id": "ID",
-                "action": "Action",
+                "domain": "Domain",
+                "status": "Status",
                 "timestamp": "Last updated",
+                "renewDeadline": "Renew Deadline",
+                "expires": "Expires",
+                "registrar": "Registrar",
+                "security": "Security",
                 "user": "User",
                 "details": "Details",
                 "actions": "Actions"
+            },
+            "securityStatus": {
+                "locked": "Locked",
+                "unlocked": "Unlocked"
             },
             "pagination": {
                 "rowsPerPage": "Rows per page",
@@ -286,7 +299,10 @@
                 "firstPage": "Go to first page",
                 "previousPage": "Previous",
                 "nextPage": "Next",
-                "lastPage": "Go to last page"
+                "lastPage": "Go to last page",
+                "viewing": "Viewing",
+                "results": "results",
+                "page": "Page"
             },
             "actions": {
                 "details": "Details",
@@ -309,6 +325,12 @@
             "modal": {
                 "refresh": {
                     "title": "Refresh List Domain",
+                    "messages": {
+                        "initializing": "Initializing...",
+                        "sending": "Sending refresh request...",
+                        "waiting": "Request sent, waiting for server response...",
+                        "error": "Error sending refresh request."
+                    },
                     "button": {
                         "close": "Close"
                     }
