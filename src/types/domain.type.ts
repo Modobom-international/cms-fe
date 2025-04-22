@@ -31,22 +31,6 @@ export interface IDomainResponse {
   type: string;
 }
 
-export interface IPaginatedResponse<T> {
-  current_page: number;
-  data: T[];
-  first_page_url: string;
-  from: number;
-  last_page: number;
-  last_page_url: string;
-  links: ILink[];
-  next_page_url: string;
-  path: string;
-  per_page: number;
-  prev_page_url: any;
-  to: number;
-  total: number;
-}
-
 export interface IDetails {
   id: number;
   attributes?: IAttributes;
@@ -75,8 +59,20 @@ export interface IOriginal {
   content: string;
 }
 
-export interface ILink {
-  url?: string;
-  label: string;
-  active: boolean;
+export interface IDomainPathResponse {
+  success: boolean;
+  data: IDomainPath;
+  message: string;
+  type: string;
+}
+
+export interface IDomainPath {
+  id: number;
+  site_id: number;
+  name: string;
+  slug: string;
+  provider: number;
+  created_at: string;
+  updated_at: string;
+  content: string;
 }

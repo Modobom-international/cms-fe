@@ -1,47 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
-import { Check, ChevronsUpDown, Map, PlusCircle, Users } from "lucide-react";
+import { Map, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import { DatePicker } from "react-aria-components";
 
-import { IDomainActual } from "@/types/domain.type";
-import { IUserTracking } from "@/types/user-tracking.type";
+import { IUserTrackingData } from "@/types/user-tracking.type";
 
 import { cn, formatDateTime } from "@/lib/utils";
 
-import { useGetDomainList } from "@/hooks/domain";
-import { useDebounce } from "@/hooks/use-debounce";
 import { useGetUserTracking } from "@/hooks/user-tracking";
 import { useActiveUsers } from "@/hooks/user-tracking/use-active-users";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { DateInput } from "@/components/ui/datefield-rac";
-import {
   DialogContent,
   DialogHeader,
   DialogTitle,
   Dialog as DialogUI,
 } from "@/components/ui/dialog";
-import {
-  PopoverContent,
-  PopoverTrigger,
-  Popover as PopoverUI,
-} from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -61,17 +41,15 @@ import {
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 
+import FilterBar from "./filter-bar";
+
 export default function UserTrackingDataTable() {
   const t = useTranslations("UserTrackingPage.table");
   const [showHeatmapModal, setShowHeatmapModal] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<IUserTracking | null>(
-    null
-  );
-  const [openDomainSelect, setOpenDomainSelect] = useState(false);
-  const [openPathSelect, setOpenPathSelect] = useState(false);
-  const [searchInputValue, setSearchInputValue] = useState("");
-  const debouncedSearchValue = useDebounce(searchInputValue, 500);
+  const [selectedRecord, setSelectedRecord] =
+    useState<IUserTrackingData | null>(null);
 
+  // Pagination state
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
     parseAsInteger.withDefault(1)
@@ -80,58 +58,84 @@ export default function UserTrackingDataTable() {
     "pageSize",
     parseAsInteger.withDefault(10)
   );
-  const [date, setDate] = useQueryState(
+
+  // Get current filter values from URL
+  const [date] = useQueryState(
     "date",
     parseAsString.withDefault(format(new Date(), "yyyy-MM-dd"))
   );
-  const [domain, setDomain] = useQueryState(
-    "domains",
-    parseAsString.withDefault("")
-  );
-  const [path, setPath] = useQueryState(
-    "path",
-    parseAsString.withDefault("all")
-  );
+  const [domain] = useQueryState("domains", parseAsString.withDefault(""));
+  const [path] = useQueryState("path", parseAsString.withDefault("all"));
 
-  const {
-    data: domainResponse = { data: { data: [] } },
-    isLoading: isLoadingDomains,
-  } = useGetDomainList(1, 10, debouncedSearchValue);
-
-  const domains =
-    "data" in domainResponse && domainResponse.data?.data
-      ? domainResponse.data.data
-      : [];
-
-  const paths = ["all", "/schedule-i-mobil/", "/home/", "/about/"];
-
-  useEffect(() => {
-    if (domain === "" && domains.length > 0) {
-      setDomain(domains[0].domain);
-    }
-  }, [domains, domain, setDomain]);
-
-  const handleDomainSearchChange = (value: string) => {
-    setSearchInputValue(value);
-  };
-
+  // Fetch data based on filters
   const {
     data: userTrackingResponse,
     isFetching,
     isError,
     refetch,
-  } = useGetUserTracking(currentPage, pageSize, date, domain);
+  } = useGetUserTracking(currentPage, pageSize, date, domain, path);
   const { data: activeUsers, isLoading: isLoadingActiveUsers } = useActiveUsers(
     domain,
     path
   );
-  const userTrackingData = userTrackingResponse?.data?.data || [];
-  const paginationInfo = userTrackingResponse?.data || {
-    from: 0,
-    to: 0,
-    total: 0,
-    last_page: 1,
-  };
+
+  // Type for mixed response data
+  type UserTrackingItem = any;
+
+  // Safely extract data from response with correct typing
+  const userTrackingData = (() => {
+    if (!userTrackingResponse) return [] as UserTrackingItem[];
+
+    if ("data" in userTrackingResponse && userTrackingResponse.data) {
+      if (Array.isArray(userTrackingResponse.data)) {
+        return userTrackingResponse.data as UserTrackingItem[];
+      } else if (
+        "data" in userTrackingResponse.data &&
+        Array.isArray(userTrackingResponse.data.data)
+      ) {
+        return userTrackingResponse.data.data as UserTrackingItem[];
+      }
+    }
+
+    if ("value" in userTrackingResponse && userTrackingResponse.value?.data) {
+      return userTrackingResponse.value.data as UserTrackingItem[];
+    }
+
+    return [] as UserTrackingItem[];
+  })();
+
+  // Safely extract pagination info from response
+  const paginationInfo = (() => {
+    if (!userTrackingResponse) {
+      return {
+        from: 0,
+        to: 0,
+        total: 0,
+        last_page: 1,
+      };
+    }
+
+    if (
+      "data" in userTrackingResponse &&
+      userTrackingResponse.data &&
+      !Array.isArray(userTrackingResponse.data)
+    ) {
+      const { data, ...rest } = userTrackingResponse.data;
+      return rest;
+    }
+
+    if ("value" in userTrackingResponse && userTrackingResponse.value) {
+      return userTrackingResponse.value;
+    }
+
+    return {
+      from: 0,
+      to: 0,
+      total: 0,
+      last_page: 1,
+    };
+  })();
+
   const isDataEmpty = !userTrackingData || userTrackingData.length === 0;
 
   const handleNextPage = () => {
@@ -144,24 +148,20 @@ export default function UserTrackingDataTable() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const calendarDate = date ? parseDate(date) : undefined;
-  const handleDateChange = (newDate: CalendarDate | null) => {
-    if (newDate) {
-      setDate(newDate.toString());
-    } else {
-      setDate("");
-    }
-  };
-
   const handleRefresh = () => {
     refetch();
   };
 
-  const hasHeatmapData = (record: IUserTracking) => {
+  const handleFilterChange = () => {
+    setCurrentPage(1);
+    refetch();
+  };
+
+  const hasHeatmapData = (record: IUserTrackingData) => {
     return record.uuid && record.event_name.toLowerCase() === "mousemove";
   };
 
-  const handleOpenHeatmap = (record: IUserTracking) => {
+  const handleOpenHeatmap = (record: IUserTrackingData) => {
     setSelectedRecord(record);
     setShowHeatmapModal(true);
   };
@@ -169,193 +169,8 @@ export default function UserTrackingDataTable() {
   return (
     <div className="min-h- flex flex-col">
       <div className="space-y-4">
-        <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
-          <div>
-            <label
-              className="mb-2 block text-sm font-medium text-gray-700"
-              htmlFor="domain"
-            >
-              {t("filters.selectDomain")}
-            </label>
-            <PopoverUI
-              open={openDomainSelect}
-              onOpenChange={setOpenDomainSelect}
-            >
-              <PopoverTrigger asChild>
-                <Button
-                  id="domain-select"
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={openDomainSelect}
-                  className="w-96 justify-between"
-                  disabled={isLoadingDomains}
-                >
-                  {domain
-                    ? domains.find((d) => d.domain === domain)?.domain || domain
-                    : t("placeholders.selectDomain")}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-[24rem] p-0"
-                side="bottom"
-                align="start"
-              >
-                <Command>
-                  <div className="relative">
-                    <CommandInput
-                      placeholder={t("placeholders.searchDomain")}
-                      className="h-9"
-                      onValueChange={handleDomainSearchChange}
-                    />
-                  </div>
-                  <CommandList>
-                    <CommandEmpty>
-                      {isLoadingDomains ? (
-                        <div className="py-6">
-                          <Spinner noPadding />
-                        </div>
-                      ) : (
-                        t("loadingStates.noDomains")
-                      )}
-                    </CommandEmpty>
-                    <CommandGroup>
-                      {isLoadingDomains && domains.length === 0 ? (
-                        <div className="flex items-center justify-center py-6">
-                          <Spinner noPadding />
-                        </div>
-                      ) : (
-                        domains.map((domainItem: IDomainActual) => (
-                          <CommandItem
-                            key={domainItem.id}
-                            value={domainItem.domain}
-                            onSelect={(currentValue: string) => {
-                              setDomain(currentValue);
-                              setOpenDomainSelect(false);
-                            }}
-                          >
-                            {domainItem.domain}
-                            <Check
-                              className={cn(
-                                "ml-auto h-4 w-4",
-                                domain === domainItem.domain
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                          </CommandItem>
-                        ))
-                      )}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </PopoverUI>
-          </div>
-
-          <div>
-            <label
-              className="mb-2 block text-sm font-medium text-gray-700"
-              htmlFor="path"
-            >
-              {t("filters.selectPath")}
-            </label>
-            <PopoverUI open={openPathSelect} onOpenChange={setOpenPathSelect}>
-              <PopoverTrigger asChild>
-                <Button
-                  id="path-select"
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={openPathSelect}
-                  className="w-96 justify-between"
-                >
-                  {path === "all"
-                    ? "All Paths"
-                    : path || t("placeholders.selectPath")}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-[24rem] p-0"
-                side="bottom"
-                align="start"
-              >
-                <Command>
-                  <div className="relative">
-                    <CommandInput
-                      placeholder={t("placeholders.searchPath")}
-                      className="h-9"
-                    />
-                  </div>
-                  <CommandList>
-                    <CommandEmpty>{t("loadingStates.noPaths")}</CommandEmpty>
-                    <CommandGroup>
-                      {paths.length === 0 ? (
-                        <div className="py-2 text-center text-sm text-gray-500">
-                          {t("loadingStates.noPaths")}
-                        </div>
-                      ) : (
-                        paths.map((pathItem) => (
-                          <CommandItem
-                            key={pathItem}
-                            value={pathItem}
-                            onSelect={(currentValue: string) => {
-                              setPath(currentValue);
-                              setOpenPathSelect(false);
-                            }}
-                          >
-                            {pathItem === "all" ? "All Paths" : pathItem}
-                            <Check
-                              className={cn(
-                                "ml-auto h-4 w-4",
-                                path === pathItem ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                          </CommandItem>
-                        ))
-                      )}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </PopoverUI>
-          </div>
-        </div>
-
-        {/* Date Filter */}
-        <div className="flex flex-wrap items-center gap-2">
-          <PopoverUI>
-            <PopoverTrigger asChild>
-              <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
-                <PlusCircle className="size-3.5" />
-                {t("filters.date")}
-              </span>
-            </PopoverTrigger>
-            <PopoverContent className="w-72 p-0" align="start">
-              <div className="px-3 pt-3">
-                <h3 className="text-sm font-medium">Select Date</h3>
-              </div>
-              <ScrollArea className="max-h-72">
-                <div className="p-3">
-                  <DatePicker value={calendarDate} onChange={handleDateChange}>
-                    <DateInput className="w-full" />
-                  </DatePicker>
-                </div>
-              </ScrollArea>
-              <div className="flex items-center justify-between border-t border-gray-100 p-3">
-                <Button
-                  onClick={() => {
-                    setCurrentPage(1);
-                    refetch();
-                  }}
-                  className="w-full"
-                >
-                  Apply Filter
-                </Button>
-              </div>
-            </PopoverContent>
-          </PopoverUI>
-        </div>
+        {/* Use the new FilterBar component */}
+        <FilterBar onFilterChange={handleFilterChange} />
 
         <div className="mb-6">
           <div className="bg-card rounded-lg border p-4">
@@ -422,7 +237,7 @@ export default function UserTrackingDataTable() {
                         {t("columns.timestamp")}
                       </TableHead>
                       <TableHead className="w-[130px] py-3 font-medium text-gray-700">
-                        {t("columns.ip")}
+                        {t("columns.browser")}
                       </TableHead>
                       <TableHead className="w-[140px] py-3 font-medium text-gray-700">
                         {t("columns.device")}
@@ -436,67 +251,67 @@ export default function UserTrackingDataTable() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {userTrackingData.map(
-                      (record: IUserTracking, index: number) => (
-                        <TableRow
-                          key={index}
-                          className="border-b border-gray-200 hover:bg-gray-50"
-                        >
-                          <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                            {record?.id?.$oid || "—"}
-                          </TableCell>
-                          <TableCell className="py-3 text-sm font-medium text-indigo-600">
-                            {record?.domain || "—"}
-                          </TableCell>
-                          <TableCell className="text-muted-foreground py-3">
-                            {record.timestamp
-                              ? formatDateTime(new Date(record.timestamp))
-                              : "—"}
-                          </TableCell>
-                          <TableCell className="text-muted-foreground py-3">
-                            {record.ip || "—"}
-                          </TableCell>
-                          <TableCell className="py-3">
-                            <Badge
-                              variant="outline"
-                              className={getBadgeColor(
-                                record.event_data.device
-                              )}
-                            >
-                              {getLocalizedDeviceType(
-                                t,
-                                record.event_data.device
-                              )}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
-                            {renderUserBehavior(record, t)}
-                          </TableCell>
-                          <TableCell className="py-3 text-right">
-                            <div className="flex justify-end space-x-2">
-                              {hasHeatmapData(record) && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="text-emerald-600 hover:text-emerald-900"
-                                  onClick={() => handleOpenHeatmap(record)}
-                                >
-                                  <Map className="mr-2 h-3 w-3" />
-                                  Heatmap
-                                </Button>
-                              )}
+                    {userTrackingData.map((record: any, index: number) => (
+                      <TableRow
+                        key={index}
+                        className="border-b border-gray-200 hover:bg-gray-50"
+                      >
+                        <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                          {record?.id?.$oid || record?.id || "—"}
+                        </TableCell>
+                        <TableCell className="py-3 text-sm font-medium text-indigo-600">
+                          {record?.domain || "—"}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground py-3">
+                          {record.timestamp
+                            ? formatDateTime(new Date(record.timestamp))
+                            : "—"}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground py-3">
+                          {record.ip || record.user?.browser?.name
+                            ? `${record.user?.browser?.name || ""} ${record.user?.browser?.version || ""}`
+                            : "—"}
+                        </TableCell>
+                        <TableCell className="py-3">
+                          <Badge
+                            variant="outline"
+                            className={getBadgeColor(
+                              record.event_data?.device || "unknown"
+                            )}
+                          >
+                            {getLocalizedDeviceType(
+                              t,
+                              record.event_data?.device || "unknown"
+                            )}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground py-3 text-sm">
+                          {renderUserBehavior(record, t)}
+                        </TableCell>
+                        <TableCell className="py-3 text-right">
+                          <div className="flex justify-end space-x-2">
+                            {hasHeatmapData(record) && (
                               <Button
-                                variant="ghost"
+                                variant="outline"
                                 size="sm"
-                                className="text-indigo-600 hover:text-indigo-900"
+                                className="text-emerald-600 hover:text-emerald-900"
+                                onClick={() => handleOpenHeatmap(record)}
                               >
-                                {t("actions.details")}
+                                <Map className="mr-2 h-3 w-3" />
+                                Heatmap
                               </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )}
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              {t("actions.details")}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
                   </TableBody>
                 </Table>
               </div>
@@ -570,15 +385,17 @@ export default function UserTrackingDataTable() {
               <div className="mb-4 grid grid-cols-3 gap-4 text-sm">
                 <div>
                   <span className="font-semibold">UUID:</span>{" "}
-                  {selectedRecord.uuid}
+                  {selectedRecord.uuid || "N/A"}
                 </div>
                 <div>
                   <span className="font-semibold">Domain:</span>{" "}
-                  {selectedRecord.domain}
+                  {selectedRecord.domain || "N/A"}
                 </div>
                 <div>
                   <span className="font-semibold">Date:</span>{" "}
-                  {format(new Date(selectedRecord.timestamp), "yyyy-MM-dd")}
+                  {selectedRecord.timestamp
+                    ? format(new Date(selectedRecord.timestamp), "yyyy-MM-dd")
+                    : "N/A"}
                 </div>
               </div>
 
@@ -586,7 +403,16 @@ export default function UserTrackingDataTable() {
                 <div className="relative aspect-video w-full">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <p className="text-gray-500">
-                      Heatmap visualization for UUID: {selectedRecord.uuid}
+                      Heatmap visualization for mouse movement data:
+                      <br />
+                      Position: ({selectedRecord.event_data?.x ?? 0},{" "}
+                      {selectedRecord.event_data?.y ?? 0})
+                      <br />
+                      Device: {selectedRecord.event_data?.device || "Unknown"}
+                      <br />
+                      Browser: {selectedRecord.user?.browser?.name ||
+                        "Unknown"}{" "}
+                      {selectedRecord.user?.browser?.version || ""}
                     </p>
                   </div>
                 </div>
@@ -629,10 +455,15 @@ const getLocalizedDeviceType = (
   }
 };
 
-const renderUserBehavior = (
-  record: IUserTracking,
-  t: (key: string) => string
-) => {
+const renderUserBehavior = (record: any, t: (key: string) => string) => {
+  if (!record || !record.event_data || !record.event_name) {
+    return (
+      <div className="flex flex-col">
+        <span className="font-medium text-gray-600">Unknown</span>
+      </div>
+    );
+  }
+
   const { event_name, event_data } = record;
 
   switch (event_name.toLowerCase()) {
@@ -643,7 +474,8 @@ const renderUserBehavior = (
             {t("behaviors.mouseMovement")}
           </span>
           <span className="text-xs">
-            {t("behaviors.position")}: ({event_data.x}, {event_data.y})
+            {t("behaviors.position")}: ({event_data.x ?? 0}, {event_data.y ?? 0}
+            )
           </span>
           {event_data.mouseMovements && (
             <span className="text-xs">
@@ -659,11 +491,17 @@ const renderUserBehavior = (
             {t("behaviors.click")}
           </span>
           <span className="text-xs">
-            {t("behaviors.position")}: ({event_data.x}, {event_data.y})
+            {t("behaviors.position")}: ({event_data.x ?? 0}, {event_data.y ?? 0}
+            )
           </span>
-          {event_data.target && (
+          {(event_data.target || event_data.elementDetails) && (
             <span className="text-xs">
-              {t("behaviors.target")}: {event_data.target}
+              {t("behaviors.target")}:{" "}
+              {event_data.target ||
+                (event_data.elementDetails &&
+                  (event_data.elementDetails.textContent ||
+                    event_data.elementDetails.tagName)) ||
+                "Unknown"}
             </span>
           )}
         </div>
@@ -679,6 +517,10 @@ const renderUserBehavior = (
               {t("behaviors.height")}: {event_data.height}px
             </span>
           )}
+          <span className="text-xs">
+            {t("behaviors.scrollPosition")}: ({event_data.scrollLeft ?? 0},{" "}
+            {event_data.scrollTop ?? 0})
+          </span>
         </div>
       );
     case "pageview":
@@ -688,7 +530,7 @@ const renderUserBehavior = (
             {t("behaviors.pageView")}
           </span>
           <span className="text-xs">
-            {t("behaviors.target")}: {record.path}
+            {t("behaviors.target")}: {record.path || "Unknown"}
           </span>
         </div>
       );
@@ -698,9 +540,14 @@ const renderUserBehavior = (
           <span className="font-medium text-purple-600">
             {t("behaviors.timeSpent")}
           </span>
-          {event_data.total && (
+          {(event_data.total || event_data.mouseMovements) && (
             <span className="text-xs">
-              {t("behaviors.duration")}: {(event_data.total / 1000).toFixed(1)}s
+              {t("behaviors.duration")}:{" "}
+              {event_data.total
+                ? `${(event_data.total / 1000).toFixed(1)}s`
+                : event_data.mouseMovements
+                  ? `${(event_data.mouseMovements / 10).toFixed(1)}s`
+                  : "N/A"}
             </span>
           )}
         </div>
@@ -714,7 +561,10 @@ const renderUserBehavior = (
             .slice(0, 2)
             .map(([key, value]) => (
               <span key={key} className="text-xs">
-                {key}: {value}
+                {key}:{" "}
+                {typeof value === "object"
+                  ? JSON.stringify(value).substring(0, 30)
+                  : String(value || "")}
               </span>
             ))}
         </div>
