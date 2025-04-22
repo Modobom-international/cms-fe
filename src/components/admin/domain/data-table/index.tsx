@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { DomainStatusEnum } from "@/enums/domain-status";
-import { Lock, LockOpen, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
@@ -175,9 +175,6 @@ export default function DomainDataTable() {
                 <Table className="w-full">
                   <TableHeader className="sticky top-0 z-10 bg-white">
                     <TableRow className="border-b border-gray-200 hover:bg-white">
-                      <TableHead className="w-[60px] py-3 font-medium text-gray-700">
-                        {t("columns.id")}
-                      </TableHead>
                       <TableHead className="w-[140px] py-3 font-medium text-gray-700">
                         {t("columns.domain")}
                       </TableHead>
@@ -196,9 +193,6 @@ export default function DomainDataTable() {
                       <TableHead className="w-[120px] py-3 font-medium text-gray-700">
                         {t("columns.registrar")}
                       </TableHead>
-                      <TableHead className="w-[90px] py-3 font-medium text-gray-700">
-                        {t("columns.security")}
-                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -209,9 +203,6 @@ export default function DomainDataTable() {
                           key={index}
                           className="border-b border-gray-200 hover:bg-gray-50"
                         >
-                          <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                            {domain.id ?? "—"}
-                          </TableCell>
                           <TableCell className="text-muted-foreground py-3">
                             <span className="font-medium text-indigo-600">
                               {domain.domain ?? "—"}
@@ -237,23 +228,6 @@ export default function DomainDataTable() {
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
                             {domain.registrar ?? "—"}
-                          </TableCell>
-                          <TableCell className="py-3">
-                            {domain.is_locked ? (
-                              <div className="flex items-center">
-                                <Lock className="mr-1 h-4 w-4 text-green-600" />
-                                <span className="text-xs text-green-600">
-                                  {t("securityStatus.locked")}
-                                </span>
-                              </div>
-                            ) : (
-                              <div className="flex items-center">
-                                <LockOpen className="mr-1 h-4 w-4 text-amber-600" />
-                                <span className="text-xs text-amber-600">
-                                  {t("securityStatus.unlocked")}
-                                </span>
-                              </div>
-                            )}
                           </TableCell>
                         </TableRow>
                       );
