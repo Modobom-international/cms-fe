@@ -15,7 +15,21 @@ export interface IUser {
   address?: string;
 }
 
-export interface IUserResponse extends IPaginationResponse<IUser> {
+export interface IGetAllUserResponse extends IPaginationResponse<IUser> {
   type?: string;
+}
+
+export interface ICreateUserResponse {
+  success: true;
+  message: string;
+  data: IUser;
+  type: string;
+}
+
+export interface IUpdateUserResponse {
+  success: true;
+  message: string;
+  data: IUser;
+  type: string;
 }
 
