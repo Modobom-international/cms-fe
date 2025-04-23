@@ -547,7 +547,9 @@
         "Cloudflare": "Cloudflare",
         "Branch": "Nhánh",
         "Status": "Trạng thái",
-        "Owner": "Chủ sở hữu"
+        "Owner": "Chủ sở hữu",
+        "FilterByOwner": "Lọc theo chủ sở hữu",
+        "AllOwners": "Tất cả chủ sở hữu"
       },
       "Pages": {
         "Title": "Trang - {siteName}",

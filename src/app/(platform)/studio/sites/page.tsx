@@ -102,6 +102,11 @@ interface Site {
   };
 }
 
+interface UserFilter {
+  email: string;
+  name: string;
+}
+
 interface DeleteDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -432,19 +437,26 @@ function CreateSiteDialog() {
 }
 
 const paginateData = (
-  data: any[],
+  data: Site[],
   currentPage: number,
   pageSize: number,
-  searchTerm: string
+  searchTerm: string,
+  selectedUser: string
 ) => {
-  // First, filter the data based on search term
-  const filteredData = searchTerm
-    ? data.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.domain.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : data;
+  // First, filter the data based on search term and selected user
+  const filteredData = data.filter((item) => {
+    const matchesSearch = searchTerm
+      ? item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.domain.toLowerCase().includes(searchTerm.toLowerCase())
+      : true;
+
+    const matchesUser =
+      selectedUser && selectedUser !== "all"
+        ? item.user.email === selectedUser
+        : true;
+
+    return matchesSearch && matchesUser;
+  });
 
   // Calculate pagination values
   const totalItems = filteredData.length;
@@ -498,6 +510,23 @@ export default function SitesManagementPage() {
 
   const { data: sitesResponse, isLoading } = useGetSites();
 
+  const [selectedUser, setSelectedUser] = useQueryState(
+    "user",
+    parseAsString.withDefault("all")
+  );
+
+  // Get unique users from sites data
+  const uniqueUsers = useMemo(() => {
+    if (!sitesResponse?.data) return [];
+    const users: UserFilter[] = sitesResponse.data.map((site: Site) => ({
+      email: site.user.email,
+      name: site.user.name,
+    }));
+    return Array.from(
+      new Map(users.map((user) => [user.email, user])).values()
+    ) as UserFilter[];
+  }, [sitesResponse?.data]);
+
   // Apply pagination to the data
   const sitesData = useMemo(() => {
     if (!sitesResponse?.data)
@@ -507,9 +536,16 @@ export default function SitesManagementPage() {
       sitesResponse.data,
       currentPage,
       pageSize,
-      debouncedSearch
+      debouncedSearch,
+      selectedUser
     );
-  }, [sitesResponse?.data, currentPage, pageSize, debouncedSearch]);
+  }, [
+    sitesResponse?.data,
+    currentPage,
+    pageSize,
+    debouncedSearch,
+    selectedUser,
+  ]);
 
   const updateSiteMutation = useUpdateSite(editingSite?.id || "");
   const deleteSiteMutation = useDeleteSite();
@@ -601,6 +637,25 @@ export default function SitesManagementPage() {
                 />
               </div>
               <div className="flex items-center space-x-2">
+                <Select
+                  value={selectedUser}
+                  onValueChange={(value) => {
+                    setSelectedUser(value);
+                    setCurrentPage(1);
+                  }}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder={t("Table.FilterByOwner")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("Table.AllOwners")}</SelectItem>
+                    {uniqueUsers.map((user: UserFilter) => (
+                      <SelectItem key={user.email} value={user.email}>
+                        {user.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Label htmlFor="pageSize">{t("Table.Showing")}:</Label>
                 <Select
                   value={pageSize.toString()}

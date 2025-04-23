@@ -547,7 +547,9 @@
         "Showing": "Showing",
         "Previous": "Previous",
         "Next": "Next",
-        "Page": "Page {current} of {total}"
+        "Page": "Page {current} of {total}",
+        "FilterByOwner": "Filter by owner",
+        "AllOwners": "All owners"
       },
       "Pages": {
         "Title": "Pages - {siteName}",
