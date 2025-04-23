@@ -8,15 +8,10 @@ import { Check, ChevronsUpDown, PlusCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsString, useQueryState } from "nuqs";
 import { DatePicker } from "react-aria-components";
-
 import { IDomainActual } from "@/types/domain.type";
-
 import { cn } from "@/lib/utils";
-
-import { useGetDomainList, useGetDomainPaths } from "@/hooks/domain";
+import { useGetDomainListWithoutPagination, useGetDomainPaths } from "@/hooks/domain";
 import { useDebounce } from "@/hooks/use-debounce";
-
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -46,8 +41,6 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
   const [openPathSelect, setOpenPathSelect] = useState(false);
   const [searchInputValue, setSearchInputValue] = useState("");
   const debouncedSearchValue = useDebounce(searchInputValue, 500);
-
-  // URL query state
   const [date, setDate] = useQueryState(
     "date",
     parseAsString.withDefault(format(new Date(), "yyyy-MM-dd"))
@@ -61,39 +54,33 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
     parseAsString.withDefault("all")
   );
 
-  // Fetch domain list
   const {
     data: domainResponse = { data: { data: [] } },
     isLoading: isLoadingDomains,
-  } = useGetDomainList(1, 10, debouncedSearchValue);
+  } = useGetDomainListWithoutPagination(debouncedSearchValue);
 
   const domains =
     "data" in domainResponse && domainResponse.data?.data
       ? domainResponse.data.data
       : [];
 
-  // Reset path when domain changes
   useEffect(() => {
     setPath("all");
   }, [domain, setPath]);
 
-  // Fetch domain paths when a domain is selected
   const { data: pathsResponse, isLoading: isLoadingPaths } = useGetDomainPaths(
     domain,
     1,
     100
   );
 
-  // Extract paths from the response with type safety
   const availablePaths = (() => {
     if (!pathsResponse || !pathsResponse.success) return ["all"];
 
     try {
-      // For type safety, handle any possible structure without relying on specific properties
       const responseData = (pathsResponse as any).data;
 
       if (responseData) {
-        // If response has path items directly
         if (Array.isArray(responseData)) {
           return [
             "all",
@@ -103,7 +90,6 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
           ];
         }
 
-        // If response has nested data array
         if (responseData.data && Array.isArray(responseData.data)) {
           return [
             "all",
@@ -117,7 +103,6 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
       console.error("Error parsing path data:", e);
     }
 
-    // Fallback
     return ["all"];
   })();
 

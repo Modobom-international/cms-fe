@@ -114,6 +114,32 @@ export interface IConnection {
   rtt: number;
 }
 
-// Use global pagination interfaces from backend.d.ts
-export type IUserTrackingResponse = IPaginationResponse<IUserTrackingData>;
-export type IUserTrackingErrorResponse = IErrorPaginationResponse;
+export interface IPaginationData {
+  current_page: number;
+  data: IUserTrackingData[][];
+  first_page_url: string;
+  from: number | null;
+  last_page: number;
+  last_page_url: string;
+  links: Array<{ url: string | null; label: string; active: boolean }>;
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number | null;
+  total: number;
+}
+
+export interface IUserTrackingResponse {
+  success: boolean;
+  message: string;
+  type: string;
+  data: IPaginationData;
+}
+
+export interface IErrorPaginationResponse {
+  success: boolean;
+  message: string;
+  type: string;
+  data: IPaginationData;
+}

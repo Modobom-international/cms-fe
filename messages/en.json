@@ -216,7 +216,9 @@
         "ip": "IP Address",
         "device": "Device",
         "userBehavior": "User Behavior",
-        "actions": "Actions"
+        "actions": "Actions",
+        "browser": "Browser",
+        "domain": "Domain"
       },
       "pagination": {
         "rowsPerPage": "Rows per page",
@@ -261,6 +263,26 @@
       "activeUsers": {
         "title": "Total Active Users",
         "description": "Total active users across all domains"
+      },
+      "modal": {
+        "detail": {
+          "noData": "No Data",
+          "title": "User tracking",
+          "table": {
+            "columns": {
+              "eventName": "Event name",
+              "timestamp": "Timestamp",
+              "device": "Device",
+              "details": "Details"
+            },
+            "behaviors": {
+              "elementTag": "Tag HTML",
+              "elementText": "Content",
+              "elementHref": "Href",
+              "elementClasses": "Classes"
+            }
+          }
+        }
       }
     }
   },

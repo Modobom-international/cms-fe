@@ -216,7 +216,9 @@
         "ip": "Địa chỉ IP",
         "device": "Thiết bị",
         "userBehavior": "Hành vi người dùng",
-        "actions": "Hành động"
+        "actions": "Hành động",
+        "browser": "Trình duyệt",
+        "domain": "Tên miền"
       },
       "pagination": {
         "rowsPerPage": "Số dòng mỗi trang",
@@ -261,6 +263,26 @@
       "activeUsers": {
         "title": "Người dùng đang hoạt động",
         "description": "Tổng số người dùng đang hoạt động trên tất cả các tên miền"
+      },
+      "modal": {
+        "detail": {
+          "noData": "Không có dữ liệu",
+          "title": "Sự kiện người dùng",
+          "table": {
+            "columns": {
+              "eventName": "Tên sự kiện",
+              "timestamp": "Thời gian",
+              "device": "Thiết bị",
+              "details": "Chi tiết"
+            },
+            "behaviors": {
+              "elementTag": "Thẻ HTML",
+              "elementText": "Nội dung",
+              "elementHref": "Liên kết",
+              "elementClasses": "Lớp"
+            }
+          }
+        }
       }
     }
   },

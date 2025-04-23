@@ -3,8 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import qs from "qs";
 
 import {
-  IUserTrackingData,
-  IUserTrackingErrorResponse,
+  IErrorPaginationResponse,
   IUserTrackingResponse,
 } from "@/types/user-tracking.type";
 
@@ -21,14 +20,13 @@ export const useGetUserTracking = (
   return useQuery({
     queryKey: userTrackingQueryKeys.list(page, pageSize, date, domain, path),
     queryFn: async (): Promise<
-      IUserTrackingResponse | IUserTrackingErrorResponse
+      IUserTrackingResponse | IErrorPaginationResponse
     > => {
       try {
-        const { data } = await apiClient.get<IUserTrackingResponse>(
+        const response = await apiClient.get<IUserTrackingResponse>(
           `/api/users-tracking?${params}`
         );
-
-        return data;
+        return response.data;
       } catch (error) {
         console.error("Error fetching user tracking data:", error);
         return {
@@ -45,7 +43,7 @@ export const useGetUserTracking = (
             links: [],
             next_page_url: null,
             path: "",
-            per_page: 15,
+            per_page: pageSize,
             prev_page_url: null,
             to: null,
             total: 0,

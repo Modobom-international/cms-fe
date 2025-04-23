@@ -1,9 +1,8 @@
-import { domainQueryKeys } from "@/constants/query-keys";
+import { domainQueryKeys, domainWithoutPaginationQueryKeys } from "@/constants/query-keys";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import qs from "qs";
 
 import {
-  IDomainActual,
   IDomainPathResponse,
   IDomainResponse,
 } from "@/types/domain.type";
@@ -18,6 +17,27 @@ export const useGetDomainList = (
   const params = qs.stringify({ page, pageSize, search });
   return useQuery({
     queryKey: domainQueryKeys.list(page, pageSize, search),
+    queryFn: async (): Promise<IDomainResponse | IErrorResponse> => {
+      try {
+        const { data } = await apiClient.get<IDomainResponse>(
+          `/api/domains?${params}`
+        );
+        return data;
+      } catch {
+        return {
+          success: false,
+          message: "Lấy danh sách domain không thành công",
+          type: "list_domain_fail",
+        };
+      }
+    },
+  });
+};
+
+export const useGetDomainListWithoutPagination = (search: string = "") => {
+  const params = qs.stringify({ search });
+  return useQuery({
+    queryKey: domainWithoutPaginationQueryKeys.list(),
     queryFn: async (): Promise<IDomainResponse | IErrorResponse> => {
       try {
         const { data } = await apiClient.get<IDomainResponse>(
