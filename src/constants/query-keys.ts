@@ -35,6 +35,12 @@ export const domainQueryKeys = {
     ...domainQueryKeys.lists(),
     { page, pageSize, search },
   ],
+  available: (page: number, pageSize: number, search: string) => [
+    ...domainQueryKeys.lists(),
+    "available",
+    { page, pageSize, search },
+  ],
+
   domains: () => [...domainQueryKeys.all, "domains"],
   details: (id: string) => [...domainQueryKeys.all, "detail", id],
   refresh: () => [...domainQueryKeys.all, "refresh"],
