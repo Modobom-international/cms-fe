@@ -78,11 +78,22 @@ export default function WebBuilderStudio({
   };
 
   const exportHTMLWithCSS = async (editor: Editor) => {
-    const htmlContent = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
+    // Get the HTML content from editor
+    const editorHTML = editor.getHtml({ cleanId: true });
 
+    // Parse the HTML to extract the body content
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(editorHTML, "text/html");
+    // Extract meta tags, title, and other head content if they exist
+    const headContent = doc.head.innerHTML || "";
+    // Get the body content by extracting only the inner content of the body tag
+    const bodyContent = doc.body ? doc.body.innerHTML : editorHTML;
+
+    // Combine everything into a proper HTML structure
+    const htmlContent = `<!DOCTYPE html>
+<html lang="hr">
+<head>
+  ${headContent}
   <script src="https://api.modobomco.com/js/users-tracking.min.js" async></script>
   <style>
     ${editor.getCss()}
@@ -92,7 +103,7 @@ export default function WebBuilderStudio({
   </script>
 </head>
 <body>
-  ${editor.getHtml({ cleanId: true })}
+  ${bodyContent}
 </body>
 </html>`;
 
@@ -178,8 +189,8 @@ export default function WebBuilderStudio({
     editor.Commands.add("export-and-deploy", {
       run: async () => {
         try {
-          // First export
-          await toast.promise(exportHTMLWithCSS(editor), {
+          // First export - making sure it completes fully
+          const exportResult = await toast.promise(exportHTMLWithCSS(editor), {
             loading: t("ExportHTML"),
             success: t("ExportSuccess"),
             error: (err) =>
@@ -188,7 +199,10 @@ export default function WebBuilderStudio({
               }),
           });
 
-          // Then deploy
+          // Wait to ensure export is fully processed
+          console.log("Export completed successfully:", exportResult);
+
+          // Then deploy after export is confirmed complete
           return toast.promise(
             deployPageMutation.mutateAsync({
               site_id: Number(siteId),
@@ -388,3 +402,4 @@ export default function WebBuilderStudio({
     </div>
   );
 }
+
