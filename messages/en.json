@@ -216,18 +216,26 @@
         "ip": "IP Address",
         "device": "Device",
         "userBehavior": "User Behavior",
-        "actions": "Actions"
+        "actions": "Actions",
+                "uuid": "UUID",
+                "domain": "Domain",
+                "path": "Path",
+                "eventCount": "Events"
       },
       "pagination": {
         "rowsPerPage": "Rows per page",
         "of": "of",
         "firstPage": "Go to first page",
-        "previousPage": "Go to previous page",
-        "nextPage": "Go to next page",
-        "lastPage": "Go to last page"
+        "previousPage": "Previous",
+        "nextPage": "Next",
+        "lastPage": "Go to last page",
+                "showing": "Showing",
+                "results": "results",
+                "page": "Page"
       },
       "actions": {
-        "details": "Details"
+        "details": "Details",
+                "retry": "Retry"
       },
       "deviceTypes": {
         "mobile": "Mobile",

@@ -53,7 +53,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
     parseAsString.withDefault(format(new Date(), "yyyy-MM-dd"))
   );
   const [domain, setDomain] = useQueryState(
-    "domains",
+    "domain",
     parseAsString.withDefault("")
   );
   const [path, setPath] = useQueryState(

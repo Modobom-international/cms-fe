@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import qs from "qs";
 
 import {
-  IUserTrackingData,
   IUserTrackingErrorResponse,
   IUserTrackingResponse,
 } from "@/types/user-tracking.type";
@@ -27,7 +26,6 @@ export const useGetUserTracking = (
         const { data } = await apiClient.get<IUserTrackingResponse>(
           `/api/users-tracking?${params}`
         );
-
         return data;
       } catch (error) {
         console.error("Error fetching user tracking data:", error);
@@ -56,3 +54,4 @@ export const useGetUserTracking = (
     enabled: !!date || !!domain || !!path,
   });
 };
+
