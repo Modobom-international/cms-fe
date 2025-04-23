@@ -79,4 +79,21 @@ export const Icons = {
       <path d="M13.97 7.53c-1.37-1.37-3.58-1.37-4.95 0s-1.37 3.58 0 4.95c1.18 1.18 3 1.34 4.36.47l2.09 2.09 1.06-1.06-2.09-2.09c.87-1.36.72-3.18-.47-4.36zm-1.06 3.88c-.78.78-2.05.78-2.83 0-.78-.78-.78-2.05 0-2.83s2.05-.78 2.83 0c.78.79.78 2.05 0 2.83z"></path>
     </svg>
   ),
+  play: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      width="16"
+      height="16"
+      aria-hidden="true"
+      stroke="currentColor"
+      fill="currentColor"
+      {...props}
+    >
+      <path
+        d="M3 2.74C3 1.37 4.505.53 5.67 1.252l8.5 5.26a1.75 1.75 0 0 1 0 2.976l-8.5 5.26C4.506 15.469 3 14.63 3 13.26V2.74Z"
+        fillRule="evenodd"
+      ></path>
+    </svg>
+  ),
 };

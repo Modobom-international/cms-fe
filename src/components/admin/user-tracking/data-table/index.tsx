@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import { format } from "date-fns";
-import { Users } from "lucide-react";
+import { Play, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
@@ -17,6 +17,7 @@ import { useActiveUsers } from "@/hooks/user-tracking/use-active-users";
 
 import { Button } from "@/components/ui/button";
 import { Dialog as DialogUI } from "@/components/ui/dialog";
+import { Icons } from "@/components/ui/icons";
 import {
   Select,
   SelectContent,
@@ -235,19 +236,16 @@ export default function UserTrackingDataTable() {
                   <TableHeader className="sticky top-0 z-10 bg-white">
                     <TableRow className="border-b border-gray-200 hover:bg-white">
                       <TableHead className="w-[80px] py-3 font-medium text-gray-700">
-                        Heatmap
+                        <span className="sr-only">{t("columns.actions")}</span>
                       </TableHead>
                       <TableHead className="w-[180px] py-3 font-medium text-gray-700">
-                        Domain
+                        {t("columns.domain")}
                       </TableHead>
-                      <TableHead className="w-[130px] py-3 font-medium text-gray-700">
-                        Date
+                      <TableHead className="w-[250px] py-3 font-medium text-gray-700">
+                        {t("columns.path")}
                       </TableHead>
-                      <TableHead className="w-[130px] py-3 font-medium text-gray-700">
-                        User
-                      </TableHead>
-                      <TableHead className="w-[80px] py-3 font-medium text-gray-700">
-                        Tracking Event
+                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                        {t("columns.eventCount")}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -262,23 +260,24 @@ export default function UserTrackingDataTable() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="flex items-center justify-center rounded-full border-gray-300 px-2 py-1"
+                              className="text-primary hover:text-primary flex items-center justify-center rounded-full border-gray-300 px-2 py-1"
                               onClick={() => handleOpenHeatmap(record)}
                             >
-                              <span className="text-indigo-600">▶</span> Play
+                              <Icons.play className="text-primary size-3.5" />
+                              Heatmap
                             </Button>
                           </TableCell>
                           <TableCell className="py-3 text-sm font-medium text-indigo-600">
                             {record?.domain || "—"}
                           </TableCell>
-                          <TableCell className="py-3 text-sm">
-                            {format(new Date(), "dd MMM, HH:mm")}
+                          <TableCell
+                            className="text-muted-foreground max-w-xs truncate py-3 text-sm"
+                            title={record?.path || ""}
+                          >
+                            {record?.path || "—"}
                           </TableCell>
-                          <TableCell className="py-3 text-sm">
-                            {record.uuid.substring(0, 8)}
-                          </TableCell>
-                          <TableCell className="py-3 text-sm">
-                            {record.eventCount}
+                          <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                            {record.eventCount || 0}
                           </TableCell>
                         </TableRow>
                       )
@@ -290,7 +289,9 @@ export default function UserTrackingDataTable() {
               <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
                 <div className="flex items-center justify-between px-4 py-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">Rows per page</span>
+                    <span className="text-sm text-gray-600">
+                      {t("pagination.rowsPerPage")}
+                    </span>
                     <Select
                       value={pageSize.toString()}
                       onValueChange={(value) => setPageSize(Number(value))}
@@ -315,7 +316,7 @@ export default function UserTrackingDataTable() {
                       onClick={handlePreviousPage}
                       disabled={currentPage === 1}
                     >
-                      Previous
+                      {t("pagination.previousPage")}
                     </Button>
                     <Button
                       variant="outline"
@@ -324,20 +325,22 @@ export default function UserTrackingDataTable() {
                       onClick={handleNextPage}
                       disabled={currentPage === paginationInfo.last_page}
                     >
-                      Next
+                      {t("pagination.nextPage")}
                     </Button>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
                   <div>
-                    Viewing {paginationInfo.from || 1}-
+                    {t("pagination.showing")} {paginationInfo.from || 1}-
                     {paginationInfo.to ||
                       Math.min(pageSize, paginationInfo.total || 0)}{" "}
-                    of {paginationInfo.total || 0} results
+                    {t("pagination.of")} {paginationInfo.total || 0}{" "}
+                    {t("pagination.results")}
                   </div>
                   <div>
-                    Page {currentPage} of {paginationInfo.last_page || 1}
+                    {t("pagination.page")} {currentPage} {t("pagination.of")}{" "}
+                    {paginationInfo.last_page || 1}
                   </div>
                 </div>
               </div>
