@@ -584,10 +584,6 @@ export default function SitesManagementPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>{t("Table.Name")}</CardTitle>
-          <CardDescription>{t("Table.Description")}</CardDescription>
-        </CardHeader>
         <CardContent>
           {/* Add Search Bar */}
           <div className="mb-6">

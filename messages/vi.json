@@ -488,6 +488,7 @@
           "Label": "Tên miền",
           "Required": "*",
           "Placeholder": "example.com",
+          "SearchPlaceholder": "Tìm kiếm tên miền...",
           "Helper": "Tên miền nơi trang web của bạn sẽ được lưu trữ"
         },
         "Submit": "Tạo Trang web",
