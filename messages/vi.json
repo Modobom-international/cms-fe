@@ -757,46 +757,6 @@
     "description": "Quản lý nhân viên và quyền của họ",
     "teams": "Phòng ban",
     "addUser": "Thêm nhân viên",
-    "table": {
-      "search": "Tìm kiếm nhân viên...",
-      "loading": "Đang tải danh sách nhân viên...",
-      "error": "Đã xảy ra lỗi khi tải danh sách nhân viên",
-      "empty": "Không tìm thấy nhân viên nào",
-      "columns": {
-        "id": "ID",
-        "name": "Tên",
-        "email": "Email",
-        "team": "Phòng ban",
-        "role": "Vai trò",
-        "status": "Trạng thái",
-        "createdAt": "Ngày tạo",
-        "updatedAt": "Cập nhật lần cuối",
-        "actions": "Thao tác"
-      },
-      "actions": {
-        "edit": "Chỉnh sửa",
-        "delete": "Xóa",
-        "retry": "Thử lại"
-      },
-      "pagination": {
-        "rowsPerPage": "Số dòng mỗi trang",
-        "of": "trong số",
-        "previousPage": "Trước",
-        "nextPage": "Tiếp",
-        "showing": "Hiển thị {from}-{to} trong tổng số {total} kết quả",
-        "page": "Trang {current} trong tổng số {total}"
-      },
-      "status": {
-        "active": "Hoạt động",
-        "inactive": "Không hoạt động",
-        "pending": "Đang chờ"
-      },
-      "roles": {
-        "admin": "Quản trị viên",
-        "user": "Người dùng",
-        "manager": "Quản lý"
-      }
-    },
     "navigation": {
       "title": "Quản lý nhân viên",
       "create": "Thêm nhân viên",

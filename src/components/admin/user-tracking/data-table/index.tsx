@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -181,27 +182,38 @@ export default function UserTrackingDataTable() {
         <FilterBar onFilterChange={handleFilterChange} />
 
         <div className="mb-6">
-          <div className="bg-card rounded-lg border p-4">
-            <div className="flex items-center space-x-4">
-              <Users className="text-primary h-8 w-8" />
-              <div>
-                <h3 className="text-lg font-semibold">
-                  {t("activeUsers.title")}
-                </h3>
-                <div className="flex items-baseline space-x-2">
-                  {isLoadingActiveUsers ? (
-                    <Spinner />
-                  ) : (
-                    <>
-                      <span className="text-2xl font-bold">
-                        {activeUsers?.count || 0}
-                      </span>
-                      <span className="text-muted-foreground text-sm">
-                        {t("activeUsers.description")}
-                      </span>
-                    </>
-                  )}
+          <div className="border-border overflow-hidden rounded-lg border bg-white">
+            <div className="flex items-center justify-between p-5">
+              <div className="flex items-center gap-3">
+                <div className="bg-primary/10 rounded-full p-2.5">
+                  <Users className="text-primary h-5 w-5" />
                 </div>
+                <div>
+                  <h3 className="text-base font-medium text-gray-900">
+                    {t("activeUsers.title")}
+                  </h3>
+                  <p className="mt-0.5 text-sm text-gray-500">
+                    {t("activeUsers.description")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="pr-2">
+                {isLoadingActiveUsers ? (
+                  <div className="flex flex-col items-end">
+                    <Skeleton className="mb-1 h-7 w-16" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                ) : (
+                  <div className="text-right">
+                    <div className="text-primary text-2xl font-semibold">
+                      {activeUsers?.count || 0}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {format(new Date(), "yyyy-MM-dd")}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -355,4 +367,3 @@ export default function UserTrackingDataTable() {
     </div>
   );
 }
-
