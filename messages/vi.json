@@ -220,7 +220,8 @@
         "uuid": "UUID",
         "domain": "Tên miền",
         "path": "Đường dẫn",
-        "eventCount": "Số sự kiện"
+        "eventCount": "Số sự kiện",
+        "browser": "Trình duyệt"
       },
       "pagination": {
         "rowsPerPage": "Số dòng mỗi trang",
@@ -252,13 +253,17 @@
         "totalMovements": "Tổng di chuyển",
         "target": "Đích",
         "height": "Chiều cao",
-        "duration": "Thời gian"
+        "duration": "Thời gian",
+        "elementTag": "Thẻ HTML",
+        "elementText": "Nội dung HTML"
+
       },
       "placeholders": {
         "selectDomain": "Chọn tên miền",
         "selectResults": "Chọn số kết quả hiển thị",
         "searchDomain": "Tìm kiếm tên miền...",
-        "searchPath": "Tìm kiếm đường dẫn..."
+        "searchPath": "Tìm kiếm đường dẫn...",
+        "selectPath": "Chọn đường dẫn"
       },
       "loadingStates": {
         "loadingDomains": "Đang tải domain...",

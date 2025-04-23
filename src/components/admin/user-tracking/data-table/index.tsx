@@ -29,6 +29,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableDialog,
   TableHead,
   TableHeader,
   TableRow,
@@ -186,7 +187,7 @@ export default function UserTrackingDataTable() {
                       <span className="text-2xl font-bold">{activeUsers?.count || 0}</span>
                       <span className="text-muted-foreground text-sm">
                         {t("activeUsers.description")}
-                      £</span>
+                      </span>
                     </>
                   )}
                 </div>
@@ -234,6 +235,9 @@ export default function UserTrackingDataTable() {
                       <TableHead className="w-[200px] py-3 font-medium text-gray-700">
                         {t("columns.userBehavior")}
                       </TableHead>
+                      <TableHead className="w-[100px] py-3 font-medium text-gray-700">
+                        {t("columns.eventCount")}
+                      </TableHead>
                       <TableHead className="py-3 text-right font-medium text-gray-700">
                         <span className="sr-only">{t("columns.actions")}</span>
                       </TableHead>
@@ -271,6 +275,9 @@ export default function UserTrackingDataTable() {
                         </TableCell>
                         <TableCell className="text-muted-foreground py-3 text-sm">
                           {renderUserBehavior(record, t)}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                          {allRecordsByUuid[record.uuid]?.length || 0}
                         </TableCell>
                         <TableCell className="py-3 text-right">
                           <div className="flex justify-end space-x-2">
@@ -399,13 +406,13 @@ export default function UserTrackingDataTable() {
       </DialogUI>
 
       <DialogUI open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-        <DialogContent className="sm:max-w-[800px]">
+        <DialogContent className="sm:max-w-[1200px]">
           <DialogHeader>
             <DialogTitle>{t("modal.detail.title")}</DialogTitle>
           </DialogHeader>
           <div className="mt-4">
             {selectedUuidRecords.length > 0 ? (
-              <Table>
+              <TableDialog>
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("modal.detail.table.columns.eventName")}</TableHead>
@@ -437,7 +444,7 @@ export default function UserTrackingDataTable() {
                     </TableRow>
                   ))}
                 </TableBody>
-              </Table>
+              </TableDialog>
             ) : (
               <p className="text-center text-gray-500">{t("modal.detail.noData")}</p>
             )}

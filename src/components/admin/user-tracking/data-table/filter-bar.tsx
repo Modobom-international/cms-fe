@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "@/providers/auth-provider";
 
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
@@ -8,7 +9,6 @@ import { Check, ChevronsUpDown, PlusCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsString, useQueryState } from "nuqs";
 import { DatePicker } from "react-aria-components";
-import { IDomainActual } from "@/types/domain.type";
 import { cn } from "@/lib/utils";
 import { useGetDomainListWithoutPagination, useGetDomainPaths } from "@/hooks/domain";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -30,6 +30,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { Spinner } from "@/components/global/spinner";
+import { IDomainForTracking, IDomainResponseTracking } from "@/types/domain.type";
 
 interface FilterBarProps {
   onFilterChange?: () => void;
@@ -37,6 +38,10 @@ interface FilterBarProps {
 
 export default function FilterBar({ onFilterChange }: FilterBarProps) {
   const t = useTranslations("UserTrackingPage.table");
+  const { user, isLoadingUser } = useAuth();
+
+  const user_id = !isLoadingUser && user?.id ? user.id : undefined;
+
   const [openDomainSelect, setOpenDomainSelect] = useState(false);
   const [openPathSelect, setOpenPathSelect] = useState(false);
   const [searchInputValue, setSearchInputValue] = useState("");
@@ -46,7 +51,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
     parseAsString.withDefault(format(new Date(), "yyyy-MM-dd"))
   );
   const [domain, setDomain] = useQueryState(
-    "domain",
+    "domains",
     parseAsString.withDefault("")
   );
   const [path, setPath] = useQueryState(
@@ -55,23 +60,32 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
   );
 
   const {
-    data: domainResponse = { data: { data: [] } },
+    data: domainResponse,
     isLoading: isLoadingDomains,
-  } = useGetDomainListWithoutPagination(debouncedSearchValue);
+  } = useGetDomainListWithoutPagination(debouncedSearchValue, user_id, {
+    enabled: !!user_id,
+  });
 
-  const domains =
-    "data" in domainResponse && domainResponse.data?.data
-      ? domainResponse.data.data
+  const domains: IDomainForTracking[] =
+    domainResponse && "success" in domainResponse && domainResponse.success && Array.isArray(domainResponse.data)
+      ? domainResponse.data
       : [];
 
   useEffect(() => {
     setPath("all");
   }, [domain, setPath]);
 
+  useEffect(() => {
+    if (domain === "" && domains.length > 0 && !isLoadingDomains) {
+      setDomain(domains[0].domain);
+    }
+  }, [domains, domain, setDomain, isLoadingDomains]);
+
   const { data: pathsResponse, isLoading: isLoadingPaths } = useGetDomainPaths(
     domain,
     1,
-    100
+    100,
+    { enabled: !!domain }
   );
 
   const availablePaths = (() => {
@@ -106,12 +120,6 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
     return ["all"];
   })();
 
-  useEffect(() => {
-    if (domain === "" && domains.length > 0) {
-      setDomain(domains[0].domain);
-    }
-  }, [domains, domain, setDomain]);
-
   const handleDomainSearchChange = (value: string) => {
     setSearchInputValue(value);
   };
@@ -142,10 +150,54 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
     if (onFilterChange) onFilterChange();
   };
 
+  if (isLoadingUser || !user_id) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
+          <div>
+            <label
+              className="mb-2 block text-sm font-medium text-gray-700"
+              htmlFor="domain"
+            >
+              {t("filters.selectDomain")}
+            </label>
+            <Button
+              id="domain-select"
+              variant="outline"
+              role="combobox"
+              className="w-full justify-between"
+              disabled
+            >
+              {t("placeholders.selectDomain")}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </div>
+          <div>
+            <label
+              className="mb-2 block text-sm font-medium text-gray-700"
+              htmlFor="path"
+            >
+              {t("filters.selectPath")}
+            </label>
+            <Button
+              id="path-select"
+              variant="outline"
+              role="combobox"
+              className="w-full justify-between"
+              disabled
+            >
+              {t("placeholders.selectPath")}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
-        {/* Domain Filter */}
         <div>
           <label
             className="mb-2 block text-sm font-medium text-gray-700"
@@ -161,9 +213,9 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
                 role="combobox"
                 aria-expanded={openDomainSelect}
                 className="w-full justify-between"
-                disabled={isLoadingDomains}
+                disabled={isLoadingDomains || domains.length === 0}
               >
-                {domain
+                {domain && Array.isArray(domains)
                   ? domains.find((d) => d.domain === domain)?.domain || domain
                   : t("placeholders.selectDomain")}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -198,7 +250,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
                         <Spinner noPadding />
                       </div>
                     ) : (
-                      domains.map((domainItem: IDomainActual) => (
+                      domains.map((domainItem: IDomainForTracking) => (
                         <CommandItem
                           key={domainItem.id}
                           value={domainItem.domain}
@@ -223,7 +275,6 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
           </PopoverUI>
         </div>
 
-        {/* Path Filter */}
         <div>
           <label
             className="mb-2 block text-sm font-medium text-gray-700"
@@ -239,7 +290,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
                 role="combobox"
                 aria-expanded={openPathSelect}
                 className="w-full justify-between"
-                disabled={!domain || isLoadingPaths}
+                disabled={isLoadingPaths || !domain}
               >
                 {path === "all"
                   ? "All Paths"
@@ -298,7 +349,6 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
           </PopoverUI>
         </div>
       </div>
-      {/* Date Filter */}
       <div className="flex flex-wrap items-center gap-2">
         <PopoverUI>
           <PopoverTrigger asChild>

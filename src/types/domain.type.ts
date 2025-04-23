@@ -21,7 +21,28 @@ export interface IDomainActual {
   name_servers: string;
   renew_deadline: string;
   registrar_created_at: string;
-  activeUsers?: number; // Add this new property
+  activeUsers?: number;
+}
+
+export interface IDomainForTracking {
+  id: number;
+  branch: string;
+  cloudflare_domain_status: string;
+  cloudflare_project_name: string;
+  created_at: string;
+  description: string | null;
+  domain: string;
+  name: string;
+  status: string;
+  updated_at: string;
+  user_id: number;
+}
+
+export interface IDomainResponseTracking {
+  success: boolean;
+  data: IDomainForTracking[];
+  message: string;
+  type: string;
 }
 
 export interface IDomainResponse {

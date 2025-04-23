@@ -220,7 +220,8 @@
         "uuid": "UUID",
         "domain": "Domain",
         "path": "Path",
-        "eventCount": "Events"
+        "eventCount": "Events",
+        "browser": "Browser"
       },
       "pagination": {
         "rowsPerPage": "Rows per page",

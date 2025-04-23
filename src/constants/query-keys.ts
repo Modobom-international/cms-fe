@@ -49,21 +49,11 @@ export const domainQueryKeys = {
 };
 
 export const domainWithoutPaginationQueryKeys = {
-  all: ["domains"],
-  lists: () => [...domainQueryKeys.all, "list"],
-  list: () => [
-    ...domainQueryKeys.lists(),
+  list: (user_id?: string, search: string = "") => [
+    "domains",
+    "without-pagination",
+    { user_id, search },
   ],
-  available: () => [
-    ...domainQueryKeys.lists(),
-    "available"
-  ],
-
-  domains: () => [...domainQueryKeys.all, "domains"],
-  details: (id: string) => [...domainQueryKeys.all, "detail", id],
-  refresh: () => [...domainQueryKeys.all, "refresh"],
-  domainPaths: (domain: string) =>
-    [...domainQueryKeys.all, "domain-paths", domain] as const,
 };
 
 export const activityLogQueryKeys = {
