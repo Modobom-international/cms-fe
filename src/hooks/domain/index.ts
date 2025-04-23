@@ -2,7 +2,11 @@ import { domainQueryKeys } from "@/constants/query-keys";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import qs from "qs";
 
-import { IDomainActual, IDomainResponse } from "@/types/domain.type";
+import {
+  IDomainActual,
+  IDomainPathResponse,
+  IDomainResponse,
+} from "@/types/domain.type";
 
 import apiClient from "@/lib/api/client";
 
@@ -31,13 +35,20 @@ export const useGetDomainList = (
   });
 };
 
-export const useGetAllDomains = () => {
+export const useGetAvailableDomain = (
+  page: number,
+  pageSize: number,
+  search: string
+) => {
+  const params = qs.stringify({ page, pageSize, search });
   return useQuery({
-    queryKey: ["domains"],
-    queryFn: async (): Promise<IDomainActual[] | IErrorResponse> => {
+    queryKey: domainQueryKeys.available(page, pageSize, search),
+    queryFn: async (): Promise<IDomainResponse | IErrorResponse> => {
       try {
-        const { data } = await apiClient.get<IDomainResponse>(`/api/domains`);
-        return data.data.data;
+        const { data } = await apiClient.get<IDomainResponse>(
+          `/api/domains/available?${params}`
+        );
+        return data;
       } catch {
         return {
           success: false,
@@ -46,23 +57,44 @@ export const useGetAllDomains = () => {
         };
       }
     },
-    select: (data) => {
-      if ("success" in data && !data.success) {
-        return [];
-      }
-      return data as IDomainActual[];
-    },
   });
 };
 
 export const useRefreshDomainList = () => {
   return useMutation({
     mutationFn: async () => {
-      const { data } = await apiClient.get<{ success: boolean; message: string }>(
-        `/api/domains/refresh`
-      );
+      const { data } = await apiClient.get<{
+        success: boolean;
+        message: string;
+      }>(`/api/domains/refresh`);
       return data;
     },
-    mutationKey: ["refresh-domains"],
+    mutationKey: domainQueryKeys.refresh(),
+  });
+};
+
+export const useGetDomainPaths = (
+  domain: string,
+  page: number,
+  pageSize: number
+) => {
+  return useQuery({
+    queryKey: domainQueryKeys.domainPaths(domain, page, pageSize),
+    queryFn: async () => {
+      const params = qs.stringify({ domain, page, pageSize });
+      try {
+        const { data } = await apiClient.get<IDomainPathResponse>(
+          `/api/domains/list-url-path?${params}`
+        );
+        return data;
+      } catch {
+        return {
+          success: false,
+          message: "Lấy danh sách domain không thành công",
+          type: "list_domain_fail",
+        };
+      }
+    },
+    enabled: !!domain,
   });
 };

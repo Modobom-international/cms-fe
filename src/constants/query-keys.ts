@@ -10,7 +10,13 @@ export const authQueryKeys = {
 
 export const userTrackingQueryKeys = {
   origin: ["users-tracking"] as const,
-  list: (page: number, pageSize: number, date: string, domain: string) =>
+  list: (
+    page: number,
+    pageSize: number,
+    date: string,
+    domain: string,
+    path: string
+  ) =>
     [
       ...userTrackingQueryKeys.origin,
       "list",
@@ -18,6 +24,7 @@ export const userTrackingQueryKeys = {
       pageSize,
       date,
       domain,
+      path,
     ] as const,
 };
 
@@ -28,9 +35,17 @@ export const domainQueryKeys = {
     ...domainQueryKeys.lists(),
     { page, pageSize, search },
   ],
+  available: (page: number, pageSize: number, search: string) => [
+    ...domainQueryKeys.lists(),
+    "available",
+    { page, pageSize, search },
+  ],
+
   domains: () => [...domainQueryKeys.all, "domains"],
   details: (id: string) => [...domainQueryKeys.all, "detail", id],
   refresh: () => [...domainQueryKeys.all, "refresh"],
+  domainPaths: (domain: string, page: number, pageSize: number) =>
+    [...domainQueryKeys.all, "domain-paths", domain, page, pageSize] as const,
 };
 
 export const activityLogQueryKeys = {

@@ -2,7 +2,11 @@ import { userTrackingQueryKeys } from "@/constants/query-keys";
 import { useQuery } from "@tanstack/react-query";
 import qs from "qs";
 
-import { IUserTrackingResponse } from "@/types/user-tracking.type";
+import {
+  IUserTrackingData,
+  IUserTrackingErrorResponse,
+  IUserTrackingResponse,
+} from "@/types/user-tracking.type";
 
 import apiClient from "@/lib/api/client";
 
@@ -10,22 +14,27 @@ export const useGetUserTracking = (
   page: number,
   pageSize: number,
   date: string,
-  domain: string
+  domain: string,
+  path: string
 ) => {
-  const params = qs.stringify({ date, domain, page, pageSize });
+  const params = qs.stringify({ date, domain, page, pageSize, path });
   return useQuery({
-    queryKey: userTrackingQueryKeys.list(page, pageSize, date, domain),
+    queryKey: userTrackingQueryKeys.list(page, pageSize, date, domain, path),
     queryFn: async (): Promise<
-      IUserTrackingResponse | IErrorPaginationResponse
+      IUserTrackingResponse | IUserTrackingErrorResponse
     > => {
       try {
         const { data } = await apiClient.get<IUserTrackingResponse>(
           `/api/users-tracking?${params}`
         );
+
         return data;
-      } catch {
+      } catch (error) {
+        console.error("Error fetching user tracking data:", error);
         return {
           success: false,
+          message: "Failed to fetch user tracking data",
+          type: "list_tracking_error",
           data: {
             current_page: 1,
             data: [],
@@ -33,23 +42,7 @@ export const useGetUserTracking = (
             from: null,
             last_page: 1,
             last_page_url: "?page=1",
-            links: [
-              {
-                url: null,
-                label: "pagination.previous",
-                active: false,
-              },
-              {
-                url: "?page=1",
-                label: "1",
-                active: true,
-              },
-              {
-                url: null,
-                label: "pagination.next",
-                active: false,
-              },
-            ],
+            links: [],
             next_page_url: null,
             path: "",
             per_page: 15,
@@ -57,11 +50,9 @@ export const useGetUserTracking = (
             to: null,
             total: 0,
           },
-          message: "Lấy danh sách tracking thành công",
-          type: "list_tracking_success",
         };
       }
     },
-    enabled: !!date || !!domain,
+    enabled: !!date || !!domain || !!path,
   });
 };
