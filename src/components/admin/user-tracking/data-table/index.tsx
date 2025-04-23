@@ -3,25 +3,20 @@
 import { useState } from "react";
 
 import { format } from "date-fns";
-import { Map, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
-import { IUserTrackingData } from "@/types/user-tracking.type";
-
-import { cn, formatDateTime } from "@/lib/utils";
+import {
+  IUserTrackingData,
+  IUserTrackingSummary,
+} from "@/types/user-tracking.type";
 
 import { useGetUserTracking } from "@/hooks/user-tracking";
 import { useActiveUsers } from "@/hooks/user-tracking/use-active-users";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  Dialog as DialogUI,
-} from "@/components/ui/dialog";
+import { Dialog as DialogUI } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -42,12 +37,13 @@ import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 
 import FilterBar from "./filter-bar";
+import HeatmapDialog from "./heatmap-dialog";
 
 export default function UserTrackingDataTable() {
   const t = useTranslations("UserTrackingPage.table");
   const [showHeatmapModal, setShowHeatmapModal] = useState(false);
   const [selectedRecord, setSelectedRecord] =
-    useState<IUserTrackingData | null>(null);
+    useState<IUserTrackingSummary | null>(null);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useQueryState(
@@ -64,7 +60,7 @@ export default function UserTrackingDataTable() {
     "date",
     parseAsString.withDefault(format(new Date(), "yyyy-MM-dd"))
   );
-  const [domain] = useQueryState("domains", parseAsString.withDefault(""));
+  const [domain] = useQueryState("domain", parseAsString.withDefault(""));
   const [path] = useQueryState("path", parseAsString.withDefault("all"));
 
   // Fetch data based on filters
@@ -79,34 +75,57 @@ export default function UserTrackingDataTable() {
     path
   );
 
-  // Type for mixed response data
-  type UserTrackingItem = any;
-
-  // Safely extract data from response with correct typing
+  // Process response data to get summarized tracking data
   const userTrackingData = (() => {
-    if (!userTrackingResponse) return [] as UserTrackingItem[];
+    if (!userTrackingResponse || !userTrackingResponse.success) {
+      return [] as IUserTrackingSummary[];
+    }
 
-    if ("data" in userTrackingResponse && userTrackingResponse.data) {
-      if (Array.isArray(userTrackingResponse.data)) {
-        return userTrackingResponse.data as UserTrackingItem[];
-      } else if (
-        "data" in userTrackingResponse.data &&
-        Array.isArray(userTrackingResponse.data.data)
-      ) {
-        return userTrackingResponse.data.data as UserTrackingItem[];
+    // Handle nested data structure
+    let rawData: IUserTrackingData[] = [];
+
+    if (
+      userTrackingResponse.data &&
+      Array.isArray(userTrackingResponse.data.data)
+    ) {
+      const nestedData = userTrackingResponse.data.data;
+
+      // Check if it's a 2D array and flatten it
+      if (nestedData.length > 0 && Array.isArray(nestedData[0])) {
+        rawData = (nestedData as any[][]).flat() as IUserTrackingData[];
+      } else {
+        // It's already a flat array
+        rawData = nestedData as IUserTrackingData[];
       }
+    } else {
+      return [] as IUserTrackingSummary[];
     }
 
-    if ("value" in userTrackingResponse && userTrackingResponse.value?.data) {
-      return userTrackingResponse.value.data as UserTrackingItem[];
-    }
+    // Group by uuid, domain, path and count events
+    const eventMap = new Map<string, IUserTrackingSummary>();
 
-    return [] as UserTrackingItem[];
+    rawData.forEach((event: IUserTrackingData) => {
+      const key = `${event.uuid}_${event.domain}_${event.path}`;
+      if (eventMap.has(key)) {
+        const existingEntry = eventMap.get(key)!;
+        existingEntry.eventCount += 1;
+      } else {
+        eventMap.set(key, {
+          uuid: event.uuid,
+          domain: event.domain,
+          path: event.path,
+          eventCount: 1,
+        });
+      }
+    });
+
+    // Convert map to array
+    return Array.from(eventMap.values());
   })();
 
   // Safely extract pagination info from response
   const paginationInfo = (() => {
-    if (!userTrackingResponse) {
+    if (!userTrackingResponse || !userTrackingResponse.success) {
       return {
         from: 0,
         to: 0,
@@ -115,17 +134,9 @@ export default function UserTrackingDataTable() {
       };
     }
 
-    if (
-      "data" in userTrackingResponse &&
-      userTrackingResponse.data &&
-      !Array.isArray(userTrackingResponse.data)
-    ) {
+    if (userTrackingResponse.data) {
       const { data, ...rest } = userTrackingResponse.data;
       return rest;
-    }
-
-    if ("value" in userTrackingResponse && userTrackingResponse.value) {
-      return userTrackingResponse.value;
     }
 
     return {
@@ -157,11 +168,7 @@ export default function UserTrackingDataTable() {
     refetch();
   };
 
-  const hasHeatmapData = (record: IUserTrackingData) => {
-    return record.uuid && record.event_name.toLowerCase() === "mousemove";
-  };
-
-  const handleOpenHeatmap = (record: IUserTrackingData) => {
+  const handleOpenHeatmap = (record: IUserTrackingSummary) => {
     setSelectedRecord(record);
     setShowHeatmapModal(true);
   };
@@ -228,90 +235,54 @@ export default function UserTrackingDataTable() {
                   <TableHeader className="sticky top-0 z-10 bg-white">
                     <TableRow className="border-b border-gray-200 hover:bg-white">
                       <TableHead className="w-[80px] py-3 font-medium text-gray-700">
-                        {t("columns.id")}
+                        Heatmap
                       </TableHead>
                       <TableHead className="w-[180px] py-3 font-medium text-gray-700">
                         Domain
                       </TableHead>
-                      <TableHead className="w-[180px] py-3 font-medium text-gray-700">
-                        {t("columns.timestamp")}
+                      <TableHead className="w-[130px] py-3 font-medium text-gray-700">
+                        Date
                       </TableHead>
                       <TableHead className="w-[130px] py-3 font-medium text-gray-700">
-                        {t("columns.browser")}
+                        User
                       </TableHead>
-                      <TableHead className="w-[140px] py-3 font-medium text-gray-700">
-                        {t("columns.device")}
-                      </TableHead>
-                      <TableHead className="w-[200px] py-3 font-medium text-gray-700">
-                        {t("columns.userBehavior")}
-                      </TableHead>
-                      <TableHead className="py-3 text-right font-medium text-gray-700">
-                        <span className="sr-only">{t("columns.actions")}</span>
+                      <TableHead className="w-[80px] py-3 font-medium text-gray-700">
+                        Tracking Event
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {userTrackingData.map((record: any, index: number) => (
-                      <TableRow
-                        key={index}
-                        className="border-b border-gray-200 hover:bg-gray-50"
-                      >
-                        <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                          {record?.id?.$oid || record?.id || "—"}
-                        </TableCell>
-                        <TableCell className="py-3 text-sm font-medium text-indigo-600">
-                          {record?.domain || "—"}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground py-3">
-                          {record.timestamp
-                            ? formatDateTime(new Date(record.timestamp))
-                            : "—"}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground py-3">
-                          {record.ip || record.user?.browser?.name
-                            ? `${record.user?.browser?.name || ""} ${record.user?.browser?.version || ""}`
-                            : "—"}
-                        </TableCell>
-                        <TableCell className="py-3">
-                          <Badge
-                            variant="outline"
-                            className={getBadgeColor(
-                              record.event_data?.device || "unknown"
-                            )}
-                          >
-                            {getLocalizedDeviceType(
-                              t,
-                              record.event_data?.device || "unknown"
-                            )}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground py-3 text-sm">
-                          {renderUserBehavior(record, t)}
-                        </TableCell>
-                        <TableCell className="py-3 text-right">
-                          <div className="flex justify-end space-x-2">
-                            {hasHeatmapData(record) && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-emerald-600 hover:text-emerald-900"
-                                onClick={() => handleOpenHeatmap(record)}
-                              >
-                                <Map className="mr-2 h-3 w-3" />
-                                Heatmap
-                              </Button>
-                            )}
+                    {userTrackingData.map(
+                      (record: IUserTrackingSummary, index: number) => (
+                        <TableRow
+                          key={index}
+                          className="border-b border-gray-200 hover:bg-gray-50"
+                        >
+                          <TableCell className="py-3">
                             <Button
-                              variant="ghost"
+                              variant="outline"
                               size="sm"
-                              className="text-indigo-600 hover:text-indigo-900"
+                              className="flex items-center justify-center rounded-full border-gray-300 px-2 py-1"
+                              onClick={() => handleOpenHeatmap(record)}
                             >
-                              {t("actions.details")}
+                              <span className="text-indigo-600">▶</span> Play
                             </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                          </TableCell>
+                          <TableCell className="py-3 text-sm font-medium text-indigo-600">
+                            {record?.domain || "—"}
+                          </TableCell>
+                          <TableCell className="py-3 text-sm">
+                            {format(new Date(), "dd MMM, HH:mm")}
+                          </TableCell>
+                          <TableCell className="py-3 text-sm">
+                            {record.uuid.substring(0, 8)}
+                          </TableCell>
+                          <TableCell className="py-3 text-sm">
+                            {record.eventCount}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )}
                   </TableBody>
                 </Table>
               </div>
@@ -376,198 +347,9 @@ export default function UserTrackingDataTable() {
       </div>
 
       <DialogUI open={showHeatmapModal} onOpenChange={setShowHeatmapModal}>
-        <DialogContent className="sm:max-w-[800px]">
-          <DialogHeader>
-            <DialogTitle>Heatmap Visualization</DialogTitle>
-          </DialogHeader>
-          {selectedRecord && (
-            <div className="mt-4">
-              <div className="mb-4 grid grid-cols-3 gap-4 text-sm">
-                <div>
-                  <span className="font-semibold">UUID:</span>{" "}
-                  {selectedRecord.uuid || "N/A"}
-                </div>
-                <div>
-                  <span className="font-semibold">Domain:</span>{" "}
-                  {selectedRecord.domain || "N/A"}
-                </div>
-                <div>
-                  <span className="font-semibold">Date:</span>{" "}
-                  {selectedRecord.timestamp
-                    ? format(new Date(selectedRecord.timestamp), "yyyy-MM-dd")
-                    : "N/A"}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-center overflow-hidden rounded-lg bg-gray-100">
-                <div className="relative aspect-video w-full">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <p className="text-gray-500">
-                      Heatmap visualization for mouse movement data:
-                      <br />
-                      Position: ({selectedRecord.event_data?.x ?? 0},{" "}
-                      {selectedRecord.event_data?.y ?? 0})
-                      <br />
-                      Device: {selectedRecord.event_data?.device || "Unknown"}
-                      <br />
-                      Browser: {selectedRecord.user?.browser?.name ||
-                        "Unknown"}{" "}
-                      {selectedRecord.user?.browser?.version || ""}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
+        <HeatmapDialog selectedRecord={selectedRecord} />
       </DialogUI>
     </div>
   );
 }
 
-// Hàm hỗ trợ giữ nguyên
-const getBadgeColor = (device: string) => {
-  switch (device.toLowerCase()) {
-    case "mobile":
-      return "bg-purple-100 text-purple-800";
-    case "tablet":
-      return "bg-blue-100 text-blue-800";
-    case "desktop":
-      return "bg-green-100 text-green-800";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
-};
-
-const getLocalizedDeviceType = (
-  t: (key: string) => string,
-  device: string
-): string => {
-  switch (device.toLowerCase()) {
-    case "mobile":
-      return t("deviceTypes.mobile");
-    case "tablet":
-      return t("deviceTypes.tablet");
-    case "desktop":
-      return t("deviceTypes.desktop");
-    default:
-      return device;
-  }
-};
-
-const renderUserBehavior = (record: any, t: (key: string) => string) => {
-  if (!record || !record.event_data || !record.event_name) {
-    return (
-      <div className="flex flex-col">
-        <span className="font-medium text-gray-600">Unknown</span>
-      </div>
-    );
-  }
-
-  const { event_name, event_data } = record;
-
-  switch (event_name.toLowerCase()) {
-    case "mousemove":
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium text-indigo-600">
-            {t("behaviors.mouseMovement")}
-          </span>
-          <span className="text-xs">
-            {t("behaviors.position")}: ({event_data.x ?? 0}, {event_data.y ?? 0}
-            )
-          </span>
-          {event_data.mouseMovements && (
-            <span className="text-xs">
-              {t("behaviors.totalMovements")}: {event_data.mouseMovements}
-            </span>
-          )}
-        </div>
-      );
-    case "click":
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium text-blue-600">
-            {t("behaviors.click")}
-          </span>
-          <span className="text-xs">
-            {t("behaviors.position")}: ({event_data.x ?? 0}, {event_data.y ?? 0}
-            )
-          </span>
-          {(event_data.target || event_data.elementDetails) && (
-            <span className="text-xs">
-              {t("behaviors.target")}:{" "}
-              {event_data.target ||
-                (event_data.elementDetails &&
-                  (event_data.elementDetails.textContent ||
-                    event_data.elementDetails.tagName)) ||
-                "Unknown"}
-            </span>
-          )}
-        </div>
-      );
-    case "scroll":
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium text-amber-600">
-            {t("behaviors.scroll")}
-          </span>
-          {event_data.height && (
-            <span className="text-xs">
-              {t("behaviors.height")}: {event_data.height}px
-            </span>
-          )}
-          <span className="text-xs">
-            {t("behaviors.scrollPosition")}: ({event_data.scrollLeft ?? 0},{" "}
-            {event_data.scrollTop ?? 0})
-          </span>
-        </div>
-      );
-    case "pageview":
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium text-green-600">
-            {t("behaviors.pageView")}
-          </span>
-          <span className="text-xs">
-            {t("behaviors.target")}: {record.path || "Unknown"}
-          </span>
-        </div>
-      );
-    case "timespent":
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium text-purple-600">
-            {t("behaviors.timeSpent")}
-          </span>
-          {(event_data.total || event_data.mouseMovements) && (
-            <span className="text-xs">
-              {t("behaviors.duration")}:{" "}
-              {event_data.total
-                ? `${(event_data.total / 1000).toFixed(1)}s`
-                : event_data.mouseMovements
-                  ? `${(event_data.mouseMovements / 10).toFixed(1)}s`
-                  : "N/A"}
-            </span>
-          )}
-        </div>
-      );
-    default:
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium text-gray-600">{event_name}</span>
-          {Object.entries(event_data)
-            .filter(([key]) => key !== "device")
-            .slice(0, 2)
-            .map(([key, value]) => (
-              <span key={key} className="text-xs">
-                {key}:{" "}
-                {typeof value === "object"
-                  ? JSON.stringify(value).substring(0, 30)
-                  : String(value || "")}
-              </span>
-            ))}
-        </div>
-      );
-  }
-};

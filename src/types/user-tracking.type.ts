@@ -11,6 +11,13 @@ export interface IUserTrackingData {
   id: string;
 }
 
+export interface IUserTrackingSummary {
+  uuid: string;
+  domain: string;
+  path: string;
+  eventCount: number;
+}
+
 export interface IEventData {
   scrollTop?: number;
   scrollLeft?: number;
@@ -115,5 +122,23 @@ export interface IConnection {
 }
 
 // Use global pagination interfaces from backend.d.ts
-export type IUserTrackingResponse = IPaginationResponse<IUserTrackingData>;
+export type IUserTrackingResponse = IPaginationResponse<IUserTrackingData> & {
+  success?: boolean;
+  data?: {
+    current_page: number;
+    data: IUserTrackingData[] | IUserTrackingData[][] | IUserTrackingSummary[];
+    first_page_url: string;
+    from: number | null;
+    last_page: number;
+    last_page_url: string;
+    links: Array<{ url: string | null; label: string; active: boolean }>;
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number | null;
+    total: number;
+  };
+};
 export type IUserTrackingErrorResponse = IErrorPaginationResponse;
+
