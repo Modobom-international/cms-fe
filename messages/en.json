@@ -489,7 +489,8 @@
           "Required": "*",
           "Placeholder": "example.com",
           "SearchPlaceholder": "Search domain...",
-          "Helper": "The domain where your site will be hosted"
+          "Helper": "The domain where your site will be hosted",
+          "NoDomains": "No domains found"
         },
         "Submit": "Create Site",
         "Loading": "Creating site...",
