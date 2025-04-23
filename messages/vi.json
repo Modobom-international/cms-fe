@@ -489,7 +489,8 @@
           "Required": "*",
           "Placeholder": "example.com",
           "SearchPlaceholder": "Tìm kiếm tên miền...",
-          "Helper": "Tên miền nơi trang web của bạn sẽ được lưu trữ"
+          "Helper": "Tên miền nơi trang web của bạn sẽ được lưu trữ",
+          "NoDomains": "Không tìm thấy tên miền"
         },
         "Submit": "Tạo Trang web",
         "Loading": "Đang tạo trang web...",
