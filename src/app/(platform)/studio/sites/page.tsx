@@ -1,19 +1,22 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PlusIcon } from "lucide-react";
-import { Search } from "lucide-react";
+import { PlusIcon, Search } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
+
+import { useGetAvailableDomain, useGetDomainList } from "@/hooks/domain";
 import {
   useCreateSite,
   useDeleteSite,
@@ -30,6 +33,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
@@ -49,6 +60,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -85,6 +102,11 @@ interface Site {
   };
 }
 
+interface UserFilter {
+  email: string;
+  name: string;
+}
+
 interface DeleteDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -110,7 +132,11 @@ function DeleteConfirmationDialog({
           <DialogTitle>{t("Title")}</DialogTitle>
           <DialogDescription>
             {t("Description")}
-            <span className="font-semibold text-destructive"> {siteName}</span> {t("Description2")}
+            <span className="text-destructive font-semibold">
+              {" "}
+              {siteName}
+            </span>{" "}
+            {t("Description2")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3 py-4">
@@ -163,28 +189,33 @@ function DeleteConfirmationDialog({
 }
 
 // Form Schema
-const siteFormSchema = (t: any) => z.object({
-  name: z
-    .string()
-    .min(1, t("Validation.Name.Required"))
-    .min(3, t("Validation.Name.MinLength"))
-    .max(64, t("Validation.Name.MaxLength"))
-    .transform(value => value.trim()),
-  domain: z
-    .string()
-    .min(1, t("Validation.Domain.Required"))
-    .min(3, t("Validation.Domain.MinLength"))
-    .max(253, t("Validation.Domain.MaxLength"))
-    .regex(
-      /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/,
-      t("Validation.Domain.Invalid")
-    ),
-});
+const siteFormSchema = (t: any) =>
+  z.object({
+    name: z
+      .string()
+      .min(1, t("Validation.Name.Required"))
+      .min(3, t("Validation.Name.MinLength"))
+      .max(64, t("Validation.Name.MaxLength"))
+      .transform((value) => value.trim()),
+    domain: z
+      .string()
+      .min(1, t("Validation.Domain.Required"))
+      .min(3, t("Validation.Domain.MinLength"))
+      .max(253, t("Validation.Domain.MaxLength"))
+      .regex(
+        /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/,
+        t("Validation.Domain.Invalid")
+      ),
+  });
 
 type SiteFormValues = z.infer<ReturnType<typeof siteFormSchema>>;
 
 function CreateSiteDialog() {
   const t = useTranslations("Studio.Sites.CreateSite");
+  const [openDomainSelect, setOpenDomainSelect] = useState(false);
+  const [searchInputValue, setSearchInputValue] = useState("");
+  const debouncedSearchValue = useDebounce(searchInputValue, 500);
+
   const form = useForm<SiteFormValues>({
     resolver: zodResolver(siteFormSchema(t)),
     defaultValues: {
@@ -194,6 +225,26 @@ function CreateSiteDialog() {
     mode: "onChange",
   });
 
+  // Fetch domain list
+  const {
+    data: domainResponse = { data: { data: [] } },
+    isLoading: isLoadingDomains,
+  } = useGetAvailableDomain(1, 10, debouncedSearchValue);
+
+  const domains =
+    "data" in domainResponse && domainResponse.data?.data
+      ? domainResponse.data.data
+      : [];
+
+  const handleDomainSearchChange = (value: string) => {
+    setSearchInputValue(value);
+  };
+
+  const handleDomainChange = (currentValue: string) => {
+    form.setValue("domain", currentValue);
+    setOpenDomainSelect(false);
+  };
+
   const createSiteMutation = useCreateSite();
   const [open, setOpen] = useState(false);
 
@@ -201,9 +252,9 @@ function CreateSiteDialog() {
     try {
       const trimmedData = {
         ...data,
-        name: data.name.trim()
+        name: data.name.trim(),
       };
-      
+
       await toast.promise(createSiteMutation.mutateAsync(trimmedData), {
         loading: t("Loading"),
         success: t("Success"),
@@ -249,7 +300,9 @@ function CreateSiteDialog() {
                   <FormItem className="space-y-1">
                     <FormLabel>
                       {t("SiteName.Label")}
-                      <span className="text-destructive ml-1">{t("SiteName.Required")}</span>
+                      <span className="text-destructive ml-1">
+                        {t("SiteName.Required")}
+                      </span>
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -272,14 +325,85 @@ function CreateSiteDialog() {
                   <FormItem className="space-y-1">
                     <FormLabel>
                       {t("Domain.Label")}
-                      <span className="text-destructive ml-1">{t("Domain.Required")}</span>
+                      <span className="text-destructive ml-1">
+                        {t("Domain.Required")}
+                      </span>
                     </FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder={t("Domain.Placeholder")}
-                        {...field}
-                        disabled={createSiteMutation.isPending}
-                      />
+                      <Popover
+                        open={openDomainSelect}
+                        onOpenChange={setOpenDomainSelect}
+                      >
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={openDomainSelect}
+                            className="w-full justify-between"
+                            disabled={
+                              isLoadingDomains || createSiteMutation.isPending
+                            }
+                            type="button"
+                          >
+                            {field.value
+                              ? domains.find((d) => d.domain === field.value)
+                                  ?.domain || field.value
+                              : t("Domain.Placeholder")}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className="w-[24rem] p-0"
+                          side="bottom"
+                          align="start"
+                        >
+                          <Command>
+                            <div className="relative">
+                              <CommandInput
+                                placeholder={t("Domain.SearchPlaceholder")}
+                                className="h-9"
+                                onValueChange={handleDomainSearchChange}
+                              />
+                            </div>
+                            <CommandList>
+                              <CommandEmpty>
+                                {isLoadingDomains ? (
+                                  <div className="py-6">
+                                    <Spinner noPadding />
+                                  </div>
+                                ) : (
+                                  t("Domain.NoDomains")
+                                )}
+                              </CommandEmpty>
+                              <CommandGroup>
+                                {isLoadingDomains && domains.length === 0 ? (
+                                  <div className="flex items-center justify-center py-6">
+                                    <Spinner noPadding />
+                                  </div>
+                                ) : (
+                                  domains.map((domainItem) => (
+                                    <CommandItem
+                                      key={domainItem.id}
+                                      value={domainItem.domain}
+                                      onSelect={handleDomainChange}
+                                    >
+                                      {domainItem.domain}
+                                      <Check
+                                        className={cn(
+                                          "ml-auto h-4 w-4",
+                                          field.value === domainItem.domain
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                    </CommandItem>
+                                  ))
+                                )}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </FormControl>
                     <p className="text-muted-foreground text-xs">
                       {t("Domain.Helper")}
@@ -313,19 +437,26 @@ function CreateSiteDialog() {
 }
 
 const paginateData = (
-  data: any[],
+  data: Site[],
   currentPage: number,
   pageSize: number,
-  searchTerm: string
+  searchTerm: string,
+  selectedUser: string
 ) => {
-  // First, filter the data based on search term
-  const filteredData = searchTerm
-    ? data.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.domain.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : data;
+  // First, filter the data based on search term and selected user
+  const filteredData = data.filter((item) => {
+    const matchesSearch = searchTerm
+      ? item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.domain.toLowerCase().includes(searchTerm.toLowerCase())
+      : true;
+
+    const matchesUser =
+      selectedUser && selectedUser !== "all"
+        ? item.user.email === selectedUser
+        : true;
+
+    return matchesSearch && matchesUser;
+  });
 
   // Calculate pagination values
   const totalItems = filteredData.length;
@@ -379,6 +510,23 @@ export default function SitesManagementPage() {
 
   const { data: sitesResponse, isLoading } = useGetSites();
 
+  const [selectedUser, setSelectedUser] = useQueryState(
+    "user",
+    parseAsString.withDefault("all")
+  );
+
+  // Get unique users from sites data
+  const uniqueUsers = useMemo(() => {
+    if (!sitesResponse?.data) return [];
+    const users: UserFilter[] = sitesResponse.data.map((site: Site) => ({
+      email: site.user.email,
+      name: site.user.name,
+    }));
+    return Array.from(
+      new Map(users.map((user) => [user.email, user])).values()
+    ) as UserFilter[];
+  }, [sitesResponse?.data]);
+
   // Apply pagination to the data
   const sitesData = useMemo(() => {
     if (!sitesResponse?.data)
@@ -388,9 +536,16 @@ export default function SitesManagementPage() {
       sitesResponse.data,
       currentPage,
       pageSize,
-      debouncedSearch
+      debouncedSearch,
+      selectedUser
     );
-  }, [sitesResponse?.data, currentPage, pageSize, debouncedSearch]);
+  }, [
+    sitesResponse?.data,
+    currentPage,
+    pageSize,
+    debouncedSearch,
+    selectedUser,
+  ]);
 
   const updateSiteMutation = useUpdateSite(editingSite?.id || "");
   const deleteSiteMutation = useDeleteSite();
@@ -402,9 +557,9 @@ export default function SitesManagementPage() {
     try {
       const updatedSite = {
         ...editingSite,
-        name: editingSite.name.trim()
+        name: editingSite.name.trim(),
       };
-      
+
       await toast.promise(updateSiteMutation.mutateAsync(updatedSite), {
         loading: t("CreateSite.Loading"),
         success: t("CreateSite.Success"),
@@ -426,14 +581,11 @@ export default function SitesManagementPage() {
 
   const handleDeleteConfirm = async () => {
     try {
-      await toast.promise(
-        deleteSiteMutation.mutateAsync(deleteDialog.siteId),
-        {
-          loading: t("DeleteSite.Deleting"),
-          success: t("DeleteSite.Success"),
-          error: t("DeleteSite.Error"),
-        }
-      );
+      await toast.promise(deleteSiteMutation.mutateAsync(deleteDialog.siteId), {
+        loading: t("DeleteSite.Deleting"),
+        success: t("DeleteSite.Success"),
+        error: t("DeleteSite.Error"),
+      });
       setDeleteDialog({
         isOpen: false,
         siteId: "",
@@ -462,20 +614,12 @@ export default function SitesManagementPage() {
           <h1 className="text-2xl font-semibold tracking-tight">
             {t("Title")}
           </h1>
-          <p className="text-muted-foreground text-sm">
-            {t("Description")}
-          </p>
+          <p className="text-muted-foreground text-sm">{t("Description")}</p>
         </div>
         <CreateSiteDialog />
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>{t("Table.Name")}</CardTitle>
-          <CardDescription>
-            {t("Table.Description")}
-          </CardDescription>
-        </CardHeader>
         <CardContent>
           {/* Add Search Bar */}
           <div className="mb-6">
@@ -493,6 +637,25 @@ export default function SitesManagementPage() {
                 />
               </div>
               <div className="flex items-center space-x-2">
+                <Select
+                  value={selectedUser}
+                  onValueChange={(value) => {
+                    setSelectedUser(value);
+                    setCurrentPage(1);
+                  }}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder={t("Table.FilterByOwner")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t("Table.AllOwners")}</SelectItem>
+                    {uniqueUsers.map((user: UserFilter) => (
+                      <SelectItem key={user.email} value={user.email}>
+                        {user.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Label htmlFor="pageSize">{t("Table.Showing")}:</Label>
                 <Select
                   value={pageSize.toString()}
@@ -507,7 +670,7 @@ export default function SitesManagementPage() {
                   <SelectContent>
                     {[10, 20, 30, 50].map((size) => (
                       <SelectItem key={size} value={size.toString()}>
-                        {size} 
+                        {size}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -551,9 +714,11 @@ export default function SitesManagementPage() {
                         {site.description || "-"}
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-col items-center ">
-                          <span className="capitalize">{site.cloudflare_domain_status}</span>
-                          <span className="text-muted-foreground text-xs ">
+                        <div className="flex flex-col items-center">
+                          <span className="capitalize">
+                            {site.cloudflare_domain_status}
+                          </span>
+                          <span className="text-muted-foreground text-xs">
                             ({site.cloudflare_project_name})
                           </span>
                         </div>
@@ -564,7 +729,9 @@ export default function SitesManagementPage() {
                       <TableCell>
                         <div className="flex flex-col">
                           <span className="font-medium">{site.user.name}</span>
-                          <span className="text-muted-foreground text-xs">{site.user.email}</span>
+                          <span className="text-muted-foreground text-xs">
+                            {site.user.email}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>

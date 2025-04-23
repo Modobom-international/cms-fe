@@ -35,6 +35,31 @@ export const useGetDomainList = (
   });
 };
 
+export const useGetAvailableDomain = (
+  page: number,
+  pageSize: number,
+  search: string
+) => {
+  const params = qs.stringify({ page, pageSize, search });
+  return useQuery({
+    queryKey: domainQueryKeys.available(page, pageSize, search),
+    queryFn: async (): Promise<IDomainResponse | IErrorResponse> => {
+      try {
+        const { data } = await apiClient.get<IDomainResponse>(
+          `/api/domains/available?${params}`
+        );
+        return data;
+      } catch {
+        return {
+          success: false,
+          message: "Lấy danh sách domain không thành công",
+          type: "list_domain_fail",
+        };
+      }
+    },
+  });
+};
+
 export const useRefreshDomainList = () => {
   return useMutation({
     mutationFn: async () => {
