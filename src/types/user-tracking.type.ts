@@ -11,6 +11,13 @@ export interface IUserTrackingData {
   id: string;
 }
 
+export interface IUserTrackingSummary {
+  uuid: string;
+  domain: string;
+  path: string;
+  eventCount: number;
+}
+
 export interface IEventData {
   scrollTop?: number;
   scrollLeft?: number;
