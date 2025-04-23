@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Play, Users } from "lucide-react";
+import { Map, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
@@ -12,8 +12,12 @@ import { useGetUserTracking } from "@/hooks/user-tracking";
 import { useActiveUsers } from "@/hooks/user-tracking/use-active-users";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog as DialogUI } from "@/components/ui/dialog";
-import { Icons } from "@/components/ui/icons";
+import {
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  Dialog as DialogUI,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -21,12 +25,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
   TableCell,
-  TableDialog,
   TableHead,
   TableHeader,
   TableRow,
@@ -34,7 +36,6 @@ import {
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 import FilterBar from "./filter-bar";
-import HeatmapDialog from "./heatmap-dialog";
 
 const groupByUuid = (data: IUserTrackingData[]) => {
   const grouped: { [uuid: string]: IUserTrackingData[] } = {};
@@ -185,36 +186,10 @@ export default function UserTrackingDataTable() {
                       <span className="text-2xl font-bold">{activeUsers?.count || 0}</span>
                       <span className="text-muted-foreground text-sm">
                         {t("activeUsers.description")}
-                        £</span>
+                      £</span>
                     </>
                   )}
                 </div>
-                <div>
-                  <h3 className="text-base font-medium text-gray-900">
-                    {t("activeUsers.title")}
-                  </h3>
-                  <p className="mt-0.5 text-sm text-gray-500">
-                    {t("activeUsers.description")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="pr-2">
-                {isLoadingActiveUsers ? (
-                  <div className="flex flex-col items-end">
-                    <Skeleton className="mb-1 h-7 w-16" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                ) : (
-                  <div className="text-right">
-                    <div className="text-primary text-2xl font-semibold">
-                      {activeUsers?.count || 0}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {format(new Date(), "yyyy-MM-dd")}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -261,15 +236,6 @@ export default function UserTrackingDataTable() {
                       </TableHead>
                       <TableHead className="py-3 text-right font-medium text-gray-700">
                         <span className="sr-only">{t("columns.actions")}</span>
-                      </TableHead>
-                      <TableHead className="w-[180px] py-3 font-medium text-gray-700">
-                        {t("columns.domain")}
-                      </TableHead>
-                      <TableHead className="w-[250px] py-3 font-medium text-gray-700">
-                        {t("columns.path")}
-                      </TableHead>
-                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
-                        {t("columns.eventCount")}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -320,39 +286,24 @@ export default function UserTrackingDataTable() {
                               </Button>
                             )}
                             <Button
-                              variant="outline"
+                              variant="ghost"
                               size="sm"
                               className="text-indigo-600 hover:text-indigo-900"
                               onClick={() => handleOpenDetails(record.uuid)}
                             >
-                              <Icons.play className="text-primary size-3.5" />
-                              Heatmap
+                              {t("actions.details")}
                             </Button>
-                        </TableCell>
-                        <TableCell className="py-3 text-sm font-medium text-indigo-600">
-                          {record?.domain || "—"}
-                        </TableCell>
-                        <TableCell
-                          className="text-muted-foreground max-w-xs truncate py-3 text-sm"
-                          title={record?.path || ""}
-                        >
-                          {record?.path || "—"}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                          {record.eventCount || 0}
+                          </div>
                         </TableCell>
                       </TableRow>
-                    )
-                    )}
+                    ))}
                   </TableBody>
                 </Table>
               </div>
               <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
                 <div className="flex items-center justify-between px-4 py-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">
-                      {t("pagination.rowsPerPage")}
-                    </span>
+                    <span className="text-sm text-gray-600">Rows per page</span>
                     <Select
                       value={pageSize.toString()}
                       onValueChange={(value) => setPageSize(Number(value))}
@@ -376,7 +327,7 @@ export default function UserTrackingDataTable() {
                       onClick={handlePreviousPage}
                       disabled={currentPage === 1}
                     >
-                      {t("pagination.previousPage")}
+                      Previous
                     </Button>
                     <Button
                       variant="outline"
@@ -385,21 +336,18 @@ export default function UserTrackingDataTable() {
                       onClick={handleNextPage}
                       disabled={currentPage === paginationInfo.last_page}
                     >
-                      {t("pagination.nextPage")}
+                      Next
                     </Button>
                   </div>
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
                   <div>
-                    {t("pagination.showing")} {paginationInfo.from || 1}-
-                    {paginationInfo.to ||
-                      Math.min(pageSize, paginationInfo.total || 0)}{" "}
-                    {t("pagination.of")} {paginationInfo.total || 0}{" "}
-                    {t("pagination.results")}
+                    Viewing {paginationInfo.from || 1}-
+                    {paginationInfo.to || Math.min(pageSize, paginationInfo.total || 0)} of{" "}
+                    {paginationInfo.total || 0} results
                   </div>
                   <div>
-                    {t("pagination.page")} {currentPage} {t("pagination.of")}{" "}
-                    {paginationInfo.last_page || 1}
+                    Page {currentPage} of {paginationInfo.last_page || 1}
                   </div>
                 </div>
               </div>
@@ -409,18 +357,56 @@ export default function UserTrackingDataTable() {
       </div>
 
       <DialogUI open={showHeatmapModal} onOpenChange={setShowHeatmapModal}>
-        <HeatmapDialog selectedRecord={selectedRecord} />
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>Heatmap Visualization</DialogTitle>
+          </DialogHeader>
+          {selectedRecord && (
+            <div className="mt-4">
+              <div className="mb-4 grid grid-cols-3 gap-4 text-sm">
+                <div>
+                  <span className="font-semibold">UUID:</span> {selectedRecord.uuid || "N/A"}
+                </div>
+                <div>
+                  <span className="font-semibold">Domain:</span> {selectedRecord.domain || "N/A"}
+                </div>
+                <div>
+                  <span className="font-semibold">Date:</span>{" "}
+                  {selectedRecord.timestamp
+                    ? format(new Date(selectedRecord.timestamp), "yyyy-MM-dd")
+                    : "N/A"}
+                </div>
+              </div>
+              <div className="flex items-center justify-center overflow-hidden rounded-lg bg-gray-100">
+                <div className="relative aspect-video w-full">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <p className="text-gray-500">
+                      Heatmap visualization for mouse movement data:
+                      <br />
+                      Position: ({selectedRecord.event_data?.x ?? 0}, {selectedRecord.event_data?.y ?? 0})
+                      <br />
+                      Device: {selectedRecord.event_data?.device || "Unknown"}
+                      <br />
+                      Browser: {selectedRecord.user?.browser?.name || "Unknown"}{" "}
+                      {selectedRecord.user?.browser?.version || ""}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
       </DialogUI>
 
       <DialogUI open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-        <DialogContent className="sm:max-w-[1200px]">
+        <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>{t("modal.detail.title")}</DialogTitle>
           </DialogHeader>
           <div className="mt-4">
             {selectedUuidRecords.length > 0 ? (
-              <TableDialog>
-                <TableHeader className="sticky top-0 bg-white z-10 shadow">
+              <Table>
+                <TableHeader>
                   <TableRow>
                     <TableHead>{t("modal.detail.table.columns.eventName")}</TableHead>
                     <TableHead>{t("modal.detail.table.columns.timestamp")}</TableHead>
@@ -451,7 +437,7 @@ export default function UserTrackingDataTable() {
                     </TableRow>
                   ))}
                 </TableBody>
-              </TableDialog>
+              </Table>
             ) : (
               <p className="text-center text-gray-500">{t("modal.detail.noData")}</p>
             )}
@@ -600,17 +586,17 @@ const renderEventDetails = (event_name: string, event_data: any, t: (key: string
       <>
         {elementDetails.tagName && (
           <span className="text-xs">
-            {t("modal.detail.table.behaviors.elementTag")}: {elementDetails.tagName}
+            {t("behaviors.elementTag")}: {elementDetails.tagName}
           </span>
         )}
         {elementDetails.textContent && (
           <span className="text-xs">
-            {t("modal.detail.table.behaviors.elementText")}: {elementDetails.textContent}
+            {t("behaviors.elementText")}: {elementDetails.textContent}
           </span>
         )}
         {elementDetails.attributes?.href && (
           <span className="text-xs">
-            {t("modal.detail.table.behaviors.elementHref")}:{" "}
+            {t("behaviors.elementHref")}:{" "}
             <a href={elementDetails.attributes.href} target="_blank" rel="noopener noreferrer">
               {elementDetails.attributes.href}
             </a>
@@ -618,7 +604,7 @@ const renderEventDetails = (event_name: string, event_data: any, t: (key: string
         )}
         {elementDetails.classes?.length > 0 && (
           <span className="text-xs">
-            {t("modal.detail.table.behaviors.elementClasses")}: {elementDetails.classes.join(", ")}
+            {t("behaviors.elementClasses")}: {elementDetails.classes.join(", ")}
           </span>
         )}
       </>
