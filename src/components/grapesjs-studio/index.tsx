@@ -1,8 +1,9 @@
 "use client";
 
 import { env } from "@/env";
-import StudioEditor from "@grapesjs/studio-sdk/react";
+import StudioEditor, { WithEditorProps } from "@grapesjs/studio-sdk/react";
 import "@grapesjs/studio-sdk/style";
+import type { Editor } from "grapesjs";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -76,18 +77,22 @@ export default function WebBuilderStudio({
     }
   };
 
-  const exportHTMLWithCSS = async (editor: any) => {
+  const exportHTMLWithCSS = async (editor: Editor) => {
     const htmlContent = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
+
   <script src="https://api.modobomco.com/js/users-tracking.min.js" async></script>
   <style>
     ${editor.getCss()}
   </style>
+  <script>
+    ${editor.getJs()}
+  </script>
 </head>
 <body>
-  ${editor.getHtml()}
+  ${editor.getHtml({ cleanId: true })}
 </body>
 </html>`;
 
