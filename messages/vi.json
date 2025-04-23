@@ -254,9 +254,10 @@
         "target": "Đích",
         "height": "Chiều cao",
         "duration": "Thời gian",
-        "elementTag": "Thẻ HTML",
-        "elementText": "Nội dung HTML"
-
+        "elementTag": "Thẻ",
+        "elementText": "Nội dung",
+        "elementHref": "Liên kết",
+        "elementClasses": "Lớp"
       },
       "placeholders": {
         "selectDomain": "Chọn tên miền",

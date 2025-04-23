@@ -406,7 +406,7 @@ export default function UserTrackingDataTable() {
       </DialogUI>
 
       <DialogUI open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-        <DialogContent className="sm:max-w-[1200px]">
+        <DialogContent className="sm:max-w-[1400px]">
           <DialogHeader>
             <DialogTitle>{t("modal.detail.title")}</DialogTitle>
           </DialogHeader>

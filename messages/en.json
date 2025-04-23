@@ -253,7 +253,11 @@
         "totalMovements": "Total movements",
         "target": "Target",
         "height": "Height",
-        "duration": "Duration"
+        "duration": "Duration",
+        "elementTag": "Tag",
+        "elementText": "Text",
+        "elementHref": "Href",
+        "elementClasses": "Classes"
       },
       "placeholders": {
         "selectDomain": "Select domain",
