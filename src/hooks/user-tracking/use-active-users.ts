@@ -8,7 +8,7 @@ export const useActiveUsers = (domain: string, path: string) => {
       try {
         const { data } = await apiClient.get<{
           success: boolean;
-          data: number;
+          data: { online_count: number };
           message: string;
         }>("/api/users-tracking/get-current-users-active", {
           params: {
@@ -19,12 +19,12 @@ export const useActiveUsers = (domain: string, path: string) => {
 
         return {
           success: data.success,
-          count: data.data,
+          online_count: data.data.online_count,
         };
       } catch (error) {
         return {
           success: false,
-          count: 0,
+          online_count: 0,
         };
       }
     },

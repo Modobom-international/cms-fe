@@ -184,7 +184,7 @@ export default function UserTrackingDataTable() {
                     <Spinner />
                   ) : (
                     <>
-                      <span className="text-2xl font-bold">{activeUsers?.count || 0}</span>
+                      <span className="text-2xl font-bold">{activeUsers?.online_count || 0}</span>
                       <span className="text-muted-foreground text-sm">
                         {t("activeUsers.description")}
                       </span>
