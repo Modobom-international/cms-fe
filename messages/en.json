@@ -273,7 +273,7 @@
       },
       "activeUsers": {
         "title": "Total Active Users",
-        "description": "Total active users across all domains"
+        "description": "Total active users active in this domain"
       },
       "modal": {
         "detail": {

@@ -274,7 +274,7 @@
       },
       "activeUsers": {
         "title": "Người dùng đang hoạt động",
-        "description": "Tổng số người dùng đang hoạt động trên tất cả các tên miền"
+        "description": "Tổng số người dùng đang hoạt động trên tên miền"
       },
       "modal": {
         "detail": {
