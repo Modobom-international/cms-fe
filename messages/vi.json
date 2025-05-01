@@ -490,15 +490,15 @@
     "ExportHTML": "Đang xuất HTML...",
     "ExportSuccess": "Xuất HTML thành công!",
     "ExportError": "Xuất thất bại: {error}",
-    "DeployPage": "Đang triển khai trang...",
-    "DeploySuccess": "Triển khai thành công!",
-    "DeployError": "Triển khai thất bại: {error}",
+    "DeployPage": "Đang đăng trang...",
+    "DeploySuccess": "Đăng trang thành công!",
+    "DeployError": "Đăng trang thất bại: {error}",
     "ExportButton": "Xuất {slug}",
     "Exporting": "Đang xuất...",
-    "DeployButton": "Triển khai {slug}",
-    "Deploying": "Đang triển khai...",
-    "ExportAndDeployButton": "Triển khai",
-    "ExportAndDeployError": "Xuất và triển khai thất bại",
+    "DeployButton": "Đăng {slug}",
+    "Deploying": "Đang đăng...",
+    "ExportAndDeployButton": "Đăng",
+    "ExportAndDeployError": "Xuất và đăng thất bại",
     "NewPage": {
       "Title": "Trang mới: {slug}",
       "Description": "Bắt đầu xây dựng trang của bạn tại đây."
@@ -604,7 +604,8 @@
             "Edit": "Sửa",
             "Preview": "Xem trước",
             "Delete": "Xóa",
-            "View": "Xem"
+            "View": "Xem",
+            "TrackingScript": "Mã theo dõi"
           }
         },
         "Create": {
@@ -655,6 +656,34 @@
             "Loading": "Đang xóa trang...",
             "Success": "Xóa trang thành công",
             "Error": "Xóa trang thất bại"
+          }
+        },
+        "TrackingScript": {
+          "Dialog": {
+            "Title": "Quản lý mã theo dõi - {pageName}",
+            "Description": "Thêm hoặc cập nhật mã theo dõi cho trang này. Mã sẽ được tự động chèn vào trang khi xuất.",
+            "Label": "Mã theo dõi",
+            "Placeholder": "Nhập mã theo dõi của bạn vào đây...",
+            "Cancel": "Hủy",
+            "Save": "Lưu",
+            "Saving": "Đang lưu...",
+            "Help": "Copy mã Facebook Pixel hoặc Google Analytics vào đây"
+          },
+          "Toast": {
+            "Loading": "Đang cập nhật mã theo dõi...",
+            "Success": "Cập nhật mã theo dõi thành công",
+            "Error": "Không thể cập nhật mã theo dõi"
+          },
+          "Delete": {
+            "Dialog": {
+              "Deleting": "Đang xóa...",
+              "Confirm": "Xóa mã"
+            },
+            "Toast": {
+              "Loading": "Đang xóa mã theo dõi...",
+              "Success": "Xóa mã theo dõi thành công",
+              "Error": "Không thể xóa mã theo dõi"
+            }
           }
         }
       }

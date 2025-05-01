@@ -11,6 +11,7 @@ export interface Page {
   content: string;
   site_id: number;
   updated_at: string;
+  tracking_script?: string;
 }
 
 // Query Keys
@@ -35,8 +36,15 @@ export const UpdatePageSchema = z.object({
   content: z.string(),
 });
 
+export const UpdateTrackingScriptSchema = z.object({
+  tracking_script: z.string(),
+});
+
 export type CreatePageData = z.infer<typeof CreatePageSchema>;
 export type UpdatePageData = z.infer<typeof UpdatePageSchema>;
+export type UpdateTrackingScriptData = z.infer<
+  typeof UpdateTrackingScriptSchema
+>;
 
 // Hooks
 export const useGetPages = (siteId: string) => {
@@ -193,6 +201,84 @@ export const useDeletePage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: pageQueryKeys.lists(),
+      });
+    },
+  });
+};
+
+export const useGetTrackingScript = (pageId: string) => {
+  return useQuery({
+    queryKey: [...pageQueryKeys.details(pageId), "tracking-script"],
+    queryFn: async () => {
+      try {
+        const response = await apiClient.get(
+          `/api/pages/${pageId}/tracking-script`
+        );
+        return {
+          isSuccess: true,
+          data: response.data.data,
+          message: "Tracking script fetched successfully",
+        };
+      } catch (error) {
+        return {
+          isSuccess: false,
+          data: null,
+          message: "Failed to fetch tracking script",
+        };
+      }
+    },
+    enabled: !!pageId,
+  });
+};
+
+export const useUpdateTrackingScript = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      pageId,
+      data,
+    }: {
+      pageId: string;
+      data: UpdateTrackingScriptData;
+    }) => {
+      const response = await apiClient.post(
+        `/api/pages/${pageId}/tracking-script`,
+        data
+      );
+      if (!response.data.success) {
+        throw new Error(
+          response.data.message || "Failed to update tracking script"
+        );
+      }
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: pageQueryKeys.details(variables.pageId),
+      });
+    },
+  });
+};
+
+export const useDeleteTrackingScript = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (pageId: string) => {
+      const response = await apiClient.delete(
+        `/api/pages/${pageId}/tracking-script`
+      );
+      if (!response.data.success) {
+        throw new Error(
+          response.data.message || "Failed to delete tracking script"
+        );
+      }
+      return response.data;
+    },
+    onSuccess: (_, pageId) => {
+      queryClient.invalidateQueries({
+        queryKey: pageQueryKeys.details(pageId),
       });
     },
   });

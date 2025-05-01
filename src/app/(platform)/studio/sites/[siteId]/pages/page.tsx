@@ -1,15 +1,23 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
 
+import Editor from "@monaco-editor/react";
 import { ArrowLeft, PlusIcon, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { useCreatePage, useDeletePage, useGetPages } from "@/hooks/pages";
+import {
+  useCreatePage,
+  useDeletePage,
+  useDeleteTrackingScript,
+  useGetPages,
+  useGetTrackingScript,
+  useUpdateTrackingScript,
+} from "@/hooks/pages";
 import { useGetSiteById } from "@/hooks/sites";
 import { useDebounce } from "@/hooks/use-debounce";
 
@@ -266,7 +274,7 @@ function DeleteConfirmationDialog({
         <div className="space-y-3 py-4">
           <div className="space-y-2">
             <p className="text-muted-foreground text-sm">
-            {t("Delete.Dialog.ConfirmationText")}{" "}
+              {t("Delete.Dialog.ConfirmationText")}{" "}
               <span className="text-destructive font-mono font-medium">
                 {pageName}
               </span>{" "}
@@ -283,7 +291,7 @@ function DeleteConfirmationDialog({
             />
           </div>
         </div>
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter className="gap-2 space-x-2 sm:gap-0">
           <Button
             variant="outline"
             onClick={onClose}
@@ -325,12 +333,163 @@ interface Site {
   domain: string;
 }
 
+function TrackingScriptDialog({
+  pageId,
+  pageName,
+}: {
+  pageId: string;
+  pageName: string;
+}) {
+  const t = useTranslations("Studio.Sites.Pages");
+  const [open, setOpen] = useState(false);
+  const [trackingScript, setTrackingScript] = useState("");
+  const { data: trackingScriptData } = useGetTrackingScript(pageId);
+  const updateTrackingScript = useUpdateTrackingScript();
+  const deleteTrackingScript = useDeleteTrackingScript();
+
+  useEffect(() => {
+    if (trackingScriptData?.data?.tracking_script) {
+      setTrackingScript(trackingScriptData.data.tracking_script);
+    }
+  }, [trackingScriptData]);
+
+  const handleSave = async () => {
+    try {
+      await toast.promise(
+        updateTrackingScript.mutateAsync({
+          pageId,
+          data: { tracking_script: trackingScript },
+        }),
+        {
+          loading: t("TrackingScript.Toast.Loading"),
+          success: t("TrackingScript.Toast.Success"),
+          error: t("TrackingScript.Toast.Error"),
+        }
+      );
+      setOpen(false);
+    } catch (err) {
+      console.error("Error updating tracking script:", err);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await toast.promise(deleteTrackingScript.mutateAsync(pageId), {
+        loading: t("TrackingScript.Delete.Toast.Loading"),
+        success: t("TrackingScript.Delete.Toast.Success"),
+        error: t("TrackingScript.Delete.Toast.Error"),
+      });
+      setTrackingScript("");
+      setOpen(false);
+    } catch (err) {
+      console.error("Error deleting tracking script:", err);
+    }
+  };
+
+  const handleEditorChange = (value: string | undefined) => {
+    setTrackingScript(value || "");
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="cursor-pointer">
+          {t("List.Table.TrackingScript")}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[800px]">
+        <DialogHeader>
+          <DialogTitle>
+            {t("TrackingScript.Dialog.Title", { pageName })}
+          </DialogTitle>
+          <DialogDescription>
+            {t("TrackingScript.Dialog.Description")}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="tracking-script">
+              {t("TrackingScript.Dialog.Label")}
+            </Label>
+            <div className="overflow-hidden rounded-md border">
+              <Editor
+                height="300px"
+                defaultLanguage="html"
+                value={trackingScript}
+                onChange={handleEditorChange}
+                theme="vs-dark"
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  lineNumbers: "on",
+                  roundedSelection: false,
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                  tabSize: 2,
+                  wordWrap: "on",
+                  formatOnPaste: true,
+                  formatOnType: true,
+                }}
+              />
+            </div>
+            <p className="text-muted-foreground mt-2 text-xs">
+              {t("TrackingScript.Dialog.Help")}
+            </p>
+          </div>
+        </div>
+        <DialogFooter className="gap-2 space-x-2 sm:gap-0">
+          {trackingScript && (
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleteTrackingScript.isPending}
+              className="w-full sm:w-auto"
+            >
+              {deleteTrackingScript.isPending ? (
+                <>
+                  <Spinner />
+                  {t("TrackingScript.Delete.Dialog.Deleting")}
+                </>
+              ) : (
+                t("TrackingScript.Delete.Dialog.Confirm")
+              )}
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+            className="w-full sm:w-auto"
+          >
+            {t("TrackingScript.Dialog.Cancel")}
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={updateTrackingScript.isPending}
+            className="w-full sm:w-auto"
+          >
+            {updateTrackingScript.isPending ? (
+              <>
+                <Spinner />
+                {t("TrackingScript.Dialog.Saving")}
+              </>
+            ) : (
+              t("TrackingScript.Dialog.Save")
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function PagesPage() {
   const t = useTranslations("Studio.Sites.Pages");
   const params = useParams();
   const router = useRouter();
   const { data: siteData } = useGetSiteById(params.siteId?.toString() || "");
-  const { data: pagesData, isLoading } = useGetPages(params.siteId?.toString() || "");
+  const { data: pagesData, isLoading } = useGetPages(
+    params.siteId?.toString() || ""
+  );
   const deletePageMutation = useDeletePage();
 
   const site = siteData?.data as Site | undefined;
@@ -398,7 +557,9 @@ export default function PagesPage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold">{t("Title", { siteName: site?.domain || "" })}</h1>
+            <h1 className="text-2xl font-bold">
+              {t("Title", { siteName: site?.domain || "" })}
+            </h1>
             <p className="text-muted-foreground">
               {t("Description", { siteName: site?.name || "" })}
             </p>
@@ -416,7 +577,7 @@ export default function PagesPage() {
           {/* Add search input */}
           <div className="mb-4">
             <div className="relative">
-              <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+              <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
               <Input
                 placeholder={t("List.Search")}
                 value={searchQuery}
@@ -439,7 +600,9 @@ export default function PagesPage() {
               {filteredPages.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="h-24 text-center">
-                    {debouncedSearch ? t("List.NoSearchResults") : t("List.NoPages")}
+                    {debouncedSearch
+                      ? t("List.NoSearchResults")
+                      : t("List.NoPages")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -464,6 +627,10 @@ export default function PagesPage() {
                         >
                           {t("List.Table.Edit")}
                         </Button>
+                        <TrackingScriptDialog
+                          pageId={page.id}
+                          pageName={page.name}
+                        />
                         <Button
                           variant="destructive"
                           size="sm"
