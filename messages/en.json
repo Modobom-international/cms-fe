@@ -570,7 +570,8 @@
             "Edit": "Edit",
             "Preview": "Preview",
             "Delete": "Delete",
-            "View": "View"
+            "View": "View",
+            "TrackingScript": "Tracking Script"
           }
         },
         "Create": {
@@ -621,6 +622,34 @@
             "Loading": "Deleting page...",
             "Success": "Page deleted successfully",
             "Error": "Failed to delete page"
+          }
+        },
+        "TrackingScript": {
+          "Dialog": {
+            "Title": "Manage Tracking Script - {pageName}",
+            "Description": "Add or update the tracking script for this page. The script will be automatically injected into the page during export.",
+            "Label": "Tracking Script",
+            "Placeholder": "Enter your tracking script here...",
+            "Cancel": "Cancel",
+            "Save": "Save",
+            "Saving": "Saving...",
+            "Help": "Copy Facebook Pixel Code or Google Analytics Code here"
+          },
+          "Toast": {
+            "Loading": "Updating tracking script...",
+            "Success": "Tracking script updated successfully",
+            "Error": "Failed to update tracking script"
+          },
+          "Delete": {
+            "Dialog": {
+              "Deleting": "Deleting...",
+              "Confirm": "Delete Script"
+            },
+            "Toast": {
+              "Loading": "Deleting tracking script...",
+              "Success": "Tracking script deleted successfully",
+              "Error": "Failed to delete tracking script"
+            }
           }
         }
       }
