@@ -63,7 +63,7 @@ jobs:
             cd /home/modobomMDBFE/public_html
             git pull origin main
             git status
-            pnpm install --frozen-lockfile
+            pnpm install
             pnpm build
             pm2 restart cms-fe
            
