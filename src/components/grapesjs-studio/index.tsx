@@ -100,6 +100,50 @@ export default function WebBuilderStudio({
   <script>
     ${editor.getJs()}
   </script>
+  <script>
+    // Hàm kiểm tra query parameter force=1 trên URL hiện tại
+    function updateDownloadLink() {
+      // Lấy query string hiện tại
+      const searchParams = new URLSearchParams(window.location.search);
+      
+      // Kiểm tra nếu có force=1
+      if (searchParams.get('force') === '1') {
+        const downloadLink = document.getElementById("Download");
+        if (downloadLink) {
+          // Kiểm tra nếu link đã có query parameter
+          let href = downloadLink.href;
+          if (href.includes('?')) {
+            // Kiểm tra nếu force=1 chưa có trong href
+            if (!href.includes("force=1")) {
+              href += "&force=1";
+            }
+          } else {
+            href += "?force=1";
+          }
+          downloadLink.href = href;
+        }
+      }
+    }
+
+    // Function to handle download clicks
+    function handleDownloadClick(e) {
+      if (typeof gtag_report_conversion === "function") {
+        gtag_report_conversion();
+      }
+    }
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Update download links
+      updateDownloadLink();
+
+      // Add click handlers to all download links
+      const downloadLinks = document.querySelectorAll('.download');
+      downloadLinks.forEach(link => {
+        link.addEventListener('click', handleDownloadClick);
+      });
+    });
+  </script>
 </head>
 <body>
   ${bodyContent}
