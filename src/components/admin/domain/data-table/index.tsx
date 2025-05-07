@@ -74,11 +74,11 @@ export default function DomainDataTable() {
     domainResponse && "data" in domainResponse
       ? domainResponse.data
       : {
-          from: 0,
-          to: 0,
-          total: 0,
-          last_page: 1,
-        };
+        from: 0,
+        to: 0,
+        total: 0,
+        last_page: 1,
+      };
   const isDataEmpty = !domainData || domainData.length === 0;
 
   const handleNextPage = () => {
@@ -96,24 +96,19 @@ export default function DomainDataTable() {
   };
 
   const getDomainStatus = (domain: IDomainActual): DomainStatusEnum => {
-    if (!domain.time_expired) return DomainStatusEnum.INACTIVE;
+    if (domain.sites) {
+      return DomainStatusEnum.IN_USE;
+    }
 
-    const today = new Date();
-    const expiry = new Date(domain.time_expired);
+    if (Object.values(DomainStatusEnum).includes(domain.status as DomainStatusEnum)) {
+      return domain.status as DomainStatusEnum;
+    }
 
-    const daysUntilExpiry = Math.floor(
-      (expiry.getTime() - today.getTime()) / (1000 * 3600 * 24)
-    );
-
-    if (daysUntilExpiry < 0) return DomainStatusEnum.INACTIVE;
-    if (domain.is_locked) return DomainStatusEnum.ACTIVE;
-
-    return DomainStatusEnum.ACTIVE;
+    return DomainStatusEnum.IN_USE;
   };
 
   return (
     <div className="flex flex-col">
-      {/* Bộ lọc */}
       <div className="space-y-6">
         <div className="flex items-end justify-between">
           <div className="w-1/2">

@@ -8,6 +8,38 @@ export interface IDomain {
   updated_at: string;
 }
 
+export interface ISite {
+  id: number;
+  branch: string;
+  name: string;
+  status: string;
+  cloudflare_domain_status: string;
+  cloudflare_project_name: number;
+  created_at: string;
+  updated_at: string;
+  description: string;
+  user_id: number;
+  domain: string;
+  users: IUser[];
+}
+
+export interface IUser {
+  id: string;
+  name: string;
+  email: string;
+  team_id?: string;
+  team_name?: string;
+  role: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  type_user: string;
+  profile_photo_path: string;
+  exclude_token: string;
+  phone_number?: string;
+  address?: string;
+}
+
 export interface IDomainActual {
   id: number;
   domain: string;
@@ -22,6 +54,7 @@ export interface IDomainActual {
   renew_deadline: string;
   registrar_created_at: string;
   activeUsers?: number;
+  sites: ISite;
 }
 
 export interface IDomainForTracking {

@@ -309,6 +309,15 @@
       "filters": {
         "search": "Search"
       },
+      "status": {
+        "active": "Active",
+        "cancelled": "Cancelled",
+        "heldExpiredRedemptionMock": "Held Expired Redemption mock",
+        "pendingHoldRedemption": "Pending Hold Redemption",
+        "cancelledRedeemable": "Cancelled Redeemable",
+        "inUse": "In Use",
+        "default": "Default"
+      },
       "columns": {
         "id": "ID",
         "domain": "Domain",

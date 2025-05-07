@@ -310,6 +310,15 @@
       "filters": {
         "search": "Tìm kiếm tên miền"
       },
+      "status": {
+        "active": "Có thể dùng",
+        "cancelled": "Đã hủy",
+        "heldExpiredRedemptionMock": "Hết thời gian thử nghiệm khôi phục",
+        "pendingHoldRedemption": "Đang chờ khôi phục",
+        "cancelledRedeemable": "Đang hủy nhưng có thể khôi phục",
+        "inUse": "Đang sử dụng",
+        "default": "Mặc định"
+      },
       "columns": {
         "id": "ID",
         "domain": "Tên miền",
