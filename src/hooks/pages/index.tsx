@@ -41,7 +41,7 @@ export type UpdateTrackingScriptData = z.infer<
 // Hooks
 export const useGetPages = (siteId: string) => {
   return useQuery({
-    queryKey: pageQueryKeys.list(siteId),
+    queryKey: pageQueryKeys.listBySiteId(siteId),
     queryFn: async () => {
       try {
         const response = await apiClient.get(`/api/sites/${siteId}/pages`);
@@ -116,7 +116,7 @@ export const useCreatePage = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: pageQueryKeys.list(variables.site_id),
+        queryKey: pageQueryKeys.listBySiteId(variables.site_id),
       });
     },
   });

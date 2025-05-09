@@ -143,7 +143,8 @@ export const siteQueryKeys = {
 export const pageQueryKeys = {
   origin: ["pages"] as const,
   all: () => [...pageQueryKeys.origin, "all"] as const,
-  list: (siteId: string) => [...pageQueryKeys.origin, "list", siteId] as const,
+  listBySiteId: (siteId: string) =>
+    [...pageQueryKeys.origin, "list", siteId] as const,
   details: (pageId: string) =>
     [...pageQueryKeys.origin, "detail", pageId] as const,
 };
