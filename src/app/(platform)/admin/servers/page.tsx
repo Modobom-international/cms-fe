@@ -1,6 +1,8 @@
 import { ChevronRight, Home } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import ServerDataTable from "@/components/admin/servers/data-table";
+
 export default function ServerPage() {
   const t = useTranslations("ServerPage");
 
@@ -25,7 +27,9 @@ export default function ServerPage() {
         </div>
       </div>
 
-      <div>{/* Server Table */}</div>
+      <div>
+        <ServerDataTable />
+      </div>
     </div>
   );
 }

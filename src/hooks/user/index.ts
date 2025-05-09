@@ -96,6 +96,7 @@ export const useCreateUser = () => {
           success: false,
           message: errRes?.message ?? "Failed to create user",
           type: errRes?.type ?? "create_user_fail",
+          error: errRes?.error ?? "",
         };
       }
     },
@@ -137,6 +138,7 @@ export const useUpdateUser = (id: string) => {
           success: false,
           message: errRes?.message ?? "Failed to update user",
           type: errRes?.type ?? "update_user_fail",
+          error: errRes?.error ?? "",
         };
       }
     },

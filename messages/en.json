@@ -990,12 +990,45 @@
     }
   },
   "ServerPage": {
-    "breadcrumb": "Server Management",
+    "breadcrumb": "Server",
     "addServer": "Add Server",
     "pageHeader": {
       "title": "Servers",
       "description": "Manage your servers"
+    },
+    "table": {
+      "filters": {
+        "search": "Search servers"
+      },
+      "columns": {
+        "id": "ID",
+        "name": "Name",
+        "ip": "IP Address",
+        "createdAt": "Created At",
+        "updatedAt": "Last Updated"
+      },
+      "pagination": {
+        "rowsPerPage": "Rows per page",
+        "of": "of",
+        "previousPage": "Previous",
+        "nextPage": "Next",
+        "viewing": "Viewing",
+        "results": "results",
+        "page": "Page"
+      },
+      "loadingStates": {
+        "loading": "Loading server data...",
+        "error": "An error occurred while loading server data"
+      },
+      "placeholders": {
+        "search": "Search by server name or IP address"
+      },
+      "modal": {
+        "addServerModal": {
+          "title": "Add Server",
+          "description": "Add a new server to the system"
+        }
+      }
     }
-    
   }
 }

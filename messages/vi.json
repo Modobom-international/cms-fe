@@ -1009,9 +1009,44 @@
   },
   "ServerPage": {
     "breadcrumb": "Máy chủ",
+    "addServer": "Thêm máy chủ",
     "pageHeader": {
       "title": "Máy chủ",
       "description": "Quản lý máy chủ"
+    },
+    "table": {
+      "filters": {
+        "search": "Tìm kiếm máy chủ"
+      },
+      "columns": {
+        "id": "ID",
+        "name": "Tên",
+        "ip": "Địa chỉ IP",
+        "createdAt": "Ngày tạo",
+        "updatedAt": "Cập nhật lần cuối"
+      },
+      "pagination": {
+        "rowsPerPage": "Số dòng mỗi trang",
+        "of": "trong số",
+        "previousPage": "Trước",
+        "nextPage": "Tiếp",
+        "viewing": "Đang xem",
+        "results": "kết quả",
+        "page": "Trang"
+      },
+      "loadingStates": {
+        "loading": "Đang tải dữ liệu máy chủ...",
+        "error": "Đã xảy ra lỗi khi tải dữ liệu máy chủ"
+      },
+      "placeholders": {
+        "search": "Tìm kiếm theo tên hoặc địa chỉ IP"
+      },
+      "modal": {
+        "addServerModal": {
+          "title": "Thêm máy chủ",
+          "description": "Thêm mới máy chủ vào hệ thống"
+        }
+      }
     }
   }
 }

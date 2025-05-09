@@ -102,4 +102,7 @@ export const serverQueryKeys = {
     "list",
     { page, pageSize, search },
   ],
+  create: () => [...serverQueryKeys.origin, "create"],
+  update: (id: string) => [...serverQueryKeys.origin, "update", id],
+  delete: (id: string) => [...serverQueryKeys.origin, "delete", id],
 };
