@@ -1,11 +1,14 @@
-import { domainQueryKeys, domainWithoutPaginationQueryKeys } from "@/constants/query-keys";
+import {
+  domainQueryKeys,
+  domainWithoutPaginationQueryKeys,
+} from "@/constants/query-keys";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import qs from "qs";
 
 import {
   IDomainPathResponse,
-  IDomainResponseTracking,
   IDomainResponse,
+  IDomainResponseTracking,
 } from "@/types/domain.type";
 
 import apiClient from "@/lib/api/client";
@@ -18,7 +21,7 @@ export const useGetDomainList = (
   const params = qs.stringify({ page, pageSize, search });
   return useQuery({
     queryKey: domainQueryKeys.list(page, pageSize, search),
-    queryFn: async (): Promise<IDomainResponse | IErrorResponse> => {
+    queryFn: async (): Promise<IDomainResponse | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<IDomainResponse>(
           `/api/domains?${params}`
@@ -43,7 +46,7 @@ export const useGetDomainListWithoutPagination = (
   const params = qs.stringify({ search, user_id });
   return useQuery({
     queryKey: domainWithoutPaginationQueryKeys.list(user_id, search),
-    queryFn: async (): Promise<IDomainResponseTracking | IErrorResponse> => {
+    queryFn: async (): Promise<IDomainResponseTracking | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<IDomainResponseTracking>(
           `/api/domains/get-list-domain-for-tracking?${params}`
@@ -69,7 +72,7 @@ export const useGetAvailableDomain = (
   const params = qs.stringify({ page, pageSize, search });
   return useQuery({
     queryKey: domainQueryKeys.available(page, pageSize, search),
-    queryFn: async (): Promise<IDomainResponse | IErrorResponse> => {
+    queryFn: async (): Promise<IDomainResponse | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<IDomainResponse>(
           `/api/domains/available?${params}`
@@ -107,7 +110,7 @@ export const useGetDomainPaths = (
 ) => {
   return useQuery({
     queryKey: domainQueryKeys.domainPaths(domain, page, pageSize),
-    queryFn: async (): Promise<IDomainPathResponse | IErrorResponse> => {
+    queryFn: async (): Promise<IDomainPathResponse | IBackendErrorRes> => {
       const params = qs.stringify({ domain, page, pageSize });
       try {
         const { data } = await apiClient.get<IDomainPathResponse>(

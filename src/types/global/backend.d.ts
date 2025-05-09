@@ -61,10 +61,4 @@ declare global {
     data: IPaginatedResponse<any>;
     type: string;
   }
-
-  interface IErrorResponse {
-    success: false;
-    message: string;
-    type: string;
-  }
 }

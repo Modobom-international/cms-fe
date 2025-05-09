@@ -17,7 +17,7 @@ export const useGetTeamList = (
   const params = qs.stringify({ page, pageSize, search });
   return useQuery({
     queryKey: teamQueryKeys.list(page, pageSize, search),
-    queryFn: async (): Promise<ITeamResponse | IErrorResponse> => {
+    queryFn: async (): Promise<ITeamResponse | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<ITeamResponse>(
           `/api/team?${params}`
@@ -37,7 +37,7 @@ export const useGetTeamList = (
 export const useGetTeamById = (id: string) => {
   return useQuery({
     queryKey: teamQueryKeys.details(id),
-    queryFn: async (): Promise<ITeam | IErrorResponse> => {
+    queryFn: async (): Promise<ITeam | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<{ data: ITeam }>(
           `/api/team/${id}`
@@ -100,4 +100,3 @@ export const useCreateTeam = () => {
     isCreatingTeam,
   };
 };
-

@@ -14,7 +14,7 @@ export const useGetHtmlSourceList = (
   const params = qs.stringify({ page, pageSize, search });
   return useQuery({
     queryKey: htmlSourceQueryKeys.list(page, pageSize, search),
-    queryFn: async (): Promise<IHtmlSourceResponse | IErrorResponse> => {
+    queryFn: async (): Promise<IHtmlSourceResponse | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<IHtmlSourceResponse>(
           `/api/html-source?${params}`
@@ -34,7 +34,7 @@ export const useGetHtmlSourceList = (
 export const useGetHtmlSourceById = (id: string) => {
   return useQuery({
     queryKey: htmlSourceQueryKeys.details(id),
-    queryFn: async (): Promise<IHtmlSourceResponse | IErrorResponse> => {
+    queryFn: async (): Promise<IHtmlSourceResponse | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<IHtmlSourceResponse>(
           `/api/html-sources/${id}`

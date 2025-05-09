@@ -6,14 +6,14 @@ import { INotificationsResponse } from "@/types/notification";
 
 import apiClient from "@/lib/api/client";
 
-type NotificationsResult = INotificationsResponse | IErrorResponse;
+type NotificationsResult = INotificationsResponse | IBackendErrorRes;
 
 export const useNotificationsData = (email: string) => {
   const params = qs.stringify({ email });
 
   return useQuery({
     queryKey: notificationQueryKeys.list(email),
-    queryFn: async (): Promise<INotificationsResponse | IErrorResponse> => {
+    queryFn: async (): Promise<INotificationsResponse | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<INotificationsResponse>(
           `/api/notifications?${params}`
