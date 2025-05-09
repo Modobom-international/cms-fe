@@ -1039,8 +1039,15 @@
         "id": "ID",
         "name": "Tên",
         "ip": "Địa chỉ IP",
+        "status": "Trạng thái",
         "createdAt": "Ngày tạo",
-        "updatedAt": "Cập nhật lần cuối"
+        "updatedAt": "Cập nhật lần cuối",
+        "actions": "Hành động"
+      },
+      "status": {
+        "active": "Hoạt động",
+        "inactive": "Không hoạt động",
+        "maintenance": "Bảo trì"
       },
       "pagination": {
         "rowsPerPage": "Số dòng mỗi trang",
@@ -1051,18 +1058,71 @@
         "results": "kết quả",
         "page": "Trang"
       },
+      "actions": {
+        "title": "Hành động ",
+        "details": "Xem chi tiết",
+        "retry": "Thử lại",
+        "refresh": "Làm mới danh sách",
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa",
+        "openMenu": "Mở menu"
+      },
       "loadingStates": {
         "loading": "Đang tải dữ liệu máy chủ...",
         "error": "Đã xảy ra lỗi khi tải dữ liệu máy chủ"
       },
       "placeholders": {
         "search": "Tìm kiếm theo tên hoặc địa chỉ IP"
-      },
-      "modal": {
-        "addServerModal": {
-          "title": "Thêm máy chủ",
-          "description": "Thêm mới máy chủ vào hệ thống"
+      }
+    },
+    "dialog": {
+      "addServer": {
+        "title": "Thêm máy chủ",
+        "description": "Thêm mới máy chủ vào hệ thống",
+        "success": "Thêm máy chủ thành công",
+        "error": "Thêm máy chủ thất bại",
+        "form": {
+          "name": "Tên máy chủ",
+          "namePlaceholder": "Nhập tên máy chủ",
+          "ip": "Địa chỉ IP",
+          "ipPlaceholder": "vd: 192.168.1.1",
+          "cancel": "Hủy",
+          "create": "Tạo máy chủ",
+          "creating": "Đang tạo..."
         }
+      },
+      "updateServer": {
+        "title": "Cập nhật máy chủ",
+        "description": "Cập nhật thông tin máy chủ",
+        "success": "Cập nhật máy chủ thành công",
+        "error": "Cập nhật máy chủ thất bại",
+        "form": {
+          "name": "Tên máy chủ",
+          "namePlaceholder": "Nhập tên máy chủ",
+          "ip": "Địa chỉ IP",
+          "ipPlaceholder": "vd: 192.168.1.1",
+          "cancel": "Hủy",
+          "update": "Cập nhật",
+          "updating": "Đang cập nhật..."
+        }
+      },
+      "deleteServer": {
+        "title": "Xóa máy chủ",
+        "description": "Bạn có chắc chắn muốn xóa máy chủ {name}? Hành động này không thể hoàn tác.",
+        "success": "Xóa máy chủ thành công",
+        "error": "Xóa máy chủ thất bại",
+        "cancel": "Hủy",
+        "confirm": "Xóa máy chủ",
+        "deleting": "Đang xóa..."
+      }
+    },
+    "validation": {
+      "name": {
+        "required": "Tên máy chủ không được để trống"
+      },
+      "ip": {
+        "required": "Địa chỉ IP không được để trống",
+        "invalid": "Vui lòng nhập địa chỉ IP hợp lệ (vd: 192.168.1.1)"
       }
     }
   }

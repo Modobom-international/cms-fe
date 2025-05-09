@@ -1,7 +1,10 @@
-import { ChevronRight, Home } from "lucide-react";
+import { ChevronRight, Home, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { buttonVariants } from "@/components/ui/button";
+
 import ServerDataTable from "@/components/admin/servers/data-table";
+import AddServerDialog from "@/components/admin/servers/dialogs/add-server-dialog";
 
 export default function ServerPage() {
   const t = useTranslations("ServerPage");
@@ -24,6 +27,19 @@ export default function ServerPage() {
               {t("pageHeader.description")}
             </p>
           </div>
+
+          <AddServerDialog
+            trigger={
+              <div
+                className={buttonVariants({
+                  variant: "default",
+                })}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                {t("addServer")}
+              </div>
+            }
+          />
         </div>
       </div>
 
