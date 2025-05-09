@@ -20,17 +20,13 @@ export const userTrackingQueryKeys = {
     [
       ...userTrackingQueryKeys.origin,
       "list",
-      page,
-      pageSize,
-      date,
-      domain,
-      path,
+      { page, pageSize, date, domain, path },
     ] as const,
 };
 
 export const domainQueryKeys = {
-  all: ["domains"],
-  lists: () => [...domainQueryKeys.all, "list"],
+  origin: ["domains"] as const,
+  lists: () => [...domainQueryKeys.origin, "list"],
   list: (page: number, pageSize: number, search: string) => [
     ...domainQueryKeys.lists(),
     { page, pageSize, search },
@@ -40,18 +36,17 @@ export const domainQueryKeys = {
     "available",
     { page, pageSize, search },
   ],
-
-  domains: () => [...domainQueryKeys.all, "domains"],
-  details: (id: string) => [...domainQueryKeys.all, "detail", id],
-  refresh: () => [...domainQueryKeys.all, "refresh"],
+  details: (id: string) => [...domainQueryKeys.origin, "detail", id],
+  refresh: () => [...domainQueryKeys.origin, "refresh"],
   domainPaths: (domain: string, page: number, pageSize: number) =>
-    [...domainQueryKeys.all, "domain-paths", domain, page, pageSize] as const,
-};
-
-export const domainWithoutPaginationQueryKeys = {
-  list: (user_id?: string, search: string = "") => [
-    "domains",
-    "without-pagination",
+    [
+      ...domainQueryKeys.origin,
+      "domain-paths",
+      { domain, page, pageSize },
+    ] as const,
+  domainWithoutPagination: (user_id?: string, search: string = "") => [
+    ...domainQueryKeys.origin,
+    "domain-without-pagination",
     { user_id, search },
   ],
 };
@@ -69,33 +64,42 @@ export const notificationQueryKeys = {
 };
 
 export const htmlSourceQueryKeys = {
-  all: ["htmlSources"],
-  lists: () => [...htmlSourceQueryKeys.all, "list"],
+  origin: ["htmlSources"] as const,
+  lists: () => [...htmlSourceQueryKeys.origin, "list"],
   list: (page: number, pageSize: number, search: string) => [
     ...htmlSourceQueryKeys.lists(),
     { page, pageSize, search },
   ],
-  details: (id: string) => [...htmlSourceQueryKeys.all, "detail", id],
+  details: (id: string) => [...htmlSourceQueryKeys.origin, "detail", id],
 };
 
 export const teamQueryKeys = {
-  all: ["teams"],
-  lists: () => [...teamQueryKeys.all, "list"],
+  origin: ["teams"] as const,
+  lists: () => [...teamQueryKeys.origin, "list"],
   list: (page: number, pageSize: number, search: string = "") => [
     ...teamQueryKeys.lists(),
     { page, pageSize, search },
   ],
-  details: (id: string) => [...teamQueryKeys.all, "detail", id],
-  create: () => [...teamQueryKeys.all, "create"],
+  details: (id: string) => [...teamQueryKeys.origin, "detail", id],
+  create: () => [...teamQueryKeys.origin, "create"],
 };
 
 export const userQueryKeys = {
-  all: ["users"],
-  lists: () => [...userQueryKeys.all, "list"],
+  origin: ["users"] as const,
+  lists: () => [...userQueryKeys.origin, "list"],
   list: (page: number, pageSize: number, search: string = "") => [
     ...userQueryKeys.lists(),
     { page, pageSize, search },
   ],
-  details: (id: string) => [...userQueryKeys.all, "detail", id],
-  create: () => [...userQueryKeys.all, "create"],
+  details: (id: string) => [...userQueryKeys.origin, "detail", id],
+  create: () => [...userQueryKeys.origin, "create"],
+};
+
+export const serverQueryKeys = {
+  origin: ["servers"] as const,
+  list: (page: number, pageSize: number, search: string = "") => [
+    ...serverQueryKeys.origin,
+    "list",
+    { page, pageSize, search },
+  ],
 };

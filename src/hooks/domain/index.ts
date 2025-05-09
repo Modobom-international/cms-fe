@@ -1,7 +1,4 @@
-import {
-  domainQueryKeys,
-  domainWithoutPaginationQueryKeys,
-} from "@/constants/query-keys";
+import { domainQueryKeys } from "@/constants/query-keys";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import qs from "qs";
 
@@ -45,7 +42,7 @@ export const useGetDomainListWithoutPagination = (
 ) => {
   const params = qs.stringify({ search, user_id });
   return useQuery({
-    queryKey: domainWithoutPaginationQueryKeys.list(user_id, search),
+    queryKey: domainQueryKeys.domainWithoutPagination(user_id, search),
     queryFn: async (): Promise<IDomainResponseTracking | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<IDomainResponseTracking>(
