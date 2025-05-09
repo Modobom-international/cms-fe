@@ -25,8 +25,8 @@ export const userTrackingQueryKeys = {
 };
 
 export const domainQueryKeys = {
-  all: ["domains"],
-  lists: () => [...domainQueryKeys.all, "list"],
+  origin: ["domains"],
+  lists: () => [...domainQueryKeys.origin, "list"],
   list: (
     page: number,
     pageSize: number,
