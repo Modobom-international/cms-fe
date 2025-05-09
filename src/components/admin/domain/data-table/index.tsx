@@ -168,8 +168,20 @@ export default function DomainDataTable() {
               <SelectItem value={DomainStatusEnum.ACTIVE}>
                 {t("filters.active")}
               </SelectItem>
-              <SelectItem value={DomainStatusEnum.INACTIVE}>
+              <SelectItem value={DomainStatusEnum.IN_USE}>
                 {t("filters.inactive")}
+              </SelectItem>
+              <SelectItem value={DomainStatusEnum.CANCELLED}>
+                {t("filters.cancelled")}
+              </SelectItem>
+              <SelectItem value={DomainStatusEnum.HELD_EXPIRED_REDEMPTION_MOCK}>
+                {t("filters.heldExpiredRedemption")}
+              </SelectItem>
+              <SelectItem value={DomainStatusEnum.PENDING_HOLD_REDEMPTION}>
+                {t("filters.pendingHoldRedemption")}
+              </SelectItem>
+              <SelectItem value={DomainStatusEnum.CANCELLED_REDEEMABLE}>
+                {t("filters.cancelledRedeemable")}
               </SelectItem>
             </SelectContent>
           </Select>

@@ -18,6 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 
 import {
+  useGetDomainList,
   useGetDomainListWithoutPagination,
   useGetDomainPaths,
 } from "@/hooks/domain";
