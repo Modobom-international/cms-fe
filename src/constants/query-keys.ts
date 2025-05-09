@@ -86,9 +86,9 @@ export const teamQueryKeys = {
 
 export const userQueryKeys = {
   origin: ["users"] as const,
-  lists: () => [...userQueryKeys.origin, "list"],
   list: (page: number, pageSize: number, search: string = "") => [
-    ...userQueryKeys.lists(),
+    ...userQueryKeys.origin,
+    "list",
     { page, pageSize, search },
   ],
   details: (id: string) => [...userQueryKeys.origin, "detail", id],
