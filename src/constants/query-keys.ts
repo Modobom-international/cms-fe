@@ -59,6 +59,14 @@ export const domainQueryKeys = {
     [...domainQueryKeys.all, "domain-paths", domain, page, pageSize] as const,
 };
 
+export const domainWithoutPaginationQueryKeys = {
+  list: (user_id?: string, search: string = "") => [
+    "domains",
+    "without-pagination",
+    { user_id, search },
+  ],
+};
+
 export const activityLogQueryKeys = {
   origin: ["activity-logs"] as const,
   list: (page: number, pageSize: number, search: string = "") =>

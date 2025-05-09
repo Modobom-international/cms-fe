@@ -216,18 +216,27 @@
         "ip": "IP Address",
         "device": "Device",
         "userBehavior": "User Behavior",
-        "actions": "Actions"
+        "actions": "Actions",
+        "uuid": "UUID",
+        "domain": "Domain",
+        "path": "Path",
+        "eventCount": "Events",
+        "browser": "Browser"
       },
       "pagination": {
         "rowsPerPage": "Rows per page",
         "of": "of",
         "firstPage": "Go to first page",
-        "previousPage": "Go to previous page",
-        "nextPage": "Go to next page",
-        "lastPage": "Go to last page"
+        "previousPage": "Previous",
+        "nextPage": "Next",
+        "lastPage": "Go to last page",
+        "showing": "Showing",
+        "results": "results",
+        "page": "Page"
       },
       "actions": {
-        "details": "Details"
+        "details": "Details",
+        "retry": "Retry"
       },
       "deviceTypes": {
         "mobile": "Mobile",
@@ -244,7 +253,11 @@
         "totalMovements": "Total movements",
         "target": "Target",
         "height": "Height",
-        "duration": "Duration"
+        "duration": "Duration",
+        "elementTag": "Tag",
+        "elementText": "Text",
+        "elementHref": "Href",
+        "elementClasses": "Classes"
       },
       "placeholders": {
         "selectDomain": "Select domain",
@@ -260,7 +273,27 @@
       },
       "activeUsers": {
         "title": "Total Active Users",
-        "description": "Total active users across all domains"
+        "description": "Total active users active in this domain"
+      },
+      "modal": {
+        "detail": {
+          "noData": "No Data",
+          "title": "User tracking",
+          "table": {
+            "columns": {
+              "eventName": "Event name",
+              "timestamp": "Timestamp",
+              "device": "Device",
+              "details": "Details"
+            },
+            "behaviors": {
+              "elementTag": "Tag HTML",
+              "elementText": "Content",
+              "elementHref": "Href",
+              "elementClasses": "Classes"
+            }
+          }
+        }
       }
     }
   },
@@ -287,6 +320,15 @@
         "hasSites": "Has Sites",
         "noSites": "No Sites",
         "clear": "Clear Filters"
+      },
+      "status": {
+        "active": "Active",
+        "cancelled": "Cancelled",
+        "heldExpiredRedemptionMock": "Held Expired Redemption mock",
+        "pendingHoldRedemption": "Pending Hold Redemption",
+        "cancelledRedeemable": "Cancelled Redeemable",
+        "inUse": "In Use",
+        "default": "Default"
       },
       "columns": {
         "id": "ID",

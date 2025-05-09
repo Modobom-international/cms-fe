@@ -1,19 +1,15 @@
 "use client";
 
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Map, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
 import { IUserTrackingData } from "@/types/user-tracking.type";
-
-import { cn, formatDateTime } from "@/lib/utils";
-
+import { formatDateTime } from "@/lib/utils";
 import { useGetUserTracking } from "@/hooks/user-tracking";
 import { useActiveUsers } from "@/hooks/user-tracking/use-active-users";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,110 +29,112 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableDialog,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
-
 import FilterBar from "./filter-bar";
+
+const groupByUuid = (data: IUserTrackingData[]) => {
+  const grouped: { [uuid: string]: IUserTrackingData[] } = {};
+  data.forEach((record) => {
+    if (!grouped[record.uuid]) {
+      grouped[record.uuid] = [];
+    }
+    grouped[record.uuid].push(record);
+  });
+
+  const latestRecords: IUserTrackingData[] = [];
+  const allRecordsByUuid: { [uuid: string]: IUserTrackingData[] } = {};
+
+  Object.entries(grouped).forEach(([uuid, records]) => {
+    const sortedRecords = records.sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+    latestRecords.push(sortedRecords[0]);
+    allRecordsByUuid[uuid] = sortedRecords;
+  });
+
+  return { latestRecords, allRecordsByUuid };
+};
 
 export default function UserTrackingDataTable() {
   const t = useTranslations("UserTrackingPage.table");
   const [showHeatmapModal, setShowHeatmapModal] = useState(false);
-  const [selectedRecord, setSelectedRecord] =
-    useState<IUserTrackingData | null>(null);
-
-  // Pagination state
-  const [currentPage, setCurrentPage] = useQueryState(
-    "page",
-    parseAsInteger.withDefault(1)
-  );
-  const [pageSize, setPageSize] = useQueryState(
-    "pageSize",
-    parseAsInteger.withDefault(10)
-  );
-
-  // Get current filter values from URL
-  const [date] = useQueryState(
-    "date",
-    parseAsString.withDefault(format(new Date(), "yyyy-MM-dd"))
-  );
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<IUserTrackingData | null>(null);
+  const [selectedUuidRecords, setSelectedUuidRecords] = useState<IUserTrackingData[]>([]);
+  const [currentPage, setCurrentPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [pageSize, setPageSize] = useQueryState("pageSize", parseAsInteger.withDefault(10));
+  const [date] = useQueryState("date", parseAsString.withDefault(format(new Date(), "yyyy-MM-dd")));
   const [domain] = useQueryState("domains", parseAsString.withDefault(""));
   const [path] = useQueryState("path", parseAsString.withDefault("all"));
 
-  // Fetch data based on filters
-  const {
-    data: userTrackingResponse,
-    isFetching,
-    isError,
-    refetch,
-  } = useGetUserTracking(currentPage, pageSize, date, domain, path);
-  const { data: activeUsers, isLoading: isLoadingActiveUsers } = useActiveUsers(
+  const { data: userTrackingResponse, isFetching, isError, refetch } = useGetUserTracking(
+    currentPage,
+    pageSize,
+    date,
     domain,
     path
   );
 
-  // Type for mixed response data
-  type UserTrackingItem = any;
+  const { data: activeUsers, isLoading: isLoadingActiveUsers } = useActiveUsers(domain, path);
 
-  // Safely extract data from response with correct typing
-  const userTrackingData = (() => {
-    if (!userTrackingResponse) return [] as UserTrackingItem[];
+  const [paginationInfo, setPaginationInfo] = useState({
+    from: 0,
+    to: 0,
+    total: 0,
+    last_page: 1,
+    currentPage: 1,
+  });
+  const [latestRecords, setLatestRecords] = useState<IUserTrackingData[]>([]);
+  const [allRecordsByUuid, setAllRecordsByUuid] = useState<{ [uuid: string]: IUserTrackingData[] }>({});
 
-    if ("data" in userTrackingResponse && userTrackingResponse.data) {
-      if (Array.isArray(userTrackingResponse.data)) {
-        return userTrackingResponse.data as UserTrackingItem[];
-      } else if (
-        "data" in userTrackingResponse.data &&
-        Array.isArray(userTrackingResponse.data.data)
-      ) {
-        return userTrackingResponse.data.data as UserTrackingItem[];
-      }
+  useEffect(() => {
+    if (isFetching || !userTrackingResponse || !userTrackingResponse.success) {
+      setPaginationInfo({ from: 0, to: 0, total: 0, last_page: 1, currentPage: 1 });
+      setLatestRecords([]);
+      setAllRecordsByUuid({});
+      return;
     }
 
-    if ("value" in userTrackingResponse && userTrackingResponse.value?.data) {
-      return userTrackingResponse.value.data as UserTrackingItem[];
+    const paginationData = userTrackingResponse.data;
+    if (!paginationData) {
+      console.error("Invalid pagination data:", paginationData);
+      setPaginationInfo({ from: 0, to: 0, total: 0, last_page: 1, currentPage: 1 });
+      setLatestRecords([]);
+      setAllRecordsByUuid({});
+      return;
     }
 
-    return [] as UserTrackingItem[];
-  })();
+    const { current_page, total, last_page, from, to } = paginationData;
+    setPaginationInfo({
+      currentPage: current_page || 1,
+      from: from || (current_page - 1) * pageSize + 1,
+      to: to || Math.min(current_page * pageSize, total || 0),
+      total: total || 0,
+      last_page: last_page || 1,
+    });
 
-  // Safely extract pagination info from response
-  const paginationInfo = (() => {
-    if (!userTrackingResponse) {
-      return {
-        from: 0,
-        to: 0,
-        total: 0,
-        last_page: 1,
-      };
+    const responseData = paginationData.data;
+
+    if (!responseData || !Array.isArray(responseData) || !responseData.every(Array.isArray)) {
+      console.error("Invalid responseData format:", responseData);
+      setLatestRecords([]);
+      setAllRecordsByUuid({});
+      return;
     }
 
-    if (
-      "data" in userTrackingResponse &&
-      userTrackingResponse.data &&
-      !Array.isArray(userTrackingResponse.data)
-    ) {
-      const { data, ...rest } = userTrackingResponse.data;
-      return rest;
-    }
+    const flatData = responseData.flat();
+    const { latestRecords: computedLatestRecords, allRecordsByUuid: computedAllRecordsByUuid } = groupByUuid(flatData);
+    setLatestRecords(computedLatestRecords);
+    setAllRecordsByUuid(computedAllRecordsByUuid);
+  }, [userTrackingResponse, isFetching, pageSize]);
 
-    if ("value" in userTrackingResponse && userTrackingResponse.value) {
-      return userTrackingResponse.value;
-    }
-
-    return {
-      from: 0,
-      to: 0,
-      total: 0,
-      last_page: 1,
-    };
-  })();
-
-  const isDataEmpty = !userTrackingData || userTrackingData.length === 0;
+  const isDataEmpty = !latestRecords || latestRecords.length === 0;
 
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1));
@@ -158,7 +156,7 @@ export default function UserTrackingDataTable() {
   };
 
   const hasHeatmapData = (record: IUserTrackingData) => {
-    return record.uuid && record.event_name.toLowerCase() === "mousemove";
+    return record.uuid && record.event_name?.toLowerCase() === "mousemove";
   };
 
   const handleOpenHeatmap = (record: IUserTrackingData) => {
@@ -166,28 +164,27 @@ export default function UserTrackingDataTable() {
     setShowHeatmapModal(true);
   };
 
+  const handleOpenDetails = (uuid: string) => {
+    setSelectedUuidRecords(allRecordsByUuid[uuid] || []);
+    setShowDetailsModal(true);
+  };
+
   return (
     <div className="min-h- flex flex-col">
       <div className="space-y-4">
-        {/* Use the new FilterBar component */}
         <FilterBar onFilterChange={handleFilterChange} />
-
         <div className="mb-6">
           <div className="bg-card rounded-lg border p-4">
             <div className="flex items-center space-x-4">
               <Users className="text-primary h-8 w-8" />
               <div>
-                <h3 className="text-lg font-semibold">
-                  {t("activeUsers.title")}
-                </h3>
+                <h3 className="text-lg font-semibold">{t("activeUsers.title")}</h3>
                 <div className="flex items-baseline space-x-2">
                   {isLoadingActiveUsers ? (
                     <Spinner />
                   ) : (
                     <>
-                      <span className="text-2xl font-bold">
-                        {activeUsers?.count || 0}
-                      </span>
+                      <span className="text-2xl font-bold">{activeUsers?.online_count || 0}</span>
                       <span className="text-muted-foreground text-sm">
                         {t("activeUsers.description")}
                       </span>
@@ -198,7 +195,6 @@ export default function UserTrackingDataTable() {
             </div>
           </div>
         </div>
-
         <div className="mt-4 flex-grow">
           {isFetching ? (
             <div className="flex items-center justify-center py-8">
@@ -207,14 +203,8 @@ export default function UserTrackingDataTable() {
           ) : isError ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-center">
-                <p className="text-destructive text-sm">
-                  {t("loadingStates.error")}
-                </p>
-                <Button
-                  onClick={handleRefresh}
-                  variant="outline"
-                  className="mt-4"
-                >
+                <p className="text-destructive text-sm">{t("loadingStates.error")}</p>
+                <Button onClick={handleRefresh} variant="outline" className="mt-4">
                   {t("actions.retry")}
                 </Button>
               </div>
@@ -231,7 +221,7 @@ export default function UserTrackingDataTable() {
                         {t("columns.id")}
                       </TableHead>
                       <TableHead className="w-[180px] py-3 font-medium text-gray-700">
-                        Domain
+                        {t("columns.domain")}
                       </TableHead>
                       <TableHead className="w-[180px] py-3 font-medium text-gray-700">
                         {t("columns.timestamp")}
@@ -245,22 +235,25 @@ export default function UserTrackingDataTable() {
                       <TableHead className="w-[200px] py-3 font-medium text-gray-700">
                         {t("columns.userBehavior")}
                       </TableHead>
+                      <TableHead className="w-[100px] py-3 font-medium text-gray-700">
+                        {t("columns.eventCount")}
+                      </TableHead>
                       <TableHead className="py-3 text-right font-medium text-gray-700">
                         <span className="sr-only">{t("columns.actions")}</span>
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {userTrackingData.map((record: any, index: number) => (
+                    {latestRecords.map((record: IUserTrackingData, index: number) => (
                       <TableRow
-                        key={index}
+                        key={record.id || index}
                         className="border-b border-gray-200 hover:bg-gray-50"
                       >
                         <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                          {record?.id?.$oid || record?.id || "—"}
+                          {record.id || "—"}
                         </TableCell>
                         <TableCell className="py-3 text-sm font-medium text-indigo-600">
-                          {record?.domain || "—"}
+                          {record.domain || "—"}
                         </TableCell>
                         <TableCell className="text-muted-foreground py-3">
                           {record.timestamp
@@ -268,25 +261,23 @@ export default function UserTrackingDataTable() {
                             : "—"}
                         </TableCell>
                         <TableCell className="text-muted-foreground py-3">
-                          {record.ip || record.user?.browser?.name
-                            ? `${record.user?.browser?.name || ""} ${record.user?.browser?.version || ""}`
+                          {record.user?.browser?.name && record.user?.browser?.version
+                            ? `${record.user.browser.name} ${record.user.browser.version}`
                             : "—"}
                         </TableCell>
                         <TableCell className="py-3">
                           <Badge
                             variant="outline"
-                            className={getBadgeColor(
-                              record.event_data?.device || "unknown"
-                            )}
+                            className={getBadgeColor(record.event_data?.device || "unknown")}
                           >
-                            {getLocalizedDeviceType(
-                              t,
-                              record.event_data?.device || "unknown"
-                            )}
+                            {getLocalizedDeviceType(t, record.event_data?.device || "unknown")}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-muted-foreground py-3 text-sm">
                           {renderUserBehavior(record, t)}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                          {allRecordsByUuid[record.uuid]?.length || 0}
                         </TableCell>
                         <TableCell className="py-3 text-right">
                           <div className="flex justify-end space-x-2">
@@ -305,6 +296,7 @@ export default function UserTrackingDataTable() {
                               variant="ghost"
                               size="sm"
                               className="text-indigo-600 hover:text-indigo-900"
+                              onClick={() => handleOpenDetails(record.uuid)}
                             >
                               {t("actions.details")}
                             </Button>
@@ -315,7 +307,6 @@ export default function UserTrackingDataTable() {
                   </TableBody>
                 </Table>
               </div>
-
               <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
                 <div className="flex items-center justify-between px-4 py-2">
                   <div className="flex items-center gap-2">
@@ -335,7 +326,6 @@ export default function UserTrackingDataTable() {
                       </SelectContent>
                     </Select>
                   </div>
-
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
@@ -357,13 +347,11 @@ export default function UserTrackingDataTable() {
                     </Button>
                   </div>
                 </div>
-
                 <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
                   <div>
                     Viewing {paginationInfo.from || 1}-
-                    {paginationInfo.to ||
-                      Math.min(pageSize, paginationInfo.total || 0)}{" "}
-                    of {paginationInfo.total || 0} results
+                    {paginationInfo.to || Math.min(pageSize, paginationInfo.total || 0)} of{" "}
+                    {paginationInfo.total || 0} results
                   </div>
                   <div>
                     Page {currentPage} of {paginationInfo.last_page || 1}
@@ -384,12 +372,10 @@ export default function UserTrackingDataTable() {
             <div className="mt-4">
               <div className="mb-4 grid grid-cols-3 gap-4 text-sm">
                 <div>
-                  <span className="font-semibold">UUID:</span>{" "}
-                  {selectedRecord.uuid || "N/A"}
+                  <span className="font-semibold">UUID:</span> {selectedRecord.uuid || "N/A"}
                 </div>
                 <div>
-                  <span className="font-semibold">Domain:</span>{" "}
-                  {selectedRecord.domain || "N/A"}
+                  <span className="font-semibold">Domain:</span> {selectedRecord.domain || "N/A"}
                 </div>
                 <div>
                   <span className="font-semibold">Date:</span>{" "}
@@ -398,20 +384,17 @@ export default function UserTrackingDataTable() {
                     : "N/A"}
                 </div>
               </div>
-
               <div className="flex items-center justify-center overflow-hidden rounded-lg bg-gray-100">
                 <div className="relative aspect-video w-full">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <p className="text-gray-500">
                       Heatmap visualization for mouse movement data:
                       <br />
-                      Position: ({selectedRecord.event_data?.x ?? 0},{" "}
-                      {selectedRecord.event_data?.y ?? 0})
+                      Position: ({selectedRecord.event_data?.x ?? 0}, {selectedRecord.event_data?.y ?? 0})
                       <br />
                       Device: {selectedRecord.event_data?.device || "Unknown"}
                       <br />
-                      Browser: {selectedRecord.user?.browser?.name ||
-                        "Unknown"}{" "}
+                      Browser: {selectedRecord.user?.browser?.name || "Unknown"}{" "}
                       {selectedRecord.user?.browser?.version || ""}
                     </p>
                   </div>
@@ -421,11 +404,57 @@ export default function UserTrackingDataTable() {
           )}
         </DialogContent>
       </DialogUI>
+
+      <DialogUI open={showDetailsModal} onOpenChange={setShowDetailsModal}>
+        <DialogContent className="sm:max-w-[1400px]">
+          <DialogHeader>
+            <DialogTitle>{t("modal.detail.title")}</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {selectedUuidRecords.length > 0 ? (
+              <TableDialog>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("modal.detail.table.columns.eventName")}</TableHead>
+                    <TableHead>{t("modal.detail.table.columns.timestamp")}</TableHead>
+                    <TableHead>{t("modal.detail.table.columns.device")}</TableHead>
+                    <TableHead>{t("modal.detail.table.columns.details")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {selectedUuidRecords.map((record, index) => (
+                    <TableRow key={record.id || index}>
+                      <TableCell>{record.event_name || "—"}</TableCell>
+                      <TableCell>
+                        {record.timestamp
+                          ? formatDateTime(new Date(record.timestamp))
+                          : "—"}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={getBadgeColor(record.event_data?.device || "unknown")}
+                        >
+                          {getLocalizedDeviceType(t, record.event_data?.device || "unknown")}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {renderEventDetails(record.event_name, record.event_data, t)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </TableDialog>
+            ) : (
+              <p className="text-center text-gray-500">{t("modal.detail.noData")}</p>
+            )}
+          </div>
+        </DialogContent>
+      </DialogUI>
     </div>
   );
 }
 
-// Hàm hỗ trợ giữ nguyên
 const getBadgeColor = (device: string) => {
   switch (device.toLowerCase()) {
     case "mobile":
@@ -439,10 +468,7 @@ const getBadgeColor = (device: string) => {
   }
 };
 
-const getLocalizedDeviceType = (
-  t: (key: string) => string,
-  device: string
-): string => {
+const getLocalizedDeviceType = (t: (key: string) => string, device: string): string => {
   switch (device.toLowerCase()) {
     case "mobile":
       return t("deviceTypes.mobile");
@@ -456,7 +482,7 @@ const getLocalizedDeviceType = (
 };
 
 const renderUserBehavior = (record: any, t: (key: string) => string) => {
-  if (!record || !record.event_data || !record.event_name) {
+  if (!record || !record.event_name) {
     return (
       <div className="flex flex-col">
         <span className="font-medium text-gray-600">Unknown</span>
@@ -464,7 +490,7 @@ const renderUserBehavior = (record: any, t: (key: string) => string) => {
     );
   }
 
-  const { event_name, event_data } = record;
+  const { event_name, event_data = {} } = record;
 
   switch (event_name.toLowerCase()) {
     case "mousemove":
@@ -474,8 +500,7 @@ const renderUserBehavior = (record: any, t: (key: string) => string) => {
             {t("behaviors.mouseMovement")}
           </span>
           <span className="text-xs">
-            {t("behaviors.position")}: ({event_data.x ?? 0}, {event_data.y ?? 0}
-            )
+            {t("behaviors.position")}: ({event_data.x ?? 0}, {event_data.y ?? 0})
           </span>
           {event_data.mouseMovements && (
             <span className="text-xs">
@@ -487,20 +512,16 @@ const renderUserBehavior = (record: any, t: (key: string) => string) => {
     case "click":
       return (
         <div className="flex flex-col">
-          <span className="font-medium text-blue-600">
-            {t("behaviors.click")}
-          </span>
+          <span className="font-medium text-blue-600">{t("behaviors.click")}</span>
           <span className="text-xs">
-            {t("behaviors.position")}: ({event_data.x ?? 0}, {event_data.y ?? 0}
-            )
+            {t("behaviors.position")}: ({event_data.x ?? 0}, {event_data.y ?? 0})
           </span>
           {(event_data.target || event_data.elementDetails) && (
             <span className="text-xs">
               {t("behaviors.target")}:{" "}
               {event_data.target ||
                 (event_data.elementDetails &&
-                  (event_data.elementDetails.textContent ||
-                    event_data.elementDetails.tagName)) ||
+                  (event_data.elementDetails.textContent || event_data.elementDetails.tagName)) ||
                 "Unknown"}
             </span>
           )}
@@ -509,26 +530,21 @@ const renderUserBehavior = (record: any, t: (key: string) => string) => {
     case "scroll":
       return (
         <div className="flex flex-col">
-          <span className="font-medium text-amber-600">
-            {t("behaviors.scroll")}
-          </span>
+          <span className="font-medium text-amber-600">{t("behaviors.scroll")}</span>
           {event_data.height && (
             <span className="text-xs">
               {t("behaviors.height")}: {event_data.height}px
             </span>
           )}
           <span className="text-xs">
-            {t("behaviors.scrollPosition")}: ({event_data.scrollLeft ?? 0},{" "}
-            {event_data.scrollTop ?? 0})
+            {t("behaviors.scroll")}: ({event_data.scrollLeft ?? 0}, {event_data.scrollTop ?? 0})
           </span>
         </div>
       );
     case "pageview":
       return (
         <div className="flex flex-col">
-          <span className="font-medium text-green-600">
-            {t("behaviors.pageView")}
-          </span>
+          <span className="font-medium text-green-600">{t("behaviors.pageView")}</span>
           <span className="text-xs">
             {t("behaviors.target")}: {record.path || "Unknown"}
           </span>
@@ -537,9 +553,7 @@ const renderUserBehavior = (record: any, t: (key: string) => string) => {
     case "timespent":
       return (
         <div className="flex flex-col">
-          <span className="font-medium text-purple-600">
-            {t("behaviors.timeSpent")}
-          </span>
+          <span className="font-medium text-purple-600">{t("behaviors.timeSpent")}</span>
           {(event_data.total || event_data.mouseMovements) && (
             <span className="text-xs">
               {t("behaviors.duration")}:{" "}
@@ -564,9 +578,131 @@ const renderUserBehavior = (record: any, t: (key: string) => string) => {
                 {key}:{" "}
                 {typeof value === "object"
                   ? JSON.stringify(value).substring(0, 30)
-                  : String(value || "")}
+                  : String(value ?? "")}
               </span>
             ))}
+        </div>
+      );
+  }
+};
+
+const renderEventDetails = (event_name: string, event_data: any, t: (key: string) => string) => {
+  const renderElementDetails = (elementDetails: any) => {
+    if (!elementDetails) return null;
+    return (
+      <>
+        {elementDetails.tagName && (
+          <span className="text-xs">
+            {t("behaviors.elementTag")}: {elementDetails.tagName}
+          </span>
+        )}
+        {elementDetails.textContent && (
+          <span className="text-xs">
+            {t("behaviors.elementText")}: {elementDetails.textContent}
+          </span>
+        )}
+        {elementDetails.attributes?.href && (
+          <span className="text-xs">
+            {t("behaviors.elementHref")}:{" "}
+            <a href={elementDetails.attributes.href} target="_blank" rel="noopener noreferrer">
+              {elementDetails.attributes.href}
+            </a>
+          </span>
+        )}
+        {elementDetails.classes?.length > 0 && (
+          <span className="text-xs">
+            {t("behaviors.elementClasses")}: {elementDetails.classes.join(", ")}
+          </span>
+        )}
+      </>
+    );
+  };
+
+  switch (event_name?.toLowerCase()) {
+    case "mousemove":
+      return (
+        <div className="flex flex-col">
+          <span className="text-xs">
+            {t("behaviors.position")}: ({event_data?.x ?? 0}, {event_data?.y ?? 0})
+          </span>
+          {event_data?.mouseMovements && (
+            <span className="text-xs">
+              {t("behaviors.totalMovements")}: {event_data.mouseMovements}
+            </span>
+          )}
+          {event_data?.elementDetails && renderElementDetails(event_data.elementDetails)}
+        </div>
+      );
+    case "click":
+      return (
+        <div className="flex flex-col">
+          <span className="text-xs">
+            {t("behaviors.position")}: ({event_data?.x ?? 0}, {event_data?.y ?? 0})
+          </span>
+          {(event_data?.target || event_data?.elementDetails) && (
+            <span className="text-xs">
+              {t("behaviors.target")}:{" "}
+              {event_data?.target ||
+                (event_data?.elementDetails &&
+                  (event_data.elementDetails.textContent || event_data.elementDetails.tagName)) ||
+                "Unknown"}
+            </span>
+          )}
+          {event_data?.elementDetails && renderElementDetails(event_data.elementDetails)}
+        </div>
+      );
+    case "scroll":
+      return (
+        <div className="flex flex-col">
+          {event_data?.height && (
+            <span className="text-xs">
+              {t("behaviors.height")}: {event_data.height}px
+            </span>
+          )}
+          <span className="text-xs">
+            {t("behaviors.scroll")}: ({event_data?.scrollLeft ?? 0}, {event_data?.scrollTop ?? 0})
+          </span>
+          {event_data?.elementDetails && renderElementDetails(event_data.elementDetails)}
+        </div>
+      );
+    case "pageview":
+      return (
+        <div className="flex flex-col">
+          <span className="text-xs">{t("behaviors.pageView")}</span>
+          {event_data?.elementDetails && renderElementDetails(event_data.elementDetails)}
+        </div>
+      );
+    case "timespent":
+      return (
+        <div className="flex flex-col">
+          {(event_data?.total || event_data?.mouseMovements) && (
+            <span className="text-xs">
+              {t("behaviors.duration")}:{" "}
+              {event_data?.total
+                ? `${(event_data.total / 1000).toFixed(1)}s`
+                : event_data?.mouseMovements
+                  ? `${(event_data.mouseMovements / 10).toFixed(1)}s`
+                  : "N/A"}
+            </span>
+          )}
+          {event_data?.elementDetails && renderElementDetails(event_data.elementDetails)}
+        </div>
+      );
+    default:
+      return (
+        <div className="flex flex-col">
+          {Object.entries(event_data || {})
+            .filter(([key]) => key !== "device" && key !== "elementDetails")
+            .slice(0, 2)
+            .map(([key, value]) => (
+              <span key={key} className="text-xs">
+                {key}:{" "}
+                {typeof value === "object"
+                  ? JSON.stringify(value).substring(0, 30)
+                  : String(value ?? "")}
+              </span>
+            ))}
+          {event_data?.elementDetails && renderElementDetails(event_data.elementDetails)}
         </div>
       );
   }

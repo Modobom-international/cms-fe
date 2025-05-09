@@ -135,19 +135,19 @@ export default function DomainDataTable() {
   };
 
   const getDomainStatus = (domain: IDomainActual): DomainStatusEnum => {
-    if (!domain.time_expired) return DomainStatusEnum.INACTIVE;
+    if (domain.sites) {
+      return DomainStatusEnum.IN_USE;
+    }
 
-    const today = new Date();
-    const expiry = new Date(domain.time_expired);
+    if (
+      Object.values(DomainStatusEnum).includes(
+        domain.status as DomainStatusEnum
+      )
+    ) {
+      return domain.status as DomainStatusEnum;
+    }
 
-    const daysUntilExpiry = Math.floor(
-      (expiry.getTime() - today.getTime()) / (1000 * 3600 * 24)
-    );
-
-    if (daysUntilExpiry < 0) return DomainStatusEnum.INACTIVE;
-    if (domain.is_locked) return DomainStatusEnum.ACTIVE;
-
-    return DomainStatusEnum.ACTIVE;
+    return DomainStatusEnum.IN_USE;
   };
 
   return (

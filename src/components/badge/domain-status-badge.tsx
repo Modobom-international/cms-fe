@@ -1,22 +1,25 @@
 import { DomainStatusEnum } from "@/enums/domain-status";
-import { CheckCircle, HelpCircle, Lock, type LucideIcon } from "lucide-react";
+import { CheckCircle, HelpCircle, Lock, CircleOff, CircleX, ClockAlert, CircleDashed, type LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 
 type StatusConfig = {
-  variant: "pending" | "active" | "inactive" | "default" | "verified";
+  variant: "active" | "in_use" | "cancelled" | "held_expired_redemption_mock" | "pending_hold_redemption" | "cancelled_redeemable" | "default";
   icon: LucideIcon;
   label: string;
 };
 
 const STATUS_VARIANTS = {
-  pending: "bg-amber-50 text-amber-700 border-amber-200",
+  cancelled: "bg-red-50 text-red-800 border-red-200",
   active: "bg-green-100 text-green-800 border-green-200",
-  inactive: "bg-red-50 text-red-700 border-red-200",
+  in_use: "bg-blue-100 text-blue-800 border-blue-200",
   default: "bg-gray-50 text-gray-700 border-gray-200",
-  verified: "bg-green-50 text-green-700 border-green-200",
+  held_expired_redemption_mock: "bg-yellow-50 text-yellow-800 border-yellow-200",
+  pending_hold_redemption: "bg-purple-50 text-purple-700 border-purple-200",
+  cancelled_redeemable: "bg-amber-50 text-amber-700 border-amber-200",
 } as const;
 
 export function DomainStatusBadge({
@@ -26,26 +29,59 @@ export function DomainStatusBadge({
   status: DomainStatusEnum;
   className?: string;
 }) {
-  const getStatusConfig = (status: DomainStatusEnum): StatusConfig => {
+  const t = useTranslations("DomainPage.table");
+
+  const getStatusConfig = (
+    status: DomainStatusEnum,
+  ): StatusConfig => {
     switch (status) {
       case DomainStatusEnum.ACTIVE:
         return {
           variant: "active",
           icon: CheckCircle,
-          label: "Active",
+          label: t("status.active"),
         };
-      case DomainStatusEnum.INACTIVE:
+
+      case DomainStatusEnum.CANCELLED:
         return {
-          variant: "inactive",
+          variant: "cancelled",
+          icon: CircleOff,
+          label: t("status.cancelled"),
+        };
+
+      case DomainStatusEnum.HELD_EXPIRED_REDEMPTION_MOCK:
+        return {
+          variant: "held_expired_redemption_mock",
           icon: Lock,
-          label: "Inactive",
+          label: t("status.heldExpiredRedemptionMock"),
+        };
+
+      case DomainStatusEnum.PENDING_HOLD_REDEMPTION:
+        return {
+          variant: "pending_hold_redemption",
+          icon: CircleDashed,
+          label: t("status.pendingHoldRedemption"),
+        };
+
+      case DomainStatusEnum.CANCELLED_REDEEMABLE:
+        return {
+          variant: "cancelled_redeemable",
+          icon: CircleX,
+          label: t("status.cancelledRedeemable"),
+        };
+
+      case DomainStatusEnum.IN_USE:
+        return {
+          variant: "in_use",
+          icon: ClockAlert,
+          label: t("status.inUse"),
         };
 
       default:
         return {
           variant: "default",
           icon: HelpCircle,
-          label: String(status),
+          label: t("status.default"),
         };
     }
   };

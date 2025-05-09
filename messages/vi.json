@@ -216,18 +216,27 @@
         "ip": "Địa chỉ IP",
         "device": "Thiết bị",
         "userBehavior": "Hành vi người dùng",
-        "actions": "Hành động"
+        "actions": "Hành động",
+        "uuid": "UUID",
+        "domain": "Tên miền",
+        "path": "Đường dẫn",
+        "eventCount": "Số sự kiện",
+        "browser": "Trình duyệt"
       },
       "pagination": {
         "rowsPerPage": "Số dòng mỗi trang",
         "of": "trong số",
         "firstPage": "Đến trang đầu tiên",
-        "previousPage": "Đến trang trước",
-        "nextPage": "Đến trang tiếp theo",
-        "lastPage": "Đến trang cuối cùng"
+        "previousPage": "Trước",
+        "nextPage": "Tiếp",
+        "lastPage": "Đến trang cuối cùng",
+        "showing": "Hiển thị",
+        "results": "kết quả",
+        "page": "Trang"
       },
       "actions": {
-        "details": "Chi tiết"
+        "details": "Chi tiết",
+        "retry": "Thử lại"
       },
       "deviceTypes": {
         "mobile": "Di động",
@@ -244,23 +253,48 @@
         "totalMovements": "Tổng di chuyển",
         "target": "Đích",
         "height": "Chiều cao",
-        "duration": "Thời gian"
+        "duration": "Thời gian",
+        "elementTag": "Thẻ",
+        "elementText": "Nội dung",
+        "elementHref": "Liên kết",
+        "elementClasses": "Lớp"
       },
       "placeholders": {
         "selectDomain": "Chọn tên miền",
         "selectResults": "Chọn số kết quả hiển thị",
         "searchDomain": "Tìm kiếm tên miền...",
-        "searchPath": "Search path..."
+        "searchPath": "Tìm kiếm đường dẫn...",
+        "selectPath": "Chọn đường dẫn"
       },
       "loadingStates": {
         "loadingDomains": "Đang tải domain...",
         "noDomains": "Không tìm thấy tên miền",
         "error": "Đã xảy ra lỗi khi tải dữ liệu",
-        "noPaths": "No path found"
+        "noPaths": "Không tìm thấy đường dẫn"
       },
       "activeUsers": {
         "title": "Người dùng đang hoạt động",
-        "description": "Tổng số người dùng đang hoạt động trên tất cả các tên miền"
+        "description": "Tổng số người dùng đang hoạt động trên tên miền"
+      },
+      "modal": {
+        "detail": {
+          "noData": "Không có dữ liệu",
+          "title": "Sự kiện người dùng",
+          "table": {
+            "columns": {
+              "eventName": "Tên sự kiện",
+              "timestamp": "Thời gian",
+              "device": "Thiết bị",
+              "details": "Chi tiết"
+            },
+            "behaviors": {
+              "elementTag": "Thẻ HTML",
+              "elementText": "Nội dung",
+              "elementHref": "Liên kết",
+              "elementClasses": "Lớp"
+            }
+          }
+        }
       }
     }
   },
@@ -287,6 +321,15 @@
         "hasSites": "Có trang landing page",
         "noSites": "Không có trang landing page",
         "clear": "Xóa bộ lọc"
+      },
+      "status": {
+        "active": "Có thể dùng",
+        "cancelled": "Đã hủy",
+        "heldExpiredRedemptionMock": "Hết thời gian thử nghiệm khôi phục",
+        "pendingHoldRedemption": "Đang chờ khôi phục",
+        "cancelledRedeemable": "Đang hủy nhưng có thể khôi phục",
+        "inUse": "Đang sử dụng",
+        "default": "Mặc định"
       },
       "columns": {
         "id": "ID",

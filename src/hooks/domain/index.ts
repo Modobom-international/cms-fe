@@ -1,10 +1,10 @@
-import { domainQueryKeys } from "@/constants/query-keys";
+import { domainQueryKeys, domainWithoutPaginationQueryKeys } from "@/constants/query-keys";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import qs from "qs";
 
 import {
-  IDomainActual,
   IDomainPathResponse,
+  IDomainResponseTracking,
   IDomainResponse,
 } from "@/types/domain.type";
 
@@ -84,6 +84,32 @@ export const useGetDomainList = ({
   });
 };
 
+export const useGetDomainListWithoutPagination = (
+  search: string = "",
+  user_id?: string,
+  options: { enabled?: boolean } = {}
+) => {
+  const params = qs.stringify({ search, user_id });
+  return useQuery({
+    queryKey: domainWithoutPaginationQueryKeys.list(user_id, search),
+    queryFn: async (): Promise<IDomainResponseTracking | IErrorResponse> => {
+      try {
+        const { data } = await apiClient.get<IDomainResponseTracking>(
+          `/api/domains/get-list-domain-for-tracking?${params}`
+        );
+        return data;
+      } catch {
+        return {
+          success: false,
+          message: "Lấy danh sách domain không thành công",
+          type: "list_domain_fail",
+        };
+      }
+    },
+    enabled: options.enabled,
+  });
+};
+
 export const useGetAvailableDomain = (
   page: number,
   pageSize: number,
@@ -125,11 +151,12 @@ export const useRefreshDomainList = () => {
 export const useGetDomainPaths = (
   domain: string,
   page: number,
-  pageSize: number
+  pageSize: number,
+  options: { enabled?: boolean } = {}
 ) => {
   return useQuery({
     queryKey: domainQueryKeys.domainPaths(domain, page, pageSize),
-    queryFn: async () => {
+    queryFn: async (): Promise<IDomainPathResponse | IErrorResponse> => {
       const params = qs.stringify({ domain, page, pageSize });
       try {
         const { data } = await apiClient.get<IDomainPathResponse>(
@@ -144,6 +171,6 @@ export const useGetDomainPaths = (
         };
       }
     },
-    enabled: !!domain,
+    enabled: options.enabled && !!domain,
   });
 };
