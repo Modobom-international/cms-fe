@@ -308,7 +308,23 @@
     },
     "table": {
       "filters": {
-        "search": "Tìm kiếm tên miền"
+        "search": "Tìm kiếm tên miền",
+        "status": "Trạng thái",
+        "lockStatus": "Trạng thái khóa",
+        "all": "Tất cả",
+        "active": "Hoạt động",
+        "inactive": "Không hoạt động",
+        "cancelled": "Đã hủy",
+        "heldExpiredRedemption": "Hết thời gian thử nghiệm khôi phục",
+        "pendingHoldRedemption": "Đang chờ khôi phục",
+        "cancelledRedeemable": "Đang hủy nhưng có thể khôi phục",
+        "locked": "Đã khóa",
+        "unlocked": "Mở khóa",
+        "renewable": "Gia hạn",
+        "nonRenewable": "Không gia hạn",
+        "hasSites": "Có trang landing page",
+        "noSites": "Không có trang landing page",
+        "clear": "Xóa bộ lọc"
       },
       "status": {
         "active": "Có thể dùng",
