@@ -307,7 +307,23 @@
     },
     "table": {
       "filters": {
-        "search": "Search"
+        "search": "Search",
+        "status": "Status",
+        "lockStatus": "Lock Status",
+        "all": "All",
+        "active": "Active",
+        "inactive": "Inactive",
+        "cancelled": "Cancelled",
+        "heldExpiredRedemption": "Held Expired Redemption",
+        "pendingHoldRedemption": "Pending Hold Redemption",
+        "cancelledRedeemable": "Cancelled Redeemable",
+        "locked": "Locked",
+        "unlocked": "Unlocked",
+        "renewable": "Renewable",
+        "nonRenewable": "Non-renewable",
+        "hasSites": "Has Sites",
+        "noSites": "No Sites",
+        "clear": "Clear Filters"
       },
       "status": {
         "active": "Active",

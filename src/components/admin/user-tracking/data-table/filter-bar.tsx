@@ -1,17 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "@/providers/auth-provider";
 
+import { useAuth } from "@/providers/auth-provider";
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
 import { Check, ChevronsUpDown, PlusCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsString, useQueryState } from "nuqs";
 import { DatePicker } from "react-aria-components";
+
+import {
+  IDomainForTracking,
+  IDomainResponseTracking,
+} from "@/types/domain.type";
+
 import { cn } from "@/lib/utils";
-import { useGetDomainListWithoutPagination, useGetDomainPaths } from "@/hooks/domain";
+
+import {
+  useGetDomainList,
+  useGetDomainListWithoutPagination,
+  useGetDomainPaths,
+} from "@/hooks/domain";
 import { useDebounce } from "@/hooks/use-debounce";
+
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -30,7 +42,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { Spinner } from "@/components/global/spinner";
-import { IDomainForTracking, IDomainResponseTracking } from "@/types/domain.type";
 
 interface FilterBarProps {
   onFilterChange?: () => void;
@@ -59,15 +70,23 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
     parseAsString.withDefault("all")
   );
 
-  const {
-    data: domainResponse,
-    isLoading: isLoadingDomains,
-  } = useGetDomainListWithoutPagination(debouncedSearchValue, user_id, {
-    enabled: !!user_id,
-  });
+  const { data: domainResponse, isLoading: isLoadingDomains } =
+    useGetDomainList({
+      page: 1,
+      pageSize: 10,
+      search: debouncedSearchValue,
+      status: undefined,
+      is_locked: undefined,
+      renewable: undefined,
+      registrar: undefined,
+      has_sites: undefined,
+    });
 
   const domains: IDomainForTracking[] =
-    domainResponse && "success" in domainResponse && domainResponse.success && Array.isArray(domainResponse.data)
+    domainResponse &&
+    "success" in domainResponse &&
+    domainResponse.success &&
+    Array.isArray(domainResponse.data)
       ? domainResponse.data
       : [];
 

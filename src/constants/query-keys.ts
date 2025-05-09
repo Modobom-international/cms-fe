@@ -25,12 +25,23 @@ export const userTrackingQueryKeys = {
 };
 
 export const domainQueryKeys = {
-  origin: ["domains"] as const,
-  lists: () => [...domainQueryKeys.origin, "list"],
-  list: (page: number, pageSize: number, search: string) => [
-    ...domainQueryKeys.lists(),
-    { page, pageSize, search },
-  ],
+  all: ["domains"],
+  lists: () => [...domainQueryKeys.all, "list"],
+  list: (
+    page: number,
+    pageSize: number,
+    search: string,
+    filters?: {
+      status?: string;
+      is_locked?: boolean;
+      renewable?: boolean;
+      registrar?: string;
+      has_sites?: boolean;
+      time_expired?: string;
+      renew_deadline?: string;
+      registrar_created_at?: string;
+    }
+  ) => [...domainQueryKeys.lists(), { page, pageSize, search, ...filters }],
   available: (page: number, pageSize: number, search: string) => [
     ...domainQueryKeys.lists(),
     "available",
