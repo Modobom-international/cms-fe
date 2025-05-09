@@ -27,7 +27,9 @@ export const useGetUserList = (
     queryKey: userQueryKeys.list(page, pageSize, search),
     queryFn: async () => {
       try {
-        const { data } = await apiClient.get(`/api/users?${params}`);
+        const { data } = await apiClient.get<IGetAllUserResponse>(
+          `/api/users?${params}`
+        );
 
         return data;
       } catch (error) {
