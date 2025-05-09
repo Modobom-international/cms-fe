@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { ITeam, ITeamResponse } from "@/types/team.type";
 
 import apiClient from "@/lib/api/client";
+import { extractApiError } from "@/lib/api/error-handler";
 
 export const useGetTeamList = (
   page: number,
@@ -23,11 +24,13 @@ export const useGetTeamList = (
           `/api/team?${params}`
         );
         return data;
-      } catch {
+      } catch (error) {
+        const errRes = extractApiError(error);
         return {
           success: false,
           message: "Lấy danh sách phòng ban không thành công",
           type: "list_team_fail",
+          error: errRes.error,
         };
       }
     },
@@ -43,11 +46,13 @@ export const useGetTeamById = (id: string) => {
           `/api/team/${id}`
         );
         return data.data;
-      } catch {
+      } catch (error) {
+        const errRes = extractApiError(error);
         return {
           success: false,
           message: "Lấy thông tin phòng ban không thành công",
           type: "get_team_fail",
+          error: errRes.error,
         };
       }
     },
@@ -89,7 +94,7 @@ export const useCreateTeam = () => {
         }
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: teamQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: teamQueryKeys.all() });
       },
     }
   );
