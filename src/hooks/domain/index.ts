@@ -1,14 +1,15 @@
-import { domainQueryKeys, domainWithoutPaginationQueryKeys } from "@/constants/query-keys";
+import { domainQueryKeys } from "@/constants/query-keys";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import qs from "qs";
 
 import {
   IDomainPathResponse,
-  IDomainResponseTracking,
   IDomainResponse,
+  IDomainResponseTracking,
 } from "@/types/domain.type";
 
 import apiClient from "@/lib/api/client";
+import { extractApiError } from "@/lib/api/error-handler";
 
 interface DomainFilters {
   page: number;
@@ -67,17 +68,19 @@ export const useGetDomainList = ({
       renew_deadline,
       registrar_created_at,
     }),
-    queryFn: async (): Promise<IDomainResponse | IErrorResponse> => {
+    queryFn: async (): Promise<IDomainResponse | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<IDomainResponse>(
           `/api/domains?${params}`
         );
         return data;
-      } catch {
+      } catch (error) {
+        const errRes = extractApiError(error);
         return {
           success: false,
           message: "Lấy danh sách domain không thành công",
           type: "list_domain_fail",
+          error: errRes.error,
         };
       }
     },
@@ -91,18 +94,20 @@ export const useGetDomainListWithoutPagination = (
 ) => {
   const params = qs.stringify({ search, user_id });
   return useQuery({
-    queryKey: domainWithoutPaginationQueryKeys.list(user_id, search),
-    queryFn: async (): Promise<IDomainResponseTracking | IErrorResponse> => {
+    queryKey: domainQueryKeys.domainWithoutPagination(user_id, search),
+    queryFn: async (): Promise<IDomainResponseTracking | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<IDomainResponseTracking>(
           `/api/domains/get-list-domain-for-tracking?${params}`
         );
         return data;
-      } catch {
+      } catch (error) {
+        const errRes = extractApiError(error);
         return {
           success: false,
           message: "Lấy danh sách domain không thành công",
           type: "list_domain_fail",
+          error: errRes.error,
         };
       }
     },
@@ -118,17 +123,19 @@ export const useGetAvailableDomain = (
   const params = qs.stringify({ page, pageSize, search });
   return useQuery({
     queryKey: domainQueryKeys.available(page, pageSize, search),
-    queryFn: async (): Promise<IDomainResponse | IErrorResponse> => {
+    queryFn: async (): Promise<IDomainResponse | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<IDomainResponse>(
           `/api/domains/available?${params}`
         );
         return data;
-      } catch {
+      } catch (error) {
+        const errRes = extractApiError(error);
         return {
           success: false,
           message: "Lấy danh sách domain không thành công",
           type: "list_domain_fail",
+          error: errRes.error,
         };
       }
     },
@@ -156,18 +163,20 @@ export const useGetDomainPaths = (
 ) => {
   return useQuery({
     queryKey: domainQueryKeys.domainPaths(domain, page, pageSize),
-    queryFn: async (): Promise<IDomainPathResponse | IErrorResponse> => {
+    queryFn: async (): Promise<IDomainPathResponse | IBackendErrorRes> => {
       const params = qs.stringify({ domain, page, pageSize });
       try {
         const { data } = await apiClient.get<IDomainPathResponse>(
           `/api/domains/list-url-path?${params}`
         );
         return data;
-      } catch {
+      } catch (error) {
+        const errRes = extractApiError(error);
         return {
           success: false,
           message: "Lấy danh sách domain không thành công",
           type: "list_domain_fail",
+          error: errRes.error,
         };
       }
     },

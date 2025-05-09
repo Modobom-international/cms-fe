@@ -96,12 +96,13 @@ export const useCreateUser = () => {
           success: false,
           message: errRes?.message ?? "Failed to create user",
           type: errRes?.type ?? "create_user_fail",
+          error: errRes?.error ?? "",
         };
       }
     },
     onSuccess: (data) => {
       if (data.success) {
-        queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: userQueryKeys.list(1, 10) });
         toast.success("User created successfully", {
           description: `${data.data.name} has been added to the system`,
         });
@@ -137,12 +138,13 @@ export const useUpdateUser = (id: string) => {
           success: false,
           message: errRes?.message ?? "Failed to update user",
           type: errRes?.type ?? "update_user_fail",
+          error: errRes?.error ?? "",
         };
       }
     },
     onSuccess: (data) => {
       if (data.success) {
-        queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: userQueryKeys.list(1, 10) });
         queryClient.invalidateQueries({ queryKey: userQueryKeys.details(id) });
         toast.success("User updated successfully", {
           description: `${data.data.name}'s information has been updated`,
@@ -190,7 +192,7 @@ export const useDeleteUser = () => {
     },
     onSuccess: (data) => {
       if (data.success) {
-        queryClient.invalidateQueries({ queryKey: userQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: userQueryKeys.list(1, 10) });
         toast.success("User deleted successfully", {
           description: "The user has been removed from the system",
         });

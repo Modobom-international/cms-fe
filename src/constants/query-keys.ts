@@ -20,17 +20,13 @@ export const userTrackingQueryKeys = {
     [
       ...userTrackingQueryKeys.origin,
       "list",
-      page,
-      pageSize,
-      date,
-      domain,
-      path,
+      { page, pageSize, date, domain, path },
     ] as const,
 };
 
 export const domainQueryKeys = {
-  all: ["domains"],
-  lists: () => [...domainQueryKeys.all, "list"],
+  origin: ["domains"],
+  all: () => [...domainQueryKeys.origin, "all"],
   list: (
     page: number,
     pageSize: number,
@@ -45,24 +41,29 @@ export const domainQueryKeys = {
       renew_deadline?: string;
       registrar_created_at?: string;
     }
-  ) => [...domainQueryKeys.lists(), { page, pageSize, search, ...filters }],
+  ) => [
+    ...domainQueryKeys.origin,
+    "list",
+    { page, pageSize, search, ...filters },
+  ],
   available: (page: number, pageSize: number, search: string) => [
-    ...domainQueryKeys.lists(),
+    ...domainQueryKeys.origin,
+    "list",
     "available",
     { page, pageSize, search },
   ],
-
-  domains: () => [...domainQueryKeys.all, "domains"],
-  details: (id: string) => [...domainQueryKeys.all, "detail", id],
-  refresh: () => [...domainQueryKeys.all, "refresh"],
+  details: (id: string) => [...domainQueryKeys.origin, "detail", id],
+  refresh: () => [...domainQueryKeys.origin, "refresh"],
   domainPaths: (domain: string, page: number, pageSize: number) =>
-    [...domainQueryKeys.all, "domain-paths", domain, page, pageSize] as const,
-};
-
-export const domainWithoutPaginationQueryKeys = {
-  list: (user_id?: string, search: string = "") => [
-    "domains",
-    "without-pagination",
+    [
+      ...domainQueryKeys.origin,
+      "list",
+      "domain-paths",
+      { domain, page, pageSize },
+    ] as const,
+  domainWithoutPagination: (user_id?: string, search: string = "") => [
+    ...domainQueryKeys.origin,
+    "domain-without-pagination",
     { user_id, search },
   ],
 };
@@ -70,7 +71,11 @@ export const domainWithoutPaginationQueryKeys = {
 export const activityLogQueryKeys = {
   origin: ["activity-logs"] as const,
   list: (page: number, pageSize: number, search: string = "") =>
-    [...activityLogQueryKeys.origin, "list", page, pageSize, search] as const,
+    [
+      ...activityLogQueryKeys.origin,
+      "list",
+      { page, pageSize, search },
+    ] as const,
 };
 
 export const notificationQueryKeys = {
@@ -80,33 +85,66 @@ export const notificationQueryKeys = {
 };
 
 export const htmlSourceQueryKeys = {
-  all: ["htmlSources"],
-  lists: () => [...htmlSourceQueryKeys.all, "list"],
+  origin: ["htmlSources"] as const,
+  all: () => [...htmlSourceQueryKeys.origin, "all"],
   list: (page: number, pageSize: number, search: string) => [
-    ...htmlSourceQueryKeys.lists(),
+    ...htmlSourceQueryKeys.origin,
+    "list",
     { page, pageSize, search },
   ],
-  details: (id: string) => [...htmlSourceQueryKeys.all, "detail", id],
+  details: (id: string) => [...htmlSourceQueryKeys.origin, "detail", id],
 };
 
 export const teamQueryKeys = {
-  all: ["teams"],
-  lists: () => [...teamQueryKeys.all, "list"],
+  origin: ["teams"] as const,
+  all: () => [...teamQueryKeys.origin, "all"],
   list: (page: number, pageSize: number, search: string = "") => [
-    ...teamQueryKeys.lists(),
+    ...teamQueryKeys.origin,
+    "list",
     { page, pageSize, search },
   ],
-  details: (id: string) => [...teamQueryKeys.all, "detail", id],
-  create: () => [...teamQueryKeys.all, "create"],
+  details: (id: string) => [...teamQueryKeys.origin, "detail", id],
+  create: () => [...teamQueryKeys.origin, "create"],
 };
 
 export const userQueryKeys = {
-  all: ["users"],
-  lists: () => [...userQueryKeys.all, "list"],
+  origin: ["users"] as const,
   list: (page: number, pageSize: number, search: string = "") => [
-    ...userQueryKeys.lists(),
+    ...userQueryKeys.origin,
+    "list",
     { page, pageSize, search },
   ],
-  details: (id: string) => [...userQueryKeys.all, "detail", id],
-  create: () => [...userQueryKeys.all, "create"],
+  details: (id: string) => [...userQueryKeys.origin, "detail", id],
+  create: () => [...userQueryKeys.origin, "create"],
+};
+
+export const serverQueryKeys = {
+  origin: ["servers"] as const,
+  list: (page: number, pageSize: number, search: string = "") => [
+    ...serverQueryKeys.origin,
+    "list",
+    { page, pageSize, search },
+  ],
+  create: () => [...serverQueryKeys.origin, "create"],
+  update: (id: string) => [...serverQueryKeys.origin, "update", id],
+  delete: (id: string) => [...serverQueryKeys.origin, "delete", id],
+};
+
+export const siteQueryKeys = {
+  origin: ["sites"] as const,
+  all: () => [...siteQueryKeys.origin, "all"] as const,
+  list: (filters: string) =>
+    [...siteQueryKeys.origin, "list", { filters }] as const,
+  details: (siteId: string) =>
+    [...siteQueryKeys.origin, "detail", siteId] as const,
+};
+
+// Query Keys
+export const pageQueryKeys = {
+  origin: ["pages"] as const,
+  all: () => [...pageQueryKeys.origin, "all"] as const,
+  listBySiteId: (siteId: string) =>
+    [...pageQueryKeys.origin, "list", siteId] as const,
+  details: (pageId: string) =>
+    [...pageQueryKeys.origin, "detail", pageId] as const,
 };

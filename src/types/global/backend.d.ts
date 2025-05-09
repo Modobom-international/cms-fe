@@ -22,6 +22,7 @@ declare global {
 
     message: string;
     type: string;
+    error: string;
   }
 
   interface IValidationErrors {
@@ -47,7 +48,8 @@ declare global {
   interface IPaginationResponse<T> {
     success: true;
     message: string;
-    value: IPaginatedResponse<T>;
+    data: IPaginatedResponse<T>;
+    type: string;
   }
   export interface ILink {
     url?: string | null;
@@ -59,12 +61,6 @@ declare global {
     success: false;
     message: string;
     data: IPaginatedResponse<any>;
-    type: string;
-  }
-
-  interface IErrorResponse {
-    success: false;
-    message: string;
     type: string;
   }
 }

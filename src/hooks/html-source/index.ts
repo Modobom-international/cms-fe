@@ -5,6 +5,7 @@ import qs from "qs";
 import { IHtmlSourceResponse } from "@/types/html-source.type";
 
 import apiClient from "@/lib/api/client";
+import { extractApiError } from "@/lib/api/error-handler";
 
 export const useGetHtmlSourceList = (
   page: number,
@@ -14,17 +15,19 @@ export const useGetHtmlSourceList = (
   const params = qs.stringify({ page, pageSize, search });
   return useQuery({
     queryKey: htmlSourceQueryKeys.list(page, pageSize, search),
-    queryFn: async (): Promise<IHtmlSourceResponse | IErrorResponse> => {
+    queryFn: async (): Promise<IHtmlSourceResponse | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<IHtmlSourceResponse>(
           `/api/html-source?${params}`
         );
         return data;
-      } catch {
+      } catch (error) {
+        const errorRes = extractApiError(error);
         return {
           success: false,
-          message: "Failed to fetch HTML source data",
-          type: "list_html_source_fail",
+          message: errorRes.message,
+          type: errorRes.type,
+          error: errorRes.error,
         };
       }
     },
@@ -34,17 +37,19 @@ export const useGetHtmlSourceList = (
 export const useGetHtmlSourceById = (id: string) => {
   return useQuery({
     queryKey: htmlSourceQueryKeys.details(id),
-    queryFn: async (): Promise<IHtmlSourceResponse | IErrorResponse> => {
+    queryFn: async (): Promise<IHtmlSourceResponse | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<IHtmlSourceResponse>(
           `/api/html-sources/${id}`
         );
         return data;
-      } catch {
+      } catch (error) {
+        const errorRes = extractApiError(error);
         return {
           success: false,
-          message: "Failed to fetch HTML source details",
-          type: "get_html_source_fail",
+          message: errorRes.message,
+          type: errorRes.type,
+          error: errorRes.error,
         };
       }
     },

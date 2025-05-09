@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { DomainStatusEnum } from "@/enums/domain-status";
@@ -16,7 +17,7 @@ import { formatDateTime } from "@/lib/utils";
 import { useGetDomainList, useRefreshDomainList } from "@/hooks/domain";
 import { useDebounce } from "@/hooks/use-debounce";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -322,17 +323,15 @@ export default function DomainDataTable() {
                         </TableCell>
                         <TableCell className="text-muted-foreground py-3 text-sm">
                           {domain.sites && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                router.push(
-                                  `/studio/sites/${domain.sites?.id}/pages`
-                                );
-                              }}
+                            <Link
+                              href={`/studio/sites/${domain.sites?.id}/pages`}
+                              className={buttonVariants({
+                                variant: "outline",
+                                size: "sm",
+                              })}
                             >
-                              {t("actions.view")}
-                            </Button>
+                              {t("actions.edit")}
+                            </Link>
                           )}
                         </TableCell>
                       </TableRow>

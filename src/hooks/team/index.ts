@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { ITeam, ITeamResponse } from "@/types/team.type";
 
 import apiClient from "@/lib/api/client";
+import { extractApiError } from "@/lib/api/error-handler";
 
 export const useGetTeamList = (
   page: number,
@@ -17,17 +18,19 @@ export const useGetTeamList = (
   const params = qs.stringify({ page, pageSize, search });
   return useQuery({
     queryKey: teamQueryKeys.list(page, pageSize, search),
-    queryFn: async (): Promise<ITeamResponse | IErrorResponse> => {
+    queryFn: async (): Promise<ITeamResponse | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<ITeamResponse>(
           `/api/team?${params}`
         );
         return data;
-      } catch {
+      } catch (error) {
+        const errRes = extractApiError(error);
         return {
           success: false,
           message: "Lấy danh sách phòng ban không thành công",
           type: "list_team_fail",
+          error: errRes.error,
         };
       }
     },
@@ -37,17 +40,19 @@ export const useGetTeamList = (
 export const useGetTeamById = (id: string) => {
   return useQuery({
     queryKey: teamQueryKeys.details(id),
-    queryFn: async (): Promise<ITeam | IErrorResponse> => {
+    queryFn: async (): Promise<ITeam | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<{ data: ITeam }>(
           `/api/team/${id}`
         );
         return data.data;
-      } catch {
+      } catch (error) {
+        const errRes = extractApiError(error);
         return {
           success: false,
           message: "Lấy thông tin phòng ban không thành công",
           type: "get_team_fail",
+          error: errRes.error,
         };
       }
     },
@@ -89,7 +94,7 @@ export const useCreateTeam = () => {
         }
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: teamQueryKeys.all });
+        queryClient.invalidateQueries({ queryKey: teamQueryKeys.all() });
       },
     }
   );
@@ -100,4 +105,3 @@ export const useCreateTeam = () => {
     isCreatingTeam,
   };
 };
-

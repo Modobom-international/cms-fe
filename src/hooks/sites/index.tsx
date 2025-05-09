@@ -1,3 +1,4 @@
+import { siteQueryKeys } from "@/constants/query-keys";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 
@@ -11,15 +12,6 @@ export interface Site {
   created_at: string;
   updated_at: string;
 }
-
-// Query Keys
-export const siteQueryKeys = {
-  all: ["sites"] as const,
-  lists: () => [...siteQueryKeys.all, "list"] as const,
-  list: (filters: string) => [...siteQueryKeys.lists(), { filters }] as const,
-  details: (siteId: string) =>
-    [...siteQueryKeys.all, "detail", siteId] as const,
-};
 
 // Zod Schemas
 export const CreateSiteSchema = z.object({
@@ -35,7 +27,7 @@ export type UpdateSiteData = z.infer<typeof UpdateSiteSchema>;
 // Hooks
 export const useGetSites = () => {
   return useQuery({
-    queryKey: siteQueryKeys.lists(),
+    queryKey: siteQueryKeys.all(),
     queryFn: async () => {
       try {
         const response = await apiClient.get("/api/sites");
@@ -100,7 +92,7 @@ export const useCreateSite = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: siteQueryKeys.lists(),
+        queryKey: siteQueryKeys.all(),
       });
     },
   });
@@ -131,7 +123,7 @@ export const useUpdateSite = (siteId: string) => {
         queryKey: siteQueryKeys.details(siteId),
       });
       queryClient.invalidateQueries({
-        queryKey: siteQueryKeys.lists(),
+        queryKey: siteQueryKeys.all(),
       });
     },
   });
@@ -159,7 +151,7 @@ export const useDeleteSite = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: siteQueryKeys.lists(),
+        queryKey: siteQueryKeys.all(),
       });
     },
   });

@@ -1,3 +1,4 @@
+import { pageQueryKeys } from "@/constants/query-keys";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 
@@ -13,15 +14,6 @@ export interface Page {
   updated_at: string;
   tracking_script?: string;
 }
-
-// Query Keys
-export const pageQueryKeys = {
-  all: ["pages"] as const,
-  lists: () => [...pageQueryKeys.all, "list"] as const,
-  list: (siteId: string) => [...pageQueryKeys.lists(), { siteId }] as const,
-  details: (pageId: string) =>
-    [...pageQueryKeys.all, "detail", pageId] as const,
-};
 
 // Zod Schemas
 export const CreatePageSchema = z.object({
@@ -49,7 +41,7 @@ export type UpdateTrackingScriptData = z.infer<
 // Hooks
 export const useGetPages = (siteId: string) => {
   return useQuery({
-    queryKey: pageQueryKeys.list(siteId),
+    queryKey: pageQueryKeys.listBySiteId(siteId),
     queryFn: async () => {
       try {
         const response = await apiClient.get(`/api/sites/${siteId}/pages`);
@@ -124,7 +116,7 @@ export const useCreatePage = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: pageQueryKeys.list(variables.site_id),
+        queryKey: pageQueryKeys.listBySiteId(variables.site_id),
       });
     },
   });
@@ -200,7 +192,7 @@ export const useDeletePage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: pageQueryKeys.lists(),
+        queryKey: pageQueryKeys.all(),
       });
     },
   });

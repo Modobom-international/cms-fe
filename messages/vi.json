@@ -226,10 +226,10 @@
       "pagination": {
         "rowsPerPage": "Số dòng mỗi trang",
         "of": "trong số",
-        "firstPage": "Đến trang đầu tiên",
+        "firstPage": "Trang đầu tiên",
         "previousPage": "Trước",
         "nextPage": "Tiếp",
-        "lastPage": "Đến trang cuối cùng",
+        "lastPage": "Trang cuối cùng",
         "showing": "Hiển thị",
         "results": "kết quả",
         "page": "Trang"
@@ -355,16 +355,17 @@
       "pagination": {
         "rowsPerPage": "Số dòng mỗi trang",
         "of": "trong số",
-        "firstPage": "Đến trang đầu tiên",
-        "previousPage": "Đến trang trước",
-        "nextPage": "Đến trang tiếp theo",
-        "lastPage": "Đến trang cuối cùng",
+        "firstPage": "Trang đầu tiên",
+        "previousPage": "Trước",
+        "nextPage": "Tiếp",
+        "lastPage": "Trang cuối cùng",
         "viewing": "Đang xem",
         "results": "kết quả",
         "page": "Trang"
       },
       "actions": {
         "details": "Xem chi tiết",
+        "edit": "Chỉnh sửa domain",
         "retry": "Thử lại",
         "refresh": "Làm mới",
         "refreshDomains": "Làm mới danh sách tên miền"
@@ -429,10 +430,10 @@
       "pagination": {
         "rowsPerPage": "Số dòng mỗi trang",
         "of": "trong số",
-        "firstPage": "Đến trang đầu tiên",
+        "firstPage": "Trang đầu tiên",
         "previousPage": "Trước",
         "nextPage": "Tiếp",
-        "lastPage": "Đến trang cuối cùng"
+        "lastPage": "Trang cuối cùng"
       },
       "actions": {
         "details": "Xem chi tiết",
@@ -481,10 +482,10 @@
       "pagination": {
         "rowsPerPage": "Số dòng mỗi trang",
         "of": "trong số",
-        "firstPage": "Đến trang đầu tiên",
+        "firstPage": "Trang đầu tiên",
         "previousPage": "Trước",
         "nextPage": "Tiếp",
-        "lastPage": "Đến trang cuối cùng"
+        "lastPage": "Trang cuối cùng"
       },
       "actions": {
         "details": "Chi tiết",
@@ -1020,6 +1021,48 @@
       },
       "team": {
         "required": "Vui lòng chọn phòng ban"
+      }
+    }
+  },
+  "ServerPage": {
+    "breadcrumb": "Máy chủ",
+    "addServer": "Thêm máy chủ",
+    "pageHeader": {
+      "title": "Máy chủ",
+      "description": "Quản lý máy chủ"
+    },
+    "table": {
+      "filters": {
+        "search": "Tìm kiếm máy chủ"
+      },
+      "columns": {
+        "id": "ID",
+        "name": "Tên",
+        "ip": "Địa chỉ IP",
+        "createdAt": "Ngày tạo",
+        "updatedAt": "Cập nhật lần cuối"
+      },
+      "pagination": {
+        "rowsPerPage": "Số dòng mỗi trang",
+        "of": "trong số",
+        "previousPage": "Trước",
+        "nextPage": "Tiếp",
+        "viewing": "Đang xem",
+        "results": "kết quả",
+        "page": "Trang"
+      },
+      "loadingStates": {
+        "loading": "Đang tải dữ liệu máy chủ...",
+        "error": "Đã xảy ra lỗi khi tải dữ liệu máy chủ"
+      },
+      "placeholders": {
+        "search": "Tìm kiếm theo tên hoặc địa chỉ IP"
+      },
+      "modal": {
+        "addServerModal": {
+          "title": "Thêm máy chủ",
+          "description": "Thêm mới máy chủ vào hệ thống"
+        }
       }
     }
   }
