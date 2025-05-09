@@ -5,6 +5,7 @@ import qs from "qs";
 import { IHtmlSourceResponse } from "@/types/html-source.type";
 
 import apiClient from "@/lib/api/client";
+import { extractApiError } from "@/lib/api/error-handler";
 
 export const useGetHtmlSourceList = (
   page: number,
@@ -20,11 +21,13 @@ export const useGetHtmlSourceList = (
           `/api/html-source?${params}`
         );
         return data;
-      } catch {
+      } catch (error) {
+        const errorRes = extractApiError(error);
         return {
           success: false,
-          message: "Failed to fetch HTML source data",
-          type: "list_html_source_fail",
+          message: errorRes.message,
+          type: errorRes.type,
+          error: errorRes.error,
         };
       }
     },
@@ -40,11 +43,13 @@ export const useGetHtmlSourceById = (id: string) => {
           `/api/html-sources/${id}`
         );
         return data;
-      } catch {
+      } catch (error) {
+        const errorRes = extractApiError(error);
         return {
           success: false,
-          message: "Failed to fetch HTML source details",
-          type: "get_html_source_fail",
+          message: errorRes.message,
+          type: errorRes.type,
+          error: errorRes.error,
         };
       }
     },
