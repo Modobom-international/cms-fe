@@ -988,5 +988,14 @@
         "required": "Please select a team"
       }
     }
+  },
+  "ServerPage": {
+    "breadcrumb": "Server Management",
+    "addServer": "Add Server",
+    "pageHeader": {
+      "title": "Servers",
+      "description": "Manage your servers"
+    }
+    
   }
 }

@@ -11,6 +11,7 @@ import {
   LayoutGrid,
   Network,
   PenTool,
+  Server,
   SquareActivity,
   Terminal,
   User,
@@ -41,6 +42,11 @@ const data = {
       url: "/admin",
       icon: LayoutGrid,
       isActive: true,
+    },
+    {
+      title: "Servers",
+      url: "/admin/servers",
+      icon: Server,
     },
     {
       title: "Domain",
@@ -132,4 +138,3 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     </Sidebar>
   );
 }
-
