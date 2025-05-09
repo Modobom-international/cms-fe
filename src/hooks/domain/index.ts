@@ -10,14 +10,63 @@ import {
 
 import apiClient from "@/lib/api/client";
 
-export const useGetDomainList = (
-  page: number,
-  pageSize: number,
-  search: string = ""
-) => {
-  const params = qs.stringify({ page, pageSize, search });
+interface DomainFilters {
+  page: number;
+  pageSize: number;
+  search?: string;
+  status?: string;
+  is_locked?: boolean;
+  renewable?: boolean;
+  registrar?: string;
+  has_sites?: boolean;
+  time_expired?: string;
+  renew_deadline?: string;
+  registrar_created_at?: string;
+}
+
+export const useGetDomainList = ({
+  page,
+  pageSize,
+  search = "",
+  status,
+  is_locked,
+  renewable,
+  registrar,
+  has_sites,
+  time_expired,
+  renew_deadline,
+  registrar_created_at,
+}: DomainFilters) => {
+  const params = qs.stringify(
+    {
+      page,
+      pageSize,
+      search,
+      status,
+      is_locked,
+      renewable,
+      registrar,
+      has_sites,
+      time_expired,
+      renew_deadline,
+      registrar_created_at,
+    },
+    {
+      skipNulls: true, // This will skip null/undefined values
+    }
+  );
+
   return useQuery({
-    queryKey: domainQueryKeys.list(page, pageSize, search),
+    queryKey: domainQueryKeys.list(page, pageSize, search, {
+      status,
+      is_locked,
+      renewable,
+      registrar,
+      has_sites,
+      time_expired,
+      renew_deadline,
+      registrar_created_at,
+    }),
     queryFn: async (): Promise<IDomainResponse | IErrorResponse> => {
       try {
         const { data } = await apiClient.get<IDomainResponse>(

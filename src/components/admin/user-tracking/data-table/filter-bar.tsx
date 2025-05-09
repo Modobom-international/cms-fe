@@ -65,7 +65,16 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
   const {
     data: domainResponse = { data: { data: [] } },
     isLoading: isLoadingDomains,
-  } = useGetDomainList(1, 10, debouncedSearchValue);
+  } = useGetDomainList({
+    page: 1,
+    pageSize: 10,
+    search: debouncedSearchValue,
+    status: undefined,
+    is_locked: undefined,
+    renewable: undefined,
+    registrar: undefined,
+    has_sites: undefined,
+  });
 
   const domains =
     "data" in domainResponse && domainResponse.data?.data

@@ -21,7 +21,32 @@ export interface IDomainActual {
   name_servers: string;
   renew_deadline: string;
   registrar_created_at: string;
-  activeUsers?: number; // Add this new property
+  activeUsers?: number;
+  sites?: {
+    id: number;
+    domain: string;
+    name: string;
+    description: string | null;
+    cloudflare_project_name: string;
+    cloudflare_domain_status: string;
+    branch: string;
+    created_at: string;
+    updated_at: string;
+    user_id: number;
+    status: string;
+    user?: {
+      id: number;
+      name: string;
+      email: string;
+      email_verified_at: string | null;
+      created_at: string;
+      updated_at: string;
+      role: string;
+      type_user: string;
+      profile_photo_path: string | null;
+      exclude_token: string | null;
+    };
+  };
 }
 
 export interface IDomainResponse {

@@ -274,7 +274,19 @@
     },
     "table": {
       "filters": {
-        "search": "Tìm kiếm tên miền"
+        "search": "Tìm kiếm tên miền",
+        "status": "Trạng thái",
+        "lockStatus": "Trạng thái khóa",
+        "all": "Tất cả",
+        "active": "Hoạt động",
+        "inactive": "Không hoạt động",
+        "locked": "Đã khóa",
+        "unlocked": "Mở khóa",
+        "renewable": "Gia hạn",
+        "nonRenewable": "Không gia hạn",
+        "hasSites": "Có trang landing page",
+        "noSites": "Không có trang landing page",
+        "clear": "Xóa bộ lọc"
       },
       "columns": {
         "id": "ID",
