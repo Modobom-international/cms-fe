@@ -364,6 +364,7 @@
       },
       "actions": {
         "details": "Details",
+        "edit": "Edit Domain",
         "retry": "Retry",
         "refresh": "Refresh",
         "refreshDomains": "Refresh Domains"

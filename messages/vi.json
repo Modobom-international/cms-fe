@@ -365,6 +365,7 @@
       },
       "actions": {
         "details": "Xem chi tiết",
+        "edit": "Chỉnh sửa domain",
         "retry": "Thử lại",
         "refresh": "Làm mới",
         "refreshDomains": "Làm mới danh sách tên miền"
