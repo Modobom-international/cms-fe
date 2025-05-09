@@ -176,39 +176,6 @@ export default function EditUserForm({ userId }: EditUserFormProps) {
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Header Section */}
-      <div className="flex flex-col gap-4">
-        {/* Breadcrumbs */}
-        <nav className="text-muted-foreground flex items-center gap-2 text-sm">
-          <Home className="h-4 w-4" />
-          <ChevronRight className="h-4 w-4" />
-          <span>User Management</span>
-          <ChevronRight className="h-4 w-4" />
-          <span>{t("breadcrumb")}</span>
-        </nav>
-
-        {/* Title and Actions Section */}
-        <div className="flex items-start justify-between">
-          <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              {t("title")}
-            </h1>
-            <p className="text-muted-foreground text-sm">{t("subtitle")}</p>
-          </div>
-
-          <Link
-            href="/admin/users"
-            className={buttonVariants({
-              variant: "outline",
-              size: "sm",
-            })}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t("actions.backToList")}
-          </Link>
-        </div>
-      </div>
-
       {/* Form Section */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">

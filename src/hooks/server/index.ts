@@ -1,17 +1,21 @@
 import { serverQueryKeys } from "@/constants/query-keys";
 import {
-  CreateServerFormType,
   CreateServerSchema,
-  UpdateServerFormType,
+  ICreateServerForm,
+  IUpdateServerForm,
   UpdateServerSchema,
 } from "@/validations/server.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import qs from "qs";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
-import { IGetServerListResponse } from "@/types/server.type";
+import {
+  ICreateServerResponse,
+  IGetServerListResponse,
+} from "@/types/server.type";
 
 import apiClient from "@/lib/api/client";
 import { extractApiError } from "@/lib/api/error-handler";
@@ -39,8 +43,9 @@ export const useGetServerList = (
 };
 
 export const useCreateServer = () => {
+  const queryClient = useQueryClient();
   const t = useTranslations("ServerPage");
-  const createServerForm = useForm<CreateServerFormType>({
+  const createServerForm = useForm<ICreateServerForm>({
     resolver: zodResolver(CreateServerSchema(t)),
     defaultValues: {
       name: "",
@@ -51,13 +56,30 @@ export const useCreateServer = () => {
   const { mutateAsync: createServerMutation, isPending: isCreating } =
     useMutation({
       mutationKey: serverQueryKeys.create(),
-      mutationFn: async (formData: CreateServerFormType) => {
+      mutationFn: async (formData: ICreateServerForm) => {
         try {
-          const { data } = await apiClient.post("/api/server/store", formData);
+          const { data } = await apiClient.post<ICreateServerResponse>(
+            "/api/server/store",
+            formData
+          );
           return data;
         } catch (error) {
           const errRes = extractApiError(error);
-          throw new Error(errRes.type);
+          return {
+            success: false,
+            ...errRes,
+          };
+        }
+      },
+      onSuccess: (resData) => {
+        if (resData.success === true) {
+          toast.success("Add server successfully");
+          queryClient.invalidateQueries({
+            queryKey: serverQueryKeys.list(1, 10),
+          });
+          createServerForm.reset();
+        } else {
+          toast.error("Add server failed");
         }
       },
     });
@@ -67,7 +89,8 @@ export const useCreateServer = () => {
 
 export const useUpdateServer = (id: string) => {
   const t = useTranslations("ServerPage");
-  const updateServerForm = useForm<UpdateServerFormType>({
+  const queryClient = useQueryClient();
+  const updateServerForm = useForm<IUpdateServerForm>({
     resolver: zodResolver(UpdateServerSchema(t)),
     defaultValues: {
       name: "",
@@ -78,16 +101,30 @@ export const useUpdateServer = (id: string) => {
   const { mutateAsync: updateServerMutation, isPending: isUpdating } =
     useMutation({
       mutationKey: serverQueryKeys.update(id),
-      mutationFn: async (formData: UpdateServerFormType) => {
+      mutationFn: async (formData: IUpdateServerForm) => {
         try {
-          const { data } = await apiClient.put(
+          const { data } = await apiClient.post(
             `/api/server/update/${id}`,
             formData
           );
           return data;
         } catch (error) {
           const errRes = extractApiError(error);
-          throw new Error(errRes.type);
+          return {
+            success: false,
+            ...errRes,
+          };
+        }
+      },
+      onSuccess: (resData) => {
+        if (resData.success === true) {
+          toast.success("Update server successfully");
+          queryClient.invalidateQueries({
+            queryKey: serverQueryKeys.list(1, 10),
+          });
+          updateServerForm.reset();
+        } else {
+          toast.error("Update server failed");
         }
       },
     });
@@ -96,16 +133,32 @@ export const useUpdateServer = (id: string) => {
 };
 
 export const useDeleteServer = (id: string) => {
+  const queryClient = useQueryClient();
   const { mutateAsync: deleteServerMutation, isPending: isDeleting } =
     useMutation({
       mutationKey: serverQueryKeys.delete(id),
-      mutationFn: async () => {
+      mutationFn: async (serverId: string) => {
         try {
-          const { data } = await apiClient.delete(`/api/server/delete/${id}`);
+          const { data } = await apiClient.delete(
+            `/api/server/delete/${serverId}`
+          );
           return data;
         } catch (error) {
           const errRes = extractApiError(error);
-          throw new Error(errRes.type);
+          return {
+            success: false,
+            ...errRes,
+          };
+        }
+      },
+      onSuccess: (resData) => {
+        if (resData.success === true) {
+          toast.success("Delete server successfully");
+          queryClient.invalidateQueries({
+            queryKey: serverQueryKeys.list(1, 10),
+          });
+        } else {
+          toast.error("Delete server failed");
         }
       },
     });

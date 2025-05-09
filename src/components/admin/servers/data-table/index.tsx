@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-
-import { RefreshCw } from "lucide-react";
+import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
@@ -14,6 +12,14 @@ import { useGetServerList } from "@/hooks/server";
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -30,6 +36,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import DeleteServerDialog from "@/components/admin/servers/dialogs/delete-server-dialog";
+import UpdateServerDialog from "@/components/admin/servers/dialogs/update-server-dialog";
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 import { SearchInput } from "@/components/inputs/search-input";
@@ -58,13 +66,12 @@ export default function ServerDataTable() {
     parseAsString.withDefault("")
   );
 
-  const debouncedSearch = useDebounce(search, 500);
+  const debouncedSearch = useDebounce(search, 1000);
 
   const {
     data: serverResponse,
     isFetching,
     isError,
-
     error,
   } = useGetServerList(currentPage, pageSize, debouncedSearch);
 
@@ -110,10 +117,6 @@ export default function ServerDataTable() {
               }}
             />
           </div>
-          <div className="flex justify-end">
-            {/* TODO: Add add server button */}
-            <Button>Add Server</Button>
-          </div>
         </div>
 
         <div className="mt-4 flex-grow">
@@ -137,21 +140,20 @@ export default function ServerDataTable() {
                 <Table className="w-full">
                   <TableHeader className="sticky top-0 z-10 bg-white">
                     <TableRow className="border-b border-gray-200 hover:bg-white">
-                      <TableHead className="w-[100px] py-3 font-medium text-gray-700">
-                        {t("columns.id")}
-                      </TableHead>
                       <TableHead className="w-[140px] py-3 font-medium text-gray-700">
                         {t("columns.name")}
                       </TableHead>
                       <TableHead className="w-[120px] py-3 font-medium text-gray-700">
                         {t("columns.ip")}
                       </TableHead>
-
                       <TableHead className="w-[150px] py-3 font-medium text-gray-700">
                         {t("columns.createdAt")}
                       </TableHead>
                       <TableHead className="w-[150px] py-3 font-medium text-gray-700">
                         {t("columns.updatedAt")}
+                      </TableHead>
+                      <TableHead className="w-[100px] py-3 font-medium text-gray-700">
+                        {t("columns.actions")}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -161,9 +163,6 @@ export default function ServerDataTable() {
                         key={server.id}
                         className="border-b border-gray-200 hover:bg-gray-50"
                       >
-                        <TableCell className="py-3 font-medium text-gray-700">
-                          {server.id}
-                        </TableCell>
                         <TableCell className="text-muted-foreground py-3">
                           <span className="font-medium text-indigo-600">
                             {server.name}
@@ -172,7 +171,6 @@ export default function ServerDataTable() {
                         <TableCell className="text-muted-foreground py-3">
                           {server.ip}
                         </TableCell>
-
                         <TableCell className="text-muted-foreground py-3 text-sm">
                           {server.created_at
                             ? formatDateTime(new Date(server.created_at))
@@ -182,6 +180,45 @@ export default function ServerDataTable() {
                           {server.updated_at
                             ? formatDateTime(new Date(server.updated_at))
                             : "—"}
+                        </TableCell>
+                        <TableCell className="py-3">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">
+                                  {t("actions.title")}
+                                </span>
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>
+                                {t("actions.title")}
+                              </DropdownMenuLabel>
+                              <UpdateServerDialog
+                                server={server}
+                                trigger={
+                                  <DropdownMenuItem
+                                    onSelect={(e) => e.preventDefault()}
+                                  >
+                                    {t("actions.edit")}
+                                  </DropdownMenuItem>
+                                }
+                              />
+                              <DropdownMenuSeparator />
+                              <DeleteServerDialog
+                                server={server}
+                                trigger={
+                                  <DropdownMenuItem
+                                    onSelect={(e) => e.preventDefault()}
+                                    className="text-destructive focus:text-destructive hover:!bg-destructive/10"
+                                  >
+                                    {t("actions.delete")}
+                                  </DropdownMenuItem>
+                                }
+                              />
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))}

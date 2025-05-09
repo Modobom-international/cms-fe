@@ -15,6 +15,7 @@ declare global {
     success: true;
     message: string;
     value: T;
+    type: string;
   }
 
   interface IBackendErrorRes {

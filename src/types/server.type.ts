@@ -7,3 +7,5 @@ export interface IServer {
 }
 
 export type IGetServerListResponse = IPaginationResponse<IServer>;
+
+export type ICreateServerResponse = IBackendRes<null>;

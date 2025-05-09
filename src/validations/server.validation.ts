@@ -13,9 +13,7 @@ export function CreateServerSchema(
   });
 }
 
-export type CreateServerFormType = z.infer<
-  ReturnType<typeof CreateServerSchema>
->;
+export type ICreateServerForm = z.infer<ReturnType<typeof CreateServerSchema>>;
 
 export function UpdateServerSchema(
   t: (key: string, values?: TranslationValues) => string
@@ -23,6 +21,4 @@ export function UpdateServerSchema(
   return CreateServerSchema(t).partial();
 }
 
-export type UpdateServerFormType = z.infer<
-  ReturnType<typeof UpdateServerSchema>
->;
+export type IUpdateServerForm = z.infer<ReturnType<typeof UpdateServerSchema>>;
