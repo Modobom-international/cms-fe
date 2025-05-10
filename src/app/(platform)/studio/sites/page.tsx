@@ -830,7 +830,7 @@ export default function SitesManagementPage() {
                   <TableRow>
                     <TableHead>{t("Table.Name")}</TableHead>
                     <TableHead>{t("Table.Domain")}</TableHead>
-                    <TableHead>{t("Table.Description")}</TableHead>
+                    {/* <TableHead>{t("Table.Description")}</TableHead> */}
                     <TableHead>{t("Table.Language")}</TableHead>
                     <TableHead>{t("Table.Cloudflare")}</TableHead>
                     <TableHead>{t("Table.Status")}</TableHead>
@@ -845,9 +845,9 @@ export default function SitesManagementPage() {
                     <TableRow key={site.id}>
                       <TableCell className="font-medium">{site.name}</TableCell>
                       <TableCell>{site.domain}</TableCell>
-                      <TableCell className="max-w-[200px] truncate">
-                        {site.description || "-"}
-                      </TableCell>
+                      {/* <TableCell className="max-w-[200px] truncate">
+                          {site.description || "-"}
+                        </TableCell> */}
                       <TableCell>
                         {LANGUAGES.find(
                           (language) => language.code === site.language
