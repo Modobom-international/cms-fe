@@ -580,6 +580,18 @@
           }
         }
       },
+      "UpdateLanguage": {
+        "Title": "Cập nhật Ngôn ngữ",
+        "Description": "Cập nhật ngôn ngữ của trang web",
+        "Label": "Ngôn ngữ",
+        "Required": "*",
+        "Placeholder": "Chọn ngôn ngữ",
+        "Cancel": "Hủy",
+        "Save": "Lưu",
+        "Saving": "Đang lưu...",
+        "Success": "Ngôn ngữ đã được cập nhật thành công!",
+        "Error": "Không thể cập nhật ngôn ngữ"
+      },
       "DeleteSite": {
         "Title": "Xóa Trang web",
         "Description": "Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn trang web",

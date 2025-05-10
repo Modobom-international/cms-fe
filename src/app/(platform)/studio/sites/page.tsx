@@ -502,9 +502,9 @@ function UpdateLanguageDialog({
               render={({ field }) => (
                 <FormItem className="space-y-1">
                   <FormLabel>
-                    {t("Language.Label")}
+                    {t("UpdateLanguage.Label")}
                     <span className="text-destructive ml-1">
-                      {t("Language.Required")}
+                      {t("UpdateLanguage.Required")}
                     </span>
                   </FormLabel>
                   <Select
@@ -514,7 +514,9 @@ function UpdateLanguageDialog({
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder={t("Language.Placeholder")} />
+                        <SelectValue
+                          placeholder={t("UpdateLanguage.Placeholder")}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -536,7 +538,7 @@ function UpdateLanguageDialog({
                 onClick={onClose}
                 className="w-full sm:w-auto"
               >
-                {t("Cancel")}
+                {t("UpdateLanguage.Cancel")}
               </Button>
               <Button
                 type="submit"

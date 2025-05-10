@@ -533,9 +533,11 @@
     "Sites": {
       "Title": "Sites Management",
       "Description": "Manage your sites and their pages",
+      "Required": "*",
       "CreateSite": {
         "Button": "Create Site",
         "Title": "Create New Site",
+        "Required": "*",
         "Description": "Add a new site to your portfolio. Fill in the details below.",
         "SiteName": {
           "Label": "Site Name",
@@ -578,6 +580,19 @@
           }
         }
       },
+      "UpdateLanguage": {
+        "Title": "Update Language",
+        "Description": "Update the language of the site",
+        "Label": "Language",
+        "Required": "*",
+        "Cancel": "Cancel",
+        "Placeholder": "Select language",
+        "Save": "Save",
+        "Saving": "Saving...",
+        "Success": "Language updated successfully!",
+        "Error": "Failed to update language"
+      },
+
       "DeleteSite": {
         "Title": "Delete Site",
         "Description": "This action cannot be undone. This will permanently delete the site ",

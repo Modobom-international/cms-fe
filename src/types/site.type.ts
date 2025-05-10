@@ -43,18 +43,12 @@ export const SiteFormSchema = (t: any) =>
         /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/,
         t("Validation.Domain.Invalid")
       ),
-    language: z
-      .string()
-      .min(1, t("Validation.Language.Required"))
-      .default("th"),
+    language: z.string().min(1, t("Required")).default("th"),
   });
 
 export const UpdateSiteFormSchema = (t: any) =>
   z.object({
-    language: z
-      .string()
-      .min(1, t("Validation.Language.Required"))
-      .default("th"),
+    language: z.string().min(1, t("Required")).default("th"),
   });
 
 export type SiteFormValues = z.infer<ReturnType<typeof SiteFormSchema>>;
