@@ -37,7 +37,6 @@ export default function WebBuilderStudio({
   const exportPageMutation = useExportPage(pageId);
   const deployPageMutation = useDeployPage();
   const { data: pageContent, isLoading, isError } = useLoadFromAPI(pageId);
-
   const saveToAPI = async (project: any) => {
     try {
       toast.promise(
@@ -74,7 +73,7 @@ export default function WebBuilderStudio({
 
     // Combine everything into a proper HTML structure
     const htmlContent = `<!DOCTYPE html>
-<html lang="hr">
+<html lang="${pageContent?.language}">
 <head>
   ${headContent}
   <style>
@@ -326,7 +325,7 @@ export default function WebBuilderStudio({
             onLoad: async ({ editor }) => {
               // Since we're already waiting for the data to load before rendering,
               // we can be confident that pageContent is available here
-              if (!pageContent) {
+              if (!pageContent?.content) {
                 return {
                   project: {
                     pages: [
@@ -344,7 +343,7 @@ export default function WebBuilderStudio({
                 };
               }
 
-              return { project: pageContent };
+              return { project: pageContent.content };
             },
           },
           project: {

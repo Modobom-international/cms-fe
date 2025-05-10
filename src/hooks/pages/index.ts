@@ -290,7 +290,10 @@ export const useLoadFromAPI = (pageId: string) => {
         const data = response.data.data;
         const content = JSON.parse(data.content);
         console.log(`Loaded content for page ID: ${pageId}`, content);
-        return content;
+        return {
+          language: response.data.site.language,
+          content: content,
+        };
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to load page";
