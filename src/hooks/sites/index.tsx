@@ -1,30 +1,10 @@
 import { siteQueryKeys } from "@/constants/query-keys";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { z } from "zod";
+
+import type { CreateSiteData, Site, UpdateSiteData } from "@/types/site.type";
 
 import apiClient from "@/lib/api/client";
 
-// Types
-export interface Site {
-  id: number;
-  name: string;
-  domain: string;
-  created_at: string;
-  updated_at: string;
-}
-
-// Zod Schemas
-export const CreateSiteSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  domain: z.string().min(1, "Domain is required"),
-});
-
-export const UpdateSiteSchema = CreateSiteSchema;
-
-export type CreateSiteData = z.infer<typeof CreateSiteSchema>;
-export type UpdateSiteData = z.infer<typeof UpdateSiteSchema>;
-
-// Hooks
 export const useGetSites = () => {
   return useQuery({
     queryKey: siteQueryKeys.all(),
@@ -104,7 +84,10 @@ export const useUpdateSite = (siteId: string) => {
   return useMutation({
     mutationFn: async (data: UpdateSiteData) => {
       try {
-        const response = await apiClient.put(`/api/sites/${siteId}`, data);
+        const response = await apiClient.patch(
+          `/api/sites/${siteId}/language`,
+          data
+        );
         return {
           isSuccess: true,
           data: response.data,

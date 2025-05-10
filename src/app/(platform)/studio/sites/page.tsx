@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import * as z from "zod";
+import { LANGUAGES } from "@/constants/languages";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusIcon, Search } from "lucide-react";
 import { Check, ChevronsUpDown } from "lucide-react";
@@ -13,6 +14,14 @@ import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+
+import {
+  Site,
+  SiteFormSchema,
+  SiteFormValues,
+  UpdateSiteFormSchema,
+  UpdateSiteFormValues,
+} from "@/types/site.type";
 
 import { cn } from "@/lib/utils";
 
@@ -84,24 +93,6 @@ import {
 
 import { Spinner } from "@/components/global/spinner";
 
-interface Site {
-  id: string;
-  name: string;
-  domain: string;
-  description: string | null;
-  cloudflare_project_name: string;
-  cloudflare_domain_status: string;
-  branch: string;
-  created_at: string;
-  updated_at: string;
-  status: string;
-  user: {
-    name: string;
-    email: string;
-    role: string;
-  };
-}
-
 interface UserFilter {
   email: string;
   name: string;
@@ -127,7 +118,7 @@ function DeleteConfirmationDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="fixed top-[50%] left-[50%] w-full translate-x-[-50%] translate-y-[-50%] sm:max-w-[400px]">
         <DialogHeader className="space-y-3">
           <DialogTitle>{t("Title")}</DialogTitle>
           <DialogDescription>
@@ -188,28 +179,6 @@ function DeleteConfirmationDialog({
   );
 }
 
-// Form Schema
-const siteFormSchema = (t: any) =>
-  z.object({
-    name: z
-      .string()
-      .min(1, t("Validation.Name.Required"))
-      .min(3, t("Validation.Name.MinLength"))
-      .max(64, t("Validation.Name.MaxLength"))
-      .transform((value) => value.trim()),
-    domain: z
-      .string()
-      .min(1, t("Validation.Domain.Required"))
-      .min(3, t("Validation.Domain.MinLength"))
-      .max(253, t("Validation.Domain.MaxLength"))
-      .regex(
-        /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/,
-        t("Validation.Domain.Invalid")
-      ),
-  });
-
-type SiteFormValues = z.infer<ReturnType<typeof siteFormSchema>>;
-
 function CreateSiteDialog() {
   const t = useTranslations("Studio.Sites.CreateSite");
   const [openDomainSelect, setOpenDomainSelect] = useState(false);
@@ -217,10 +186,11 @@ function CreateSiteDialog() {
   const debouncedSearchValue = useDebounce(searchInputValue, 500);
 
   const form = useForm<SiteFormValues>({
-    resolver: zodResolver(siteFormSchema(t)),
+    resolver: zodResolver(SiteFormSchema(t)),
     defaultValues: {
       name: "",
       domain: "",
+      language: "en",
     },
     mode: "onChange",
   });
@@ -253,6 +223,7 @@ function CreateSiteDialog() {
       const trimmedData = {
         ...data,
         name: data.name.trim(),
+        language: data.language,
       };
 
       await toast.promise(createSiteMutation.mutateAsync(trimmedData), {
@@ -282,7 +253,7 @@ function CreateSiteDialog() {
           {t("Button")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[475px]">
+      <DialogContent className="fixed top-[50%] left-[50%] w-full translate-x-[-50%] translate-y-[-50%] sm:max-w-1/2">
         <DialogHeader>
           <DialogTitle>{t("Title")}</DialogTitle>
           <DialogDescription>{t("Description")}</DialogDescription>
@@ -309,6 +280,7 @@ function CreateSiteDialog() {
                         placeholder={t("SiteName.Placeholder")}
                         {...field}
                         disabled={createSiteMutation.isPending}
+                        className="w-full"
                       />
                     </FormControl>
                     <p className="text-muted-foreground text-xs">
@@ -345,15 +317,17 @@ function CreateSiteDialog() {
                             }
                             type="button"
                           >
-                            {field.value
-                              ? domains.find((d) => d.domain === field.value)
-                                  ?.domain || field.value
-                              : t("Domain.Placeholder")}
+                            <span className="truncate">
+                              {field.value
+                                ? domains.find((d) => d.domain === field.value)
+                                    ?.domain || field.value
+                                : t("Domain.Placeholder")}
+                            </span>
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent
-                          className="w-[24rem] p-0"
+                          className="w-[calc(100vw-2rem)] p-0 sm:w-[24rem]"
                           side="bottom"
                           align="start"
                         >
@@ -387,7 +361,9 @@ function CreateSiteDialog() {
                                       value={domainItem.domain}
                                       onSelect={handleDomainChange}
                                     >
-                                      {domainItem.domain}
+                                      <span className="truncate">
+                                        {domainItem.domain}
+                                      </span>
                                       <Check
                                         className={cn(
                                           "ml-auto h-4 w-4",
@@ -412,8 +388,46 @@ function CreateSiteDialog() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="language"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel>
+                      {t("Language.Label")}
+                      <span className="text-destructive ml-1">
+                        {t("Language.Required")}
+                      </span>
+                    </FormLabel>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={createSiteMutation.isPending}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue
+                            placeholder={t("Language.Placeholder")}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {LANGUAGES.map((language) => (
+                          <SelectItem key={language.code} value={language.code}>
+                            {language.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-muted-foreground text-xs">
+                      {t("Language.Helper")}
+                    </p>
+                    <FormMessage className="text-destructive text-sm font-medium" />
+                  </FormItem>
+                )}
+              />
             </div>
-            <DialogFooter>
+            <DialogFooter className="flex-col gap-2 sm:flex-row">
               <Button
                 type="submit"
                 disabled={createSiteMutation.isPending}
@@ -426,6 +440,116 @@ function CreateSiteDialog() {
                   </>
                 ) : (
                   t("Submit")
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function UpdateLanguageDialog({
+  site,
+  isOpen,
+  onClose,
+}: {
+  site: Site;
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const t = useTranslations("Studio.Sites");
+  const updateSiteMutation = useUpdateSite(site.id);
+
+  const form = useForm<UpdateSiteFormValues>({
+    resolver: zodResolver(UpdateSiteFormSchema(t)),
+    defaultValues: {
+      language: site.language,
+    },
+  });
+
+  const handleSubmit = async (data: UpdateSiteFormValues) => {
+    try {
+      await toast.promise(updateSiteMutation.mutateAsync(data), {
+        loading: t("UpdateLanguage.Loading"),
+        success: t("UpdateLanguage.Success"),
+        error: t("UpdateLanguage.Error"),
+      });
+      onClose();
+    } catch (err) {
+      console.error("Error updating site language:", err);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="fixed top-[50%] left-[50%] w-full translate-x-[-50%] translate-y-[-50%] sm:max-w-[400px]">
+        <DialogHeader>
+          <DialogTitle>{t("UpdateLanguage.Title")}</DialogTitle>
+          <DialogDescription>
+            {t("UpdateLanguage.Description", { siteName: site.name })}
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-6"
+          >
+            <FormField
+              control={form.control}
+              name="language"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel>
+                    {t("Language.Label")}
+                    <span className="text-destructive ml-1">
+                      {t("Language.Required")}
+                    </span>
+                  </FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={updateSiteMutation.isPending}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder={t("Language.Placeholder")} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {LANGUAGES.map((language) => (
+                        <SelectItem key={language.code} value={language.code}>
+                          {language.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage className="text-destructive text-sm font-medium" />
+                </FormItem>
+              )}
+            />
+            <DialogFooter className="flex-col gap-2 sm:flex-row">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="w-full sm:w-auto"
+              >
+                {t("Cancel")}
+              </Button>
+              <Button
+                type="submit"
+                disabled={updateSiteMutation.isPending}
+                className="w-full sm:w-auto"
+              >
+                {updateSiteMutation.isPending ? (
+                  <>
+                    <Spinner />
+                    {t("UpdateLanguage.Saving")}
+                  </>
+                ) : (
+                  t("UpdateLanguage.Save")
                 )}
               </Button>
             </DialogFooter>
@@ -607,6 +731,14 @@ export default function SitesManagementPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const [updateLanguageDialog, setUpdateLanguageDialog] = useState<{
+    isOpen: boolean;
+    site: Site | null;
+  }>({
+    isOpen: false,
+    site: null,
+  });
+
   return (
     <div className="container space-y-6 p-6">
       <div className="flex items-center justify-between">
@@ -697,6 +829,7 @@ export default function SitesManagementPage() {
                     <TableHead>{t("Table.Name")}</TableHead>
                     <TableHead>{t("Table.Domain")}</TableHead>
                     <TableHead>{t("Table.Description")}</TableHead>
+                    <TableHead>{t("Table.Language")}</TableHead>
                     <TableHead>{t("Table.Cloudflare")}</TableHead>
                     <TableHead>{t("Table.Status")}</TableHead>
                     <TableHead>{t("Table.Owner")}</TableHead>
@@ -712,6 +845,11 @@ export default function SitesManagementPage() {
                       <TableCell>{site.domain}</TableCell>
                       <TableCell className="max-w-[200px] truncate">
                         {site.description || "-"}
+                      </TableCell>
+                      <TableCell>
+                        {LANGUAGES.find(
+                          (language) => language.code === site.language
+                        )?.name || "-"}
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col items-center">
@@ -751,35 +889,15 @@ export default function SitesManagementPage() {
                           >
                             {t("Table.Pages")}
                           </Link>
-                          {editingSite?.id === site.id ? (
-                            <>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleUpdateSite}
-                                disabled={updateSiteMutation.isPending}
-                              >
-                                {updateSiteMutation.isPending
-                                  ? t("Table.Saving")
-                                  : t("Table.Save")}
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setEditingSite(null)}
-                              >
-                                {t("Table.Cancel")}
-                              </Button>
-                            </>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setEditingSite(site)}
-                            >
-                              {t("Table.Edit")}
-                            </Button>
-                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setUpdateLanguageDialog({ isOpen: true, site })
+                            }
+                          >
+                            {t("Table.Language")}
+                          </Button>
                           <Button
                             variant="destructive"
                             size="sm"
@@ -844,6 +962,14 @@ export default function SitesManagementPage() {
         siteName={deleteDialog.siteName}
         isDeleting={deleteSiteMutation.isPending}
       />
+
+      {updateLanguageDialog.site && (
+        <UpdateLanguageDialog
+          site={updateLanguageDialog.site}
+          isOpen={updateLanguageDialog.isOpen}
+          onClose={() => setUpdateLanguageDialog({ isOpen: false, site: null })}
+        />
+      )}
     </div>
   );
 }

@@ -167,7 +167,7 @@ function CreatePageDialog({ site }: { site: string }) {
           {t("Create.Button")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[475px]">
+      <DialogContent className="fixed top-[50%] left-[50%] w-full translate-x-[-50%] translate-y-[-50%] sm:max-w-[475px]">
         <DialogHeader>
           <DialogTitle>{t("Create.Dialog.Title")}</DialogTitle>
           <DialogDescription>
@@ -263,7 +263,7 @@ function DeleteConfirmationDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="fixed top-[50%] left-[50%] w-full translate-x-[-50%] translate-y-[-50%] sm:max-w-[400px]">
         <DialogHeader className="space-y-3">
           <DialogTitle>{t("Delete.Dialog.Title")}</DialogTitle>
           <DialogDescription>
@@ -397,7 +397,7 @@ function TrackingScriptDialog({
           {t("List.Table.TrackingScript")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[800px]">
+      <DialogContent className="fixed top-[50%] left-[50%] w-full translate-x-[-50%] translate-y-[-50%] sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>
             {t("TrackingScript.Dialog.Title", { pageName })}

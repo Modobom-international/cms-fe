@@ -552,6 +552,12 @@
           "Helper": "Tên miền nơi trang web của bạn sẽ được lưu trữ",
           "NoDomains": "Không tìm thấy tên miền"
         },
+        "Language": {
+          "Label": "Ngôn ngữ",
+          "Required": "*",
+          "Helper": "Ngôn ngữ mặc định của trang web",
+          "Placeholder": "Chọn ngôn ngữ"
+        },
         "Submit": "Tạo Trang web",
         "Loading": "Đang tạo trang web...",
         "Success": "Tạo trang web thành công!",
@@ -567,6 +573,10 @@
             "MinLength": "Tên miền phải có ít nhất 3 ký tự",
             "MaxLength": "Tên miền không được vượt quá 253 ký tự",
             "Invalid": "Vui lòng nhập tên miền hợp lệ (ví dụ: example.com)"
+          },
+          "Language": {
+            "Required": "Ngôn ngữ là bắt buộc",
+            "Invalid": "Ngôn ngữ không hợp lệ"
           }
         }
       },
@@ -610,7 +620,8 @@
         "Status": "Trạng thái",
         "Owner": "Chủ sở hữu",
         "FilterByOwner": "Lọc theo chủ sở hữu",
-        "AllOwners": "Tất cả chủ sở hữu"
+        "AllOwners": "Tất cả chủ sở hữu",
+        "Language": "Ngôn ngữ"
       },
       "Pages": {
         "Title": "Trang - {siteName}",

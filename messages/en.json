@@ -551,6 +551,12 @@
           "Helper": "The domain where your site will be hosted",
           "NoDomains": "No domains found"
         },
+        "Language": {
+          "Label": "Language",
+          "Required": "*",
+          "Helper": "The language of your site",
+          "Placeholder": "Select language"
+        },
         "Submit": "Create Site",
         "Loading": "Creating site...",
         "Success": "Site created successfully!",
@@ -566,6 +572,9 @@
             "MinLength": "Domain must be at least 3 characters",
             "MaxLength": "Domain cannot exceed 253 characters",
             "Invalid": "Please enter a valid domain name (e.g., example.com)"
+          },
+          "Language": {
+            "Required": "Language is required"
           }
         }
       },
@@ -609,7 +618,8 @@
         "Next": "Next",
         "Page": "Page {current} of {total}",
         "FilterByOwner": "Filter by owner",
-        "AllOwners": "All owners"
+        "AllOwners": "All owners",
+        "Language": "Language"
       },
       "Pages": {
         "Title": "Pages - {siteName}",
