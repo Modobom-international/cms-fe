@@ -9,7 +9,12 @@ import { toast } from "sonner";
 
 import apiClient from "@/lib/api/client";
 
-import { useDeployPage, useExportPage, useUpdatePage } from "@/hooks/pages";
+import {
+  useDeployPage,
+  useExportPage,
+  useLoadFromAPI,
+  useUpdatePage,
+} from "@/hooks/pages";
 
 import { deleteAssets, loadAssets, uploadAssets } from "./actions/upload";
 import { buttonBlock } from "./blocks/button";
@@ -31,6 +36,7 @@ export default function WebBuilderStudio({
   const updatePageMutation = useUpdatePage();
   const exportPageMutation = useExportPage(pageId);
   const deployPageMutation = useDeployPage();
+  const { data: pageContent, isLoading, isError } = useLoadFromAPI(pageId);
 
   const saveToAPI = async (project: any) => {
     try {
@@ -50,29 +56,6 @@ export default function WebBuilderStudio({
       toast.error(t("SaveError"), {
         description: errorMessage,
       });
-      throw new Error(errorMessage);
-    }
-  };
-
-  const loadFromAPI = async () => {
-    try {
-      const response = await apiClient.get(`/api/page/${pageId}`);
-
-      if (response.status !== 200) {
-        throw new Error(`API error: ${response.status}`);
-      }
-
-      const data = response.data.data;
-      const content = JSON.parse(data.content);
-      console.log(`Loaded content for page ID: ${pageId}`, content);
-      return content;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t("SaveError");
-
-      console.warn(
-        `Could not load content for page ID: ${pageId}`,
-        errorMessage
-      );
       throw new Error(errorMessage);
     }
   };
@@ -295,6 +278,32 @@ export default function WebBuilderStudio({
     });
   };
 
+  // If loading, show loading state
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg font-semibold">{t("LoadingPage")}</div>
+          <div className="text-muted-foreground text-sm">{t("PleaseWait")}</div>
+        </div>
+      </div>
+    );
+  }
+
+  // If error, show error state
+  if (isError) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <div className="text-center">
+          <div className="text-destructive text-lg font-semibold">
+            {t("LoadError")}
+          </div>
+          <div className="text-muted-foreground text-sm">{t("TryAgain")}</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative h-screen w-screen">
       <StudioEditor
@@ -315,34 +324,9 @@ export default function WebBuilderStudio({
               }
             },
             onLoad: async ({ editor }) => {
-              try {
-                const project = await loadFromAPI();
-                console.log(`Project loaded for slug: ${slug}`, { project });
-
-                if (!project) {
-                  return {
-                    project: {
-                      pages: [
-                        {
-                          name: slug,
-                          component: `
-                            <div style="padding: 20px; text-align: center;">
-                              <h1>${t("NewPage.Title", { slug })}</h1>
-                              <p style="color: #666;">${t("NewPage.Description")}</p>
-                            </div>
-                          `,
-                        },
-                      ],
-                    },
-                  };
-                }
-
-                return { project };
-              } catch (error) {
-                console.error(
-                  `Failed to load project for slug: ${slug}`,
-                  error
-                );
+              // Since we're already waiting for the data to load before rendering,
+              // we can be confident that pageContent is available here
+              if (!pageContent) {
                 return {
                   project: {
                     pages: [
@@ -359,6 +343,8 @@ export default function WebBuilderStudio({
                   },
                 };
               }
+
+              return { project: pageContent };
             },
           },
           project: {

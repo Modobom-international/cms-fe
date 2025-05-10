@@ -524,6 +524,10 @@
     "Deploying": "Deploying...",
     "ExportAndDeployButton": "Deploy",
     "ExportAndDeployError": "Export and deploy failed",
+    "LoadingPage": "Loading page...",
+    "PleaseWait": "Please wait while we load your page",
+    "LoadError": "Failed to load page",
+    "TryAgain": "Please try again or contact support if the problem persists",
     "NewPage": {
       "Title": "New Page: {slug}",
       "Description": "Start building your page here."
@@ -694,7 +698,7 @@
         "Delete": {
           "Dialog": {
             "Title": "Delete Page",
-            "Description": "This action cannot be undone. You will permanently delete the page {pageName}.",
+            "Description": "This action cannot be undone. You will permanently delete the page.",
             "ConfirmationText": "To confirm, type the page name",
             "ConfirmationText2": "below:",
             "InputPlaceholder": "Type page name to confirm",

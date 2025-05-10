@@ -525,6 +525,10 @@
     "Deploying": "Đang đăng...",
     "ExportAndDeployButton": "Đăng",
     "ExportAndDeployError": "Xuất và đăng thất bại",
+    "LoadingPage": "Đang tải trang...",
+    "PleaseWait": "Vui lòng đợi trong khi chúng tôi tải trang của bạn",
+    "LoadError": "Không thể tải trang",
+    "TryAgain": "Vui lòng thử lại hoặc liên hệ hỗ trợ nếu vấn đề vẫn tiếp tục",
     "NewPage": {
       "Title": "Trang mới: {slug}",
       "Description": "Bắt đầu xây dựng trang của bạn tại đây."
@@ -693,7 +697,7 @@
         "Delete": {
           "Dialog": {
             "Title": "Xóa Trang",
-            "Description": "Hành động này không thể hoàn tác. Bạn sẽ xóa vĩnh viễn trang ",
+            "Description": "Hành động này không thể hoàn tác. Bạn sẽ xóa vĩnh viễn trang.",
             "ConfirmationText": "Để xác nhận, hãy nhập tên trang ",
             "ConfirmationText2": "bên dưới:",
             "InputPlaceholder": "Nhập tên trang để xác nhận",

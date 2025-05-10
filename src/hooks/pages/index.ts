@@ -275,3 +275,33 @@ export const useDeleteTrackingScript = () => {
     },
   });
 };
+
+export const useLoadFromAPI = (pageId: string) => {
+  return useQuery({
+    queryKey: pageQueryKeys.details(pageId),
+    queryFn: async () => {
+      try {
+        const response = await apiClient.get(`/api/page/${pageId}`);
+
+        if (response.status !== 200) {
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = response.data.data;
+        const content = JSON.parse(data.content);
+        console.log(`Loaded content for page ID: ${pageId}`, content);
+        return content;
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load page";
+        console.warn(
+          `Could not load content for page ID: ${pageId}`,
+          errorMessage
+        );
+        throw new Error(errorMessage);
+      }
+    },
+    enabled: !!pageId,
+  });
+};
+
