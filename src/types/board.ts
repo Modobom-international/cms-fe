@@ -53,3 +53,13 @@ export interface MoveCardPayload {
   newOrder: number;
 }
 
+export interface CardPosition {
+  id: string;
+  position: number;
+  list_id: string;
+}
+
+export interface UpdateCardPositionsPayload {
+  positions: CardPosition[];
+}
+

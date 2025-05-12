@@ -1,10 +1,12 @@
 "use client";
 
-import { Draggable } from "@hello-pangea/dnd";
+import { Draggable, Droppable } from "@hello-pangea/dnd";
 
 import { List } from "@/types/board";
 
 import { useCreateCard, useDeleteCard, useUpdateCard } from "@/hooks/board";
+
+import BoardCard from "./BoardCard";
 
 interface BoardListProps {
   list: List;
@@ -43,24 +45,35 @@ export default function BoardList({
           </div>
 
           {/* Cards */}
-          <div className="space-y-2">
-            {list.cards?.map((card, cardIndex) => (
-              <div key={card.id} className="rounded bg-white p-3 shadow">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium">{card.title}</h4>
-                  <button
-                    onClick={() =>
-                      deleteCard({ cardId: card.id, listId: String(list.id) })
+          <Droppable droppableId={String(list.id)} type="card">
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="space-y-2"
+              >
+                {list.cards?.map((card, cardIndex) => (
+                  <BoardCard
+                    key={String(card.id)}
+                    card={{
+                      ...card,
+                      id: String(card.id),
+                      listId: String(card.listId),
+                    }}
+                    index={cardIndex}
+                    onUpdate={updateCard}
+                    onDelete={(cardId) =>
+                      deleteCard({
+                        cardId: String(cardId),
+                        listId: String(list.id),
+                      })
                     }
-                    className="text-sm text-red-600 hover:text-red-800"
-                  >
-                    Delete
-                  </button>
-                </div>
-                <p className="mt-2 text-sm text-gray-600">{card.description}</p>
+                  />
+                ))}
+                {provided.placeholder}
               </div>
-            ))}
-          </div>
+            )}
+          </Droppable>
 
           {/* Add Card Form */}
           <form
