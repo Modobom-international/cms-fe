@@ -1,16 +1,5 @@
-import {
-  deleteObject,
-  getDownloadURL,
-  getStorage,
-  listAll,
-  ref,
-  uploadBytes,
-} from "firebase/storage";
 
-import { app } from "@/lib/firebase";
-
-// Initialize Firebase Storage
-const storage = getStorage(app);
+import { getApiUrl } from "@/lib/s3";
 
 // Define InputAssetProps type based on what GrapeJS expects
 interface InputAssetProps {
@@ -43,7 +32,7 @@ const getCMSFolderPath = (siteId: string) => {
 };
 
 /**
- * Upload assets to Firebase Storage
+ * Upload assets to Cloudflare R2 via API proxy
  */
 export const uploadAssets = async ({
   files,
@@ -67,26 +56,37 @@ export const uploadAssets = async ({
       const fileExtension = file.name.split(".").pop();
       const slugPrefix = slug ? `${slug}-` : "";
       const uniqueFileName = `${slugPrefix}${timestamp}.${fileExtension}`;
-      const filePath = `${folderPath}/${uniqueFileName}`;
+      const key = `${folderPath}/${uniqueFileName}`;
 
-      // Create a reference to the file location
-      const storageRef = ref(storage, filePath);
+      // Create form data for the API request
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("key", key);
 
-      // Upload the file
-      await uploadBytes(storageRef, file);
+      // Upload via API route
+      const response = await fetch("/api/r2", {
+        method: "POST",
+        body: formData,
+      });
 
-      // Get the download URL
-      const downloadURL = await getDownloadURL(storageRef);
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      // Get the API URL for the asset
+      const apiUrl = getApiUrl(key);
 
       // Prepare asset metadata
       const asset: InputAssetProps = {
-        src: downloadURL,
+        src: apiUrl,
         name: file.name,
         metadata: {
           originalName: file.name,
           size: file.size,
           type: file.type,
-          firebasePath: filePath,
+          r2Path: key,
           timestamp: timestamp,
         },
       };
@@ -96,13 +96,13 @@ export const uploadAssets = async ({
 
     return uploadedAssets;
   } catch (error) {
-    console.error("Error uploading assets to Firebase:", error);
+    console.error("Error uploading assets to R2:", error);
     throw error;
   }
 };
 
 /**
- * Delete assets from Firebase Storage
+ * Delete assets from Cloudflare R2 via API proxy
  */
 export const deleteAssets = async ({
   assets,
@@ -113,24 +113,30 @@ export const deleteAssets = async ({
 } & WithEditorProps): Promise<void> => {
   try {
     for (const asset of assets) {
-      // Get the Firebase storage path from asset metadata
-      const firebasePath = asset.get("metadata")?.firebasePath;
+      // Get the R2 storage path from asset metadata
+      const r2Path = asset.get("metadata")?.r2Path;
 
-      if (firebasePath) {
-        const assetRef = ref(storage, firebasePath);
-        await deleteObject(assetRef);
+      if (r2Path) {
+        // Delete via API route
+        const response = await fetch(`/api/r2?key=${encodeURIComponent(r2Path)}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error(`Delete failed: ${response.statusText}`);
+        }
       } else {
-        console.warn("Asset doesn't have Firebase path metadata:", asset);
+        console.warn("Asset doesn't have R2 path metadata:", asset);
       }
     }
   } catch (error) {
-    console.error("Error deleting assets from Firebase:", error);
+    console.error("Error deleting assets from R2:", error);
     throw error;
   }
 };
 
 /**
- * Load assets from Firebase Storage
+ * Load assets from Cloudflare R2 via API proxy
  */
 export const loadAssets = async ({
   editor,
@@ -139,44 +145,47 @@ export const loadAssets = async ({
   try {
     // Create a reference to the site-specific CMS assets folder
     const folderPath = getCMSFolderPath(siteId);
-    const cmsFolderRef = ref(storage, folderPath);
 
-    // List all items in the folder
-    const result = await listAll(cmsFolderRef);
-
-    // Get download URLs and metadata for all items
-    const assetsPromises = result.items.map(async (itemRef) => {
-      const downloadURL = await getDownloadURL(itemRef);
-      const fileName = itemRef.name;
-
-      // Extract timestamp from filename if present
-      let timestamp = 0;
-      const timestampMatch = fileName.match(/-(\d+)-/);
-      if (timestampMatch && timestampMatch[1]) {
-        timestamp = parseInt(timestampMatch[1], 10);
-      }
-
-      return {
-        src: downloadURL,
-        name: fileName,
-        metadata: {
-          originalName: fileName,
-          firebasePath: itemRef.fullPath,
-          timestamp: timestamp,
-        },
-      } as InputAssetProps;
-    });
-
-    const assets = await Promise.all(assetsPromises);
-
-    // Sort assets by timestamp, newest first
-    return assets.sort((a, b) => {
-      const timestampA = a.metadata?.timestamp || 0;
-      const timestampB = b.metadata?.timestamp || 0;
-      return timestampB - timestampA;
-    });
+    // Use the API proxy to list assets
+    const response = await fetch(`/api/r2?prefix=${encodeURIComponent(folderPath)}`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to load assets: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.items || !Array.isArray(data.items)) {
+      console.warn('Invalid response format from assets API:', data);
+      return [];
+    }
+    
+    // Define the expected item type from API
+    interface AssetItem {
+      key: string;
+      name: string;
+      size?: number;
+      lastModified?: Date;
+      timestamp?: number;
+      url: string;
+    }
+    
+    // Map the API response to the format expected by GrapeJS
+    const assets = data.items.map((item: AssetItem) => ({
+      src: item.url,
+      name: item.name,
+      metadata: {
+        originalName: item.name,
+        r2Path: item.key,
+        timestamp: item.timestamp,
+        size: item.size,
+        lastModified: item.lastModified,
+      },
+    } as InputAssetProps));
+    
+    return assets;
   } catch (error) {
-    console.error("Error loading assets from Firebase:", error);
+    console.error("Error loading assets from R2:", error);
     return []; // Return empty array on error to avoid breaking the UI
   }
 };
