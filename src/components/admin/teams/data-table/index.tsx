@@ -74,13 +74,13 @@ export default function TeamsDataTable() {
   // Handle next page navigation
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.totalPages, prev + 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    
   };
 
   // Handle previous page navigation
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    
   };
 
   return (

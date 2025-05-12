@@ -115,12 +115,12 @@ export default function DomainDataTable() {
 
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    
   };
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    
   };
 
   const handleRefresh = () => {

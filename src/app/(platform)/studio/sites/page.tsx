@@ -725,12 +725,12 @@ export default function SitesManagementPage() {
   // Handle pagination
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(sitesData.meta.last_page, prev + 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    
   };
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    
   };
 
   const [updateLanguageDialog, setUpdateLanguageDialog] = useState<{
