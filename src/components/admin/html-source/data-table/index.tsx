@@ -91,13 +91,13 @@ export default function HtmlSourceDataTable() {
   // Handle next page navigation - increment by 1
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    
   };
 
   // Handle previous page navigation - decrement by 1
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    
   };
 
   // Date picker handling
