@@ -1,5 +1,4 @@
-
-import { getApiUrl } from "@/lib/s3";
+import { getApiUrl, bucketPublicUrl } from "@/lib/s3";
 
 // Define InputAssetProps type based on what GrapeJS expects
 interface InputAssetProps {
@@ -75,12 +74,12 @@ export const uploadAssets = async ({
 
       const result = await response.json();
       
-      // Get the API URL for the asset
-      const apiUrl = getApiUrl(key);
+      // Use direct public URL for better performance
+      const publicUrl = `${bucketPublicUrl}/${key}`;
 
       // Prepare asset metadata
       const asset: InputAssetProps = {
-        src: apiUrl,
+        src: publicUrl,
         name: file.name,
         metadata: {
           originalName: file.name,
@@ -146,8 +145,14 @@ export const loadAssets = async ({
     // Create a reference to the site-specific CMS assets folder
     const folderPath = getCMSFolderPath(siteId);
 
-    // Use the API proxy to list assets
-    const response = await fetch(`/api/r2?prefix=${encodeURIComponent(folderPath)}`);
+    // Use the API proxy to list assets with caching
+    const response = await fetch(`/api/r2?prefix=${encodeURIComponent(folderPath)}`, {
+      // Add cache control to prevent unnecessary refetches
+      cache: "no-store",
+      headers: {
+        "Cache-Control": "no-cache"
+      }
+    });
     
     if (!response.ok) {
       throw new Error(`Failed to load assets: ${response.statusText}`);
@@ -171,17 +176,22 @@ export const loadAssets = async ({
     }
     
     // Map the API response to the format expected by GrapeJS
-    const assets = data.items.map((item: AssetItem) => ({
-      src: item.url,
-      name: item.name,
-      metadata: {
-        originalName: item.name,
-        r2Path: item.key,
-        timestamp: item.timestamp,
-        size: item.size,
-        lastModified: item.lastModified,
-      },
-    } as InputAssetProps));
+    const assets = data.items.map((item: AssetItem) => {
+      // Extract original name from filename if possible
+      const fileName = item.name;
+      
+      return {
+        src: item.url,
+        name: fileName,
+        metadata: {
+          originalName: fileName,
+          r2Path: item.key,
+          timestamp: item.timestamp,
+          size: item.size,
+          lastModified: item.lastModified,
+        },
+      } as InputAssetProps;
+    });
     
     return assets;
   } catch (error) {

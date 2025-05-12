@@ -26,48 +26,29 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ items: [] });
       }
 
-      // Process each item to get metadata
-      const items = await Promise.all(
-        listResult.Contents.map(async (item) => {
-          if (!item.Key) return null;
+      // Process each item without making additional API calls
+      const items = listResult.Contents.map((item) => {
+        if (!item.Key) return null;
 
-          // Get the file name from the full path
-          const fileName = item.Key.split("/").pop() || "";
+        // Get the file name from the full path
+        const fileName = item.Key.split("/").pop() || "";
 
-          // Extract timestamp from filename if present
-          let timestamp = 0;
-          const timestampMatch = fileName.match(/-(\d+)\./);
-          if (timestampMatch && timestampMatch[1]) {
-            timestamp = parseInt(timestampMatch[1], 10);
-          }
+        // Extract timestamp from filename if present
+        let timestamp = 0;
+        const timestampMatch = fileName.match(/-(\d+)\./);
+        if (timestampMatch && timestampMatch[1]) {
+          timestamp = parseInt(timestampMatch[1], 10);
+        }
 
-          // Try to get metadata
-          let originalName = fileName;
-          try {
-            const headResult = await s3Client.send(
-              new GetObjectCommand({
-                Bucket: bucketName,
-                Key: item.Key,
-              })
-            );
-
-            if (headResult.Metadata?.originalname) {
-              originalName = headResult.Metadata.originalname;
-            }
-          } catch (error) {
-            console.warn(`Couldn't get metadata for ${item.Key}:`, error);
-          }
-
-          return {
-            key: item.Key,
-            name: originalName,
-            size: item.Size,
-            lastModified: item.LastModified,
-            timestamp: timestamp,
-            url: `${bucketPublicUrl}/${item.Key}`,
-          };
-        })
-      );
+        return {
+          key: item.Key,
+          name: fileName, // Use filename directly
+          size: item.Size,
+          lastModified: item.LastModified,
+          timestamp: timestamp,
+          url: `${bucketPublicUrl}/${item.Key}`,
+        };
+      });
 
       // Filter out null items and sort by timestamp
       const validItems = items.filter(item => item !== null);
@@ -135,8 +116,8 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    // Return the URL to access the file through our API
-    const fileUrl = `/api/assets?key=${encodeURIComponent(key)}`;
+    // Return the direct public URL for better performance
+    const fileUrl = `${bucketPublicUrl}/${key}`;
     
     return NextResponse.json({ url: fileUrl });
   } catch (error) {
