@@ -1,42 +1,21 @@
 import { pageQueryKeys } from "@/constants/query-keys";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { z } from "zod";
+
+import {
+  ICreatePageData,
+  ICreatePageResponse,
+  IDeletePageResponse,
+  IPage,
+  IPageDetailResponse,
+  IPageListResponse,
+  IPageResponse,
+  ITrackingScriptResponse,
+  IUpdatePageData,
+  IUpdatePageResponse,
+  IUpdateTrackingScriptData,
+} from "@/types/page.type";
 
 import apiClient from "@/lib/api/client";
-
-// Types
-export interface Page {
-  id: number;
-  name: string;
-  slug: string;
-  content: string;
-  site_id: number;
-  updated_at: string;
-  tracking_script?: string;
-}
-
-// Zod Schemas
-export const CreatePageSchema = z.object({
-  site_id: z.string(),
-  name: z.string().min(1, "Name is required"),
-  slug: z.string().min(1, "Slug is required"),
-  content: z.string(),
-});
-
-export const UpdatePageSchema = z.object({
-  pageId: z.string().min(1, "Page ID is required"),
-  content: z.string(),
-});
-
-export const UpdateTrackingScriptSchema = z.object({
-  tracking_script: z.string(),
-});
-
-export type CreatePageData = z.infer<typeof CreatePageSchema>;
-export type UpdatePageData = z.infer<typeof UpdatePageSchema>;
-export type UpdateTrackingScriptData = z.infer<
-  typeof UpdateTrackingScriptSchema
->;
 
 // Hooks
 export const useGetPages = (siteId: string) => {
@@ -44,7 +23,9 @@ export const useGetPages = (siteId: string) => {
     queryKey: pageQueryKeys.listBySiteId(siteId),
     queryFn: async () => {
       try {
-        const response = await apiClient.get(`/api/sites/${siteId}/pages`);
+        const response = await apiClient.get<IPageListResponse>(
+          `/api/sites/${siteId}/pages`
+        );
         return {
           isSuccess: true,
           data: response.data.data || [],
@@ -67,9 +48,9 @@ export const useGetPageById = (pageId: string) => {
     queryKey: pageQueryKeys.details(pageId),
     queryFn: async () => {
       try {
-        console.log(`Starting fetch for page ID: ${pageId}`);
-        const response = await apiClient.get(`/api/page/${pageId}`);
-        console.log(`Raw API response for ${pageId}:`, response);
+        const response = await apiClient.get<IPageDetailResponse>(
+          `/api/page/${pageId}`
+        );
 
         if (!response.data) {
           console.error(`No response data for ${pageId}`);
@@ -88,6 +69,7 @@ export const useGetPageById = (pageId: string) => {
           isSuccess: true,
           data: {
             data: response.data.data,
+            site: response.data.site,
           },
           message: "Page fetched successfully",
         };
@@ -106,8 +88,8 @@ export const useGetPageById = (pageId: string) => {
 export const useCreatePage = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (data: CreatePageData) => {
+  return useMutation<ICreatePageResponse, Error, ICreatePageData>({
+    mutationFn: async (data) => {
       const response = await apiClient.post(`/api/create-page`, data);
       if (!response.data.success) {
         throw new Error(response.data.message || "Failed to create page");
@@ -125,8 +107,12 @@ export const useCreatePage = () => {
 export const useUpdatePage = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (data: UpdatePageData & { pageId: string }) => {
+  return useMutation<
+    IUpdatePageResponse,
+    Error,
+    IUpdatePageData & { pageId: string }
+  >({
+    mutationFn: async (data) => {
       const response = await apiClient.post(
         `/api/update-page/${data.pageId}`,
         data
@@ -145,8 +131,8 @@ export const useUpdatePage = () => {
 };
 
 export const useExportPage = (pageId: string) => {
-  return useMutation({
-    mutationFn: async (formData: FormData) => {
+  return useMutation<IUpdatePageResponse, Error, FormData>({
+    mutationFn: async (formData) => {
       const response = await apiClient.post(
         `/api/export-pages/${pageId}`,
         formData,
@@ -165,8 +151,12 @@ export const useExportPage = (pageId: string) => {
 };
 
 export const useDeployPage = () => {
-  return useMutation({
-    mutationFn: async (data: { site_id: number; page_slug: string }) => {
+  return useMutation<
+    IUpdatePageResponse,
+    Error,
+    { site_id: number; page_slug: string }
+  >({
+    mutationFn: async (data) => {
       const response = await apiClient.post(
         "/api/cloudflare/deploy-exports",
         data
@@ -182,17 +172,21 @@ export const useDeployPage = () => {
 export const useDeletePage = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (pageId: number) => {
+  return useMutation<
+    IDeletePageResponse,
+    Error,
+    { pageId: number; siteId: string }
+  >({
+    mutationFn: async ({ pageId, siteId }) => {
       const response = await apiClient.delete(`/api/pages/${pageId}`);
       if (!response.data.success) {
         throw new Error(response.data.message || "Failed to delete page");
       }
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: pageQueryKeys.all(),
+        queryKey: pageQueryKeys.listBySiteId(variables.siteId),
       });
     },
   });
@@ -203,7 +197,7 @@ export const useGetTrackingScript = (pageId: string) => {
     queryKey: [...pageQueryKeys.details(pageId), "tracking-script"],
     queryFn: async () => {
       try {
-        const response = await apiClient.get(
+        const response = await apiClient.get<ITrackingScriptResponse>(
           `/api/pages/${pageId}/tracking-script`
         );
         return {
@@ -226,14 +220,12 @@ export const useGetTrackingScript = (pageId: string) => {
 export const useUpdateTrackingScript = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({
-      pageId,
-      data,
-    }: {
-      pageId: string;
-      data: UpdateTrackingScriptData;
-    }) => {
+  return useMutation<
+    IUpdatePageResponse,
+    Error,
+    { pageId: string; data: IUpdateTrackingScriptData }
+  >({
+    mutationFn: async ({ pageId, data }) => {
       const response = await apiClient.post(
         `/api/pages/${pageId}/tracking-script`,
         data
@@ -256,8 +248,8 @@ export const useUpdateTrackingScript = () => {
 export const useDeleteTrackingScript = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (pageId: string) => {
+  return useMutation<IDeletePageResponse, Error, string>({
+    mutationFn: async (pageId) => {
       const response = await apiClient.delete(
         `/api/pages/${pageId}/tracking-script`
       );
@@ -277,11 +269,13 @@ export const useDeleteTrackingScript = () => {
 };
 
 export const useLoadFromAPI = (pageId: string) => {
-  return useQuery({
+  return useQuery<{ language: string; content: any }>({
     queryKey: pageQueryKeys.details(pageId),
     queryFn: async () => {
       try {
-        const response = await apiClient.get(`/api/page/${pageId}`);
+        const response = await apiClient.get<IPageResponse>(
+          `/api/page/${pageId}`
+        );
 
         if (response.status !== 200) {
           throw new Error(`API error: ${response.status}`);

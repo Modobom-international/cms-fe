@@ -525,7 +525,10 @@ export default function PagesPage() {
   const handleDeletePage = async () => {
     try {
       await toast.promise(
-        deletePageMutation.mutateAsync(parseInt(deleteDialogState.pageId)),
+        deletePageMutation.mutateAsync({
+          pageId: parseInt(deleteDialogState.pageId),
+          siteId: params.siteId?.toString() || "",
+        }),
         {
           loading: t("Delete.Toast.Loading"),
           success: t("Delete.Toast.Success"),
