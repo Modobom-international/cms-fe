@@ -1,13 +1,12 @@
 "use client";
 
 import { env } from "@/env";
-import StudioEditor, { WithEditorProps } from "@grapesjs/studio-sdk/react";
+import StudioEditor from "@grapesjs/studio-sdk/react";
 import "@grapesjs/studio-sdk/style";
 import type { Editor } from "grapesjs";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import apiClient from "@/lib/api/client";
 
 import {
   useDeployPage,
