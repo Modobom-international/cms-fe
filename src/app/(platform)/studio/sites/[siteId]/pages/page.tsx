@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
 import Editor from "@monaco-editor/react";
-import { ArrowLeft, PlusIcon, Search } from "lucide-react";
+import { ArrowLeft, ChevronRight, Home, PlusIcon, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -22,13 +22,6 @@ import { useGetSiteById } from "@/hooks/sites";
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -550,74 +543,99 @@ export default function PagesPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link
-            href={`/studio/sites`}
-            className={buttonVariants({ variant: "ghost", size: "icon" })}
-          >
-            <ArrowLeft className="h-4 w-4" />
+    <div className="flex flex-col gap-8">
+      {/* Header Section */}
+      <div className="flex flex-col gap-4">
+        {/* Breadcrumbs */}
+        <nav className="text-muted-foreground flex items-center gap-2 text-sm">
+          <Home className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4" />
+          <Link href="/studio/sites" className="hover:text-foreground">
+            {t("Breadcrumb")}
           </Link>
-          <div>
-            <h1 className="text-2xl font-bold">
+          <ChevronRight className="h-4 w-4" />
+          <span>{site?.name || ""}</span>
+        </nav>
+
+        {/* Title and Actions Section */}
+        <div className="flex items-start justify-between">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-2xl font-semibold tracking-tight">
               {t("Title", { siteName: site?.domain || "" })}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {t("Description", { siteName: site?.name || "" })}
             </p>
           </div>
+
+          <div className="flex items-center gap-3">
+            <CreatePageDialog site={site?.domain || ""} />
+          </div>
         </div>
-        <CreatePageDialog site={site?.domain || ""} />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("List.Title")}</CardTitle>
-          <CardDescription>{t("List.Description")}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* Add search input */}
-          <div className="mb-4">
-            <div className="relative">
-              <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+      <div className="pt-6">
+        {/* Add Search Bar */}
+        <div className="mb-6">
+          <div className="flex items-center space-x-2">
+            <div className="relative flex-1">
+              <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
               <Input
                 placeholder={t("List.Search")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
+                className="pl-8"
               />
             </div>
           </div>
+        </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t("List.Table.Name")}</TableHead>
-                <TableHead>{t("List.Table.Slug")}</TableHead>
-                <TableHead>{t("List.Table.LastUpdated")}</TableHead>
-                <TableHead>{t("List.Table.Actions")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredPages.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
-                    {debouncedSearch
-                      ? t("List.NoSearchResults")
-                      : t("List.NoPages")}
-                  </TableCell>
+        {/* Table content */}
+        {isLoading ? (
+          <div className="text-muted-foreground py-8 text-center">
+            <Spinner />
+            <p className="mt-2">{t("List.Loading")}</p>
+          </div>
+        ) : !filteredPages || filteredPages.length === 0 ? (
+          <div className="text-muted-foreground py-8 text-center">
+            {debouncedSearch ? t("List.NoSearchResults") : t("List.NoPages")}
+          </div>
+        ) : (
+          <div className="relative w-full overflow-auto">
+            <Table className="w-full">
+              <TableHeader>
+                <TableRow className="border-b border-gray-200 hover:bg-white">
+                  <TableHead className="w-[250px] py-3 font-medium text-gray-700">
+                    {t("List.Table.Name")}
+                  </TableHead>
+                  <TableHead className="w-[200px] py-3 font-medium text-gray-700">
+                    {t("List.Table.Slug")}
+                  </TableHead>
+                  <TableHead className="w-[150px] py-3 font-medium text-gray-700">
+                    {t("List.Table.LastUpdated")}
+                  </TableHead>
+                  <TableHead className="w-[300px] py-3 text-right font-medium text-gray-700">
+                    {t("List.Table.Actions")}
+                  </TableHead>
                 </TableRow>
-              ) : (
-                filteredPages.map((page: Page) => (
-                  <TableRow key={page.id}>
-                    <TableCell className="font-medium">{page.name}</TableCell>
-                    <TableCell className="font-mono">{page.slug}</TableCell>
-                    <TableCell>
+              </TableHeader>
+              <TableBody>
+                {filteredPages.map((page: Page) => (
+                  <TableRow
+                    key={page.id}
+                    className="border-b border-gray-200 hover:bg-gray-50"
+                  >
+                    <TableCell className="py-3 text-sm font-medium">
+                      {page.name}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground py-3 font-mono text-sm">
+                      {page.slug}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground py-3 text-sm">
                       {new Date(page.updated_at || "").toLocaleDateString()}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex space-x-2">
+                    <TableCell className="py-3 text-right">
+                      <div className="flex justify-end space-x-2">
                         <Button
                           variant="default"
                           size="sm"
@@ -649,7 +667,7 @@ export default function PagesPage() {
                           {t("List.Table.Delete")}
                         </Button>
                         <Button
-                          variant="default"
+                          variant="outline"
                           size="sm"
                           className="cursor-pointer"
                           onClick={() =>
@@ -664,12 +682,12 @@ export default function PagesPage() {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </div>
 
       <DeleteConfirmationDialog
         isOpen={deleteDialogState.isOpen}
@@ -683,3 +701,4 @@ export default function PagesPage() {
     </div>
   );
 }
+

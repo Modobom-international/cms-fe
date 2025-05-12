@@ -641,6 +641,7 @@
       },
       "Pages": {
         "Title": "Trang - {siteName}",
+        "Breadcrumb": "Quản lý Trang",
         "Description": "Tạo và quản lý các trang cho trang web của bạn",
         "BackToSites": "Quay lại Sites",
         "List": {
