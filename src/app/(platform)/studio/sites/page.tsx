@@ -1,15 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import * as z from "zod";
 import { LANGUAGES } from "@/constants/languages";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PlusIcon, Search } from "lucide-react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import {
+  Check,
+  ChevronRight,
+  ChevronsUpDown,
+  Home,
+  PlusIcon,
+  Search,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useForm } from "react-hook-form";
@@ -25,7 +30,7 @@ import {
 
 import { cn } from "@/lib/utils";
 
-import { useGetAvailableDomain, useGetDomainList } from "@/hooks/domain";
+import { useGetAvailableDomain } from "@/hooks/domain";
 import {
   useCreateSite,
   useDeleteSite,
@@ -35,13 +40,6 @@ import {
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Command,
   CommandEmpty,
@@ -68,13 +66,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -725,12 +721,10 @@ export default function SitesManagementPage() {
   // Handle pagination
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(sitesData.meta.last_page, prev + 1));
-    
   };
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
-    
   };
 
   const [updateLanguageDialog, setUpdateLanguageDialog] = useState<{
@@ -742,145 +736,142 @@ export default function SitesManagementPage() {
   });
 
   return (
-    <div className="container space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {t("Title")}
-          </h1>
-          <p className="text-muted-foreground text-sm">{t("Description")}</p>
-        </div>
-        <CreateSiteDialog />
-      </div>
+    <div className="flex flex-col gap-8">
+      {/* Header Section */}
+      <div className="flex flex-col gap-4">
+        {/* Breadcrumbs */}
+        <nav className="text-muted-foreground flex items-center gap-2 text-sm">
+          <Home className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4" />
+          <span>{t("Title")}</span>
+        </nav>
 
-      <Card>
-        <CardContent>
-          {/* Add Search Bar */}
-          <div className="mb-6">
-            <div className="flex items-center space-x-2">
-              <div className="relative flex-1">
-                <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
-                <Input
-                  placeholder={t("Table.Search")}
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setCurrentPage(1); // Reset to first page on search
-                  }}
-                  className="pl-8"
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Select
-                  value={selectedUser}
-                  onValueChange={(value) => {
-                    setSelectedUser(value);
-                    setCurrentPage(1);
-                  }}
-                >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder={t("Table.FilterByOwner")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t("Table.AllOwners")}</SelectItem>
-                    {uniqueUsers.map((user: UserFilter) => (
-                      <SelectItem key={user.email} value={user.email}>
-                        {user.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Label htmlFor="pageSize">{t("Table.Showing")}:</Label>
-                <Select
-                  value={pageSize.toString()}
-                  onValueChange={(value) => {
-                    setPageSize(parseInt(value));
-                    setCurrentPage(1);
-                  }}
-                >
-                  <SelectTrigger className="w-[100px]">
-                    <SelectValue placeholder="10" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[10, 20, 30, 50].map((size) => (
-                      <SelectItem key={size} value={size.toString()}>
-                        {size}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+        {/* Title and Actions Section */}
+        <div className="flex items-start justify-between">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {t("Title")}
+            </h1>
+            <p className="text-muted-foreground text-sm">{t("Description")}</p>
           </div>
 
-          {/* Table content */}
-          {isLoading ? (
-            <div className="text-muted-foreground py-8 text-center">
-              <Spinner />
-              <p className="mt-2">{t("Table.Loading")}</p>
+          <div className="flex items-center gap-3">
+            <CreateSiteDialog />
+          </div>
+        </div>
+      </div>
+
+      <div className="pt-6">
+        {/* Add Search Bar */}
+        <div className="mb-6">
+          <div className="flex items-center space-x-2">
+            <div className="relative flex-1">
+              <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
+              <Input
+                placeholder={t("Table.Search")}
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1); // Reset to first page on search
+                }}
+                className="pl-8"
+              />
             </div>
-          ) : !sitesData?.data || sitesData.data.length === 0 ? (
-            <div className="text-muted-foreground py-8 text-center">
-              {t("Table.NoSites")}
+            <div className="flex items-center space-x-2">
+              <Select
+                value={selectedUser}
+                onValueChange={(value) => {
+                  setSelectedUser(value);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder={t("Table.FilterByOwner")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("Table.AllOwners")}</SelectItem>
+                  {uniqueUsers.map((user: UserFilter) => (
+                    <SelectItem key={user.email} value={user.email}>
+                      {user.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          ) : (
-            <>
-              <Table>
+          </div>
+        </div>
+
+        {/* Table content */}
+        {isLoading ? (
+          <div className="text-muted-foreground py-8 text-center">
+            <Spinner />
+            <p className="mt-2">{t("Table.Loading")}</p>
+          </div>
+        ) : !sitesData?.data || sitesData.data.length === 0 ? (
+          <div className="text-muted-foreground py-8 text-center">
+            {t("Table.NoSites")}
+          </div>
+        ) : (
+          <>
+            <div className="relative w-full overflow-auto">
+              <Table className="w-full">
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{t("Table.Name")}</TableHead>
-                    <TableHead>{t("Table.Domain")}</TableHead>
-                    {/* <TableHead>{t("Table.Description")}</TableHead> */}
-                    <TableHead>{t("Table.Language")}</TableHead>
-                    <TableHead>{t("Table.Cloudflare")}</TableHead>
-                    <TableHead>{t("Table.Status")}</TableHead>
-                    <TableHead>{t("Table.Owner")}</TableHead>
-                    <TableHead>{t("Table.CreatedAt")}</TableHead>
-                    {/* <TableHead>{t("Table.UpdatedAt")}</TableHead> */}
-                    <TableHead>{t("Table.Actions")}</TableHead>
+                    <TableHead className="w-[200px] py-3 font-medium text-gray-700">
+                      {t("Table.Name")}
+                    </TableHead>
+                    <TableHead className="w-[250px] py-3 font-medium text-gray-700">
+                      {t("Table.Domain")}
+                    </TableHead>
+                    <TableHead className="w-[150px] py-3 font-medium text-gray-700">
+                      {t("Table.Language")}
+                    </TableHead>
+                    <TableHead className="w-[150px] py-3 font-medium text-gray-700">
+                      {t("Table.Status")}
+                    </TableHead>
+                    <TableHead className="w-[200px] py-3 font-medium text-gray-700">
+                      {t("Table.Owner")}
+                    </TableHead>
+                    <TableHead className="w-[150px] py-3 font-medium text-gray-700">
+                      {t("Table.CreatedAt")}
+                    </TableHead>
+                    <TableHead className="w-[200px] py-3 font-medium text-gray-700">
+                      {t("Table.Actions")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {sitesData.data.map((site: Site) => (
-                    <TableRow key={site.id}>
-                      <TableCell className="font-medium">{site.name}</TableCell>
-                      <TableCell>{site.domain}</TableCell>
-                      {/* <TableCell className="max-w-[200px] truncate">
-                          {site.description || "-"}
-                        </TableCell> */}
-                      <TableCell>
+                    <TableRow
+                      key={site.id}
+                      className="border-b border-gray-200 hover:bg-gray-50"
+                    >
+                      <TableCell className="py-3 text-sm font-medium">
+                        {site.name}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground py-3 text-sm">
+                        {site.domain}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground py-3 text-sm">
                         {LANGUAGES.find(
                           (language) => language.code === site.language
                         )?.name || "-"}
                       </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col items-center">
-                          <span className="capitalize">
-                            {site.cloudflare_domain_status}
-                          </span>
-                          <span className="text-muted-foreground text-xs">
-                            ({site.cloudflare_project_name})
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
+                      <TableCell className="text-muted-foreground py-3 text-sm">
                         <span className="capitalize">{site.status}</span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-muted-foreground py-3 text-sm">
                         <div className="flex flex-col">
-                          <span className="font-medium">{site.user.name}</span>
-                          <span className="text-muted-foreground text-xs">
+                          <span>{site.user.name}</span>
+                          <span className="text-xs opacity-75">
                             {site.user.email}
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-muted-foreground py-3 text-sm">
                         {new Date(site.created_at).toLocaleDateString()}
                       </TableCell>
-                      {/* <TableCell>
-                        {new Date(site.updated_at).toLocaleDateString()}
-                      </TableCell> */}
-                      <TableCell>
+                      <TableCell className="py-3">
                         <div className="flex space-x-2">
                           <Link
                             href={`/studio/sites/${site.id}/pages`}
@@ -895,7 +886,10 @@ export default function SitesManagementPage() {
                             variant="outline"
                             size="sm"
                             onClick={() =>
-                              setUpdateLanguageDialog({ isOpen: true, site })
+                              setUpdateLanguageDialog({
+                                isOpen: true,
+                                site,
+                              })
                             }
                           >
                             {t("Table.Language")}
@@ -915,45 +909,80 @@ export default function SitesManagementPage() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
 
-              {/* Pagination Controls */}
-              <div className="mt-4 flex items-center justify-between px-2">
-                <div className="text-muted-foreground text-sm">
-                  {t("Table.Showing", {
-                    from: sitesData.meta.from,
-                    to: sitesData.meta.to,
-                    total: sitesData.meta.total,
-                  })}
+            {/* Pagination Section */}
+            <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
+              {/* Main pagination controls */}
+              <div className="flex items-center justify-between px-4 py-2">
+                {/* Results per page */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">
+                    {t("Table.Showing")}:
+                  </span>
+                  <Select
+                    value={pageSize.toString()}
+                    onValueChange={(value) => {
+                      setPageSize(parseInt(value));
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
+                      <SelectValue placeholder="10" />
+                    </SelectTrigger>
+                    <SelectContent className="text-sm">
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="20">20</SelectItem>
+                      <SelectItem value="30">30</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="flex items-center space-x-2">
+
+                {/* Pagination controls */}
+                <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
+                    className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
                     onClick={handlePreviousPage}
-                    disabled={currentPage === 1}
+                    disabled={currentPage <= 1}
                   >
                     {t("Table.Previous")}
                   </Button>
-                  <div className="text-sm">
-                    {t("Table.Page", {
-                      current: currentPage,
-                      total: sitesData.meta.last_page,
-                    })}
-                  </div>
                   <Button
                     variant="outline"
                     size="sm"
+                    className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
                     onClick={handleNextPage}
-                    disabled={currentPage === sitesData.meta.last_page}
+                    disabled={currentPage >= sitesData.meta.last_page}
                   >
                     {t("Table.Next")}
                   </Button>
                 </div>
               </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+
+              {/* Bottom status line */}
+              <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+                <div>
+                  {/* //TODO: add this section when BE respone have pagination */}
+                  {/* {t("Table.Showing", {
+                    from: sitesData.meta.from,
+                    to: sitesData.meta.to,
+                    total: sitesData.meta.total,
+                  })} */}
+                </div>
+                <div>
+                  {t("Table.Page", {
+                    current: currentPage,
+                    total: sitesData.meta.last_page,
+                  })}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
 
       <DeleteConfirmationDialog
         isOpen={deleteDialog.isOpen}
@@ -975,3 +1004,4 @@ export default function SitesManagementPage() {
     </div>
   );
 }
+
