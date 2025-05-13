@@ -14,7 +14,7 @@ export function useGetLists() {
     queryKey: ["lists", BOARD_ID],
     queryFn: async () => {
       const { data } = await apiClient.get<ApiResponse<List[]>>(
-        `/api/board/${BOARD_ID}/lists`
+        `/api/boards/${BOARD_ID}/lists`
       );
       return data.data;
     },
@@ -25,14 +25,11 @@ export function useCreateList() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (params: { title: string; position: number }) => {
-      const { data } = await apiClient.post<ApiResponse<List>>(
-        `/api/list/create`,
-        {
-          title: params.title,
-          board_id: BOARD_ID,
-          position: params.position,
-        }
-      );
+      const { data } = await apiClient.post<ApiResponse<List>>(`/api/lists`, {
+        title: params.title,
+        board_id: BOARD_ID,
+        position: params.position,
+      });
       return data.data;
     },
     onSuccess: () => {
@@ -46,8 +43,8 @@ export function useUpdateList() {
 
   return useMutation({
     mutationFn: async ({ id, title }: { id: string; title: string }) => {
-      const { data } = await apiClient.post<ApiResponse<List>>(
-        `/api/list/update/${id}`,
+      const { data } = await apiClient.put<ApiResponse<List>>(
+        `/api/lists/${id}`,
         {
           title,
         }
@@ -65,8 +62,8 @@ export function useDeleteList() {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      const { data } = await apiClient.get<ApiResponse<null>>(
-        `/api/list/delete/${id}`
+      const { data } = await apiClient.delete<ApiResponse<null>>(
+        `/api/lists/${id}`
       );
       return data.success;
     },
@@ -82,8 +79,8 @@ export function useUpdateListsPositions() {
 
   const { mutate: updatePositions } = useMutation({
     mutationFn: async (positions: { id: number; position: number }[]) => {
-      const { data } = await apiClient.post<ApiResponse<List[]>>(
-        `/api/list/update-positions`,
+      const { data } = await apiClient.put<ApiResponse<List[]>>(
+        `/api/lists/positions`,
         { positions }
       );
       return data.data;
