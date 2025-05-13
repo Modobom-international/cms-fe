@@ -42,10 +42,10 @@ export const domainQueryKeys = {
       registrar_created_at?: string;
     }
   ) => [
-    ...domainQueryKeys.origin,
-    "list",
-    { page, pageSize, search, ...filters },
-  ],
+      ...domainQueryKeys.origin,
+      "list",
+      { page, pageSize, search, ...filters },
+    ],
   available: (page: number, pageSize: number, search: string) => [
     ...domainQueryKeys.origin,
     "list",
@@ -107,6 +107,11 @@ export const teamQueryKeys = {
   create: () => [...teamQueryKeys.origin, "create"],
 };
 
+export const teamPermissionQueryKeys = {
+  origin: ["team-permissions"] as const,
+  list: () => [...teamPermissionQueryKeys.origin, "list"] as const,
+};
+
 export const userQueryKeys = {
   origin: ["users"] as const,
   list: (page: number, pageSize: number, search: string = "") => [
@@ -139,7 +144,6 @@ export const siteQueryKeys = {
     [...siteQueryKeys.origin, "detail", siteId] as const,
 };
 
-// Query Keys
 export const pageQueryKeys = {
   origin: ["pages"] as const,
   all: () => [...pageQueryKeys.origin, "all"] as const,

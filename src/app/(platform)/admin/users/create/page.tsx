@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
 import { CreateUserFormSchema } from "@/validations/user.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -16,9 +14,8 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
-
 import { useCreateUser } from "@/hooks/user";
-
+import { useGetTeamPermissionList } from "@/hooks/team";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -30,22 +27,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface Team {
-  id: number;
-  name: string;
-  permissions?: string[];
-}
-
-interface PermissionRoute {
-  id: number;
-  name: string;
-  prefix: string;
-}
-
-interface Permission {
-  [key: string]: PermissionRoute[];
-}
+import { ITeam } from "@/types/team.type";
+import { Permission } from "@/types/team-permission.type";
 
 export default function Page() {
   const t = useTranslations("CreateUserPage");
@@ -69,54 +52,7 @@ export default function Page() {
     },
   });
 
-  const [teams] = useState<Team[]>([
-    { id: 1, name: "Development Team" },
-    { id: 2, name: "Marketing Team" },
-    { id: 3, name: "Sales Team" },
-  ]);
-
-  const [permissions] = useState<Permission>({
-    "push-system": [
-      { id: 1, name: "push.view", prefix: "push" },
-      { id: 2, name: "push.create", prefix: "push" },
-      { id: 3, name: "push.edit", prefix: "push" },
-      { id: 4, name: "push.delete", prefix: "push" },
-    ],
-    "log-behavior": [
-      { id: 5, name: "log.view", prefix: "log" },
-      { id: 6, name: "log.export", prefix: "log" },
-      { id: 7, name: "log.delete", prefix: "log" },
-    ],
-    users: [
-      { id: 8, name: "users.view", prefix: "users" },
-      { id: 9, name: "users.create", prefix: "users" },
-      { id: 10, name: "users.edit", prefix: "users" },
-      { id: 11, name: "users.delete", prefix: "users" },
-    ],
-    domain: [
-      { id: 12, name: "domain.view", prefix: "domain" },
-      { id: 13, name: "domain.create", prefix: "domain" },
-      { id: 14, name: "domain.edit", prefix: "domain" },
-      { id: 15, name: "domain.delete", prefix: "domain" },
-    ],
-    "html-source": [
-      { id: 16, name: "html.view", prefix: "html" },
-      { id: 17, name: "html.create", prefix: "html" },
-      { id: 18, name: "html.edit", prefix: "html" },
-      { id: 19, name: "html.delete", prefix: "html" },
-    ],
-    "users-tracking": [
-      { id: 20, name: "tracking.view", prefix: "tracking" },
-      { id: 21, name: "tracking.export", prefix: "tracking" },
-      { id: 22, name: "tracking.delete", prefix: "tracking" },
-    ],
-    team: [
-      { id: 23, name: "team.view", prefix: "team" },
-      { id: 24, name: "team.create", prefix: "team" },
-      { id: 25, name: "team.edit", prefix: "team" },
-      { id: 26, name: "team.delete", prefix: "team" },
-    ],
-  });
+  const { data, isLoading, error } = useGetTeamPermissionList();
 
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>(
     {}
@@ -125,11 +61,50 @@ export default function Page() {
   const onSubmit = async (data: any) => {
     try {
       await createUser.mutateAsync(data);
-      router.push("/admin/users");
+      router.push("/admin/users/store");
     } catch (error) {
       console.error("Error creating user:", error);
     }
   };
+
+  // Handle loading and error states
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <svg
+          className="animate-spin h-8 w-8 text-primary"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v8h8a8 8 0 01-16 0z"
+          ></path>
+        </svg>
+      </div>
+    );
+  }
+
+  if (error || !data?.success) {
+    return (
+      <div className="text-destructive">
+        Error: {error?.message || data?.message || "Something went wrong"}
+      </div>
+    );
+  }
+
+  const teams: ITeam[] = data.data.teams;
+  const permissions: Permission = data.transformedPermissions;
 
   return (
     <div className="flex flex-col gap-8">
@@ -166,21 +141,19 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Rest of the form */}
+      {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Left Column - User Information */}
           <div className="space-y-6 lg:col-span-2">
-            <div className="bg-card rounded-lg">
-              <div className="mb-6 flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-medium">
-                    {t("form.personalInfo")}
-                  </h2>
-                  <p className="text-muted-foreground text-sm">
-                    {t("form.personalInfoDesc")}
-                  </p>
-                </div>
+            <div className="bg-card rounded-lg p-6">
+              <div className="mb-6">
+                <h2 className="text-lg font-medium">
+                  {t("form.personalInfo")}
+                </h2>
+                <p className="text-muted-foreground text-sm">
+                  {t("form.personalInfoDesc")}
+                </p>
               </div>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -261,7 +234,7 @@ export default function Page() {
 
           {/* Right Column - Permissions */}
           <div className="space-y-6">
-            <div className="bg-card rounded-lg">
+            <div className="bg-card rounded-lg p-6">
               <div className="mb-6">
                 <h2 className="text-lg font-medium">{t("form.permissions")}</h2>
                 <p className="text-muted-foreground text-sm">
@@ -358,4 +331,3 @@ export default function Page() {
     </div>
   );
 }
-

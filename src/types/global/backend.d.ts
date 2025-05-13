@@ -20,7 +20,6 @@ declare global {
 
   interface IBackendErrorRes {
     success: false;
-
     message: string;
     type: string;
     error: string;

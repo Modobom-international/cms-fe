@@ -1,18 +1,13 @@
 "use client";
 
 import Link from "next/link";
-
 import { Edit, Trash } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-
 import { ITeam } from "@/types/team.type";
-
 import { formatDateTime } from "@/lib/utils";
-
 import { useGetTeamList } from "@/hooks/team";
 import { useDebounce } from "@/hooks/use-debounce";
-
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -59,7 +54,6 @@ export default function TeamsDataTable() {
     refetch,
   } = useGetTeamList(currentPage, pageSize, debouncedSearch);
 
-  // Extract data from the response with proper typing
   const teamData = teamResponse?.success ? teamResponse.data.data : [];
 
   const paginationInfo = {
@@ -71,13 +65,11 @@ export default function TeamsDataTable() {
 
   const isDataEmpty = !teamData || teamData.length === 0;
 
-  // Handle next page navigation
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.totalPages, prev + 1));
     
   };
 
-  // Handle previous page navigation
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
     

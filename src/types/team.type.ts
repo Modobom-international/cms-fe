@@ -20,3 +20,10 @@ export interface IPaginationResponse<T> {
   pageSize: number;
   totalPages: number;
 }
+
+export interface ITeamWithPermissionResponse {
+  success: true;
+  data: ITeam[];
+  message?: string;
+  type?: string;
+}

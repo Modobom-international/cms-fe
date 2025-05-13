@@ -3,15 +3,13 @@
 import { useState } from "react";
 
 import {
-  defaultPermissions,
-  type ITeamForm,
-  type Permission,
+  type ITeamForm
 } from "@/validations/team.validation";
 import { ChevronDown, ChevronRight, ChevronUp, Home } from "lucide-react";
 import { useTranslations } from "next-intl";
-
+import { Permission } from "@/types/team-permission.type";
 import { useCreateTeam } from "@/hooks/team";
-
+import { useGetTeamPermissionList } from "@/hooks/team";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -34,7 +32,44 @@ export default function CreateTeamPage() {
     watch,
   } = createTeamForm;
 
-  const [permissions] = useState<Permission>(defaultPermissions);
+  const { data, isLoading, error } = useGetTeamPermissionList();
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <svg
+          className="animate-spin h-8 w-8 text-primary"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v8h8a8 8 0 01-16 0z"
+          ></path>
+        </svg>
+      </div>
+    );
+  }
+
+  if (error || !data?.success) {
+    return (
+      <div className="text-destructive">
+        Error: {error?.message || data?.message || "Something went wrong"}
+      </div>
+    );
+  }
+
+  const permissions: Permission = data.transformedPermissions;
 
   const [openSections, setOpenSections] = useState<{
     [key: string]: boolean;
@@ -52,7 +87,6 @@ export default function CreateTeamPage() {
     createTeam(data);
   };
 
-  // Helper function to get section display name
   const getSectionDisplayName = (section: string) => {
     const sectionKey = section.replace(/-/g, "");
     return t(`create.permissionSections.${sectionKey}`);
