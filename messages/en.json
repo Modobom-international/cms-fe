@@ -642,6 +642,7 @@
       },
       "Pages": {
         "Title": "Pages - {siteName}",
+        "Breadcrumb": "Manage Sites",
         "Description": "Create and manage pages for your website",
         "BackToSites": "Back to Sites",
         "List": {
