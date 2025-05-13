@@ -1,40 +1,24 @@
 "use client";
 
-import { useState } from "react";
-
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 
-import { Card, List } from "@/types/board";
+import {
+  useCreateList,
+  useDeleteList,
+  useGetLists,
+  useMoveCard,
+  useUpdateListsPositions,
+} from "@/hooks/board";
 
 import AddList from "@/components/board/AddList";
 import BoardList from "@/components/board/BoardList";
 
 export default function BoardPage() {
-  const [lists, setLists] = useState<List[]>([
-    {
-      id: "1",
-      title: "To Do",
-      cards: [
-        {
-          id: "1",
-          title: "Task 1",
-          description:
-            '<pre class="rounded bg-gray-100 p-2 font-mono text-sm my-2"><code class="language-javascript">import StarterKit from "@tiptap/starter-kit";\nimport css from "highlight.js/lib/languages/css";\nimport js from "highlight.js/lib/languages/javascript";\nimport json from "highlight.js/lib/languages/json";\nimport python from "highlight.js/lib/languages/python";\nimport ts from "highlight.js/lib/languages/typescript";\nimport html from "highlight.js/lib/languages/xml";</code></pre>',
-        },
-        { id: "2", title: "Task 2", description: "Description 2" },
-      ],
-    },
-    {
-      id: "2",
-      title: "In Progress",
-      cards: [],
-    },
-    {
-      id: "3",
-      title: "Done",
-      cards: [],
-    },
-  ]);
+  const { data: lists = [], isLoading } = useGetLists();
+  const { mutate: createList } = useCreateList();
+  const { mutate: deleteList } = useDeleteList();
+  const { mutate: moveCard } = useMoveCard();
+  const { mutate: updateListPosition } = useUpdateListsPositions();
 
   const onDragEnd = (result: any) => {
     const { destination, source, draggableId, type } = result;
@@ -51,104 +35,23 @@ export default function BoardPage() {
 
     // Handle list reordering
     if (type === "list") {
-      const newLists = Array.from(lists);
-      const [removed] = newLists.splice(source.index, 1);
-      newLists.splice(destination.index, 0, removed);
-      setLists(newLists);
+      const list = lists[source.index];
+      updateListPosition({ id: list.id, position: destination.index + 1 });
       return;
     }
 
     // Handle card movement
-    const sourceList = lists.find((list) => list.id === source.droppableId);
-    const destList = lists.find((list) => list.id === destination.droppableId);
-
-    if (!sourceList || !destList) return;
-
-    // Moving within the same list
-    if (source.droppableId === destination.droppableId) {
-      const newCards = Array.from(sourceList.cards);
-      const [removed] = newCards.splice(source.index, 1);
-      newCards.splice(destination.index, 0, removed);
-
-      const newLists = lists.map((list) =>
-        list.id === sourceList.id ? { ...list, cards: newCards } : list
-      );
-      setLists(newLists);
-    } else {
-      // Moving to different list
-      const sourceCards = Array.from(sourceList.cards);
-      const [removed] = sourceCards.splice(source.index, 1);
-      const destinationCards = Array.from(destList.cards);
-      destinationCards.splice(destination.index, 0, removed);
-
-      const newLists = lists.map((list) => {
-        if (list.id === source.droppableId) {
-          return { ...list, cards: sourceCards };
-        }
-        if (list.id === destination.droppableId) {
-          return { ...list, cards: destinationCards };
-        }
-        return list;
-      });
-      setLists(newLists);
-    }
-  };
-
-  const handleAddCard = (
-    listId: string,
-    title: string,
-    description: string
-  ) => {
-    const newLists = lists.map((list) => {
-      if (list.id === listId) {
-        return {
-          ...list,
-          cards: [
-            ...list.cards,
-            {
-              id: String(Date.now()),
-              title,
-              description,
-            },
-          ],
-        };
-      }
-      return list;
+    moveCard({
+      cardId: draggableId,
+      sourceListId: source.droppableId,
+      destinationListId: destination.droppableId,
+      newOrder: destination.index,
     });
-    setLists(newLists);
   };
 
-  const handleUpdateCard = (listId: string, updatedCard: Card) => {
-    const newLists = lists.map((list) => {
-      if (list.id === listId) {
-        return {
-          ...list,
-          cards: list.cards.map((card) =>
-            card.id === updatedCard.id ? updatedCard : card
-          ),
-        };
-      }
-      return list;
-    });
-    setLists(newLists);
-  };
-
-  const handleDeleteCard = (listId: string, cardId: string) => {
-    const newLists = lists.map((list) => {
-      if (list.id === listId) {
-        return {
-          ...list,
-          cards: list.cards.filter((card) => card.id !== cardId),
-        };
-      }
-      return list;
-    });
-    setLists(newLists);
-  };
-
-  const handleDeleteList = (listId: string) => {
-    setLists(lists.filter((list) => list.id !== listId));
-  };
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -166,25 +69,13 @@ export default function BoardPage() {
                   key={list.id}
                   list={list}
                   index={index}
-                  onAddCard={(title, description) =>
-                    handleAddCard(list.id, title, description)
-                  }
-                  onUpdateCard={handleUpdateCard}
-                  onDeleteCard={handleDeleteCard}
-                  onDeleteList={handleDeleteList}
+                  onDeleteList={() => deleteList(list.id)}
                 />
               ))}
               {provided.placeholder}
               <AddList
                 onAdd={(title) => {
-                  setLists([
-                    ...lists,
-                    {
-                      id: String(Date.now()),
-                      title,
-                      cards: [],
-                    },
-                  ]);
+                  createList({ title, position: lists.length + 1 });
                 }}
               />
             </div>
@@ -194,3 +85,4 @@ export default function BoardPage() {
     </div>
   );
 }
+

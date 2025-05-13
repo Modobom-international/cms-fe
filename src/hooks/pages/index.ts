@@ -49,7 +49,7 @@ export const useGetPageById = (pageId: string) => {
     queryFn: async () => {
       try {
         const response = await apiClient.get<IPageDetailResponse>(
-          `/api/page/${pageId}`
+          `/api/pages/${pageId}`
         );
 
         if (!response.data) {
@@ -90,7 +90,7 @@ export const useCreatePage = () => {
 
   return useMutation<ICreatePageResponse, Error, ICreatePageData>({
     mutationFn: async (data) => {
-      const response = await apiClient.post(`/api/create-page`, data);
+      const response = await apiClient.post(`/api/pages`, data);
       if (!response.data.success) {
         throw new Error(response.data.message || "Failed to create page");
       }
@@ -113,10 +113,7 @@ export const useUpdatePage = () => {
     IUpdatePageData & { pageId: string }
   >({
     mutationFn: async (data) => {
-      const response = await apiClient.post(
-        `/api/update-page/${data.pageId}`,
-        data
-      );
+      const response = await apiClient.put(`/api/pages/${data.pageId}`, data);
       if (!response.data.success) {
         throw new Error(response.data.message || "Failed to update page");
       }
@@ -134,7 +131,7 @@ export const useExportPage = (pageId: string) => {
   return useMutation<IUpdatePageResponse, Error, FormData>({
     mutationFn: async (formData) => {
       const response = await apiClient.post(
-        `/api/export-pages/${pageId}`,
+        `/api/pages/${pageId}/exports`,
         formData,
         {
           headers: {
@@ -158,7 +155,7 @@ export const useDeployPage = () => {
   >({
     mutationFn: async (data) => {
       const response = await apiClient.post(
-        "/api/cloudflare/deploy-exports",
+        "/api/cloudflare/deployments/exports",
         data
       );
       if (!response.data.success) {
@@ -198,7 +195,7 @@ export const useGetTrackingScript = (pageId: string) => {
     queryFn: async () => {
       try {
         const response = await apiClient.get<ITrackingScriptResponse>(
-          `/api/pages/${pageId}/tracking-script`
+          `/api/pages/${pageId}/tracking-scripts`
         );
         return {
           isSuccess: true,
@@ -226,8 +223,8 @@ export const useUpdateTrackingScript = () => {
     { pageId: string; data: IUpdateTrackingScriptData }
   >({
     mutationFn: async ({ pageId, data }) => {
-      const response = await apiClient.post(
-        `/api/pages/${pageId}/tracking-script`,
+      const response = await apiClient.put(
+        `/api/pages/${pageId}/tracking-scripts`,
         data
       );
       if (!response.data.success) {
@@ -251,7 +248,7 @@ export const useDeleteTrackingScript = () => {
   return useMutation<IDeletePageResponse, Error, string>({
     mutationFn: async (pageId) => {
       const response = await apiClient.delete(
-        `/api/pages/${pageId}/tracking-script`
+        `/api/pages/${pageId}/tracking-scripts`
       );
       if (!response.data.success) {
         throw new Error(
@@ -274,7 +271,7 @@ export const useLoadFromAPI = (pageId: string) => {
     queryFn: async () => {
       try {
         const response = await apiClient.get<IPageResponse>(
-          `/api/page/${pageId}`
+          `/api/pages/${pageId}`
         );
 
         if (response.status !== 200) {
