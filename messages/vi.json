@@ -768,15 +768,6 @@
           "nameRequired": "Tên phòng ban không được để trống"
         }
       },
-      "permissionSections": {
-        "pushSystem": "Push System",
-        "logBehavior": "Log Behavior",
-        "users": "Users",
-        "domain": "Domain",
-        "htmlSource": "HTML Source",
-        "usersTracking": "Users Tracking",
-        "team": "Team"
-      },
       "success": "Tạo phòng ban thành công",
       "error": "Tạo phòng ban không thành công"
     },
@@ -791,11 +782,29 @@
       },
       "actions": {
         "edit": "Chỉnh sửa",
-        "delete": "Xóa"
+        "delete": "Xóa",
+        "deleteSuccess": "Phòng ban đã được xóa thành công",
+        "deleteError": "Xóa phòng ban không thành công"
       },
       "empty": "Không tìm thấy phòng ban nào",
       "search": "Tìm kiếm phòng ban...",
       "loading": "Đang tải danh sách phòng ban..."
+    }
+  },
+  "DeleteConfirmationDialog": {
+    "title": "Xác nhận xóa phòng ban",
+    "message": "Bạn có chắc chắn muốn xóa phòng ban này? Hành động này không thể hoàn tác.",
+    "cancel": "Hủy",
+    "confirm": "Đồng ý",
+    "deleting": "Đang xóa..."
+  },
+  "TeamForm": {},
+  "EditTeamPage": {
+    "breadcrumb": "Phòng ban",
+    "edit": {
+      "title": "Chỉnh sửa phòng ban",
+      "breadcrumb": "Chỉnh sửa phòng ban",
+      "description": "Chỉnh sửa thông tin phòng ban và phân quyền truy cập"
     }
   },
   "AddTeamPage": {
@@ -816,15 +825,6 @@
         "validation": {
           "nameRequired": "Tên phòng ban không được để trống"
         }
-      },
-      "permissionSections": {
-        "pushsystem": "Push System",
-        "logbehavior": "Log Behavior",
-        "users": "Users",
-        "domain": "Domain",
-        "htmlsource": "HTML Source",
-        "userstracking": "Users Tracking",
-        "team": "Team"
       },
       "success": "Tạo phòng ban thành công",
       "error": "Tạo phòng ban không thành công"

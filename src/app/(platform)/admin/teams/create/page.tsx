@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
-
-import {
-  type ITeamForm
-} from "@/validations/team.validation";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { toast, Toaster } from "sonner";
+import { type ITeamForm } from "@/validations/team.validation";
 import { ChevronDown, ChevronRight, ChevronUp, Home } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Permission } from "@/types/team-permission.type";
@@ -17,9 +16,10 @@ import { Label } from "@/components/ui/label";
 
 export default function CreateTeamPage() {
   const t = useTranslations("AddTeamPage");
+  const router = useRouter();
 
   const {
-    createTeamMutation: createTeam,
+    createTeamMutation,
     isCreatingTeam,
     createTeamForm,
   } = useCreateTeam();
@@ -33,6 +33,20 @@ export default function CreateTeamPage() {
   } = createTeamForm;
 
   const { data, isLoading, error } = useGetTeamPermissionList();
+
+  const [openSections, setOpenSections] = useState<{
+    [key: string]: boolean;
+  }>({});
+
+  useEffect(() => {
+    if (data?.success && data.transformedPermissions) {
+      const newOpenSections: { [key: string]: boolean } = {};
+      Object.keys(data.transformedPermissions).forEach((section) => {
+        newOpenSections[section] = false;
+      });
+      setOpenSections(newOpenSections);
+    }
+  }, [data]);
 
   if (isLoading) {
     return (
@@ -71,30 +85,41 @@ export default function CreateTeamPage() {
 
   const permissions: Permission = data.transformedPermissions;
 
-  const [openSections, setOpenSections] = useState<{
-    [key: string]: boolean;
-  }>({
-    "push-system": false,
-    "log-behavior": false,
-    users: false,
-    domain: false,
-    "html-source": false,
-    "users-tracking": false,
-    team: false,
-  });
-
-  const onSubmit = async (data: ITeamForm) => {
-    createTeam(data);
+  const onSubmit = (data: ITeamForm) => {
+    createTeamMutation(data, {
+      onSuccess: (response) => {
+        if (response.success) {
+          toast.success(response.message || "Tạo team thành công", {
+            duration: 2000,
+            position: "top-right",
+          });
+          setTimeout(() => {
+            router.push("/admin/teams");
+          }, 2000);
+        } else {
+          toast.error(response.message || "Tạo team không thành công", {
+            duration: 3000,
+            position: "top-right",
+          });
+        }
+      },
+      onError: (err: Error) => {
+        toast.error(err.message || "Đã có lỗi xảy ra, vui lòng thử lại!", {
+          duration: 3000,
+          position: "top-right",
+        });
+      },
+    });
   };
 
   const getSectionDisplayName = (section: string) => {
-    const sectionKey = section.replace(/-/g, "");
-    return t(`create.permissionSections.${sectionKey}`);
+    const sectionKey = section.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+    return sectionKey;
   };
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Header Section */}
+      <Toaster />
       <div className="flex flex-col gap-4">
         <nav className="text-muted-foreground flex items-center gap-2 text-sm">
           <Home className="h-4 w-4" />
@@ -147,77 +172,91 @@ export default function CreateTeamPage() {
                 </p>
               </div>
               <div className="space-y-4">
-                {Object.entries(permissions).map(([section, routes]) => (
-                  <div key={section} className="rounded-md border">
-                    <div className="flex items-center justify-between bg-gray-50 px-4 py-3">
-                      <div className="flex items-center space-x-3">
-                        <Checkbox
-                          id={`section-${section}`}
-                          checked={routes.every((route) =>
-                            watch(`permissions.${section}_${route.name}`)
+                {Object.entries(permissions).map(([section, routes]) => {
+                  const allChecked = routes.every((route) =>
+                    watch(`permissions.${section}_${route.name.replace(/\./g, "_")}`)
+                  );
+                  const someChecked = routes.some((route) =>
+                    watch(`permissions.${section}_${route.name.replace(/\./g, "_")}`)
+                  ) && !allChecked;
+
+                  return (
+                    <div key={section} className="rounded-md border">
+                      <div className="flex items-center justify-between bg-gray-50 px-4 py-3">
+                        <div className="flex items-center space-x-3">
+                          <Checkbox
+                            id={`section-${section}`}
+                            checked={allChecked}
+                            className={someChecked ? "indeterminate" : ""}
+                            onCheckedChange={(checked) => {
+                              routes.forEach((route) => {
+                                setValue(
+                                  `permissions.${section}_${route.name.replace(/\./g, "_")}`,
+                                  checked as boolean,
+                                  { shouldDirty: true }
+                                );
+                              });
+                            }}
+                            disabled={isSubmitting || isCreatingTeam}
+                          />
+                          <Label htmlFor={`section-${section}`}>
+                            {getSectionDisplayName(section)}
+                          </Label>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            setOpenSections((prev) => ({
+                              ...prev,
+                              [section]: !prev[section],
+                            }))
+                          }
+                        >
+                          {openSections[section] ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
                           )}
-                          onCheckedChange={(checked) => {
-                            routes.forEach((route) => {
-                              setValue(
-                                `permissions.${section}_${route.name}`,
-                                checked as boolean,
-                                { shouldDirty: true }
-                              );
-                            });
-                          }}
-                          disabled={isSubmitting || isCreatingTeam}
-                        />
-                        <Label htmlFor={`section-${section}`}>
-                          {getSectionDisplayName(section)}
-                        </Label>
+                        </Button>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          setOpenSections((prev) => ({
-                            ...prev,
-                            [section]: !prev[section],
-                          }))
-                        }
-                      >
-                        {openSections[section] ? (
-                          <ChevronUp className="h-4 w-4" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                    {openSections[section] && (
-                      <div className="divide-y border-t">
-                        {routes.map((route) => (
-                          <div key={route.id} className="px-4 py-3">
-                            <div className="flex items-center space-x-3">
-                              <Checkbox
-                                id={`permission-${route.id}`}
-                                {...register(
-                                  `permissions.${section}_${route.name}`
-                                )}
-                                disabled={isSubmitting || isCreatingTeam}
-                              />
-                              <Label htmlFor={`permission-${route.id}`}>
-                                {route.name
-                                  .split(".")
-                                  .map(
-                                    (word) =>
-                                      word.charAt(0).toUpperCase() +
-                                      word.slice(1)
-                                  )
-                                  .join(" ")}
-                              </Label>
+                      {openSections[section] && (
+                        <div className="divide-y border-t">
+                          {routes.map((route) => (
+                            <div key={route.id} className="px-4 py-3">
+                              <div className="flex items-center space-x-3">
+                                <Checkbox
+                                  id={`permission-${route.id}`}
+                                  {...register(`permissions.${section}_${route.name.replace(/\./g, "_")}`)}
+                                  checked={watch(`permissions.${section}_${route.name.replace(/\./g, "_")}`, false)}
+                                  onCheckedChange={(checked) => {
+                                    setValue(
+                                      `permissions.${section}_${route.name.replace(/\./g, "_")}`,
+                                      checked as boolean,
+                                      { shouldDirty: true }
+                                    );
+                                  }}
+                                  disabled={isSubmitting || isCreatingTeam}
+                                />
+                                <Label htmlFor={`permission-${route.id}`}>
+                                  {route.name
+                                    .split(".")
+                                    .map(
+                                      (word) =>
+                                        word.charAt(0).toUpperCase() +
+                                        word.slice(1)
+                                    )
+                                    .join(" ")}
+                                </Label>
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -233,4 +272,3 @@ export default function CreateTeamPage() {
     </div>
   );
 }
-

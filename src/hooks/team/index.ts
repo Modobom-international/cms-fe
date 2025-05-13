@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import qs from "qs";
 import { useForm } from "react-hook-form";
 
-import { ITeam, ITeamResponse } from "@/types/team.type";
+import { GetTeamByIdResponse, ITeamResponse, CreateTeamResponse } from "@/types/team.type";
 import { TeamPermissionResponse, Permission } from "@/types/team-permission.type";
 
 import apiClient from "@/lib/api/client";
@@ -94,23 +94,11 @@ export const useGetTeamPermissionList = () => {
 };
 
 export const useGetTeamById = (id: string) => {
-  return useQuery({
+  return useQuery<GetTeamByIdResponse, Error>({
     queryKey: teamQueryKeys.details(id),
-    queryFn: async (): Promise<ITeam | IBackendErrorRes> => {
-      try {
-        const { data } = await apiClient.get<{ data: ITeam }>(
-          `/api/team/${id}`
-        );
-        return data.data;
-      } catch (error) {
-        const errRes = extractApiError(error);
-        return {
-          success: false,
-          message: "Lấy thông tin phòng ban không thành công",
-          type: "get_team_fail",
-          error: errRes.error,
-        };
-      }
+    queryFn: async () => {
+      const response = await apiClient.get(`/api/team/${id}`);
+      return response.data;
     },
     enabled: !!id,
   });
@@ -127,37 +115,80 @@ export const useCreateTeam = () => {
 
   const queryClient = useQueryClient();
 
-  const { mutate: createTeamMutation, isPending: isCreatingTeam } = useMutation(
-    {
-      mutationFn: async (data: ITeamForm) => {
-        try {
-          const permissionArray = Object.entries(data.permissions)
-            .filter(([_, isChecked]) => isChecked)
-            .map(([key]) => key);
+  const { mutate: createTeamMutation, isPending: isCreatingTeam } = useMutation<
+    CreateTeamResponse,
+    Error,
+    ITeamForm
+  >({
+    mutationFn: async (data: ITeamForm): Promise<CreateTeamResponse> => {
+      try {
+        const permissionArray = Object.entries(data.permissions)
+          .filter(([_, isChecked]) => isChecked)
+          .map(([key]) => key);
 
-          const response = await apiClient.post<{ data: ITeam }>("/api/team/store", {
-            name: data.name,
-            permissions: permissionArray,
-          });
+        const response = await apiClient.post<CreateTeamResponse>("/api/team/store", {
+          name: data.name,
+          permissions: permissionArray,
+        });
 
-          return response.data.data;
-        } catch (error) {
-          return {
-            success: false,
-            message: "Tạo phòng ban không thành công",
-            type: "create_team_fail",
-          };
-        }
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: teamQueryKeys.all() });
-      },
-    }
-  );
+        return response.data;
+      } catch (error) {
+        const errRes = error instanceof AxiosError ? error.response?.data : null;
+        return {
+          success: false,
+          message: errRes?.message ?? "Tạo phòng ban không thành công",
+          type: errRes?.type ?? "create_team_fail",
+        };
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: teamQueryKeys.all() });
+    },
+  });
 
   return {
     createTeamForm,
     createTeamMutation,
     isCreatingTeam,
   };
+};
+
+export const useDeleteTeam = () => {
+  const queryClient = useQueryClient();
+
+  const { mutate: deleteTeam, isPending: isDeleting } = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiClient.delete(`/api/team/delete?id=${id}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: teamQueryKeys.all() });
+    },
+  });
+
+  return { deleteTeam, isDeleting };
+};
+
+export const useUpdateTeam = () => {
+  const queryClient = useQueryClient();
+
+  const { mutate: updateTeam, isPending: isUpdating } = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: ITeamForm }) => {
+      const permissionArray = Object.entries(data.permissions)
+        .filter(([_, isChecked]) => isChecked)
+        .map(([key]) => key);
+
+      const response = await apiClient.put(`/api/team/update?id=${id}`, {
+        name: data.name,
+        permissions: permissionArray,
+      });
+
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: teamQueryKeys.all() });
+    },
+  });
+
+  return { updateTeam, isUpdating };
 };

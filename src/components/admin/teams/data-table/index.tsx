@@ -1,12 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Edit, Trash } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { ITeam } from "@/types/team.type";
 import { formatDateTime } from "@/lib/utils";
-import { useGetTeamList } from "@/hooks/team";
+import { useGetTeamList, useDeleteTeam } from "@/hooks/team";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,10 +25,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 import { SearchInput } from "@/components/inputs/search-input";
+import { toast } from "sonner";
+import { DeleteConfirmationDialog } from "@/components/dialogs/delete-team-dialog";
 
 export default function TeamsDataTable() {
   const t = useTranslations("TeamPage.table");
@@ -65,19 +67,48 @@ export default function TeamsDataTable() {
 
   const isDataEmpty = !teamData || teamData.length === 0;
 
+  const { deleteTeam, isDeleting } = useDeleteTeam();
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.totalPages, prev + 1));
-    
   };
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
-    
+  };
+
+  const handleDelete = (id: string) => {
+    setSelectedTeamId(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!selectedTeamId) return;
+
+    deleteTeam(selectedTeamId, {
+      onSuccess: (response) => {
+        toast.success(response.message || t("actions.deleteSuccess"), {
+          duration: 2000,
+          position: "top-right",
+        });
+        setIsDeleteDialogOpen(false);
+        setSelectedTeamId(null);
+        refetch();
+      },
+      onError: (err) => {
+        toast.error(err.message || t("actions.deleteError"), {
+          duration: 3000,
+          position: "top-right",
+        });
+      },
+    });
   };
 
   return (
     <div className="flex flex-col">
-      {/* Search Bar */}
       <div className="mb-4">
         <SearchInput
           className="w-full sm:max-w-xs"
@@ -87,7 +118,6 @@ export default function TeamsDataTable() {
         />
       </div>
 
-      {/* Results Table or Empty State */}
       <div className="flex-grow">
         {isFetching ? (
           <div className="flex items-center justify-center py-8">
@@ -116,7 +146,6 @@ export default function TeamsDataTable() {
           <EmptyTable />
         ) : (
           <div className="flex flex-col">
-            {/* Data Table Section */}
             <div className="relative w-full overflow-auto">
               <Table className="w-full">
                 <TableHeader className="sticky top-0 z-10 bg-white">
@@ -204,6 +233,8 @@ export default function TeamsDataTable() {
                             variant="ghost"
                             size="icon"
                             className="text-destructive h-8 w-8"
+                            onClick={() => handleDelete(team.id)}
+                            disabled={isDeleting}
                           >
                             <Trash className="h-4 w-4" />
                             <span className="sr-only">
@@ -218,11 +249,8 @@ export default function TeamsDataTable() {
               </Table>
             </div>
 
-            {/* Pagination Section */}
             <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
-              {/* Main pagination controls */}
               <div className="flex items-center justify-between px-4 py-2">
-                {/* Results per page */}
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-600">
                     {t("pagination.rowsPerPage")}
@@ -243,7 +271,6 @@ export default function TeamsDataTable() {
                   </Select>
                 </div>
 
-                {/* Pagination controls */}
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
@@ -266,7 +293,6 @@ export default function TeamsDataTable() {
                 </div>
               </div>
 
-              {/* Bottom status line */}
               <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
                 <div>
                   {t("pagination.showing", {
@@ -286,6 +312,16 @@ export default function TeamsDataTable() {
           </div>
         )}
       </div>
+
+      <DeleteConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false);
+          setSelectedTeamId(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

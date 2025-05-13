@@ -27,3 +27,24 @@ export interface ITeamWithPermissionResponse {
   message?: string;
   type?: string;
 }
+
+export interface CreateTeamResponse {
+  success: boolean;
+  message: string;
+  type: string;
+}
+
+export interface GetTeamResponse {
+  success: true;
+  data: ITeam;
+  message?: string;
+  type?: string;
+}
+
+export interface BackendErrorRes {
+  success: false;
+  message: string;
+  type: string;
+}
+
+export type GetTeamByIdResponse = GetTeamResponse | BackendErrorRes;
