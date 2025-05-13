@@ -11,7 +11,7 @@ import { Card } from "@/types/board";
 import CardDetail from "./CardDetail";
 
 interface BoardCardProps {
-  card: Card;
+  card: Card & { id: string; listId: string }; // Ensure these are strings
   index: number;
   onUpdate: (updatedCard: Card) => void;
   onDelete: (cardId: string) => void;
@@ -38,6 +38,11 @@ export default function BoardCard({
     return text.length > 100 ? text.substring(0, 97) + "..." : text;
   };
 
+  // Format due date for display
+  const formattedDueDate = card.dueDate
+    ? format(new Date(card.dueDate), "MMM d")
+    : null;
+
   // Check if card has a checklist with items
   const hasChecklist = card.checklist && card.checklist.length > 0;
 
@@ -50,31 +55,28 @@ export default function BoardCard({
       )
     : 0;
 
-  // Format due date for display
-  const formattedDueDate = card.dueDate
-    ? format(new Date(card.dueDate), "MMM d")
-    : null;
-
   return (
     <>
-      <Draggable draggableId={card.id} index={index}>
-        {(provided) => (
+      <Draggable draggableId={String(card.id)} index={index}>
+        {(provided, snapshot) => (
           <div
+            ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            ref={provided.innerRef}
-            className="mb-2 cursor-pointer rounded bg-white p-3 shadow hover:bg-gray-50"
+            className={`mb-2 cursor-pointer rounded bg-white p-3 shadow transition-colors ${
+              snapshot.isDragging ? "rotate-2 bg-gray-50 opacity-90" : ""
+            }`}
             onClick={() => setIsDetailOpen(true)}
           >
             <h3 className="font-medium">{card.title}</h3>
 
-            {/* {card.description && (
+            {card.description && (
               <div className="mt-2 text-sm text-gray-600">
                 <p className="line-clamp-2 whitespace-pre-line">
-                  {formatDescription(card.description)}
+                  {card.description}
                 </p>
               </div>
-            )} */}
+            )}
 
             {/* Card badges */}
             <div className="mt-2 flex flex-wrap gap-2">

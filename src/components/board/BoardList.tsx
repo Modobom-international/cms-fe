@@ -1,76 +1,125 @@
 "use client";
 
 import { Draggable, Droppable } from "@hello-pangea/dnd";
-import { Trash2 } from "lucide-react";
 
-import { Card, List } from "@/types/board";
+import { List } from "@/types/board";
 
-import AddCard from "./AddCard";
+import { useCreateCard, useDeleteCard, useUpdateCard } from "@/hooks/board";
+
 import BoardCard from "./BoardCard";
 
 interface BoardListProps {
   list: List;
   index: number;
-  onAddCard: (title: string, description: string) => void;
-  onUpdateCard: (listId: string, updatedCard: Card) => void;
-  onDeleteCard: (listId: string, cardId: string) => void;
-  onDeleteList: (listId: string) => void;
+  onDeleteList: () => void;
 }
 
 export default function BoardList({
   list,
   index,
-  onAddCard,
-  onUpdateCard,
-  onDeleteCard,
   onDeleteList,
 }: BoardListProps) {
+  const { mutate: createCard } = useCreateCard();
+  const { mutate: updateCard } = useUpdateCard();
+  const { mutate: deleteCard } = useDeleteCard();
+
   return (
-    <Draggable draggableId={list.id} index={index}>
+    <Draggable draggableId={String(list.id)} index={index}>
       {(provided) => (
         <div
-          {...provided.draggableProps}
           ref={provided.innerRef}
-          className="w-72 shrink-0"
+          {...provided.draggableProps}
+          className="w-72 shrink-0 rounded-lg bg-gray-200 p-4"
         >
           <div
             {...provided.dragHandleProps}
-            className="mb-2 flex items-center justify-between rounded bg-gray-200 p-2"
+            className="mb-4 flex items-center justify-between"
           >
-            <h2 className="text-lg font-semibold">{list.title}</h2>
+            <h3 className="text-lg font-semibold">{list.title}</h3>
             <button
-              onClick={() => onDeleteList(list.id)}
-              className="rounded p-1 text-gray-500 hover:bg-gray-300 hover:text-red-500"
-              title="Delete list"
+              onClick={onDeleteList}
+              className="rounded px-2 py-1 text-sm text-red-600 hover:bg-red-100"
             >
-              <Trash2 size={16} />
+              Delete
             </button>
           </div>
-          <Droppable droppableId={list.id} type="card">
+
+          {/* Cards */}
+          <Droppable droppableId={String(list.id)} type="card">
             {(provided) => (
               <div
-                {...provided.droppableProps}
                 ref={provided.innerRef}
-                className="rounded bg-gray-200 p-2"
+                {...provided.droppableProps}
+                className="space-y-2"
               >
-                {list.cards.map((card, index) => (
+                {list.cards?.map((card, cardIndex) => (
                   <BoardCard
-                    key={card.id}
-                    card={card}
-                    index={index}
-                    onUpdate={(updatedCard) =>
-                      onUpdateCard(list.id, updatedCard)
+                    key={String(card.id)}
+                    card={{
+                      ...card,
+                      id: String(card.id),
+                      listId: String(card.listId),
+                    }}
+                    index={cardIndex}
+                    onUpdate={updateCard}
+                    onDelete={(cardId) =>
+                      deleteCard({
+                        cardId: String(cardId),
+                        listId: String(list.id),
+                      })
                     }
-                    onDelete={(cardId) => onDeleteCard(list.id, cardId)}
                   />
                 ))}
                 {provided.placeholder}
-                <AddCard listId={list.id} onAdd={onAddCard} />
               </div>
             )}
           </Droppable>
+
+          {/* Add Card Form */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const form = e.target as HTMLFormElement;
+              const title = (
+                form.elements.namedItem("title") as HTMLInputElement
+              ).value;
+              const description = (
+                form.elements.namedItem("description") as HTMLTextAreaElement
+              ).value;
+
+              createCard({
+                listId: String(list.id),
+                title,
+                description,
+              });
+
+              form.reset();
+            }}
+            className="mt-4"
+          >
+            <input
+              type="text"
+              name="title"
+              placeholder="Card title"
+              className="mb-2 w-full rounded border p-2"
+              required
+            />
+            <textarea
+              name="description"
+              placeholder="Card description"
+              className="mb-2 w-full rounded border p-2"
+              required
+            />
+            <button
+              type="submit"
+              className="w-full rounded bg-blue-500 py-2 text-white hover:bg-blue-600"
+            >
+              Add Card
+            </button>
+          </form>
         </div>
       )}
     </Draggable>
   );
 }
+
