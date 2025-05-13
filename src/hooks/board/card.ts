@@ -13,7 +13,7 @@ export function useGetCards(listId: string) {
   return useQuery({
     queryKey: ["cards", listId],
     queryFn: async () => {
-      const { data } = await apiClient.get(`/api/list/${listId}/cards`);
+      const { data } = await apiClient.get(`/api/lists/${listId}/cards`);
       return data as Card[];
     },
   });
@@ -32,7 +32,7 @@ export function useCreateCard() {
       title: string;
       description: string;
     }) => {
-      const { data } = await apiClient.post(`/api/list/${listId}/card/create`, {
+      const { data } = await apiClient.post(`/api/lists/${listId}/cards`, {
         title,
         description,
       });
@@ -49,10 +49,7 @@ export function useUpdateCard() {
 
   return useMutation({
     mutationFn: async (card: Partial<Card> & { id: string }) => {
-      const { data } = await apiClient.post(
-        `/api/card/update/${card.id}`,
-        card
-      );
+      const { data } = await apiClient.put(`/api/cards/${card.id}`, card);
       return data as Card;
     },
     onSuccess: (data) => {
@@ -72,7 +69,7 @@ export function useDeleteCard() {
       cardId: string;
       listId: string;
     }) => {
-      await apiClient.delete(`/api/card/delete/${cardId}`);
+      await apiClient.delete(`/api/cards/${cardId}`);
       return { listId };
     },
     onSuccess: (data) => {
@@ -95,8 +92,8 @@ export function useMoveCard() {
 
       // Fetch fresh data instead of using cache
       const [sourceResponse, destResponse] = await Promise.all([
-        apiClient.get(`/api/list/${payload.sourceListId}/cards`),
-        apiClient.get(`/api/list/${payload.destinationListId}/cards`),
+        apiClient.get(`/api/lists/${payload.sourceListId}/cards`),
+        apiClient.get(`/api/lists/${payload.destinationListId}/cards`),
       ]);
 
       const sourceCards: Card[] = sourceResponse.data?.cards || [];
@@ -229,7 +226,7 @@ export function useMoveCard() {
         positions,
       };
       const { data } = await apiClient.post(
-        "/api/card/update-positions",
+        "/api/cards/positions",
         updatePayload
       );
       console.log("✅ API Response:", data);
@@ -244,8 +241,8 @@ export function useMoveCard() {
       // Fetch fresh data for accurate optimistic updates
       try {
         const [sourceResponse, destResponse] = await Promise.all([
-          apiClient.get(`/api/list/${variables.sourceListId}/cards`),
-          apiClient.get(`/api/list/${variables.destinationListId}/cards`),
+          apiClient.get(`/api/lists/${variables.sourceListId}/cards`),
+          apiClient.get(`/api/lists/${variables.destinationListId}/cards`),
         ]);
 
         const previousSourceCards = sourceResponse.data?.cards || [];
@@ -365,4 +362,3 @@ export function useMoveCard() {
     },
   });
 }
-
