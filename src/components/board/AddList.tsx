@@ -2,6 +2,14 @@
 
 import { useState } from "react";
 
+import { Plus } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+
 interface AddListProps {
   onAdd: (title: string) => void;
 }
@@ -21,40 +29,46 @@ export default function AddList({ onAdd }: AddListProps) {
 
   if (!isAdding) {
     return (
-      <button
+      <Button
+        variant="outline"
+        size="lg"
+        className="bg-muted/50 h-fit w-80 justify-start gap-2 border-dashed"
         onClick={() => setIsAdding(true)}
-        className="h-fit w-72 rounded bg-gray-200 p-2 text-left hover:bg-gray-300"
       >
-        + Add another list
-      </button>
+        <Plus className="h-4 w-4" />
+        Add another list
+      </Button>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-72">
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Enter list title..."
-        className="mb-2 w-full rounded border p-2"
-        autoFocus
-      />
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          className="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600"
-        >
-          Add List
-        </button>
-        <button
-          type="button"
-          onClick={() => setIsAdding(false)}
-          className="rounded px-3 py-1 hover:bg-gray-200"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
+    <Card className="bg-muted/50 w-80">
+      <CardHeader className="pb-2">
+        <form onSubmit={handleSubmit} className="space-y-2">
+          <Input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter list title..."
+            className="h-8 text-sm"
+            autoFocus
+          />
+          <div className="flex gap-2">
+            <Button type="submit" size="sm">
+              Add List
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsAdding(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </CardHeader>
+    </Card>
   );
 }
+

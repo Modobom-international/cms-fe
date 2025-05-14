@@ -2,6 +2,8 @@
 
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 
+import { cn } from "@/lib/utils";
+
 import {
   useCreateList,
   useDeleteList,
@@ -9,6 +11,8 @@ import {
   useMoveCard,
   useUpdateListsPositions,
 } from "@/hooks/board";
+
+import { Skeleton } from "@/components/ui/skeleton";
 
 import AddList from "@/components/board/AddList";
 import BoardList from "@/components/board/BoardList";
@@ -56,49 +60,60 @@ export default function BoardPage() {
     });
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="mb-8 text-3xl font-bold">My Board</h1>
-      <DragDropContext
-        onDragEnd={onDragEnd}
-        onBeforeDragStart={() => {
-          // Disable pointer events on other cards during drag
-          document.body.classList.add("dragging");
-        }}
-        onDragUpdate={(update) => {
-          // Update the UI during drag
-          document.body.style.cursor = "grabbing";
-        }}
-      >
-        <Droppable droppableId="board" type="list" direction="horizontal">
-          {(provided) => (
-            <div
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-              className="flex gap-4 overflow-x-auto pb-4"
-            >
-              {lists.map((list, index) => (
-                <BoardList
-                  key={list.id}
-                  list={list}
-                  index={index}
-                  onDeleteList={() => deleteList(list.id)}
-                />
-              ))}
-              {provided.placeholder}
-              <AddList
-                onAdd={(title) => {
-                  createList({ title, position: lists.length + 1 });
-                }}
-              />
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+    <div className="min-h-screen bg-gradient-to-br from-sky-400/20 to-blue-800/20 p-6">
+      <div className="mx-auto max-w-[1400px]">
+        <h1 className="text-foreground/80 mb-8 text-2xl font-semibold">
+          My Board
+        </h1>
+        <DragDropContext
+          onDragEnd={onDragEnd}
+          onBeforeDragStart={() => {
+            // Disable pointer events on other cards during drag
+            document.body.classList.add("dragging");
+          }}
+          onDragUpdate={(update) => {
+            // Update the UI during drag
+            document.body.style.cursor = "grabbing";
+          }}
+        >
+          <Droppable droppableId="board" type="list" direction="horizontal">
+            {(provided) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className="flex gap-4 overflow-x-auto pb-4"
+              >
+                {isLoading ? (
+                  <div className="flex gap-4">
+                    <Skeleton className="h-[480px] w-80" />
+                    <Skeleton className="h-[480px] w-80" />
+                    <Skeleton className="h-[480px] w-80" />
+                  </div>
+                ) : (
+                  <>
+                    {lists.map((list, index) => (
+                      <BoardList
+                        key={list.id}
+                        list={list}
+                        index={index}
+                        onDeleteList={() => deleteList(list.id)}
+                      />
+                    ))}
+                    {provided.placeholder}
+                    <AddList
+                      onAdd={(title) => {
+                        createList({ title, position: lists.length + 1 });
+                      }}
+                    />
+                  </>
+                )}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </div>
     </div>
   );
 }
+
