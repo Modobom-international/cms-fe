@@ -90,7 +90,7 @@ const data = {
     },
     {
       title: "Board",
-      url: "/admin/board",
+      url: "/board",
       icon: GanttChartSquare,
     },
   ],
