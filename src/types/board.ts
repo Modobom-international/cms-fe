@@ -20,11 +20,11 @@ export interface ApiResponse<T> {
 }
 
 export interface Card {
-  id: string;
+  id: number;
   title: string;
   description: string;
   order?: number;
-  listId: string;
+  listId: number;
   dueDate?: string; // ISO string format
   checklist?: ChecklistItem[];
   attachments?: Attachment[];
@@ -47,19 +47,18 @@ export interface Board {
 }
 
 export interface MoveCardPayload {
-  cardId: string;
-  sourceListId: string;
-  destinationListId: string;
+  cardId: number;
+  sourceListId: number;
+  destinationListId: number;
   newOrder: number;
 }
 
 export interface CardPosition {
-  id: string;
+  id: number;
   position: number;
-  list_id: string;
+  list_id: number;
 }
 
 export interface UpdateCardPositionsPayload {
   positions: CardPosition[];
 }
-

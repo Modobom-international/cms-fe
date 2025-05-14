@@ -42,9 +42,9 @@ export default function BoardPage() {
 
     // Handle card movement
     moveCard({
-      cardId: draggableId,
-      sourceListId: source.droppableId,
-      destinationListId: destination.droppableId,
+      cardId: Number(draggableId),
+      sourceListId: Number(source.droppableId),
+      destinationListId: Number(destination.droppableId),
       newOrder: destination.index,
     });
   };
@@ -56,7 +56,17 @@ export default function BoardPage() {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <h1 className="mb-8 text-3xl font-bold">My Board</h1>
-      <DragDropContext onDragEnd={onDragEnd}>
+      <DragDropContext
+        onDragEnd={onDragEnd}
+        onBeforeDragStart={() => {
+          // Disable pointer events on other cards during drag
+          document.body.classList.add("dragging");
+        }}
+        onDragUpdate={(update) => {
+          // Update the UI during drag
+          document.body.style.cursor = "grabbing";
+        }}
+      >
         <Droppable droppableId="board" type="list" direction="horizontal">
           {(provided) => (
             <div
@@ -85,4 +95,3 @@ export default function BoardPage() {
     </div>
   );
 }
-

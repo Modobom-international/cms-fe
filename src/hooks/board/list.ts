@@ -43,7 +43,7 @@ export function useUpdateList() {
 
   return useMutation({
     mutationFn: async ({ id, title }: { id: string; title: string }) => {
-      const { data } = await apiClient.put<ApiResponse<List>>(
+      const { data } = await apiClient.post<ApiResponse<List>>(
         `/api/lists/${id}`,
         {
           title,
