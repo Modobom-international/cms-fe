@@ -1,8 +1,11 @@
 "use client";
 
 import { Draggable, Droppable } from "@hello-pangea/dnd";
+import { GripVertical } from "lucide-react";
 
 import { Card, List } from "@/types/board";
+
+import { cn } from "@/lib/utils";
 
 import {
   useCreateCard,
@@ -10,6 +13,15 @@ import {
   useGetCards,
   useUpdateCard,
 } from "@/hooks/board";
+
+import { Button } from "@/components/ui/button";
+import {
+  CardContent,
+  CardHeader,
+  Card as ShadCard,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 import BoardCard from "./BoardCard";
 
@@ -35,116 +47,135 @@ export default function BoardList({
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className={`w-72 shrink-0 rounded-lg bg-gray-200 p-4 transition-all duration-200 ${
-            snapshot.isDragging ? "rotate-2 shadow-xl" : ""
-          }`}
+          className={cn(
+            "h-full w-80 shrink-0",
+            snapshot.isDragging && "rotate-2"
+          )}
         >
-          {/* List Header - Only this part should be draggable for the list */}
-          <div
-            {...provided.dragHandleProps}
-            className="mb-4 flex cursor-grab items-center justify-between rounded bg-gray-200 px-2 py-1 active:cursor-grabbing"
-          >
-            <h3 className="text-lg font-semibold select-none">{list.title}</h3>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDeleteList();
-              }}
-              className="rounded px-2 py-1 text-sm text-red-600 hover:bg-red-100"
+          <ShadCard className="bg-muted/50 flex min-h-1/2 flex-col">
+            {/* List Header */}
+            <CardHeader
+              {...provided.dragHandleProps}
+              className="flex-none cursor-grab space-y-0 pb-2 active:cursor-grabbing"
             >
-              Delete
-            </button>
-          </div>
+              <div className="group/header flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="opacity-0 transition-opacity group-hover/header:opacity-40">
+                    <GripVertical className="h-4 w-4" />
+                  </div>
+                  <h3 className="text-sm font-medium">{list.title}</h3>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteList();
+                  }}
+                  className="text-destructive hover:text-destructive/90 h-auto cursor-pointer px-2 py-1 text-xs opacity-0 transition-opacity group-hover/header:opacity-100"
+                >
+                  Delete
+                </Button>
+              </div>
+            </CardHeader>
 
-          {/* Cards Container - This should be droppable for cards */}
-          <Droppable droppableId={`list-${list.id}`} type="card">
-            {(provided, snapshot) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-                className={`min-h-[50px] space-y-2 transition-colors ${
-                  snapshot.isDraggingOver ? "rounded bg-gray-300/50 p-2" : "p-2"
-                }`}
+            {/* Cards Container */}
+            <CardContent className="space-y-2 px-2">
+              <Droppable droppableId={`list-${list.id}`} type="card">
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={cn(
+                      "min-h-[50px] space-y-1.5 rounded-md transition-all duration-200",
+                      snapshot.isDraggingOver ? "bg-muted/70 p-2" : "p-1"
+                    )}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {isLoading ? (
+                      <div className="space-y-1.5">
+                        <div className="bg-muted h-12 animate-pulse rounded-md" />
+                        <div className="bg-muted h-12 animate-pulse rounded-md" />
+                      </div>
+                    ) : (
+                      cards.map((card: Card, cardIndex: number) => (
+                        <BoardCard
+                          key={String(card.id)}
+                          card={card}
+                          index={cardIndex}
+                          onUpdate={(updatedCard) =>
+                            updateCard({
+                              ...updatedCard,
+                              id: updatedCard.id,
+                            })
+                          }
+                          onDelete={(cardId) =>
+                            deleteCard({
+                              cardId,
+                              listId: list.id,
+                            })
+                          }
+                        />
+                      ))
+                    )}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+
+              {/* Add Card Form */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const form = e.target as HTMLFormElement;
+                  const title = (
+                    form.elements.namedItem("title") as HTMLInputElement
+                  ).value.trim();
+                  const description = (
+                    form.elements.namedItem(
+                      "description"
+                    ) as HTMLTextAreaElement
+                  ).value.trim();
+
+                  if (!title) return;
+
+                  createCard({
+                    listId: String(list.id),
+                    title,
+                    description,
+                  });
+
+                  form.reset();
+                }}
+                className="space-y-1.5"
                 onClick={(e) => e.stopPropagation()}
               >
-                {isLoading ? (
-                  <div className="animate-pulse space-y-2">
-                    <div className="h-16 rounded bg-gray-300"></div>
-                    <div className="h-16 rounded bg-gray-300"></div>
-                  </div>
-                ) : (
-                  cards.map((card: Card, cardIndex: number) => (
-                    <BoardCard
-                      key={String(card.id)}
-                      card={card}
-                      index={cardIndex}
-                      onUpdate={(updatedCard) =>
-                        updateCard({
-                          ...updatedCard,
-                          id: updatedCard.id,
-                        })
-                      }
-                      onDelete={(cardId) =>
-                        deleteCard({
-                          cardId,
-                          listId: list.id,
-                        })
-                      }
-                    />
-                  ))
-                )}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-
-          {/* Add Card Form */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              const form = e.target as HTMLFormElement;
-              const title = (
-                form.elements.namedItem("title") as HTMLInputElement
-              ).value;
-              const description = (
-                form.elements.namedItem("description") as HTMLTextAreaElement
-              ).value;
-
-              createCard({
-                listId: String(list.id),
-                title,
-                description,
-              });
-
-              form.reset();
-            }}
-            className="mt-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <input
-              type="text"
-              name="title"
-              placeholder="Card title"
-              className="mb-2 w-full rounded border p-2"
-              required
-              onClick={(e) => e.stopPropagation()}
-            />
-            <textarea
-              name="description"
-              placeholder="Card description"
-              className="mb-2 w-full rounded border p-2"
-              required
-              onClick={(e) => e.stopPropagation()}
-            />
-            <button
-              type="submit"
-              className="w-full rounded bg-blue-500 py-2 text-white hover:bg-blue-600"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Add Card
-            </button>
-          </form>
+                <Input
+                  type="text"
+                  name="title"
+                  placeholder="Card title"
+                  className="bg-background/50 focus:bg-background h-7 text-sm transition-colors"
+                  required
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <Textarea
+                  name="description"
+                  placeholder="Card description (optional)"
+                  className="bg-background/50 focus:bg-background h-16 resize-none text-sm transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <Button
+                  type="submit"
+                  className="h-7 w-full"
+                  size="sm"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Add Card
+                </Button>
+              </form>
+            </CardContent>
+          </ShadCard>
         </div>
       )}
     </Draggable>

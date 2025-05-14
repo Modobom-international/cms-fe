@@ -90,7 +90,7 @@ const data = {
     },
     {
       title: "Board",
-      url: "/admin/trello",
+      url: "/admin/board",
       icon: GanttChartSquare,
     },
   ],

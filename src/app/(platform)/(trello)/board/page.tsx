@@ -2,6 +2,8 @@
 
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 
+import { cn } from "@/lib/utils";
+
 import {
   useCreateList,
   useDeleteList,
@@ -9,6 +11,9 @@ import {
   useMoveCard,
   useUpdateListsPositions,
 } from "@/hooks/board";
+
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import AddList from "@/components/board/AddList";
 import BoardList from "@/components/board/BoardList";
@@ -56,49 +61,97 @@ export default function BoardPage() {
     });
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="mb-8 text-3xl font-bold">My Board</h1>
-      <DragDropContext
-        onDragEnd={onDragEnd}
-        onBeforeDragStart={() => {
-          // Disable pointer events on other cards during drag
-          document.body.classList.add("dragging");
-        }}
-        onDragUpdate={(update) => {
-          // Update the UI during drag
-          document.body.style.cursor = "grabbing";
-        }}
-      >
-        <Droppable droppableId="board" type="list" direction="horizontal">
-          {(provided) => (
-            <div
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-              className="flex gap-4 overflow-x-auto pb-4"
-            >
-              {lists.map((list, index) => (
-                <BoardList
-                  key={list.id}
-                  list={list}
-                  index={index}
-                  onDeleteList={() => deleteList(list.id)}
-                />
-              ))}
-              {provided.placeholder}
-              <AddList
-                onAdd={(title) => {
-                  createList({ title, position: lists.length + 1 });
-                }}
-              />
+    <div className="absolute inset-0 h-[calc(100vh-var(--header-height)-theme(spacing.20))] bg-gradient-to-br from-gray-100 to-gray-200">
+      <div className="h-full p-6">
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-800">
+              My Board
+            </h1>
+            <div className="h-8 w-px bg-gray-200/80" />
+            <div className="text-muted-foreground flex items-center gap-2 text-sm">
+              <span>{lists.length} Lists</span>
             </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white/50 text-xs hover:bg-white"
+              onClick={() => {
+                document.body.style.cursor = "default";
+                document.body.classList.remove("dragging");
+              }}
+            >
+              Reset View
+            </Button>
+            <div className="h-8 w-px bg-gray-200/80" />
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white/50 text-xs hover:bg-white"
+            >
+              Filter
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white/50 text-xs hover:bg-white"
+            >
+              Sort
+            </Button>
+          </div>
+        </div>
+
+        <DragDropContext
+          onDragEnd={onDragEnd}
+          onBeforeDragStart={() => {
+            document.body.classList.add("dragging");
+          }}
+          onDragUpdate={() => {
+            document.body.style.cursor = "grabbing";
+          }}
+        >
+          <Droppable droppableId="board" type="list" direction="horizontal">
+            {(provided, snapshot) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className={cn(
+                  "flex h-[calc(100%-theme(spacing.16))] min-h-[200px] gap-6 overflow-x-auto px-1 pb-4",
+                  snapshot.isDraggingOver && "cursor-grabbing"
+                )}
+              >
+                {isLoading ? (
+                  <div className="flex gap-6">
+                    <Skeleton className="h-full w-80 rounded-xl" />
+                    <Skeleton className="h-full w-80 rounded-xl" />
+                    <Skeleton className="h-full w-80 rounded-xl" />
+                  </div>
+                ) : (
+                  <>
+                    {lists.map((list, index) => (
+                      <BoardList
+                        key={list.id}
+                        list={list}
+                        index={index}
+                        onDeleteList={() => deleteList(list.id)}
+                      />
+                    ))}
+                    {provided.placeholder}
+                    <AddList
+                      onAdd={(title) => {
+                        createList({ title, position: lists.length + 1 });
+                      }}
+                    />
+                  </>
+                )}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </div>
     </div>
   );
 }
