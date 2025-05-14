@@ -51,7 +51,7 @@ export default function BoardList({
             snapshot.isDragging && "rotate-2"
           )}
         >
-          <ShadCard className="bg-muted/50 flex h-full flex-col">
+          <ShadCard className="bg-muted/50 flex min-h-1/2 flex-col">
             {/* List Header */}
             <CardHeader
               {...provided.dragHandleProps}
