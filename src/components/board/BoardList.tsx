@@ -30,7 +30,7 @@ export default function BoardList({
   const { mutate: deleteCard } = useDeleteCard();
 
   return (
-    <Draggable draggableId={String(list.id)} index={index}>
+    <Draggable draggableId={`list-${list.id}`} index={index}>
       {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
@@ -57,7 +57,7 @@ export default function BoardList({
           </div>
 
           {/* Cards Container - This should be droppable for cards */}
-          <Droppable droppableId={String(list.id)} type="card">
+          <Droppable droppableId={`list-${list.id}`} type="card">
             {(provided, snapshot) => (
               <div
                 ref={provided.innerRef}
