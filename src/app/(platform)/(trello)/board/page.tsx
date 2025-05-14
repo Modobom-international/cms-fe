@@ -41,10 +41,17 @@ export default function BoardPage() {
     }
 
     // Handle card movement
+    // Extract the actual IDs from the prefixed IDs
+    const cardId = Number(draggableId.replace("card-", ""));
+    const sourceListId = Number(source.droppableId.replace("list-", ""));
+    const destinationListId = Number(
+      destination.droppableId.replace("list-", "")
+    );
+
     moveCard({
-      cardId: Number(draggableId),
-      sourceListId: Number(source.droppableId),
-      destinationListId: Number(destination.droppableId),
+      cardId,
+      sourceListId,
+      destinationListId,
       newOrder: destination.index,
     });
   };

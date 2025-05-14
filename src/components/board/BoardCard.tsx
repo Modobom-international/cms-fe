@@ -57,7 +57,7 @@ export default function BoardCard({
 
   return (
     <>
-      <Draggable draggableId={String(card.id)} index={index}>
+      <Draggable draggableId={`card-${card.id}`} index={index}>
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
