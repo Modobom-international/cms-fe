@@ -1,6 +1,7 @@
 "use client";
 
 import { Draggable, Droppable } from "@hello-pangea/dnd";
+import { GripVertical } from "lucide-react";
 
 import { Card, List } from "@/types/board";
 
@@ -57,8 +58,13 @@ export default function BoardList({
               {...provided.dragHandleProps}
               className="flex-none cursor-grab space-y-0 pb-2 active:cursor-grabbing"
             >
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium">{list.title}</h3>
+              <div className="group/header flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="opacity-0 transition-opacity group-hover/header:opacity-40">
+                    <GripVertical className="h-4 w-4" />
+                  </div>
+                  <h3 className="text-sm font-medium">{list.title}</h3>
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -66,7 +72,7 @@ export default function BoardList({
                     e.stopPropagation();
                     onDeleteList();
                   }}
-                  className="text-destructive hover:text-destructive/90 h-auto px-2 py-1 text-xs"
+                  className="text-destructive hover:text-destructive/90 h-auto cursor-pointer px-2 py-1 text-xs opacity-0 transition-opacity group-hover/header:opacity-100"
                 >
                   Delete
                 </Button>
@@ -125,12 +131,14 @@ export default function BoardList({
                   const form = e.target as HTMLFormElement;
                   const title = (
                     form.elements.namedItem("title") as HTMLInputElement
-                  ).value;
+                  ).value.trim();
                   const description = (
                     form.elements.namedItem(
                       "description"
                     ) as HTMLTextAreaElement
-                  ).value;
+                  ).value.trim();
+
+                  if (!title) return;
 
                   createCard({
                     listId: String(list.id),
@@ -153,9 +161,8 @@ export default function BoardList({
                 />
                 <Textarea
                   name="description"
-                  placeholder="Card description"
+                  placeholder="Card description (optional)"
                   className="bg-background/50 focus:bg-background h-16 resize-none text-sm transition-colors"
-                  required
                   onClick={(e) => e.stopPropagation()}
                 />
                 <Button

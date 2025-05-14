@@ -12,6 +12,7 @@ import {
   useUpdateListsPositions,
 } from "@/hooks/board";
 
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import AddList from "@/components/board/AddList";
@@ -64,11 +65,42 @@ export default function BoardPage() {
     <div className="absolute inset-0 h-[calc(100vh-var(--header-height)-theme(spacing.20))] bg-gradient-to-br from-gray-100 to-gray-200">
       <div className="h-full p-6">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-800">
-            My Board
-          </h1>
           <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-800">
+              My Board
+            </h1>
             <div className="h-8 w-px bg-gray-200/80" />
+            <div className="text-muted-foreground flex items-center gap-2 text-sm">
+              <span>{lists.length} Lists</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white/50 text-xs hover:bg-white"
+              onClick={() => {
+                document.body.style.cursor = "default";
+                document.body.classList.remove("dragging");
+              }}
+            >
+              Reset View
+            </Button>
+            <div className="h-8 w-px bg-gray-200/80" />
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white/50 text-xs hover:bg-white"
+            >
+              Filter
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-white/50 text-xs hover:bg-white"
+            >
+              Sort
+            </Button>
           </div>
         </div>
 
@@ -82,11 +114,14 @@ export default function BoardPage() {
           }}
         >
           <Droppable droppableId="board" type="list" direction="horizontal">
-            {(provided) => (
+            {(provided, snapshot) => (
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className="flex h-[calc(100%-theme(spacing.16))] min-h-[200px] gap-6 overflow-x-auto px-1 pb-4"
+                className={cn(
+                  "flex h-[calc(100%-theme(spacing.16))] min-h-[200px] gap-6 overflow-x-auto px-1 pb-4",
+                  snapshot.isDraggingOver && "cursor-grabbing"
+                )}
               >
                 {isLoading ? (
                   <div className="flex gap-6">
