@@ -113,7 +113,7 @@ export const useUpdatePage = () => {
     IUpdatePageData & { pageId: string }
   >({
     mutationFn: async (data) => {
-      const response = await apiClient.put(`/api/pages/${data.pageId}`, data);
+      const response = await apiClient.post(`/api/pages/${data.pageId}`, data);
       if (!response.data.success) {
         throw new Error(response.data.message || "Failed to update page");
       }
@@ -223,7 +223,7 @@ export const useUpdateTrackingScript = () => {
     { pageId: string; data: IUpdateTrackingScriptData }
   >({
     mutationFn: async ({ pageId, data }) => {
-      const response = await apiClient.put(
+      const response = await apiClient.post(
         `/api/pages/${pageId}/tracking-scripts`,
         data
       );
@@ -298,4 +298,3 @@ export const useLoadFromAPI = (pageId: string) => {
     enabled: !!pageId,
   });
 };
-
