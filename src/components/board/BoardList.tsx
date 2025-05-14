@@ -46,13 +46,16 @@ export default function BoardList({
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className={cn("w-80 shrink-0", snapshot.isDragging && "rotate-2")}
+          className={cn(
+            "h-full w-80 shrink-0",
+            snapshot.isDragging && "rotate-2"
+          )}
         >
-          <ShadCard className="bg-muted/50">
+          <ShadCard className="bg-muted/50 flex h-full flex-col">
             {/* List Header */}
             <CardHeader
               {...provided.dragHandleProps}
-              className="cursor-grab space-y-0 pb-2 active:cursor-grabbing"
+              className="flex-none cursor-grab space-y-0 pb-2 active:cursor-grabbing"
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium">{list.title}</h3>
@@ -78,15 +81,15 @@ export default function BoardList({
                     ref={provided.innerRef}
                     {...provided.droppableProps}
                     className={cn(
-                      "min-h-[50px] space-y-2 rounded-md p-1 transition-colors",
-                      snapshot.isDraggingOver && "bg-muted"
+                      "min-h-[50px] space-y-1.5 rounded-md transition-all duration-200",
+                      snapshot.isDraggingOver ? "bg-muted/70 p-2" : "p-1"
                     )}
                     onClick={(e) => e.stopPropagation()}
                   >
                     {isLoading ? (
-                      <div className="space-y-2">
-                        <div className="bg-muted h-16 animate-pulse rounded-md" />
-                        <div className="bg-muted h-16 animate-pulse rounded-md" />
+                      <div className="space-y-1.5">
+                        <div className="bg-muted h-12 animate-pulse rounded-md" />
+                        <div className="bg-muted h-12 animate-pulse rounded-md" />
                       </div>
                     ) : (
                       cards.map((card: Card, cardIndex: number) => (
@@ -137,27 +140,27 @@ export default function BoardList({
 
                   form.reset();
                 }}
-                className="space-y-2"
+                className="space-y-1.5"
                 onClick={(e) => e.stopPropagation()}
               >
                 <Input
                   type="text"
                   name="title"
                   placeholder="Card title"
-                  className="h-8 text-sm"
+                  className="bg-background/50 focus:bg-background h-7 text-sm transition-colors"
                   required
                   onClick={(e) => e.stopPropagation()}
                 />
                 <Textarea
                   name="description"
                   placeholder="Card description"
-                  className="h-20 resize-none text-sm"
+                  className="bg-background/50 focus:bg-background h-16 resize-none text-sm transition-colors"
                   required
                   onClick={(e) => e.stopPropagation()}
                 />
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="h-7 w-full"
                   size="sm"
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -171,4 +174,3 @@ export default function BoardList({
     </Draggable>
   );
 }
-

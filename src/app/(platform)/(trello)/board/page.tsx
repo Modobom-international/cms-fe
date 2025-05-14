@@ -61,11 +61,15 @@ export default function BoardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="mx-auto max-w-screen-2xl px-4 py-6">
+    <div className="absolute inset-0 h-[calc(100vh-var(--header-height)-theme(spacing.20))] bg-gradient-to-br from-gray-100 to-gray-200">
+      <div className="h-full p-6">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-gray-800">My Board</h1>
-          <div className="h-8 w-px bg-gray-200" />
+          <h1 className="text-2xl font-bold tracking-tight text-gray-800">
+            My Board
+          </h1>
+          <div className="flex items-center gap-4">
+            <div className="h-8 w-px bg-gray-200/80" />
+          </div>
         </div>
 
         <DragDropContext
@@ -82,13 +86,13 @@ export default function BoardPage() {
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className="flex gap-4 overflow-x-auto pb-4"
+                className="flex h-[calc(100%-theme(spacing.16))] min-h-[200px] gap-6 overflow-x-auto px-1 pb-4"
               >
                 {isLoading ? (
-                  <div className="flex gap-4">
-                    <Skeleton className="h-[480px] w-72" />
-                    <Skeleton className="h-[480px] w-72" />
-                    <Skeleton className="h-[480px] w-72" />
+                  <div className="flex gap-6">
+                    <Skeleton className="h-full w-80 rounded-xl" />
+                    <Skeleton className="h-full w-80 rounded-xl" />
+                    <Skeleton className="h-full w-80 rounded-xl" />
                   </div>
                 ) : (
                   <>
