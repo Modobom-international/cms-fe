@@ -7,7 +7,7 @@ import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 interface AddListProps {
@@ -31,8 +31,8 @@ export default function AddList({ onAdd }: AddListProps) {
     return (
       <Button
         variant="outline"
-        size="lg"
-        className="bg-muted/50 h-fit w-80 justify-start gap-2 border-dashed"
+        size="sm"
+        className="h-10 w-72 justify-start gap-2 border-2 border-dashed border-gray-300/50 bg-white/40 hover:border-gray-300/80 hover:bg-white/60"
         onClick={() => setIsAdding(true)}
       >
         <Plus className="h-4 w-4" />
@@ -42,19 +42,20 @@ export default function AddList({ onAdd }: AddListProps) {
   }
 
   return (
-    <Card className="bg-muted/50 w-80">
-      <CardHeader className="pb-2">
+    <Card className="w-72 bg-gray-100/80 backdrop-blur-sm">
+      <CardHeader className="space-y-2 p-3">
         <form onSubmit={handleSubmit} className="space-y-2">
           <Input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Enter list title..."
-            className="h-8 text-sm"
+            className="h-7 bg-white/80 text-sm"
             autoFocus
           />
           <div className="flex gap-2">
-            <Button type="submit" size="sm">
+            <Button type="submit" size="sm" className="h-7 text-xs">
+              <Plus className="mr-1 h-3.5 w-3.5" />
               Add List
             </Button>
             <Button
@@ -62,6 +63,7 @@ export default function AddList({ onAdd }: AddListProps) {
               variant="ghost"
               size="sm"
               onClick={() => setIsAdding(false)}
+              className="h-7 text-xs"
             >
               Cancel
             </Button>

@@ -61,19 +61,19 @@ export default function BoardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-400/20 to-blue-800/20 p-6">
-      <div className="mx-auto max-w-[1400px]">
-        <h1 className="text-foreground/80 mb-8 text-2xl font-semibold">
-          My Board
-        </h1>
+    <div className="min-h-screen bg-gray-100">
+      <div className="mx-auto max-w-screen-2xl px-4 py-6">
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-xl font-semibold text-gray-800">My Board</h1>
+          <div className="h-8 w-px bg-gray-200" />
+        </div>
+
         <DragDropContext
           onDragEnd={onDragEnd}
           onBeforeDragStart={() => {
-            // Disable pointer events on other cards during drag
             document.body.classList.add("dragging");
           }}
-          onDragUpdate={(update) => {
-            // Update the UI during drag
+          onDragUpdate={() => {
             document.body.style.cursor = "grabbing";
           }}
         >
@@ -86,9 +86,9 @@ export default function BoardPage() {
               >
                 {isLoading ? (
                   <div className="flex gap-4">
-                    <Skeleton className="h-[480px] w-80" />
-                    <Skeleton className="h-[480px] w-80" />
-                    <Skeleton className="h-[480px] w-80" />
+                    <Skeleton className="h-[480px] w-72" />
+                    <Skeleton className="h-[480px] w-72" />
+                    <Skeleton className="h-[480px] w-72" />
                   </div>
                 ) : (
                   <>
@@ -116,4 +116,3 @@ export default function BoardPage() {
     </div>
   );
 }
-

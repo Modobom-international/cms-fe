@@ -10,12 +10,7 @@ import { Card } from "@/types/board";
 
 import { cn } from "@/lib/utils";
 
-import {
-  CardContent,
-  CardDescription,
-  CardHeader,
-  Card as ShadCard,
-} from "@/components/ui/card";
+import { CardContent, Card as ShadCard } from "@/components/ui/card";
 
 import CardDetail from "./CardDetail";
 
@@ -33,19 +28,6 @@ export default function BoardCard({
   onDelete,
 }: BoardCardProps) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-
-  // Function to strip HTML tags but preserve basic formatting
-  const formatDescription = (html: string) => {
-    if (!html) return "";
-    // Remove all HTML tags except line breaks
-    const text = html
-      .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/<\/p>/gi, "\n")
-      .replace(/<[^>]*>/g, "")
-      .trim();
-    // Limit to 100 characters
-    return text.length > 100 ? text.substring(0, 97) + "..." : text;
-  };
 
   // Format due date for display
   const formattedDueDate = card.dueDate
@@ -79,10 +61,8 @@ export default function BoardCard({
           >
             <ShadCard
               className={cn(
-                "relative mb-2 cursor-pointer transition-all duration-200",
-                snapshot.isDragging
-                  ? "scale-105 rotate-2 opacity-90 shadow-xl"
-                  : "hover:-translate-y-0.5 hover:shadow-md"
+                "relative mb-1.5 cursor-pointer border-none bg-white/80 shadow-sm transition-all duration-200 hover:bg-white",
+                snapshot.isDragging && "scale-105 rotate-2 bg-white shadow-lg"
               )}
             >
               {/* Drag Handle */}
@@ -91,52 +71,54 @@ export default function BoardCard({
                 className="absolute top-0 bottom-0 left-0 flex w-6 cursor-grab items-center justify-center rounded-l bg-transparent opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
                 onClick={(e) => e.stopPropagation()}
               >
-                <GripVertical className="text-muted-foreground h-4 w-4" />
+                <GripVertical className="text-muted-foreground/50 h-4 w-4" />
               </div>
 
               {/* Card Content */}
-              <CardHeader className="pt-3 pb-2 pl-8">
-                <h3 className="text-sm leading-none font-medium">
-                  {card.title}
-                </h3>
-                {card.description && (
-                  <CardDescription className="mt-2 line-clamp-2 text-xs whitespace-pre-line">
-                    {card.description}
-                  </CardDescription>
+              <CardContent className="space-y-2 p-2.5 pl-8">
+                <div>
+                  <h3 className="truncate text-sm leading-none font-medium">
+                    {card.title}
+                  </h3>
+                  {card.description && (
+                    <p className="text-muted-foreground mt-1.5 line-clamp-2 text-xs">
+                      {card.description}
+                    </p>
+                  )}
+                </div>
+
+                {/* Card badges */}
+                {(formattedDueDate || hasChecklist) && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {formattedDueDate && (
+                      <div
+                        className={cn(
+                          "bg-secondary/50 flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[10px] font-medium",
+                          new Date(card.dueDate!) < new Date()
+                            ? "text-destructive"
+                            : "text-secondary-foreground"
+                        )}
+                      >
+                        <Clock className="h-2.5 w-2.5" />
+                        <span>{formattedDueDate}</span>
+                      </div>
+                    )}
+
+                    {hasChecklist && (
+                      <div className="bg-secondary/50 text-secondary-foreground flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-[10px] font-medium">
+                        <CheckSquare className="h-2.5 w-2.5" />
+                        <span>
+                          {
+                            card.checklist!.filter((item) => item.completed)
+                              .length
+                          }
+                          /{card.checklist!.length}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 )}
-              </CardHeader>
-
-              {/* Card badges */}
-              {(formattedDueDate || hasChecklist) && (
-                <CardContent className="flex flex-wrap gap-2 pt-0 pb-3">
-                  {formattedDueDate && (
-                    <div
-                      className={cn(
-                        "bg-secondary flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs",
-                        new Date(card.dueDate!) < new Date()
-                          ? "text-destructive"
-                          : "text-secondary-foreground"
-                      )}
-                    >
-                      <Clock size={12} />
-                      <span>{formattedDueDate}</span>
-                    </div>
-                  )}
-
-                  {hasChecklist && (
-                    <div className="bg-secondary text-secondary-foreground flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs">
-                      <CheckSquare size={12} />
-                      <span>
-                        {
-                          card.checklist!.filter((item) => item.completed)
-                            .length
-                        }
-                        /{card.checklist!.length}
-                      </span>
-                    </div>
-                  )}
-                </CardContent>
-              )}
+              </CardContent>
             </ShadCard>
           </div>
         )}
@@ -159,4 +141,3 @@ export default function BoardCard({
     </>
   );
 }
-
