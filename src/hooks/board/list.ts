@@ -6,7 +6,7 @@ import { ApiResponse, List } from "@/types/board.type";
 
 import apiClient from "@/lib/api/client";
 
-const DEBOUNCE_TIME = 3000; // 3 seconds
+const DEBOUNCE_TIME = 2000; // 3 seconds
 
 export function useGetLists(boardId: number) {
   return useQuery({
@@ -149,10 +149,24 @@ export function useUpdateListsPositions(boardId: number) {
       );
       return data.data;
     },
+    onError: (
+      error,
+      variables,
+      context: { previousLists?: List[] } | undefined
+    ) => {
+      // Rollback to previous state if available
+      if (context?.previousLists) {
+        queryClient.setQueryData(["lists", boardId], context.previousLists);
+      }
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
+    },
   });
 
   const debouncedUpdatePositions = useCallback(
-    (lists: List[]) => {
+    (lists: List[], previousLists: List[]) => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
@@ -163,10 +177,15 @@ export function useUpdateListsPositions(boardId: number) {
       }));
 
       timerRef.current = setTimeout(() => {
-        updatePositions(positions);
+        updatePositions(positions, {
+          onError: () => {
+            // Immediate rollback on debounced update error
+            queryClient.setQueryData(["lists", boardId], previousLists);
+          },
+        });
       }, DEBOUNCE_TIME);
     },
-    [updatePositions]
+    [updatePositions, queryClient, boardId]
   );
 
   return {
@@ -192,8 +211,9 @@ export function useUpdateListsPositions(boardId: number) {
             list.position = String(idx + 1);
           });
 
+          // Store the previous state before updating
           queryClient.setQueryData(["lists", boardId], newLists);
-          debouncedUpdatePositions(newLists);
+          debouncedUpdatePositions(newLists, previousLists);
         }
       }
     },
