@@ -6,39 +6,38 @@ import { ApiResponse, List } from "@/types/board";
 
 import apiClient from "@/lib/api/client";
 
-const BOARD_ID = 1; // Temporarily fixed board ID
 const DEBOUNCE_TIME = 3000; // 3 seconds
 
-export function useGetLists() {
+export function useGetLists(boardId: number) {
   return useQuery({
-    queryKey: ["lists", BOARD_ID],
+    queryKey: ["lists", boardId],
     queryFn: async () => {
       const { data } = await apiClient.get<ApiResponse<List[]>>(
-        `/api/boards/${BOARD_ID}/lists`
+        `/api/boards/${boardId}/lists`
       );
       return data.data;
     },
   });
 }
 
-export function useCreateList() {
+export function useCreateList(boardId: number) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (params: { title: string; position: number }) => {
       const { data } = await apiClient.post<ApiResponse<List>>(`/api/lists`, {
         title: params.title,
-        board_id: BOARD_ID,
+        board_id: boardId,
         position: params.position,
       });
       return data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["lists", BOARD_ID] });
+      queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
     },
   });
 }
 
-export function useUpdateList() {
+export function useUpdateList(boardId: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -52,12 +51,12 @@ export function useUpdateList() {
       return data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["lists", BOARD_ID] });
+      queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
     },
   });
 }
 
-export function useDeleteList() {
+export function useDeleteList(boardId: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -68,12 +67,12 @@ export function useDeleteList() {
       return data.success;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["lists", BOARD_ID] });
+      queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
     },
   });
 }
 
-export function useUpdateListsPositions() {
+export function useUpdateListsPositions(boardId: number) {
   const queryClient = useQueryClient();
   const timerRef = useRef<NodeJS.Timeout>();
 
@@ -89,18 +88,15 @@ export function useUpdateListsPositions() {
 
   const debouncedUpdatePositions = useCallback(
     (lists: List[]) => {
-      // Clear existing timer
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
 
-      // Create positions array
       const positions = lists.map((list) => ({
         id: list.id,
         position: parseInt(list.position),
       }));
 
-      // Set new timer
       timerRef.current = setTimeout(() => {
         updatePositions(positions);
       }, DEBOUNCE_TIME);
@@ -110,13 +106,11 @@ export function useUpdateListsPositions() {
 
   return {
     mutate: async ({ id, position }: { id: number; position: number }) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ["lists", BOARD_ID] });
+      await queryClient.cancelQueries({ queryKey: ["lists", boardId] });
 
-      // Get current lists
       const previousLists = queryClient.getQueryData<List[]>([
         "lists",
-        BOARD_ID,
+        boardId,
       ]);
 
       if (previousLists) {
@@ -124,22 +118,16 @@ export function useUpdateListsPositions() {
         const listIndex = newLists.findIndex((list) => list.id === id);
 
         if (listIndex !== -1) {
-          // Remove list from current position
           const [list] = newLists.splice(listIndex, 1);
-          // Insert at new position
           newLists.splice(position - 1, 0, {
             ...list,
             position: String(position),
           });
-          // Update positions for all lists
           newLists.forEach((list, idx) => {
             list.position = String(idx + 1);
           });
 
-          // Update UI immediately
-          queryClient.setQueryData(["lists", BOARD_ID], newLists);
-
-          // Debounce the API call
+          queryClient.setQueryData(["lists", boardId], newLists);
           debouncedUpdatePositions(newLists);
         }
       }
