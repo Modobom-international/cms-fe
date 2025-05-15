@@ -116,18 +116,19 @@ export function useDeleteCard() {
     onMutate: async (variables) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({
-        queryKey: ["cards", variables.listId],
+        queryKey: ["cards", String(variables.listId)],
       });
 
       // Snapshot the previous value
       const previousCards =
-        queryClient.getQueryData<Card[]>(["cards", variables.listId]) || [];
+        queryClient.getQueryData<Card[]>(["cards", String(variables.listId)]) ||
+        [];
 
       // Optimistically remove the card
       const newCards = previousCards.filter(
         (card) => card.id !== variables.cardId
       );
-      queryClient.setQueryData(["cards", variables.listId], newCards);
+      queryClient.setQueryData(["cards", String(variables.listId)], newCards);
 
       // Return a context with the previous cards
       return { previousCards };
@@ -136,14 +137,16 @@ export function useDeleteCard() {
       // If the mutation fails, roll back to the previous state
       if (context?.previousCards) {
         queryClient.setQueryData(
-          ["cards", variables.listId],
+          ["cards", String(variables.listId)],
           context.previousCards
         );
       }
     },
     onSettled: (data) => {
       // Always refetch after error or success to ensure we have the correct data
-      queryClient.invalidateQueries({ queryKey: ["cards", data?.listId] });
+      queryClient.invalidateQueries({
+        queryKey: ["cards", String(data?.listId)],
+      });
     },
   });
 }
