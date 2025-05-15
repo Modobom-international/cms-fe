@@ -31,7 +31,44 @@ export function useCreateList(boardId: number) {
       });
       return data.data;
     },
-    onSuccess: () => {
+    onMutate: async (newList) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["lists", boardId] });
+
+      // Snapshot the previous value
+      const previousLists = queryClient.getQueryData<List[]>([
+        "lists",
+        boardId,
+      ]);
+
+      // Optimistically update to the new value
+      if (previousLists) {
+        const optimisticList: List = {
+          id: Math.random(), // Temporary ID
+          title: newList.title,
+          position: String(newList.position),
+          board_id: boardId,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+
+        queryClient.setQueryData(
+          ["lists", boardId],
+          [...previousLists, optimisticList]
+        );
+      }
+
+      // Return a context object with the snapshotted value
+      return { previousLists };
+    },
+    onError: (err, newList, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousLists) {
+        queryClient.setQueryData(["lists", boardId], context.previousLists);
+      }
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure we have the correct data
       queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
     },
   });
@@ -66,7 +103,35 @@ export function useDeleteList(boardId: number) {
       );
       return data.success;
     },
-    onSuccess: () => {
+    onMutate: async (deletedListId) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["lists", boardId] });
+
+      // Snapshot the previous value
+      const previousLists = queryClient.getQueryData<List[]>([
+        "lists",
+        boardId,
+      ]);
+
+      // Optimistically remove the list
+      if (previousLists) {
+        const newLists = previousLists.filter(
+          (list) => list.id !== deletedListId
+        );
+        queryClient.setQueryData(["lists", boardId], newLists);
+      }
+
+      // Return a context object with the snapshotted value
+      return { previousLists };
+    },
+    onError: (err, deletedListId, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousLists) {
+        queryClient.setQueryData(["lists", boardId], context.previousLists);
+      }
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure we have the correct data
       queryClient.invalidateQueries({ queryKey: ["lists", boardId] });
     },
   });
