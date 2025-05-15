@@ -18,12 +18,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import AddList from "@/components/board/AddList";
 import BoardList from "@/components/board/BoardList";
 
-export default function BoardPage() {
-  const { data: lists = [], isLoading } = useGetLists();
-  const { mutate: createList } = useCreateList();
-  const { mutate: deleteList } = useDeleteList();
+interface BoardClientProps {
+  boardId: number;
+}
+
+export default function BoardClient({ boardId }: BoardClientProps) {
+  const { data: lists = [], isLoading } = useGetLists(boardId);
+  const { mutate: createList } = useCreateList(boardId);
+  const { mutate: deleteList } = useDeleteList(boardId);
   const { mutate: moveCard } = useMoveCard();
-  const { mutate: updateListPosition } = useUpdateListsPositions();
+  const { mutate: updateListPosition } = useUpdateListsPositions(boardId);
 
   const onDragEnd = (result: any) => {
     const { destination, source, draggableId, type } = result;

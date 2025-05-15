@@ -42,7 +42,43 @@ export function useCreateCard() {
       });
       return data as Card;
     },
-    onSuccess: (_, variables) => {
+    onMutate: async (newCard) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["cards", newCard.listId] });
+
+      // Snapshot the previous value
+      const previousCards =
+        queryClient.getQueryData<Card[]>(["cards", newCard.listId]) || [];
+
+      // Create an optimistic card
+      const optimisticCard: Card = {
+        id: Math.random(), // Temporary ID
+        title: newCard.title,
+        description: newCard.description,
+        listId: Number(newCard.listId),
+        order: previousCards.length + 1,
+      };
+
+      // Optimistically update the UI
+      queryClient.setQueryData(
+        ["cards", newCard.listId],
+        [...previousCards, optimisticCard]
+      );
+
+      // Return a context with the previous cards
+      return { previousCards };
+    },
+    onError: (err, newCard, context) => {
+      // If the mutation fails, roll back to the previous state
+      if (context?.previousCards) {
+        queryClient.setQueryData(
+          ["cards", newCard.listId],
+          context.previousCards
+        );
+      }
+    },
+    onSettled: (_, __, variables) => {
+      // Always refetch after error or success to ensure we have the correct data
       queryClient.invalidateQueries({ queryKey: ["cards", variables.listId] });
       queryClient.invalidateQueries({ queryKey: ["lists"] });
     },
@@ -77,8 +113,37 @@ export function useDeleteCard() {
       await apiClient.delete(`/api/cards/${cardId}`);
       return { listId };
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["cards", data.listId] });
+    onMutate: async (variables) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: ["cards", variables.listId],
+      });
+
+      // Snapshot the previous value
+      const previousCards =
+        queryClient.getQueryData<Card[]>(["cards", variables.listId]) || [];
+
+      // Optimistically remove the card
+      const newCards = previousCards.filter(
+        (card) => card.id !== variables.cardId
+      );
+      queryClient.setQueryData(["cards", variables.listId], newCards);
+
+      // Return a context with the previous cards
+      return { previousCards };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, roll back to the previous state
+      if (context?.previousCards) {
+        queryClient.setQueryData(
+          ["cards", variables.listId],
+          context.previousCards
+        );
+      }
+    },
+    onSettled: (data) => {
+      // Always refetch after error or success to ensure we have the correct data
+      queryClient.invalidateQueries({ queryKey: ["cards", data?.listId] });
     },
   });
 }
