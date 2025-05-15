@@ -3,7 +3,7 @@
 import { Draggable, Droppable } from "@hello-pangea/dnd";
 import { GripVertical } from "lucide-react";
 
-import { Card, List } from "@/types/board";
+import { Card, List } from "@/types/board.type";
 
 import { cn } from "@/lib/utils";
 

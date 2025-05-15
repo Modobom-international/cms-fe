@@ -6,7 +6,7 @@ import { Draggable } from "@hello-pangea/dnd";
 import { format } from "date-fns";
 import { CheckSquare, Clock, GripVertical } from "lucide-react";
 
-import { Card } from "@/types/board";
+import { Card } from "@/types/board.type";
 
 import { cn } from "@/lib/utils";
 

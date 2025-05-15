@@ -5,7 +5,7 @@ import {
   CardPosition,
   MoveCardPayload,
   UpdateCardPositionsPayload,
-} from "@/types/board";
+} from "@/types/board.type";
 
 import apiClient from "@/lib/api/client";
 

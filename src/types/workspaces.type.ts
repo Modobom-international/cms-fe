@@ -20,6 +20,7 @@ export interface Workspace {
   created_at: string;
   updated_at: string;
   owner: User;
+  is_admin: boolean;
 }
 
 export interface WorkspaceMember {

@@ -84,9 +84,13 @@ export function WorkspaceList() {
                           ) : (
                             <Globe2 className="text-muted-foreground mr-1 h-3 w-3" />
                           )}
-                          {workspace.workspace.visibility}
+                          {workspace.workspace.visibility === "private"
+                            ? "Private"
+                            : "Public"}
                         </Badge>
-                        <Badge variant="outline">{workspace.role}</Badge>
+                        <Badge variant="outline">
+                          {workspace.role === "owner" ? "Owner" : "Member"}
+                        </Badge>
                       </div>
                     </div>
                   </div>

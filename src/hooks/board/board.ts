@@ -8,7 +8,7 @@ import {
   DeleteBoardResponse,
   UpdateBoardDto,
   UpdateBoardResponse,
-} from "@/types/board";
+} from "@/types/board.type";
 
 import apiClient from "@/lib/api/client";
 
@@ -19,11 +19,19 @@ export const useGetBoards = (workspaceId: string) => {
       const response = await apiClient.get<BoardsResponse>(
         `/api/workspaces/${workspaceId}/boards`
       );
-      return response.data.boards;
+      return {
+        boards: response.data.boards,
+        workspace: response.data.workspace,
+      };
     },
   });
 
-  return { boards: data, isLoading, error };
+  return {
+    boards: data?.boards,
+    workspace: data?.workspace,
+    isLoading,
+    error,
+  };
 };
 
 export const useCreateBoard = () => {
