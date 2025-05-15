@@ -44,7 +44,7 @@ export function useCreateList(boardId: number) {
       // Optimistically update to the new value
       if (previousLists) {
         const optimisticList: List = {
-          id: Math.random(), // Temporary ID
+          id: -Date.now(), // Temporary ID using negative timestamp to avoid conflicts
           title: newList.title,
           position: String(newList.position),
           board_id: boardId,
