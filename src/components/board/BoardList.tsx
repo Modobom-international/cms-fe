@@ -141,7 +141,7 @@ export default function BoardList({
                   if (!title) return;
 
                   createCard({
-                    listId: String(list.id),
+                    list_id: String(list.id),
                     title,
                     description,
                   });
