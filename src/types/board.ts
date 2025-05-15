@@ -42,8 +42,59 @@ export interface List {
 
 export interface Board {
   id: number;
-  title: string;
-  lists: List[];
+  name: string;
+  description: string | null;
+  visibility: "private" | "public";
+  owner_id: number;
+  workspace_id: number;
+  created_at: string;
+  updated_at: string;
+  lists?: List[];
+}
+
+export interface CreateBoardDto {
+  name: string;
+  description: string;
+  visibility: number; // 1 for private, 2 for public
+  workspace_id: number;
+}
+
+export interface UpdateBoardDto {
+  name?: string;
+  description?: string;
+  visibility?: number;
+}
+
+export interface BoardsResponse {
+  success: boolean;
+  boards: Board[];
+  message: string;
+  type: string;
+}
+
+export interface SingleBoardResponse {
+  success: boolean;
+  board: Board;
+  message: string;
+  type: string;
+}
+
+export interface CreateBoardResponse {
+  success: boolean;
+  message: string;
+  type: string;
+}
+
+export interface UpdateBoardResponse {
+  success: boolean;
+  board: number;
+  message: string;
+  type: string;
+}
+
+export interface DeleteBoardResponse {
+  success: boolean;
+  message: string;
 }
 
 export interface MoveCardPayload {
@@ -62,3 +113,14 @@ export interface CardPosition {
 export interface UpdateCardPositionsPayload {
   positions: CardPosition[];
 }
+
+// Helper functions to convert between API and UI visibility formats
+export const visibilityToNumber = (
+  visibility: "private" | "public"
+): number => {
+  return visibility === "private" ? 1 : 2;
+};
+
+export const numberToVisibility = (num: number): "private" | "public" => {
+  return num === 1 ? "private" : "public";
+};

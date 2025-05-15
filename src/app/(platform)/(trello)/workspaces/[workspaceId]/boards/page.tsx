@@ -1,27 +1,5 @@
 import BoardsClient from "@/components/board/BoardsClient";
 
-interface Board {
-  id: number;
-  title: string;
-  description: string;
-}
-
-// TODO: Replace with actual API call
-async function getBoards(): Promise<Board[]> {
-  return [
-    {
-      id: 1,
-      title: "Project Alpha",
-      description: "Main project board",
-    },
-    {
-      id: 2,
-      title: "Sprint Planning",
-      description: "Sprint planning and tracking",
-    },
-  ];
-}
-
 export default async function BoardsPage({
   params,
 }: {
@@ -30,7 +8,12 @@ export default async function BoardsPage({
   }>;
 }) {
   const { workspaceId } = await params;
-  const boards = await getBoards();
-
-  return <BoardsClient workspaceId={workspaceId} boards={boards} />;
+  return (
+    <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight">Boards</h2>
+      </div>
+      <BoardsClient workspaceId={workspaceId} />
+    </div>
+  );
 }
