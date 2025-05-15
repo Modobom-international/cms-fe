@@ -1,3 +1,16 @@
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  email_verified_at: string | null;
+  created_at: string;
+  updated_at: string;
+  role: string;
+  type_user: string;
+  profile_photo_path: string | null;
+  exclude_token: string | null;
+}
+
 export interface Workspace {
   id: number;
   name: string;
@@ -6,6 +19,13 @@ export interface Workspace {
   owner_id: number;
   created_at: string;
   updated_at: string;
+  owner: User;
+}
+
+export interface WorkspaceMember {
+  workspace: Workspace;
+  role: "owner" | "member";
+  is_member: boolean;
 }
 
 export interface CreateWorkspaceDto {
@@ -22,7 +42,7 @@ export interface UpdateWorkspaceDto {
 
 export interface WorkspaceResponse {
   success: boolean;
-  workspace: Workspace[];
+  workspaces: WorkspaceMember[];
   message: string;
   type: string;
 }

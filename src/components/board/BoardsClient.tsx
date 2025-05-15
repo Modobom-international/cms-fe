@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { AxiosError } from "axios";
 import { format } from "date-fns";
 import { AlertCircle, Clock, Globe2, Lock, User } from "lucide-react";
 
@@ -26,6 +27,7 @@ interface BoardsClientProps {
 
 export default function BoardsClient({ workspaceId }: BoardsClientProps) {
   const { boards, isLoading, error } = useGetBoards(workspaceId);
+  console.log(error);
 
   if (isLoading) {
     return (
@@ -48,11 +50,16 @@ export default function BoardsClient({ workspaceId }: BoardsClientProps) {
   }
 
   if (error) {
+    const axiosError = error as AxiosError;
+    const is403Error = axiosError?.response?.status === 403;
+
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Failed to load boards. Please try again later.
+          {is403Error
+            ? "You don't have permission to view these boards. Please check your access rights."
+            : "Failed to load boards. Please try again later."}
         </AlertDescription>
       </Alert>
     );

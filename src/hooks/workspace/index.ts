@@ -19,7 +19,7 @@ export const useGetWorkspaces = () => {
     queryFn: async () => {
       const response =
         await apiClient.get<WorkspaceResponse>("/api/workspaces");
-      return response.data.workspace;
+      return response.data.workspaces;
     },
   });
 

@@ -50,6 +50,11 @@ interface WorkspaceOperationsProps {
     name: string;
     description: string;
     visibility: "private" | "public";
+    owner: {
+      id: number;
+      name: string;
+      email: string;
+    };
   };
 }
 
