@@ -5,7 +5,7 @@ import { useState } from "react";
 import { MoreHorizontal, Pencil, Plus, Trash } from "lucide-react";
 import { toast } from "sonner";
 
-import { Board, CreateBoardDto, UpdateBoardDto } from "@/types/board";
+import { Board, CreateBoardDto, UpdateBoardDto } from "@/types/board.type";
 
 import {
   useCreateBoard,
@@ -42,7 +42,7 @@ import { BoardForm } from "./BoardForm";
 
 interface BoardOperationsProps {
   workspaceId: number;
-  board?: Pick<Board, "id" | "name" | "description" | "visibility">;
+  board?: Pick<Board, "id" | "name" | "description">;
 }
 
 export function BoardOperations({ workspaceId, board }: BoardOperationsProps) {

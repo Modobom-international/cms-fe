@@ -22,7 +22,7 @@ import {
   X,
 } from "lucide-react";
 
-import { Attachment, Card, ChecklistItem } from "@/types/board";
+import { Attachment, Card, ChecklistItem } from "@/types/board.type";
 
 import Checklist from "./Checklist";
 import RichTextEditor from "./RichTextEditor";

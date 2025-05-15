@@ -4,7 +4,7 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { CreateBoardDto, visibilityToNumber } from "@/types/board";
+import { CreateBoardDto } from "@/types/board.type";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,19 +16,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
-  visibility: z.coerce.number().min(1).max(2),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -37,7 +29,6 @@ interface BoardFormProps {
   initialData?: {
     name: string;
     description: string | null;
-    visibility: "private" | "public";
   };
   workspaceId: number;
   onSubmit: (data: CreateBoardDto) => void;
@@ -55,7 +46,6 @@ export function BoardForm({
     defaultValues: {
       name: initialData?.name || "",
       description: initialData?.description || "",
-      visibility: initialData ? visibilityToNumber(initialData.visibility) : 1,
     },
   });
 
@@ -63,7 +53,6 @@ export function BoardForm({
     const data: CreateBoardDto = {
       name: formData.name,
       description: formData.description || "",
-      visibility: formData.visibility,
       workspace_id: workspaceId,
     };
     onSubmit(data);
@@ -94,30 +83,6 @@ export function BoardForm({
               <FormControl>
                 <Textarea placeholder="Enter board description" {...field} />
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="visibility"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Visibility</FormLabel>
-              <Select
-                onValueChange={(value) => field.onChange(Number(value))}
-                defaultValue={field.value.toString()}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select visibility" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="1">Private</SelectItem>
-                  <SelectItem value="2">Public</SelectItem>
-                </SelectContent>
-              </Select>
               <FormMessage />
             </FormItem>
           )}

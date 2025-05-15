@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { useAuth } from "@/providers/auth-provider";
+import { AxiosError } from "axios";
 import { format } from "date-fns";
 import { AlertCircle, Clock, Globe2, Lock, User } from "lucide-react";
 
@@ -25,8 +27,7 @@ interface BoardsClientProps {
 }
 
 export default function BoardsClient({ workspaceId }: BoardsClientProps) {
-  const { boards, isLoading, error } = useGetBoards(workspaceId);
-
+  const { workspace, boards, isLoading, error } = useGetBoards(workspaceId);
   if (isLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -48,11 +49,16 @@ export default function BoardsClient({ workspaceId }: BoardsClientProps) {
   }
 
   if (error) {
+    const axiosError = error as AxiosError;
+    const is403Error = axiosError?.response?.status === 403;
+
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Failed to load boards. Please try again later.
+          {is403Error
+            ? "You don't have permission to view these boards. Please check your access rights."
+            : "Failed to load boards. Please try again later."}
         </AlertDescription>
       </Alert>
     );
@@ -61,7 +67,9 @@ export default function BoardsClient({ workspaceId }: BoardsClientProps) {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <BoardOperations workspaceId={parseInt(workspaceId)} />
+        {workspace?.is_admin && (
+          <BoardOperations workspaceId={parseInt(workspaceId)} />
+        )}
       </div>
 
       {!boards?.length ? (
@@ -84,20 +92,6 @@ export default function BoardsClient({ workspaceId }: BoardsClientProps) {
                       <CardTitle className="line-clamp-2">
                         {board.name}
                       </CardTitle>
-                      <Badge
-                        variant={
-                          board.visibility === "private"
-                            ? "secondary"
-                            : "outline"
-                        }
-                      >
-                        {board.visibility === "private" ? (
-                          <Lock className="text-muted-foreground mr-1 h-3 w-3" />
-                        ) : (
-                          <Globe2 className="text-muted-foreground mr-1 h-3 w-3" />
-                        )}
-                        {board.visibility}
-                      </Badge>
                     </div>
                   </div>
                 </CardHeader>
@@ -123,15 +117,16 @@ export default function BoardsClient({ workspaceId }: BoardsClientProps) {
                 </CardFooter>
               </Link>
               <div className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
-                <BoardOperations
-                  workspaceId={parseInt(workspaceId)}
-                  board={{
-                    id: board.id,
-                    name: board.name,
-                    description: board.description || "",
-                    visibility: board.visibility,
-                  }}
-                />
+                {workspace?.is_admin && (
+                  <BoardOperations
+                    workspaceId={parseInt(workspaceId)}
+                    board={{
+                      id: board.id,
+                      name: board.name,
+                      description: board.description || "",
+                    }}
+                  />
+                )}
               </div>
             </Card>
           ))}

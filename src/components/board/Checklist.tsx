@@ -4,7 +4,7 @@ import { memo, useState } from "react";
 
 import { Check, Plus, Trash2, X } from "lucide-react";
 
-import { ChecklistItem } from "@/types/board";
+import { ChecklistItem } from "@/types/board.type";
 
 interface ChecklistProps {
   items: ChecklistItem[];

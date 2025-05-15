@@ -1,3 +1,6 @@
+import { IUser } from "./user.type";
+import { Workspace } from "./workspaces.type";
+
 export interface ChecklistItem {
   id: string;
   text: string;
@@ -55,19 +58,18 @@ export interface Board {
 export interface CreateBoardDto {
   name: string;
   description: string;
-  visibility: number; // 1 for private, 2 for public
   workspace_id: number;
 }
 
 export interface UpdateBoardDto {
   name?: string;
   description?: string;
-  visibility?: number;
 }
 
 export interface BoardsResponse {
   success: boolean;
   boards: Board[];
+  workspace: Workspace;
   message: string;
   type: string;
 }
