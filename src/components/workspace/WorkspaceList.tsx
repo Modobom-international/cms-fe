@@ -2,45 +2,88 @@
 
 import Link from "next/link";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
 
-interface Workspace {
-  id: number;
-  name: string;
-  description: string;
-}
+import { useGetWorkspaces } from "@/hooks/workspace";
+
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+
+import { WorkspaceOperations } from "./WorkspaceOperations";
 
 export function WorkspaceList() {
-  // TODO: Replace with actual API call
-  const workspaces: Workspace[] = [
-    {
-      id: 1,
-      name: "Personal Workspace",
-      description: "My personal tasks and projects",
-    },
-    {
-      id: 2,
-      name: "Team Workspace",
-      description: "Team collaboration space",
-    },
-  ];
+  const { workspaces, isLoading, error } = useGetWorkspaces();
 
-  return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {workspaces.map((workspace) => (
-        <Link key={workspace.id} href={`/workspaces/${workspace.id}/boards`}>
-          <Card className="hover:bg-accent/5">
+  if (isLoading) {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} className="hover:bg-accent/5">
             <CardHeader>
-              <CardTitle>{workspace.name}</CardTitle>
+              <Skeleton className="h-6 w-[180px]" />
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground text-sm">
-                {workspace.description}
-              </p>
+              <Skeleton className="h-4 w-[250px]" />
             </CardContent>
           </Card>
-        </Link>
-      ))}
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Failed to load workspaces. Please try again later.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <WorkspaceOperations />
+      </div>
+
+      {!workspaces?.length ? (
+        <Alert>
+          <AlertDescription>
+            No workspaces found. Create your first workspace to get started.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {workspaces.map((workspace) => (
+            <Card
+              key={workspace.id}
+              className="group hover:bg-accent/5 relative transition-colors"
+            >
+              <Link href={`/workspaces/${workspace.id}/boards`}>
+                <CardHeader>
+                  <CardTitle>{workspace.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground text-sm">
+                    {workspace.description}
+                  </p>
+                  <p className="text-muted-foreground mt-2 text-xs">
+                    Visibility:{" "}
+                    {workspace.visibility.charAt(0).toUpperCase() +
+                      workspace.visibility.slice(1)}
+                  </p>
+                </CardContent>
+              </Link>
+              <div className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
+                <WorkspaceOperations workspace={workspace} />
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
