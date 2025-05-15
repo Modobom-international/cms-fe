@@ -112,7 +112,7 @@ export default function BoardList({
                           onDelete={(cardId) =>
                             deleteCard({
                               cardId,
-                              listId: list.id,
+                              listId: Number(list.id),
                             })
                           }
                         />
