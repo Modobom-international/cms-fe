@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { Home } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 import {
   Breadcrumb,
@@ -22,14 +24,16 @@ export default async function BoardPage({
   }>;
 }) {
   const { boardId, workspaceId } = await params;
+  const t = await getTranslations("Workspace");
+
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex flex-col gap-4">
-        <Breadcrumb>
-          <BreadcrumbList>
+    <div className="flex flex-col space-y-4">
+      <div className="px-8 pt-6">
+        <Breadcrumb className="relative z-10">
+          <BreadcrumbList className="text-foreground">
             <BreadcrumbItem>
               <BreadcrumbLink href="/" asChild>
-                <Link href="/">
+                <Link href="/" className="text-foreground hover:text-primary">
                   <Home className="h-4 w-4" />
                 </Link>
               </BreadcrumbLink>
@@ -37,7 +41,12 @@ export default async function BoardPage({
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink href="/workspaces" asChild>
-                <Link href="/workspaces">Workspaces</Link>
+                <Link
+                  href="/workspaces"
+                  className="text-foreground hover:text-primary"
+                >
+                  {t("title")}
+                </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
@@ -46,12 +55,19 @@ export default async function BoardPage({
                 href={`/workspaces/${workspaceId}/boards`}
                 asChild
               >
-                <Link href={`/workspaces/${workspaceId}/boards`}>Boards</Link>
+                <Link
+                  href={`/workspaces/${workspaceId}/boards`}
+                  className="text-foreground hover:text-primary"
+                >
+                  {t("boards")}
+                </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Board</BreadcrumbPage>
+              <BreadcrumbPage className="text-foreground">
+                {t("board")}
+              </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

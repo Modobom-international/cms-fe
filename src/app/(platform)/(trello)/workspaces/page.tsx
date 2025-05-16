@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import { Home } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import {
   Breadcrumb,
@@ -14,6 +15,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { WorkspaceList } from "@/components/workspace/WorkspaceList";
 
 export default function WorkspacesPage() {
+  const t = useTranslations("Workspace");
+
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex flex-col gap-4">
@@ -24,12 +27,12 @@ export default function WorkspacesPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Workspaces</BreadcrumbPage>
+              <BreadcrumbPage>{t("breadcrumb")}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Workspaces</h2>
+          <h2 className="text-3xl font-bold tracking-tight">{t("title")}</h2>
         </div>
       </div>
       <Suspense fallback={<Skeleton className="h-[400px] w-full" />}>

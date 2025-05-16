@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
@@ -15,6 +16,7 @@ interface AddListProps {
 }
 
 export default function AddList({ onAdd }: AddListProps) {
+  const t = useTranslations("Board.addList");
   const [isAdding, setIsAdding] = useState(false);
   const [title, setTitle] = useState("");
 
@@ -36,7 +38,7 @@ export default function AddList({ onAdd }: AddListProps) {
         onClick={() => setIsAdding(true)}
       >
         <Plus className="h-4 w-4" />
-        Add another list
+        {t("button")}
       </Button>
     );
   }
@@ -49,14 +51,14 @@ export default function AddList({ onAdd }: AddListProps) {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Enter list title..."
+            placeholder={t("title")}
             className="h-7 bg-white/80 text-sm"
             autoFocus
           />
           <div className="flex gap-2">
             <Button type="submit" size="sm" className="h-7 text-xs">
               <Plus className="mr-1 h-3.5 w-3.5" />
-              Add List
+              {t("submit")}
             </Button>
             <Button
               type="button"
@@ -65,7 +67,7 @@ export default function AddList({ onAdd }: AddListProps) {
               onClick={() => setIsAdding(false)}
               className="h-7 text-xs"
             >
-              Cancel
+              {t("cancel")}
             </Button>
           </div>
         </form>
@@ -73,4 +75,3 @@ export default function AddList({ onAdd }: AddListProps) {
     </Card>
   );
 }
-

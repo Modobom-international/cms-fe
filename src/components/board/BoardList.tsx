@@ -2,6 +2,7 @@
 
 import { Draggable, Droppable } from "@hello-pangea/dnd";
 import { GripVertical } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Card, List } from "@/types/board.type";
 
@@ -36,6 +37,7 @@ export default function BoardList({
   index,
   onDeleteList,
 }: BoardListProps) {
+  const t = useTranslations("Board.list");
   const { data: cards = [], isLoading } = useGetCards(String(list.id));
   const { mutate: createCard } = useCreateCard();
   const { mutate: updateCard } = useUpdateCard();
@@ -74,7 +76,7 @@ export default function BoardList({
                   }}
                   className="text-destructive hover:text-destructive/90 h-auto cursor-pointer px-2 py-1 text-xs opacity-0 transition-opacity group-hover/header:opacity-100"
                 >
-                  Delete
+                  {t("delete")}
                 </Button>
               </div>
             </CardHeader>
@@ -154,14 +156,14 @@ export default function BoardList({
                 <Input
                   type="text"
                   name="title"
-                  placeholder="Card title"
+                  placeholder={t("addCard.title")}
                   className="bg-background/50 focus:bg-background h-7 text-sm transition-colors"
                   required
                   onClick={(e) => e.stopPropagation()}
                 />
                 <Textarea
                   name="description"
-                  placeholder="Card description (optional)"
+                  placeholder={t("addCard.description")}
                   className="bg-background/50 focus:bg-background h-16 resize-none text-sm transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 />
@@ -171,7 +173,7 @@ export default function BoardList({
                   size="sm"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  Add Card
+                  {t("addCard.button")}
                 </Button>
               </form>
             </CardContent>

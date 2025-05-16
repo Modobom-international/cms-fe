@@ -1135,5 +1135,173 @@
         "invalid": "Please enter a valid IP address (e.g. 192.168.1.1)"
       }
     }
+  },
+  "Board": {
+    "title": "My Board",
+    "owner": "Owner #{id}",
+    "created": "Created {date}",
+    "lists": {
+      "count": "{count} Lists",
+      "actions": {
+        "resetView": "Reset View",
+        "filter": "Filter",
+        "sort": "Sort"
+      }
+    },
+    "list": {
+      "delete": "Delete",
+      "addCard": {
+        "button": "Add a card",
+        "title": "Enter card title...",
+        "description": "Enter description (optional)...",
+        "cancel": "Cancel"
+      }
+    },
+    "addList": {
+      "button": "Add another list",
+      "title": "Enter list title...",
+      "submit": "Add List",
+      "cancel": "Cancel"
+    },
+    "card": {
+      "detail": {
+        "description": "Description",
+        "edit": "Edit",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "dueDate": {
+          "label": "Due Date",
+          "clear": "Clear",
+          "noDueDate": "No due date",
+          "due": "Due: {date}"
+        },
+        "checklist": {
+          "title": "Checklist",
+          "addItem": "Add an item",
+          "placeholder": "Add an item..."
+        },
+        "attachments": {
+          "title": "Attachments",
+          "add": "Add",
+          "noAttachments": "No attachments yet",
+          "preview": "Preview"
+        }
+      }
+    },
+    "form": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter board name",
+        "required": "Name is required"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter board description"
+      },
+      "buttons": {
+        "create": "Create",
+        "update": "Update",
+        "loading": "Loading..."
+      }
+    },
+    "errors": {
+      "loadBoards": {
+        "permission": "You don't have permission to view these boards. Please check your access rights.",
+        "generic": "Failed to load boards. Please try again later."
+      },
+      "noBoards": "No boards found. Create your first board to get started."
+    },
+    "operations": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "createBoard": "Create Board",
+      "deleteTitle": "Delete Board",
+      "editTitle": "Edit Board",
+      "createTitle": "Create Board",
+      "deleteDescription": "This action cannot be undone. This will permanently delete the board and all its data.",
+      "updateSuccess": "Board updated successfully",
+      "updateError": "Failed to update board",
+      "createSuccess": "Board created successfully",
+      "createError": "Failed to create board",
+      "deleteSuccess": "Board deleted successfully",
+      "deleteError": "Failed to delete board",
+      "genericError": "Something went wrong"
+    }
+  },
+  "Workspace": {
+    "title": "Workspaces",
+    "breadcrumb": "Workspaces",
+    "boards": "Boards",
+    "board": "Board",
+    "errors": {
+      "failedToLoad": "Failed to load workspaces. Please try again later.",
+      "noWorkspaces": "No workspaces found. Create your first workspace to get started.",
+      "updateFailed": "Failed to update workspace",
+      "createFailed": "Failed to create workspace",
+      "deleteFailed": "Failed to delete workspace",
+      "generic": "Something went wrong"
+    },
+    "visibility": {
+      "private": "Private",
+      "public": "Public"
+    },
+    "role": {
+      "owner": "Owner",
+      "member": "Member"
+    },
+    "noDescription": "No description",
+    "owner": "Owner",
+    "created": "Created {date}",
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "delete": {
+      "title": "Delete Workspace",
+      "description": "This action cannot be undone. This will permanently delete the workspace and all its data.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "deleting": "Deleting..."
+    },
+    "edit": {
+      "title": "Edit Workspace"
+    },
+    "create": {
+      "title": "Create Workspace",
+      "button": "Create Workspace"
+    },
+    "form": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter workspace name"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter workspace description"
+      },
+      "visibility": {
+        "label": "Visibility",
+        "placeholder": "Select visibility",
+        "private": "Private",
+        "public": "Public"
+      },
+      "validation": {
+        "name": {
+          "required": "Name is required"
+        },
+        "description": {
+          "required": "Description is required"
+        }
+      },
+      "buttons": {
+        "loading": "Loading...",
+        "update": "Update",
+        "create": "Create"
+      }
+    }
   }
 }
+

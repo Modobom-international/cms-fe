@@ -4,12 +4,14 @@ import { useState } from "react";
 
 import { Draggable } from "@hello-pangea/dnd";
 import { format } from "date-fns";
-import { CheckSquare, Clock, GripVertical } from "lucide-react";
+import { CheckSquare, Clock, GripVertical, Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Card } from "@/types/board.type";
 
 import { cn } from "@/lib/utils";
 
+import { Button } from "@/components/ui/button";
 import { CardContent, Card as ShadCard } from "@/components/ui/card";
 
 import CardDetail from "./CardDetail";
@@ -17,7 +19,7 @@ import CardDetail from "./CardDetail";
 interface BoardCardProps {
   card: Card;
   index: number;
-  onUpdate: (updatedCard: Card) => void;
+  onUpdate: (card: Card) => void;
   onDelete: (cardId: number) => void;
 }
 
@@ -28,6 +30,7 @@ export default function BoardCard({
   onDelete,
 }: BoardCardProps) {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const t = useTranslations("Board.card");
 
   // Format due date for display
   const formattedDueDate = card.dueDate
@@ -82,7 +85,7 @@ export default function BoardCard({
                   </h3>
                   {card.description && (
                     <p className="text-muted-foreground/80 mt-1.5 line-clamp-2 text-xs">
-                      {card.description}
+                      {card.description || t("detail.description")}
                     </p>
                   )}
                 </div>
@@ -100,7 +103,11 @@ export default function BoardCard({
                         )}
                       >
                         <Clock className="h-2.5 w-2.5" />
-                        <span>{formattedDueDate}</span>
+                        <span>
+                          {t("detail.dueDate.due", {
+                            date: formattedDueDate,
+                          })}
+                        </span>
                       </div>
                     )}
 
@@ -108,6 +115,7 @@ export default function BoardCard({
                       <div className="bg-secondary/30 text-secondary-foreground flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium">
                         <CheckSquare className="h-2.5 w-2.5" />
                         <span>
+                          {t("detail.checklist.title")}:{" "}
                           {
                             card.checklist!.filter((item) => item.completed)
                               .length

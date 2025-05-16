@@ -6,6 +6,7 @@ import { useAuth } from "@/providers/auth-provider";
 import { AxiosError } from "axios";
 import { format } from "date-fns";
 import { AlertCircle, Clock, Globe2, Lock, User } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { useGetBoards } from "@/hooks/board/board";
 
@@ -27,6 +28,7 @@ interface BoardsClientProps {
 }
 
 export default function BoardsClient({ workspaceId }: BoardsClientProps) {
+  const t = useTranslations("Board");
   const { workspace, boards, isLoading, error } = useGetBoards(workspaceId);
   if (isLoading) {
     return (
@@ -56,9 +58,7 @@ export default function BoardsClient({ workspaceId }: BoardsClientProps) {
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          {is403Error
-            ? "You don't have permission to view these boards. Please check your access rights."
-            : "Failed to load boards. Please try again later."}
+          {is403Error ? t("error.403") : t("error.failedToLoadBoards")}
         </AlertDescription>
       </Alert>
     );
@@ -74,9 +74,7 @@ export default function BoardsClient({ workspaceId }: BoardsClientProps) {
 
       {!boards?.length ? (
         <Alert>
-          <AlertDescription>
-            No boards found. Create your first board to get started.
-          </AlertDescription>
+          <AlertDescription>{t("errors.noBoards")}</AlertDescription>
         </Alert>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -104,13 +102,17 @@ export default function BoardsClient({ workspaceId }: BoardsClientProps) {
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center">
                       <User className="mr-1 h-3 w-3" />
-                      <span>Owner #{board.owner_id}</span>
+                      <span>{t("owner", { id: board.owner_id })}</span>
                     </div>
                     <div className="flex items-center">
                       <Clock className="mr-1 h-3 w-3" />
                       <span>
-                        Created{" "}
-                        {format(new Date(board.created_at), "MMM d, yyyy")}
+                        {t("created", {
+                          date: format(
+                            new Date(board.created_at),
+                            "MMM d, yyyy"
+                          ),
+                        })}
                       </span>
                     </div>
                   </div>

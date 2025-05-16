@@ -1,6 +1,7 @@
 "use client";
 
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ interface BoardClientProps {
 }
 
 export default function BoardClient({ boardId }: BoardClientProps) {
+  const t = useTranslations("Board");
   const { data: lists = [], isLoading } = useGetLists(boardId);
   const { mutate: createList } = useCreateList(boardId);
   const { mutate: deleteList } = useDeleteList(boardId);
@@ -66,16 +68,16 @@ export default function BoardClient({ boardId }: BoardClientProps) {
   };
 
   return (
-    <div className="absolute inset-0 h-[calc(100vh-var(--header-height)-theme(spacing.20))] bg-gradient-to-br from-gray-100 to-gray-200">
+    <div className="relative h-[calc(100vh-var(--header-height)-theme(spacing.20))] bg-gradient-to-br from-gray-100 to-gray-200">
       <div className="h-full p-6">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-bold tracking-tight text-gray-800">
-              My Board
+              {t("title")}
             </h1>
             <div className="h-8 w-px bg-gray-200/80" />
             <div className="text-muted-foreground flex items-center gap-2 text-sm">
-              <span>{lists.length} Lists</span>
+              <span>{t("lists.count", { count: lists.length })}</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -88,7 +90,7 @@ export default function BoardClient({ boardId }: BoardClientProps) {
                 document.body.classList.remove("dragging");
               }}
             >
-              Reset View
+              {t("lists.actions.resetView")}
             </Button>
             <div className="h-8 w-px bg-gray-200/80" />
             <Button
@@ -96,14 +98,14 @@ export default function BoardClient({ boardId }: BoardClientProps) {
               size="sm"
               className="bg-white/50 text-xs hover:bg-white"
             >
-              Filter
+              {t("lists.actions.filter")}
             </Button>
             <Button
               variant="outline"
               size="sm"
               className="bg-white/50 text-xs hover:bg-white"
             >
-              Sort
+              {t("lists.actions.sort")}
             </Button>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 
 import { CreateWorkspaceDto } from "@/types/workspaces.type";
@@ -25,14 +26,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().min(1, "Description is required"),
-  visibility: z.coerce.number().min(1).max(2),
-});
-
-type FormData = z.infer<typeof formSchema>;
-
 interface WorkspaceFormProps {
   initialData?: {
     name: string;
@@ -48,6 +41,16 @@ export function WorkspaceForm({
   onSubmit,
   isLoading,
 }: WorkspaceFormProps) {
+  const t = useTranslations("Workspace.form");
+
+  const formSchema = z.object({
+    name: z.string().min(1, t("validation.name.required")),
+    description: z.string().min(1, t("validation.description.required")),
+    visibility: z.coerce.number().min(1).max(2),
+  });
+
+  type FormData = z.infer<typeof formSchema>;
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -65,9 +68,9 @@ export function WorkspaceForm({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>{t("name.label")}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter workspace name" {...field} />
+                <Input placeholder={t("name.placeholder")} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -78,10 +81,10 @@ export function WorkspaceForm({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>{t("description.label")}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Enter workspace description"
+                  placeholder={t("description.placeholder")}
                   {...field}
                 />
               </FormControl>
@@ -94,19 +97,19 @@ export function WorkspaceForm({
           name="visibility"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Visibility</FormLabel>
+              <FormLabel>{t("visibility.label")}</FormLabel>
               <Select
                 onValueChange={(value) => field.onChange(Number(value))}
                 defaultValue={field.value.toString()}
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select visibility" />
+                    <SelectValue placeholder={t("visibility.placeholder")} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="1">Private</SelectItem>
-                  <SelectItem value="2">Public</SelectItem>
+                  <SelectItem value="1">{t("visibility.private")}</SelectItem>
+                  <SelectItem value="2">{t("visibility.public")}</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -114,7 +117,11 @@ export function WorkspaceForm({
           )}
         />
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Loading..." : initialData ? "Update" : "Create"}
+          {isLoading
+            ? t("buttons.loading")
+            : initialData
+              ? t("buttons.update")
+              : t("buttons.create")}
         </Button>
       </form>
     </Form>
