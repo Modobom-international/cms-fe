@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { format } from "date-fns";
 import { AlertCircle, Clock, Globe2, Lock, User } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { useGetWorkspaces } from "@/hooks/workspace";
 
@@ -16,6 +17,7 @@ import { WorkspaceOperations } from "./WorkspaceOperations";
 
 export function WorkspaceList() {
   const { workspaces, isLoading, error } = useGetWorkspaces();
+  const t = useTranslations("Workspace");
 
   if (isLoading) {
     return (
@@ -38,9 +40,7 @@ export function WorkspaceList() {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Failed to load workspaces. Please try again later.
-        </AlertDescription>
+        <AlertDescription>{t("errors.failedToLoad")}</AlertDescription>
       </Alert>
     );
   }
@@ -53,9 +53,7 @@ export function WorkspaceList() {
 
       {!workspaces?.length ? (
         <Alert>
-          <AlertDescription>
-            No workspaces found. Create your first workspace to get started.
-          </AlertDescription>
+          <AlertDescription>{t("errors.noWorkspaces")}</AlertDescription>
         </Alert>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -85,11 +83,13 @@ export function WorkspaceList() {
                             <Globe2 className="text-muted-foreground mr-1 h-3 w-3" />
                           )}
                           {workspace.workspace.visibility === "private"
-                            ? "Private"
-                            : "Public"}
+                            ? t("visibility.private")
+                            : t("visibility.public")}
                         </Badge>
                         <Badge variant="outline">
-                          {workspace.role === "owner" ? "Owner" : "Member"}
+                          {workspace.role === "owner"
+                            ? t("role.owner")
+                            : t("role.member")}
                         </Badge>
                       </div>
                     </div>
@@ -97,21 +97,24 @@ export function WorkspaceList() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground line-clamp-2 text-sm">
-                    {workspace.workspace.description}
+                    {workspace.workspace.description || t("noDescription")}
                   </p>
                   <div className="text-muted-foreground mt-4 space-y-1 text-xs">
                     <div className="flex items-center">
                       <User className="mr-2 h-3 w-3" />
-                      <span>Owner: {workspace.workspace.owner.name}</span>
+                      <span>
+                        {t("owner")}: {workspace.workspace.owner.name}
+                      </span>
                     </div>
                     <div className="flex items-center">
                       <Clock className="mr-2 h-3 w-3" />
                       <span>
-                        Created{" "}
-                        {format(
-                          new Date(workspace.workspace.created_at),
-                          "MMM d, yyyy"
-                        )}
+                        {t("created", {
+                          date: format(
+                            new Date(workspace.workspace.created_at),
+                            "MMM d, yyyy"
+                          ),
+                        })}
                       </span>
                     </div>
                   </div>

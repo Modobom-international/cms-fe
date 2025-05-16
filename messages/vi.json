@@ -1153,5 +1153,172 @@
         "invalid": "Vui lòng nhập địa chỉ IP hợp lệ (vd: 192.168.1.1)"
       }
     }
+  },
+  "Board": {
+    "title": "Bảng của tôi",
+    "owner": "Chủ sở hữu #{id}",
+    "created": "Tạo ngày {date}",
+    "lists": {
+      "count": "{count} Danh sách",
+      "actions": {
+        "resetView": "Đặt lại chế độ xem",
+        "filter": "Lọc",
+        "sort": "Sắp xếp"
+      }
+    },
+    "list": {
+      "delete": "Xóa",
+      "addCard": {
+        "button": "Thêm thẻ",
+        "title": "Nhập tiêu đề thẻ...",
+        "description": "Nhập mô tả (tùy chọn)...",
+        "cancel": "Hủy"
+      }
+    },
+    "addList": {
+      "button": "Thêm danh sách khác",
+      "title": "Nhập tiêu đề danh sách...",
+      "submit": "Thêm danh sách",
+      "cancel": "Hủy"
+    },
+    "card": {
+      "detail": {
+        "description": "Mô tả",
+        "edit": "Chỉnh sửa",
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "dueDate": {
+          "label": "Ngày hết hạn",
+          "clear": "Xóa",
+          "noDueDate": "Không có ngày hết hạn",
+          "due": "Hết hạn: {date}"
+        },
+        "checklist": {
+          "title": "Danh sách kiểm tra",
+          "addItem": "Thêm mục",
+          "placeholder": "Thêm mục..."
+        },
+        "attachments": {
+          "title": "Tệp đính kèm",
+          "add": "Thêm",
+          "noAttachments": "Chưa có tệp đính kèm",
+          "preview": "Xem trước"
+        }
+      }
+    },
+    "form": {
+      "name": {
+        "label": "Tên",
+        "placeholder": "Nhập tên bảng",
+        "required": "Tên là bắt buộc"
+      },
+      "description": {
+        "label": "Mô tả",
+        "placeholder": "Nhập mô tả bảng"
+      },
+      "buttons": {
+        "create": "Tạo",
+        "update": "Cập nhật",
+        "loading": "Đang tải..."
+      }
+    },
+    "errors": {
+      "loadBoards": {
+        "permission": "Bạn không có quyền xem các bảng này. Vui lòng kiểm tra quyền truy cập của bạn.",
+        "generic": "Không thể tải các bảng. Vui lòng thử lại sau.",
+        "403": "Bạn không có quyền xem các bảng này. Vui lòng kiểm tra quyền truy cập của bạn."
+      },
+      "noBoards": "Không tìm thấy bảng nào. Tạo bảng đầu tiên của bạn để bắt đầu."
+    },
+    "operations": {
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa",
+      "cancel": "Hủy",
+      "deleting": "Đang xóa...",
+      "createBoard": "Tạo bảng",
+      "deleteTitle": "Xóa bảng",
+      "editTitle": "Chỉnh sửa bảng",
+      "createTitle": "Tạo bảng mới",
+      "deleteDescription": "Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn bảng và tất cả dữ liệu của nó.",
+      "updateSuccess": "Cập nhật bảng thành công",
+      "updateError": "Không thể cập nhật bảng",
+      "createSuccess": "Tạo bảng thành công",
+      "createError": "Không thể tạo bảng",
+      "deleteSuccess": "Xóa bảng thành công",
+      "deleteError": "Không thể xóa bảng",
+      "genericError": "Đã xảy ra lỗi"
+    }
+  },
+  "Workspace": {
+    "title": "Không gian làm việc",
+    "breadcrumb": "Không gian làm việc",
+    "boards": "Bảng",
+    "board": "Bảng",
+    "errors": {
+      "failedToLoad": "Không thể tải không gian làm việc. Vui lòng thử lại sau.",
+      "noWorkspaces": "Không tìm thấy không gian làm việc nào. Tạo không gian làm việc đầu tiên của bạn để bắt đầu.",
+      "updateFailed": "Không thể cập nhật không gian làm việc",
+      "createFailed": "Không thể tạo không gian làm việc",
+      "deleteFailed": "Không thể xóa không gian làm việc",
+      "generic": "Đã xảy ra lỗi"
+    },
+    "visibility": {
+      "private": "Riêng tư",
+      "public": "Công khai"
+    },
+    "role": {
+      "owner": "Chủ sở hữu",
+      "member": "Thành viên"
+    },
+    "noDescription": "Không có mô tả",
+    "owner": "Chủ sở hữu",
+    "created": "Tạo ngày {date}",
+    "actions": {
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa"
+    },
+    "delete": {
+      "title": "Xóa không gian làm việc",
+      "description": "Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn không gian làm việc và tất cả dữ liệu của nó.",
+      "cancel": "Hủy",
+      "confirm": "Xóa",
+      "deleting": "Đang xóa..."
+    },
+    "edit": {
+      "title": "Chỉnh sửa không gian làm việc"
+    },
+    "create": {
+      "title": "Tạo không gian làm việc",
+      "button": "Tạo không gian làm việc"
+    },
+    "form": {
+      "name": {
+        "label": "Tên",
+        "placeholder": "Nhập tên không gian làm việc"
+      },
+      "description": {
+        "label": "Mô tả",
+        "placeholder": "Nhập mô tả không gian làm việc"
+      },
+      "visibility": {
+        "label": "Quyền riêng tư",
+        "placeholder": "Chọn quyền riêng tư",
+        "private": "Riêng tư",
+        "public": "Công khai"
+      },
+      "validation": {
+        "name": {
+          "required": "Tên là bắt buộc"
+        },
+        "description": {
+          "required": "Mô tả là bắt buộc"
+        }
+      },
+      "buttons": {
+        "loading": "Đang tải...",
+        "update": "Cập nhật",
+        "create": "Tạo"
+      }
+    }
   }
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { MoreHorizontal, Pencil, Plus, Trash } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { Board, CreateBoardDto, UpdateBoardDto } from "@/types/board.type";
@@ -48,6 +49,7 @@ interface BoardOperationsProps {
 export function BoardOperations({ workspaceId, board }: BoardOperationsProps) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const t = useTranslations("Board");
 
   const createMutation = useCreateBoard();
   const updateMutation = useUpdateBoard();
@@ -59,28 +61,28 @@ export function BoardOperations({ workspaceId, board }: BoardOperationsProps) {
         updateMutation.mutate(
           { boardId: board.id, data },
           {
-            onSuccess: (response) => {
-              toast.success(response.message);
+            onSuccess: () => {
+              toast.success(t("operations.updateSuccess"));
               setIsFormOpen(false);
             },
             onError: () => {
-              toast.error("Failed to update board");
+              toast.error(t("operations.updateError"));
             },
           }
         );
       } else {
         createMutation.mutate(data as CreateBoardDto, {
-          onSuccess: (response) => {
-            toast.success(response.message);
+          onSuccess: () => {
+            toast.success(t("operations.createSuccess"));
             setIsFormOpen(false);
           },
           onError: () => {
-            toast.error("Failed to create board");
+            toast.error(t("operations.createError"));
           },
         });
       }
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(t("operations.genericError"));
     }
   };
 
@@ -89,16 +91,16 @@ export function BoardOperations({ workspaceId, board }: BoardOperationsProps) {
 
     try {
       deleteMutation.mutate(board.id, {
-        onSuccess: (response) => {
-          toast.success(response.message);
+        onSuccess: () => {
+          toast.success(t("operations.deleteSuccess"));
           setIsDeleteOpen(false);
         },
         onError: () => {
-          toast.error("Failed to delete board");
+          toast.error(t("operations.deleteError"));
         },
       });
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(t("operations.genericError"));
     }
   };
 
@@ -114,14 +116,14 @@ export function BoardOperations({ workspaceId, board }: BoardOperationsProps) {
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => setIsFormOpen(true)}>
               <Pencil className="mr-2 h-4 w-4" />
-              Edit
+              {t("operations.edit")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => setIsDeleteOpen(true)}
               className="text-red-600"
             >
               <Trash className="mr-2 h-4 w-4" />
-              Delete
+              {t("operations.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -129,20 +131,21 @@ export function BoardOperations({ workspaceId, board }: BoardOperationsProps) {
         <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete Board</AlertDialogTitle>
+              <AlertDialogTitle>{t("operations.deleteTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the
-                board and all its data.
+                {t("operations.deleteDescription")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("operations.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={onDelete}
                 className="bg-red-600"
                 disabled={deleteMutation.isPending}
               >
-                {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                {deleteMutation.isPending
+                  ? t("operations.deleting")
+                  : t("operations.delete")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -151,7 +154,7 @@ export function BoardOperations({ workspaceId, board }: BoardOperationsProps) {
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Edit Board</DialogTitle>
+              <DialogTitle>{t("operations.editTitle")}</DialogTitle>
             </DialogHeader>
             <BoardForm
               initialData={board}
@@ -170,12 +173,12 @@ export function BoardOperations({ workspaceId, board }: BoardOperationsProps) {
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          Create Board
+          {t("operations.createBoard")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Board</DialogTitle>
+          <DialogTitle>{t("operations.createTitle")}</DialogTitle>
         </DialogHeader>
         <BoardForm
           workspaceId={workspaceId}

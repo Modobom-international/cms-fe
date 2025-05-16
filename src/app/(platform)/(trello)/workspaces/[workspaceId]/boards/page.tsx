@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { Home } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 import {
   Breadcrumb,
@@ -21,6 +23,8 @@ export default async function BoardsPage({
   }>;
 }) {
   const { workspaceId } = await params;
+  const t = await getTranslations("Workspace");
+
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex flex-col gap-4">
@@ -36,17 +40,17 @@ export default async function BoardsPage({
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink href="/workspaces" asChild>
-                <Link href="/workspaces">Workspaces</Link>
+                <Link href="/workspaces">{t("title")}</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Boards</BreadcrumbPage>
+              <BreadcrumbPage>{t("boards")}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Boards</h2>
+          <h2 className="text-3xl font-bold tracking-tight">{t("boards")}</h2>
         </div>
       </div>
       <BoardsClient workspaceId={workspaceId} />

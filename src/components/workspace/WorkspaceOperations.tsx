@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { MoreHorizontal, Pencil, Plus, Trash } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import {
@@ -61,6 +62,7 @@ interface WorkspaceOperationsProps {
 export function WorkspaceOperations({ workspace }: WorkspaceOperationsProps) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const t = useTranslations("Workspace");
 
   const createMutation = useCreateWorkspace();
   const updateMutation = useUpdateWorkspace();
@@ -77,7 +79,7 @@ export function WorkspaceOperations({ workspace }: WorkspaceOperationsProps) {
               setIsFormOpen(false);
             },
             onError: () => {
-              toast.error("Failed to update workspace");
+              toast.error(t("errors.updateFailed"));
             },
           }
         );
@@ -88,12 +90,12 @@ export function WorkspaceOperations({ workspace }: WorkspaceOperationsProps) {
             setIsFormOpen(false);
           },
           onError: () => {
-            toast.error("Failed to create workspace");
+            toast.error(t("errors.createFailed"));
           },
         });
       }
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(t("errors.generic"));
     }
   };
 
@@ -107,11 +109,11 @@ export function WorkspaceOperations({ workspace }: WorkspaceOperationsProps) {
           setIsDeleteOpen(false);
         },
         onError: () => {
-          toast.error("Failed to delete workspace");
+          toast.error(t("errors.deleteFailed"));
         },
       });
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(t("errors.generic"));
     }
   };
 
@@ -127,14 +129,14 @@ export function WorkspaceOperations({ workspace }: WorkspaceOperationsProps) {
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => setIsFormOpen(true)}>
               <Pencil className="mr-2 h-4 w-4" />
-              Edit
+              {t("actions.edit")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => setIsDeleteOpen(true)}
               className="text-red-600"
             >
               <Trash className="mr-2 h-4 w-4" />
-              Delete
+              {t("actions.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -142,20 +144,21 @@ export function WorkspaceOperations({ workspace }: WorkspaceOperationsProps) {
         <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete Workspace</AlertDialogTitle>
+              <AlertDialogTitle>{t("delete.title")}</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the
-                workspace and all its data.
+                {t("delete.description")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("delete.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={onDelete}
                 className="bg-red-600"
                 disabled={deleteMutation.isPending}
               >
-                {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                {deleteMutation.isPending
+                  ? t("delete.deleting")
+                  : t("delete.confirm")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -164,7 +167,7 @@ export function WorkspaceOperations({ workspace }: WorkspaceOperationsProps) {
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Edit Workspace</DialogTitle>
+              <DialogTitle>{t("edit.title")}</DialogTitle>
             </DialogHeader>
             <WorkspaceForm
               initialData={{
@@ -185,12 +188,12 @@ export function WorkspaceOperations({ workspace }: WorkspaceOperationsProps) {
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          Create Workspace
+          {t("create.button")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Workspace</DialogTitle>
+          <DialogTitle>{t("create.title")}</DialogTitle>
         </DialogHeader>
         <WorkspaceForm
           onSubmit={onSubmit}

@@ -2,6 +2,7 @@
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 
 import { CreateBoardDto } from "@/types/board.type";
@@ -17,13 +18,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
-});
-
-type FormData = z.infer<typeof formSchema>;
 
 interface BoardFormProps {
   initialData?: {
@@ -41,6 +35,15 @@ export function BoardForm({
   onSubmit,
   isLoading,
 }: BoardFormProps) {
+  const t = useTranslations("Board.form");
+
+  const formSchema = z.object({
+    name: z.string().min(1, t("name.required")),
+    description: z.string().optional(),
+  });
+
+  type FormData = z.infer<typeof formSchema>;
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -66,9 +69,9 @@ export function BoardForm({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>{t("name.label")}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter board name" {...field} />
+                <Input placeholder={t("name.placeholder")} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -79,16 +82,23 @@ export function BoardForm({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>{t("description.label")}</FormLabel>
               <FormControl>
-                <Textarea placeholder="Enter board description" {...field} />
+                <Textarea
+                  placeholder={t("description.placeholder")}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Loading..." : initialData ? "Update" : "Create"}
+          {isLoading
+            ? t("buttons.loading")
+            : initialData
+              ? t("buttons.update")
+              : t("buttons.create")}
         </Button>
       </form>
     </Form>
