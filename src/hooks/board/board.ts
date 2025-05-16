@@ -64,7 +64,7 @@ export const useUpdateBoard = () => {
       boardId: number;
       data: UpdateBoardDto;
     }) => {
-      const response = await apiClient.post<UpdateBoardResponse>(
+      const response = await apiClient.put<UpdateBoardResponse>(
         `/api/boards/${boardId}`,
         data
       );

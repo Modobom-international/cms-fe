@@ -330,37 +330,64 @@ export function useMoveCard() {
         return { previousSourceCards, previousDestCards };
       }
 
-      // Create updated source cards (removing the moved card)
-      const updatedSourceCards = previousSourceCards
-        .filter((c) => c.id !== Number(variables.cardId))
-        .map((card, index) => ({
+      if (variables.sourceListId === variables.destinationListId) {
+        // Same list movement - create a new array with updated positions
+        const updatedCards = [...previousSourceCards];
+        const cardIndex = updatedCards.findIndex(
+          (c) => c.id === Number(variables.cardId)
+        );
+
+        if (cardIndex !== -1) {
+          const [removed] = updatedCards.splice(cardIndex, 1);
+          updatedCards.splice(variables.newOrder, 0, {
+            ...removed,
+            position: variables.newOrder,
+          });
+
+          // Update positions for all cards
+          const finalCards = updatedCards.map((card, index) => ({
+            ...card,
+            position: index,
+          }));
+
+          queryClient.setQueryData(
+            ["cards", String(variables.sourceListId)],
+            finalCards
+          );
+        }
+      } else {
+        // Create updated source cards (removing the moved card)
+        const updatedSourceCards = previousSourceCards
+          .filter((c) => c.id !== Number(variables.cardId))
+          .map((card, index) => ({
+            ...card,
+            position: index,
+          }));
+
+        // Create updated destination cards (adding the moved card)
+        const updatedDestCards = [...previousDestCards];
+        updatedDestCards.splice(variables.newOrder, 0, {
+          ...cardToMove,
+          list_id: Number(variables.destinationListId),
+          position: variables.newOrder,
+        });
+
+        // Update positions for all cards in destination list
+        const finalDestCards = updatedDestCards.map((card, index) => ({
           ...card,
           position: index,
         }));
 
-      // Create updated destination cards (adding the moved card)
-      const updatedDestCards = [...previousDestCards];
-      updatedDestCards.splice(variables.newOrder, 0, {
-        ...cardToMove,
-        list_id: Number(variables.destinationListId),
-        position: variables.newOrder,
-      });
-
-      // Update positions for all cards in destination list
-      const finalDestCards = updatedDestCards.map((card, index) => ({
-        ...card,
-        position: index,
-      }));
-
-      // Update the cache with new arrays
-      queryClient.setQueryData(
-        ["cards", String(variables.sourceListId)],
-        updatedSourceCards
-      );
-      queryClient.setQueryData(
-        ["cards", String(variables.destinationListId)],
-        finalDestCards
-      );
+        // Update the cache with new arrays
+        queryClient.setQueryData(
+          ["cards", String(variables.sourceListId)],
+          updatedSourceCards
+        );
+        queryClient.setQueryData(
+          ["cards", String(variables.destinationListId)],
+          finalDestCards
+        );
+      }
 
       // Store the card data for the mutation
       queryClient.setQueryData(["tempCard", variables.cardId], cardToMove);

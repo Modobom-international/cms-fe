@@ -54,7 +54,7 @@ export const useUpdateWorkspace = () => {
       id: number;
       data: UpdateWorkspaceDto;
     }) => {
-      const response = await apiClient.post<UpdateWorkspaceResponse>(
+      const response = await apiClient.put<UpdateWorkspaceResponse>(
         `/api/workspaces/${id}`,
         data
       );
