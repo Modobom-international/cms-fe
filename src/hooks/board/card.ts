@@ -160,12 +160,7 @@ export function useMoveCard() {
 
   return useMutation({
     mutationFn: async (payload: MoveCardPayload) => {
-      console.log("🚀 Move Card Payload:", {
-        cardId: payload.cardId,
-        sourceListId: payload.sourceListId,
-        destinationListId: payload.destinationListId,
-        newOrder: payload.newOrder,
-      });
+      console.log("🚀 Move Card Payload:", payload);
 
       // Calculate new positions for all affected cards
       const positions: CardPosition[] = [];
@@ -206,12 +201,26 @@ export function useMoveCard() {
         positions.push(...updatedPositions);
       } else {
         console.log("↔️ Cross-List Movement");
-        // Get current cached data instead of fetching
+
+        // Get the stored card data
+        const movedCard = queryClient.getQueryData<Card>([
+          "tempCard",
+          payload.cardId,
+        ]);
+        console.log("🎴 Using stored card:", movedCard);
+
+        if (!movedCard) {
+          console.error("❌ Card data not found:", payload.cardId);
+          throw new Error("Card data not found");
+        }
+
+        // Get current lists data
         const sourceCards =
           queryClient.getQueryData<Card[]>([
             "cards",
             String(payload.sourceListId),
           ]) || [];
+
         const destCards =
           queryClient.getQueryData<Card[]>([
             "cards",
@@ -220,7 +229,7 @@ export function useMoveCard() {
 
         // Update source list positions
         const sourceCardsUpdated = sourceCards.filter(
-          (c: Card) => c.id !== payload.cardId
+          (c: Card) => c.id !== Number(payload.cardId)
         );
         console.log("📤 Updated Source Cards:", sourceCardsUpdated);
 
@@ -234,22 +243,11 @@ export function useMoveCard() {
         );
         positions.push(...sourcePositions);
 
-        // Get the moved card
-        const movedCard = sourceCards.find(
-          (c: Card) => c.id === payload.cardId
-        );
-        console.log("🎴 Moved Card:", movedCard);
-
-        if (!movedCard) {
-          console.error("❌ Card not found or missing ID:", payload.cardId);
-          throw new Error("Card not found or missing ID");
-        }
-
         // Update destination list positions
         const destCardsUpdated = [...destCards];
         destCardsUpdated.splice(payload.newOrder, 0, {
           ...movedCard,
-          list_id: payload.destinationListId,
+          list_id: Number(payload.destinationListId),
         });
         console.log("📥 Updated Destination Cards:", destCardsUpdated);
 
@@ -286,13 +284,23 @@ export function useMoveCard() {
         throw new Error(data.message || "Failed to update card positions");
       }
 
+      // Clean up temporary data
+      queryClient.removeQueries({
+        queryKey: ["tempCard", payload.cardId],
+      });
+
       return data.data;
     },
     onMutate: async (variables) => {
       console.log("🔄 Starting Optimistic Update:", variables);
 
       // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ["cards"] });
+      await queryClient.cancelQueries({
+        queryKey: ["cards", String(variables.sourceListId)],
+      });
+      await queryClient.cancelQueries({
+        queryKey: ["cards", String(variables.destinationListId)],
+      });
 
       // Get current cached data
       const previousSourceCards =
@@ -301,92 +309,67 @@ export function useMoveCard() {
           String(variables.sourceListId),
         ]) || [];
       const previousDestCards =
-        variables.sourceListId === variables.destinationListId
-          ? previousSourceCards
-          : queryClient.getQueryData<Card[]>([
-              "cards",
-              String(variables.destinationListId),
-            ]) || [];
+        queryClient.getQueryData<Card[]>([
+          "cards",
+          String(variables.destinationListId),
+        ]) || [];
 
       console.log("💾 Previous Source Cards:", previousSourceCards);
       console.log("💾 Previous Dest Cards:", previousDestCards);
 
-      if (variables.sourceListId === variables.destinationListId) {
-        // Same list reordering
-        const cards = [...previousSourceCards];
-        const movedCardIndex = cards.findIndex(
-          (c) => c.id === variables.cardId
+      // Find the card to move
+      const cardToMove = previousSourceCards.find(
+        (c) => c.id === Number(variables.cardId)
+      );
+
+      if (!cardToMove) {
+        console.error(
+          "❌ Card not found for optimistic update:",
+          variables.cardId
         );
-
-        if (movedCardIndex === -1) {
-          console.error("❌ Card not found for optimistic update");
-          return { previousSourceCards, previousDestCards };
-        }
-
-        const [movedCard] = cards.splice(movedCardIndex, 1);
-        cards.splice(variables.newOrder, 0, {
-          ...movedCard,
-          position: variables.newOrder,
-        });
-
-        // Update positions for all cards
-        const updatedCards = cards.map((card, index) => ({
-          ...card,
-          position: index,
-        }));
-
-        queryClient.setQueryData(
-          ["cards", String(variables.sourceListId)],
-          updatedCards
-        );
-      } else {
-        // Moving between different lists
-        const sourceCards = [...previousSourceCards];
-        const destCards = [...previousDestCards];
-
-        // Remove card from source list
-        const movedCardIndex = sourceCards.findIndex(
-          (c) => c.id === variables.cardId
-        );
-
-        if (movedCardIndex === -1) {
-          console.error("❌ Card not found for optimistic update");
-          return { previousSourceCards, previousDestCards };
-        }
-
-        const [movedCard] = sourceCards.splice(movedCardIndex, 1);
-
-        // Update source list positions
-        const updatedSourceCards = sourceCards.map((card, index) => ({
-          ...card,
-          position: index,
-        }));
-
-        // Add card to destination list
-        destCards.splice(variables.newOrder, 0, {
-          ...movedCard,
-          list_id: variables.destinationListId,
-          position: variables.newOrder,
-        });
-
-        // Update destination list positions
-        const updatedDestCards = destCards.map((card, index) => ({
-          ...card,
-          position: index,
-        }));
-
-        // Update both lists in cache
-        queryClient.setQueryData(
-          ["cards", String(variables.sourceListId)],
-          updatedSourceCards
-        );
-        queryClient.setQueryData(
-          ["cards", String(variables.destinationListId)],
-          updatedDestCards
-        );
+        return { previousSourceCards, previousDestCards };
       }
 
-      return { previousSourceCards, previousDestCards };
+      // Create updated source cards (removing the moved card)
+      const updatedSourceCards = previousSourceCards
+        .filter((c) => c.id !== Number(variables.cardId))
+        .map((card, index) => ({
+          ...card,
+          position: index,
+        }));
+
+      // Create updated destination cards (adding the moved card)
+      const updatedDestCards = [...previousDestCards];
+      updatedDestCards.splice(variables.newOrder, 0, {
+        ...cardToMove,
+        list_id: Number(variables.destinationListId),
+        position: variables.newOrder,
+      });
+
+      // Update positions for all cards in destination list
+      const finalDestCards = updatedDestCards.map((card, index) => ({
+        ...card,
+        position: index,
+      }));
+
+      // Update the cache with new arrays
+      queryClient.setQueryData(
+        ["cards", String(variables.sourceListId)],
+        updatedSourceCards
+      );
+      queryClient.setQueryData(
+        ["cards", String(variables.destinationListId)],
+        finalDestCards
+      );
+
+      // Store the card data for the mutation
+      queryClient.setQueryData(["tempCard", variables.cardId], cardToMove);
+
+      return {
+        previousSourceCards,
+        previousDestCards,
+        cardToMove,
+      };
     },
     onError: (err, variables, context) => {
       console.error("❌ Error during card move:", err);
