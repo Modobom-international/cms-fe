@@ -26,6 +26,20 @@ export const useGetWorkspaces = () => {
   return { workspaces: data, isLoading, error };
 };
 
+export const useGetWorkspace = (id: number) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["workspace", id],
+    queryFn: async () => {
+      const response = await apiClient.get<SingleWorkspaceResponse>(
+        `/api/workspaces/${id}`
+      );
+      return response.data.workspace;
+    },
+  });
+
+  return { workspace: data, isLoading, error };
+};
+
 export const useCreateWorkspace = () => {
   const queryClient = useQueryClient();
 

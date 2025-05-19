@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { format } from "date-fns";
-import { AlertCircle, Clock, Globe2, Lock, User } from "lucide-react";
+import { AlertCircle, Clock, Globe2, Lock, User, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useGetWorkspaces } from "@/hooks/workspace";
@@ -62,65 +62,89 @@ export function WorkspaceList() {
               key={workspace.workspace.id}
               className="group hover:bg-accent/5 hover:border-primary/20 relative border-2 transition-colors"
             >
-              <Link href={`/workspaces/${workspace.workspace.id}/boards`}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-2">
-                      <CardTitle className="line-clamp-2">
-                        {workspace.workspace.name}
-                      </CardTitle>
-                      <div className="flex gap-2">
-                        <Badge
-                          variant={
-                            workspace.workspace.visibility === "private"
-                              ? "secondary"
-                              : "outline"
-                          }
-                        >
-                          {workspace.workspace.visibility === "private" ? (
-                            <Lock className="text-muted-foreground mr-1 h-3 w-3" />
-                          ) : (
-                            <Globe2 className="text-muted-foreground mr-1 h-3 w-3" />
-                          )}
-                          {workspace.workspace.visibility === "private"
-                            ? t("visibility.private")
-                            : t("visibility.public")}
-                        </Badge>
-                        <Badge variant="outline">
-                          {workspace.role === "owner"
-                            ? t("role.owner")
-                            : t("role.member")}
-                        </Badge>
+              <div className="flex h-full flex-col">
+                <Link
+                  href={`/workspaces/${workspace.workspace.id}/boards`}
+                  className="flex-1"
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-2">
+                        <CardTitle className="line-clamp-2">
+                          {workspace.workspace.name}
+                        </CardTitle>
+                        <div className="flex gap-2">
+                          <Badge
+                            variant={
+                              workspace.workspace.visibility === "private"
+                                ? "secondary"
+                                : "outline"
+                            }
+                          >
+                            {workspace.workspace.visibility === "private" ? (
+                              <Lock className="text-muted-foreground mr-1 h-3 w-3" />
+                            ) : (
+                              <Globe2 className="text-muted-foreground mr-1 h-3 w-3" />
+                            )}
+                            {workspace.workspace.visibility === "private"
+                              ? t("visibility.private")
+                              : t("visibility.public")}
+                          </Badge>
+                          <Badge variant="outline">
+                            {workspace.role === null
+                              ? t("role.notMember")
+                              : workspace.role === "owner"
+                                ? t("role.owner")
+                                : workspace.role === "admin"
+                                  ? t("role.admin")
+                                  : t("role.member")}
+                          </Badge>
+                          <Badge variant="outline">
+                            <Users className="text-muted-foreground mr-1 h-3 w-3" />
+                            {workspace.members.length} {t("members")}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground line-clamp-2 text-sm">
-                    {workspace.workspace.description || t("noDescription")}
-                  </p>
-                  <div className="text-muted-foreground mt-4 space-y-1 text-xs">
-                    <div className="flex items-center">
-                      <User className="mr-2 h-3 w-3" />
-                      <span>
-                        {t("owner")}: {workspace.workspace.owner.name}
-                      </span>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground line-clamp-2 text-sm">
+                      {workspace.workspace.description || t("noDescription")}
+                    </p>
+                    <div className="text-muted-foreground mt-4 space-y-1 text-xs">
+                      <div className="flex items-center">
+                        <User className="mr-2 h-3 w-3" />
+                        <span>
+                          {t("owner")}: {workspace.workspace.owner.name}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <Clock className="mr-2 h-3 w-3" />
+                        <span>
+                          {t("created", {
+                            date: format(
+                              new Date(workspace.workspace.created_at),
+                              "MMM d, yyyy"
+                            ),
+                          })}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center">
-                      <Clock className="mr-2 h-3 w-3" />
-                      <span>
-                        {t("created", {
-                          date: format(
-                            new Date(workspace.workspace.created_at),
-                            "MMM d, yyyy"
-                          ),
-                        })}
-                      </span>
-                    </div>
+                  </CardContent>
+                </Link>
+                {(workspace.role === "owner" || workspace.role === "admin") && (
+                  <div className="px-6 pb-6">
+                    <Link
+                      href={`/workspaces/${workspace.workspace.id}/members`}
+                      className="text-primary flex items-center hover:underline"
+                    >
+                      <Users className="mr-2 h-3 w-3" />
+                      {t("manageMembers")}
+                    </Link>
                   </div>
-                </CardContent>
-              </Link>
-              {workspace.role === "owner" && (
+                )}
+              </div>
+              {(workspace.role === "owner" || workspace.role === "admin") && (
                 <div className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
                   <WorkspaceOperations workspace={workspace.workspace} />
                 </div>

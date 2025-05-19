@@ -1236,6 +1236,8 @@
     "breadcrumb": "Workspaces",
     "boards": "Boards",
     "board": "Board",
+    "members": "Members",
+    "manageMembers": "Manage Members",
     "errors": {
       "failedToLoad": "Failed to load workspaces. Please try again later.",
       "noWorkspaces": "No workspaces found. Create your first workspace to get started.",
@@ -1250,7 +1252,9 @@
     },
     "role": {
       "owner": "Owner",
-      "member": "Member"
+      "member": "Member",
+      "admin": "Admin",
+      "notMember": "Not a member"
     },
     "noDescription": "No description",
     "owner": "Owner",
@@ -1300,6 +1304,31 @@
         "loading": "Loading...",
         "update": "Update",
         "create": "Create"
+      }
+    },
+    "Members": {
+      "title": "Workspace Members",
+      "description": "Manage members and their roles in this workspace",
+      "addMember": "Add Member",
+      "addMemberDescription": "Invite a new member to join this workspace",
+      "email": "Email Address",
+      "role": "Role",
+      "roles": {
+        "member": "Member",
+        "admin": "Admin"
+      },
+      "cancel": "Cancel",
+      "add": "Add Member",
+      "setAsMember": "Set as Member",
+      "setAsAdmin": "Set as Admin",
+      "remove": "Remove Member",
+      "joinedAt": "Joined {date}",
+      "joinWorkspace": "Join Workspace",
+      "errors": {
+        "failedToLoad": "Failed to load workspace members",
+        "failedToJoin": "Failed to join workspace",
+        "failedToAdd": "Failed to add member",
+        "failedToRemove": "Failed to remove member"
       }
     }
   }
