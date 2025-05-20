@@ -77,15 +77,35 @@ export default function BoardCard({
               </div>
 
               <CardContent className="space-y-2 p-2.5 pl-8">
-                <div>
-                  <h3 className="truncate text-sm leading-none font-medium tracking-tight">
-                    {card.title}
-                  </h3>
-                  {card.description && (
-                    <p className="text-muted-foreground/80 mt-1.5 line-clamp-2 text-xs">
-                      {card.description || t("detail.description")}
-                    </p>
-                  )}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="truncate text-sm leading-none font-medium tracking-tight">
+                      {card.title}
+                    </h3>
+                    {card.description && (
+                      <p className="text-muted-foreground/80 mt-1.5 line-clamp-2 text-xs">
+                        {card.description || t("detail.description")}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    {/* <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsDetailOpen(true)}
+                      className="h-7"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button> */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onDelete(card.id)}
+                      className="h-7 text-red-500 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Card badges */}
@@ -116,26 +136,6 @@ export default function BoardCard({
                   )}
 
                   <CardLabels labels={card.labels || []} />
-                </div>
-
-                {/* Card actions */}
-                <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsDetailOpen(true)}
-                    className="h-7"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDelete(card.id)}
-                    className="h-7 text-red-500 hover:text-red-600"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
                 </div>
               </CardContent>
             </ShadCard>

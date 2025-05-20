@@ -604,9 +604,11 @@ export function useAssignCardLabel() {
     mutationFn: async ({
       cardId,
       labelId,
+      listId,
     }: {
       cardId: number;
       labelId: number;
+      listId: number;
     }) => {
       const { data } = await apiClient.post(`/api/cards/${cardId}/labels`, {
         label_id: labelId,
@@ -614,8 +616,19 @@ export function useAssignCardLabel() {
       return data.data;
     },
     onSuccess: (data, variables) => {
+      console.log(
+        "🔄 Invalidate queries after assigning label with id:",
+        variables.labelId,
+        "and card id:",
+        variables.cardId,
+        "and list id:",
+        variables.listId
+      );
       queryClient.invalidateQueries({
         queryKey: ["card", variables.cardId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["cards", String(variables.listId)],
       });
     },
   });
@@ -628,16 +641,21 @@ export function useRemoveCardLabel() {
     mutationFn: async ({
       cardId,
       labelId,
+      listId,
     }: {
       cardId: number;
       labelId: number;
+      listId: number;
     }) => {
       await apiClient.delete(`/api/cards/${cardId}/labels/${labelId}`);
       return { cardId, labelId };
     },
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["card", data.cardId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["cards", String(variables.listId)],
       });
     },
   });

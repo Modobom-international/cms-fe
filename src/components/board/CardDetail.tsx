@@ -325,11 +325,11 @@ export default function CardDetail({
   };
 
   const handleAssignLabel = (labelId: number) => {
-    assignLabel({ cardId: card.id, labelId });
+    assignLabel({ cardId: card.id, labelId, listId: card.list_id });
   };
 
   const handleRemoveLabel = (labelId: number) => {
-    removeLabel({ cardId: card.id, labelId });
+    removeLabel({ cardId: card.id, labelId, listId: card.list_id });
   };
 
   return (
@@ -431,8 +431,13 @@ export default function CardDetail({
         )}
 
         <div className="mb-6">
-          <div className="mb-2 flex items-center gap-2">
-            <p className="text-sm font-medium text-gray-700">Labels</p>
+          <div className="mb-2 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-700">Labels</p>
+              <p className="text-xs text-gray-500">
+                Add labels to organize your card
+              </p>
+            </div>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className="h-7">
@@ -453,6 +458,40 @@ export default function CardDetail({
                 />
               </PopoverContent>
             </Popover>
+          </div>
+
+          {/* Display selected labels */}
+          <div className="mt-3 space-y-2">
+            {cardData?.labels && cardData.labels.length > 0 ? (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                {cardData.labels.map((label) => (
+                  <div
+                    key={label.id}
+                    className="group flex items-center justify-between rounded-md border bg-white p-2 transition-colors hover:bg-gray-50"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="h-4 w-4 rounded-full border shadow-sm"
+                        style={{ backgroundColor: label.color }}
+                      />
+                      <span className="text-sm font-medium">{label.name}</span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveLabel(label.id)}
+                      className="h-7 opacity-0 transition-opacity group-hover:opacity-100"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-md border border-dashed p-4 text-center text-sm text-gray-500">
+                No labels added yet
+              </div>
+            )}
           </div>
         </div>
 
