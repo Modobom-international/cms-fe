@@ -104,12 +104,83 @@ export function useUpdateCard() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (card: Partial<Card> & { id: number }) => {
-      const { data } = await apiClient.post(`/api/cards/${card.id}`, card);
-      return data as Card;
+    mutationFn: async (card: {
+      id: number;
+      title: string;
+      description: string;
+      list_id: number;
+    }) => {
+      console.log("🚀 Updating card with data:", card);
+      const { data } = await apiClient.post(`/api/cards/${card.id}`, {
+        title: card.title,
+        description: card.description,
+      });
+      console.log("✅ Update response:", data);
+      // Return the card data we sent since server only returns success status
+      return {
+        ...card,
+        position: 0, // Default position
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      } as Card;
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["cards", data.list_id] });
+    onMutate: async (updatedCard) => {
+      console.log("🔄 Starting optimistic update for card:", updatedCard);
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: ["cards", String(updatedCard.list_id)],
+      });
+
+      // Snapshot the previous value
+      const previousCards =
+        queryClient.getQueryData<Card[]>([
+          "cards",
+          String(updatedCard.list_id),
+        ]) || [];
+      console.log("📸 Previous cards:", previousCards);
+
+      // Optimistically update the card
+      const optimisticCards = previousCards.map((card) =>
+        card.id === updatedCard.id
+          ? {
+              ...card,
+              title: updatedCard.title,
+              description: updatedCard.description,
+            }
+          : card
+      );
+      console.log("✨ Optimistic cards:", optimisticCards);
+
+      // Optimistically update the UI
+      queryClient.setQueryData(
+        ["cards", String(updatedCard.list_id)],
+        optimisticCards
+      );
+
+      // Return a context with the previous cards
+      return { previousCards };
+    },
+    onError: (err, updatedCard, context) => {
+      console.error("❌ Update error:", err);
+      // If the mutation fails, roll back to the previous state
+      if (context?.previousCards) {
+        queryClient.setQueryData(
+          ["cards", String(updatedCard.list_id)],
+          context.previousCards
+        );
+      }
+    },
+    onSettled: (data) => {
+      console.log("🏁 Update settled, data:", data);
+      // Always refetch after error or success to ensure we have the correct data
+      if (data) {
+        console.log("🔄 Invalidating queries for list:", data.list_id);
+        queryClient.invalidateQueries({
+          queryKey: ["cards", String(data.list_id)],
+        });
+        queryClient.invalidateQueries({ queryKey: ["lists"] });
+        queryClient.invalidateQueries({ queryKey: ["card", data.id] });
+      }
     },
   });
 }
@@ -463,4 +534,20 @@ export function useMoveCard() {
       debouncedMutation();
     },
   };
+}
+
+export function useGetCard(cardId: number) {
+  return useQuery({
+    queryKey: ["card", cardId],
+    queryFn: async () => {
+      console.log("📥 Fetching card details for ID:", cardId);
+      const { data } = await apiClient.get(`/api/cards/${cardId}`);
+      console.log("📦 Card details response:", data);
+      return data.data as Card;
+    },
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+  });
 }

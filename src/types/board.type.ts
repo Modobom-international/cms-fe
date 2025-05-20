@@ -27,7 +27,7 @@ export interface Card {
   title: string;
   description: string;
   order?: number;
-  listId: number;
+  list_id: number;
   dueDate?: string; // ISO string format
   checklist?: ChecklistItem[];
   attachments?: Attachment[];

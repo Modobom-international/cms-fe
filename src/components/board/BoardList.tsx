@@ -107,8 +107,10 @@ export default function BoardList({
                           index={cardIndex}
                           onUpdate={(updatedCard) =>
                             updateCard({
-                              ...updatedCard,
                               id: updatedCard.id,
+                              title: updatedCard.title,
+                              description: updatedCard.description,
+                              list_id: updatedCard.list_id,
                             })
                           }
                           onDelete={(cardId) =>

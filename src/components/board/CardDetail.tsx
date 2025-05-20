@@ -24,6 +24,8 @@ import {
 
 import { Attachment, Card, ChecklistItem } from "@/types/board.type";
 
+import { useGetCard, useUpdateCard } from "@/hooks/board/card";
+
 import Checklist from "./Checklist";
 import RichTextEditor from "./RichTextEditor";
 
@@ -49,18 +51,51 @@ export default function CardDetail({
   onUpdate,
   onDelete,
 }: CardDetailProps) {
-  const [title, setTitle] = useState(card.title);
-  const [description, setDescription] = useState(card.description || "");
-  const [dueDate, setDueDate] = useState<string | undefined>(card.dueDate);
+  const { data: cardData } = useGetCard(card.id);
+  const { mutate: updateCard } = useUpdateCard();
+  const [title, setTitle] = useState(cardData?.title || card.title);
+  const [description, setDescription] = useState(
+    cardData?.description || card.description || ""
+  );
+  const [dueDate, setDueDate] = useState<string | undefined>(
+    cardData?.dueDate || card.dueDate
+  );
   const [checklist, setChecklist] = useState<ChecklistItem[]>(
-    card.checklist || []
+    cardData?.checklist || card.checklist || []
   );
   const [attachments, setAttachments] = useState<Attachment[]>(
-    card.attachments || []
+    cardData?.attachments || card.attachments || []
   );
   const [isEditing, setIsEditing] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Debug logs for card data changes
+  useEffect(() => {
+    console.log("🔄 Card data changed:", cardData);
+  }, [cardData]);
+
+  // Debug logs for local state changes
+  useEffect(() => {
+    console.log("📝 Local state:", {
+      title,
+      description,
+      dueDate,
+      checklist,
+      attachments,
+    });
+  }, [title, description, dueDate, checklist, attachments]);
+
+  // Update local state when card data changes
+  useEffect(() => {
+    if (cardData) {
+      setTitle(cardData.title);
+      setDescription(cardData.description || "");
+      setDueDate(cardData.dueDate);
+      setChecklist(cardData.checklist || []);
+      setAttachments(cardData.attachments || []);
+    }
+  }, [cardData]);
 
   const handleChecklistChange = useCallback(
     (updatedChecklist: ChecklistItem[]) => {
@@ -72,13 +107,17 @@ export default function CardDetail({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      onUpdate({
-        ...card,
+      console.log("💾 Submitting card update:", {
+        id: card.id,
         title: title.trim(),
         description,
-        dueDate,
-        checklist,
-        attachments,
+        list_id: card.list_id,
+      });
+      updateCard({
+        id: card.id,
+        title: title.trim(),
+        description,
+        list_id: card.list_id,
       });
       setIsEditing(false);
     }
