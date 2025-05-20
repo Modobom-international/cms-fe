@@ -5,6 +5,14 @@ export interface Label {
   id: number;
   name: string;
   color: string;
+  created_at: string;
+  updated_at: string;
+  pivot?: {
+    card_id: number;
+    label_id: number;
+    created_at: string;
+    updated_at: string;
+  };
 }
 
 export interface ChecklistItem {

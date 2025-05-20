@@ -55,6 +55,7 @@ import {
 } from "@/components/ui/popover";
 
 import ChecklistComponent from "./Checklist";
+import LabelManager from "./LabelManager";
 import RichTextEditor from "./RichTextEditor";
 
 // Register languages with highlight.js
@@ -440,32 +441,16 @@ export default function CardDetail({
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-80">
-                <div className="space-y-4">
-                  <h4 className="font-medium">Labels</h4>
-                  <div className="space-y-2">
-                    {cardData?.labels?.map((label: Label) => (
-                      <div
-                        key={label.id}
-                        className="flex items-center justify-between rounded-md border p-2"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="h-4 w-4 rounded-full"
-                            style={{ backgroundColor: label.color }}
-                          />
-                          <span className="text-sm">{label.name}</span>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveLabel(label.id)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <LabelManager
+                  onSelectLabel={(label) => {
+                    if (cardData?.labels?.some((l) => l.id === label.id)) {
+                      handleRemoveLabel(label.id);
+                    } else {
+                      handleAssignLabel(label.id);
+                    }
+                  }}
+                  selectedLabels={cardData?.labels || []}
+                />
               </PopoverContent>
             </Popover>
           </div>
