@@ -834,3 +834,94 @@ export function useGetChecklistItems(checklistId: number) {
     refetchOnWindowFocus: true,
   });
 }
+
+// Card Member Hooks
+export function useGetCardMembers(cardId: number) {
+  return useQuery({
+    queryKey: ["card-members", cardId],
+    queryFn: async () => {
+      const response = await apiClient.get(`/api/cards/${cardId}/members`);
+      return response.data.data || [];
+    },
+  });
+}
+
+export function useJoinCard() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ cardId }: { cardId: number }) => {
+      const response = await apiClient.post(
+        `/api/cards/${cardId}/members/join`
+      );
+      return response.data;
+    },
+    onSuccess: (_, { cardId }) => {
+      queryClient.invalidateQueries({ queryKey: ["card-members", cardId] });
+      queryClient.invalidateQueries({ queryKey: ["card", cardId] });
+      queryClient.invalidateQueries({ queryKey: ["cards"] });
+    },
+  });
+}
+
+export function useLeaveCard() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ cardId }: { cardId: number }) => {
+      const response = await apiClient.post(
+        `/api/cards/${cardId}/members/leave`
+      );
+      return response.data;
+    },
+    onSuccess: (_, { cardId }) => {
+      queryClient.invalidateQueries({ queryKey: ["card-members", cardId] });
+      queryClient.invalidateQueries({ queryKey: ["card", cardId] });
+      queryClient.invalidateQueries({ queryKey: ["cards"] });
+    },
+  });
+}
+
+export function useAssignCardMember() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      cardId,
+      user_ids,
+    }: {
+      cardId: number;
+      user_ids: number[];
+    }) => {
+      const response = await apiClient.post(`/api/cards/${cardId}/members`, {
+        user_ids,
+      });
+      return response.data;
+    },
+    onSuccess: (_, { cardId }) => {
+      queryClient.invalidateQueries({ queryKey: ["card-members", cardId] });
+      queryClient.invalidateQueries({ queryKey: ["card", cardId] });
+      queryClient.invalidateQueries({ queryKey: ["cards"] });
+    },
+  });
+}
+
+export function useRemoveCardMember() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      cardId,
+      userId,
+    }: {
+      cardId: number;
+      userId: number;
+    }) => {
+      const response = await apiClient.delete(
+        `/api/cards/${cardId}/members/${userId}`
+      );
+      return response.data;
+    },
+    onSuccess: (_, { cardId }) => {
+      queryClient.invalidateQueries({ queryKey: ["card-members", cardId] });
+      queryClient.invalidateQueries({ queryKey: ["card", cardId] });
+      queryClient.invalidateQueries({ queryKey: ["cards"] });
+    },
+  });
+}

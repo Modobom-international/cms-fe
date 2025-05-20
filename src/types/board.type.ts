@@ -51,6 +51,23 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+export interface CardMember {
+  id: number;
+  name: string;
+  email: string;
+  email_verified_at: string | null;
+  created_at: string;
+  updated_at: string;
+  role: string;
+  type_user: string;
+  profile_photo_path: string | null;
+  exclude_token: string | null;
+  pivot: {
+    card_id: number;
+    user_id: number;
+  };
+}
+
 export interface Card {
   id: number;
   title: string;
@@ -61,6 +78,7 @@ export interface Card {
   checklist?: ChecklistItem[];
   attachments?: Attachment[];
   labels?: Label[];
+  members?: CardMember[];
   created_at: string;
   updated_at: string;
 }

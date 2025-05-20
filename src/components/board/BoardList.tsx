@@ -104,12 +104,13 @@ export default function BoardList({
                         <BoardCard
                           key={String(card.id)}
                           card={card}
+                          boardId={list.board_id}
                           index={cardIndex}
                           onUpdate={(updatedCard) =>
                             updateCard({
                               id: updatedCard.id,
                               title: updatedCard.title,
-                              description: updatedCard.description,
+                              description: updatedCard.description || "",
                               list_id: updatedCard.list_id,
                             })
                           }

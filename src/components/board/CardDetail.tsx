@@ -60,6 +60,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+import CardMembers from "./CardMembers";
 import ChecklistComponent from "./Checklist";
 import LabelManager from "./LabelManager";
 import RichTextEditor from "./RichTextEditor";
@@ -75,6 +76,7 @@ hljs.registerLanguage("json", json);
 
 interface CardDetailProps {
   card: Card;
+  boardId: number;
   onClose: () => void;
   onUpdate: (updatedCard: Card) => void;
   onDelete: () => void;
@@ -82,6 +84,7 @@ interface CardDetailProps {
 
 export default function CardDetail({
   card,
+  boardId,
   onClose,
   onUpdate,
   onDelete,
@@ -495,6 +498,8 @@ export default function CardDetail({
             )}
           </div>
         </div>
+
+        <CardMembers cardId={card.id} boardId={boardId} />
 
         <div className="mb-6">
           <div className="mb-2 flex items-center justify-between">

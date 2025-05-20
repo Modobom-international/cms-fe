@@ -20,6 +20,7 @@ import CardLabels from "./CardLabels";
 interface BoardCardProps {
   card: Card;
   index: number;
+  boardId: number;
   onUpdate: (card: Card) => void;
   onDelete: (cardId: number) => void;
 }
@@ -27,6 +28,7 @@ interface BoardCardProps {
 export default function BoardCard({
   card,
   index,
+  boardId,
   onUpdate,
   onDelete,
 }: BoardCardProps) {
@@ -146,6 +148,7 @@ export default function BoardCard({
       {isDetailOpen && (
         <CardDetail
           card={card}
+          boardId={boardId}
           onClose={() => setIsDetailOpen(false)}
           onUpdate={onUpdate}
           onDelete={() => {
