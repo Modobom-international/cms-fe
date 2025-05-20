@@ -1156,7 +1156,7 @@
   },
   "Board": {
     "title": "Bảng của tôi",
-    "owner": "Chủ sở hữu #{id}",
+    "owner": "Chủ sở hữu: {id}",
     "created": "Tạo ngày {date}",
     "lists": {
       "count": "{count} Danh sách",
@@ -1228,7 +1228,8 @@
         "generic": "Không thể tải các bảng. Vui lòng thử lại sau.",
         "403": "Bạn không có quyền xem các bảng này. Vui lòng kiểm tra quyền truy cập của bạn."
       },
-      "noBoards": "Không tìm thấy bảng nào. Tạo bảng đầu tiên của bạn để bắt đầu."
+      "noBoards": "Không tìm thấy bảng nào. Tạo bảng đầu tiên của bạn để bắt đầu.",
+      "boardNotFound": "Không tìm thấy bảng"
     },
     "operations": {
       "edit": "Chỉnh sửa",
@@ -1246,8 +1247,20 @@
       "createError": "Không thể tạo bảng",
       "deleteSuccess": "Xóa bảng thành công",
       "deleteError": "Không thể xóa bảng",
-      "genericError": "Đã xảy ra lỗi"
-    }
+      "genericError": "Đã xảy ra lỗi",
+      "manageBoardMembers": "Quản lý thành viên bảng"
+    },
+    "members": "Thành viên",
+    "selectMember": "Chọn thành viên",
+    "addMember": "Thêm thành viên",
+    "currentMembers": "Thành viên hiện tại {count}",
+    "membersDescription": "Xem và quản lý thành viên của bảng này",
+    "name": "Tên",
+    "email": "Email",
+    "role": "Vai trò",
+    "joined": "Tham gia",
+    "actions": "Thao tác",
+    "remove": "Xóa"
   },
   "Workspace": {
     "title": "Không gian làm việc",

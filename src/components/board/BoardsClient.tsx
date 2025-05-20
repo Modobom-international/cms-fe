@@ -30,6 +30,8 @@ interface BoardsClientProps {
 export default function BoardsClient({ workspaceId }: BoardsClientProps) {
   const t = useTranslations("Board");
   const { workspace, boards, isLoading, error } = useGetBoards(workspaceId);
+
+  console.log(boards);
   if (isLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -115,6 +117,14 @@ export default function BoardsClient({ workspaceId }: BoardsClientProps) {
                         })}
                       </span>
                     </div>
+                    {board.members && board.members.length > 0 && (
+                      <div className="flex items-center">
+                        <User className="mr-1 h-3 w-3" />
+                        <span>
+                          {t("currentMembers", { count: board.members.length })}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </CardFooter>
               </Link>

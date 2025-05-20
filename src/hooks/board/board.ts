@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   Board,
+  BoardMembersResponse,
   BoardsResponse,
   CreateBoardDto,
   CreateBoardResponse,
@@ -94,4 +95,22 @@ export const useDeleteBoard = () => {
       });
     },
   });
+};
+
+export const useGetBoardMembers = (boardId: number) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["board-members", boardId],
+    queryFn: async () => {
+      const response = await apiClient.get<BoardMembersResponse>(
+        `/api/boards/${boardId}/members`
+      );
+      return response.data;
+    },
+  });
+
+  return {
+    members: data?.members,
+    isLoading,
+    error,
+  };
 };

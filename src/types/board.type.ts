@@ -53,6 +53,40 @@ export interface Board {
   created_at: string;
   updated_at: string;
   lists?: List[];
+  members?: {
+    id: number;
+    user_id: number;
+    board_id: number;
+    role: string;
+    created_at: string;
+    users: {
+      id: number;
+      name: string;
+      email: string;
+      profile_photo_path: string | null;
+    };
+  }[];
+}
+
+export interface BoardMember {
+  id: number;
+  user_id: number;
+  board_id: number;
+  role: string;
+  created_at: string;
+  users: {
+    id: number;
+    name: string;
+    email: string;
+    profile_photo_path: string | null;
+  };
+}
+
+export interface BoardMembersResponse {
+  success: boolean;
+  members: BoardMember[];
+  message: string;
+  type: string;
 }
 
 export interface CreateBoardDto {

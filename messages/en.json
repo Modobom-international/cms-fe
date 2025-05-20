@@ -1138,7 +1138,7 @@
   },
   "Board": {
     "title": "My Board",
-    "owner": "Owner #{id}",
+    "owner": "Owner: #{id}",
     "created": "Created {date}",
     "lists": {
       "count": "{count} Lists",
@@ -1208,9 +1208,11 @@
     "errors": {
       "loadBoards": {
         "permission": "You don't have permission to view these boards. Please check your access rights.",
-        "generic": "Failed to load boards. Please try again later."
+        "generic": "Failed to load boards. Please try again later.",
+        "403": "You don't have permission to view these boards. Please check your access rights."
       },
-      "noBoards": "No boards found. Create your first board to get started."
+      "noBoards": "No boards found. Create your first board to get started.",
+      "boardNotFound": "Board not found"
     },
     "operations": {
       "edit": "Edit",
@@ -1228,8 +1230,21 @@
       "createError": "Failed to create board",
       "deleteSuccess": "Board deleted successfully",
       "deleteError": "Failed to delete board",
-      "genericError": "Something went wrong"
-    }
+      "genericError": "Something went wrong",
+      "manageBoardMembers": "Manage board members"
+    },
+    "members": "Members",
+    "manageBoardMembers": "Manage board members",
+    "selectMember": "Select a member",
+    "addMember": "Add Member",
+    "currentMembers": "Current Members {count}",
+    "membersDescription": "View and manage members of this board",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "joined": "Joined",
+    "actions": "Actions",
+    "remove": "Remove"
   },
   "Workspace": {
     "title": "Workspaces",
