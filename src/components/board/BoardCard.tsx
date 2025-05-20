@@ -4,13 +4,21 @@ import { useState } from "react";
 
 import { Draggable } from "@hello-pangea/dnd";
 import { format } from "date-fns";
-import { CheckSquare, Clock, GripVertical, Pencil, Trash2 } from "lucide-react";
+import {
+  CheckSquare,
+  Clock,
+  GripVertical,
+  Pencil,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Card } from "@/types/board.type";
 
 import { cn } from "@/lib/utils";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CardContent, Card as ShadCard } from "@/components/ui/card";
 
@@ -84,11 +92,11 @@ export default function BoardCard({
                     <h3 className="truncate text-sm leading-none font-medium tracking-tight">
                       {card.title}
                     </h3>
-                    {card.description && (
+                    {/* {card.description && (
                       <p className="text-muted-foreground/80 mt-1.5 line-clamp-2 text-xs">
                         {card.description || t("detail.description")}
                       </p>
-                    )}
+                    )} */}
                   </div>
                   <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                     {/* <Button
@@ -139,6 +147,36 @@ export default function BoardCard({
 
                   <CardLabels labels={card.labels || []} />
                 </div>
+
+                {/* Member avatars */}
+                {card.members && card.members.length > 0 && (
+                  <div className="flex items-center justify-end gap-1">
+                    <div className="flex -space-x-2">
+                      {card.members.slice(0, 3).map((member) => (
+                        <Avatar
+                          key={member.id}
+                          className="border-background h-8 w-8 border-2"
+                        >
+                          <AvatarImage
+                            src={member.profile_photo_path || undefined}
+                            alt={member.name}
+                          />
+                          <AvatarFallback className="text-[10px]">
+                            {member.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                      ))}
+                    </div>
+                    {card.members.length > 3 && (
+                      <div className="bg-secondary/30 text-secondary-foreground flex h-6 items-center rounded-full px-1.5 text-[10px] font-medium">
+                        +{card.members.length - 3}
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </ShadCard>
           </div>

@@ -33,7 +33,7 @@ interface CardMembersProps {
 }
 
 export default function CardMembers({ cardId, boardId }: CardMembersProps) {
-  const t = useTranslations("Board.card");
+  //   const t = useTranslations("Board.card");
   const { data: members = [] } = useGetCardMembers(cardId);
   const { members: boardMembers = [] } = useGetBoardMembers(boardId);
   const { mutate: joinCard } = useJoinCard();
@@ -78,7 +78,8 @@ export default function CardMembers({ cardId, boardId }: CardMembersProps) {
         <div>
           <p className="text-sm font-medium text-gray-700">Members</p>
           <p className="text-xs text-gray-500">
-            {t("detail.members.description")}
+            {/* {t("detail.members.description")} */}
+            Add members to this card to collaborate with them.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -203,7 +204,8 @@ export default function CardMembers({ cardId, boardId }: CardMembersProps) {
           </div>
         ) : (
           <div className="rounded-md border border-dashed p-4 text-center text-sm text-gray-500">
-            {t("detail.members.empty")}
+            {/* {t("detail.members.empty")} */}
+            No members added to this card yet.
           </div>
         )}
       </div>
