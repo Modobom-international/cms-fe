@@ -33,6 +33,12 @@ import {
 } from "@/types/board.type";
 
 import {
+  useCreateAttachment,
+  useDeleteAttachment,
+  useGetCardAttachments,
+  useUpdateAttachment,
+} from "@/hooks/board/attachment";
+import {
   useAssignCardLabel,
   useCreateCardChecklist,
   useCreateChecklistItem,
@@ -82,6 +88,7 @@ export default function CardDetail({
 }: CardDetailProps) {
   const { data: cardData } = useGetCard(card.id);
   const { data: checklists = [] } = useGetCardChecklists(card.id);
+  const { data: attachments = [] } = useGetCardAttachments(card.id);
   const { mutate: updateCard } = useUpdateCard();
   const { mutate: createChecklist } = useCreateCardChecklist();
   const { mutate: assignLabel } = useAssignCardLabel();
@@ -90,6 +97,9 @@ export default function CardDetail({
   const { mutate: updateChecklistItem } = useUpdateChecklistItem();
   const { mutate: deleteChecklistItem } = useDeleteChecklistItem();
   const { mutate: toggleChecklistItem } = useToggleChecklistItem();
+  const { mutate: createAttachment } = useCreateAttachment();
+  const { mutate: updateAttachment } = useUpdateAttachment();
+  const { mutate: deleteAttachment } = useDeleteAttachment();
 
   const [title, setTitle] = useState(cardData?.title || card.title);
   const [description, setDescription] = useState(
@@ -100,9 +110,6 @@ export default function CardDetail({
   );
   const [checklist, setChecklist] = useState<ChecklistItem[]>(
     cardData?.checklist || card.checklist || []
-  );
-  const [attachments, setAttachments] = useState<Attachment[]>(
-    cardData?.attachments || card.attachments || []
   );
   const [isEditing, setIsEditing] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -133,7 +140,6 @@ export default function CardDetail({
       setDescription(cardData.description || "");
       setDueDate(cardData.dueDate);
       setChecklist(cardData.checklist || []);
-      setAttachments(cardData.attachments || []);
     }
   }, [cardData]);
 
@@ -210,8 +216,7 @@ export default function CardDetail({
       title !== card.title ||
       description !== (card.description || "") ||
       dueDate !== card.dueDate ||
-      JSON.stringify(checklist) !== JSON.stringify(card.checklist || []) ||
-      JSON.stringify(attachments) !== JSON.stringify(card.attachments || [])
+      JSON.stringify(checklist) !== JSON.stringify(card.checklist || [])
     ) {
       onUpdate({
         ...card,
@@ -219,7 +224,6 @@ export default function CardDetail({
         description,
         dueDate,
         checklist,
-        attachments,
       });
     }
     onClose();
@@ -269,21 +273,14 @@ export default function CardDetail({
 
     // Process each file
     Array.from(files).forEach((file) => {
-      // Create a URL for the file (this will be temporary in this demo)
-      const fileUrl = URL.createObjectURL(file);
+      const formData = new FormData();
+      formData.append("title", file.name);
+      formData.append("file_path", file);
 
-      // Create a new attachment
-      const newAttachment: Attachment = {
-        id: `attachment-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        name: file.name,
-        url: fileUrl,
-        type: file.type,
-        size: file.size,
-        createdAt: new Date().toISOString(),
-      };
-
-      // Add to attachments
-      setAttachments((prev) => [...prev, newAttachment]);
+      createAttachment({
+        cardId: card.id,
+        formData,
+      });
     });
 
     // Reset the input
@@ -293,13 +290,17 @@ export default function CardDetail({
   };
 
   // Function to remove an attachment
-  const removeAttachment = (id: string) => {
-    setAttachments((prev) => prev.filter((attachment) => attachment.id !== id));
+  const removeAttachment = (id: number) => {
+    deleteAttachment({
+      attachmentId: id,
+      cardId: card.id,
+    });
   };
 
   // Function to get icon based on file type
-  const getFileIcon = (type: string) => {
-    if (type.startsWith("image/")) {
+  const getFileIcon = (url: string) => {
+    const extension = url.split(".").pop()?.toLowerCase();
+    if (["jpg", "jpeg", "png", "gif", "webp"].includes(extension || "")) {
       return <Image size={16} />;
     }
     return <File size={16} />;
@@ -583,25 +584,24 @@ export default function CardDetail({
             <p className="text-sm text-gray-500 italic">No attachments yet</p>
           ) : (
             <div className="space-y-2">
-              {attachments.map((attachment) => (
+              {attachments.map((attachment: Attachment) => (
                 <div
                   key={attachment.id}
                   className="flex items-center justify-between rounded border bg-gray-50 p-2"
                 >
                   <div className="flex items-center gap-2">
-                    {getFileIcon(attachment.type)}
+                    {getFileIcon(attachment.url)}
                     <div>
-                      <p className="text-sm font-medium">{attachment.name}</p>
+                      <p className="text-sm font-medium">{attachment.title}</p>
                       <p className="text-xs text-gray-500">
-                        {formatFileSize(attachment.size)} •
-                        {format(new Date(attachment.createdAt), "MMM d, yyyy")}
+                        {format(new Date(attachment.created_at), "MMM d, yyyy")}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
                     <a
                       href={attachment.url}
-                      download={attachment.name}
+                      download={attachment.title}
                       className="rounded p-1 hover:bg-gray-200"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -622,16 +622,25 @@ export default function CardDetail({
           )}
 
           {/* Image Previews for image files */}
-          {attachments.filter((a) => a.type.startsWith("image/")).length >
-            0 && (
+          {attachments.filter((a: Attachment) => {
+            const extension = a.url.split(".").pop()?.toLowerCase();
+            return ["jpg", "jpeg", "png", "gif", "webp"].includes(
+              extension || ""
+            );
+          }).length > 0 && (
             <div className="mt-4 grid grid-cols-2 gap-2">
               {attachments
-                .filter((a) => a.type.startsWith("image/"))
-                .map((img) => (
+                .filter((a: Attachment) => {
+                  const extension = a.url.split(".").pop()?.toLowerCase();
+                  return ["jpg", "jpeg", "png", "gif", "webp"].includes(
+                    extension || ""
+                  );
+                })
+                .map((img: Attachment) => (
                   <div key={`preview-${img.id}`} className="group relative">
                     <img
                       src={img.url}
-                      alt={img.name}
+                      alt={img.title}
                       className="h-24 w-full rounded border object-cover"
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-opacity group-hover:bg-black/20 group-hover:opacity-100">
@@ -665,7 +674,6 @@ export default function CardDetail({
                   setDescription(card.description || "");
                   setDueDate(card.dueDate);
                   setChecklist(card.checklist || []);
-                  setAttachments(card.attachments || []);
                   setIsEditing(false);
                 }}
                 className="rounded px-3 py-1 hover:bg-gray-200"

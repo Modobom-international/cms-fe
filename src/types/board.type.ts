@@ -36,12 +36,13 @@ export interface Checklist {
 }
 
 export interface Attachment {
-  id: string;
-  name: string;
+  id: number;
+  title: string;
+  file_path: string;
   url: string;
-  type: string; // mime type
-  size: number; // in bytes
-  createdAt: string; // ISO string format
+  created_at: string;
+  updated_at: string;
+  card_id: number;
 }
 
 export interface ApiResponse<T> {
