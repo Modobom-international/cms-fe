@@ -1237,7 +1237,7 @@
     "manageBoardMembers": "Manage board members",
     "selectMember": "Select a member",
     "addMember": "Add Member",
-    "currentMembers": "Current Members {count}",
+    "currentMembers": "Current Members: {count}",
     "membersDescription": "View and manage members of this board",
     "name": "Name",
     "email": "Email",

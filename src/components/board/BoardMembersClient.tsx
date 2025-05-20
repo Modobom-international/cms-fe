@@ -6,7 +6,13 @@ import { useTranslations } from "next-intl";
 
 import { WorkspaceMember } from "@/types/workspaces.type";
 
-import { useGetBoardMembers, useGetBoards } from "@/hooks/board/board";
+import {
+  useAddBoardMember,
+  useGetBoardMembers,
+  useGetBoards,
+  useRemoveBoardMember,
+} from "@/hooks/board/board";
+import { useGetUserList } from "@/hooks/user";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -48,9 +54,24 @@ export default function BoardMembersClient({
   const { boards, isLoading: isLoadingBoards } = useGetBoards(workspaceId);
   const { members, isLoading: isLoadingMembers } = useGetBoardMembers(boardId);
   const [selectedMember, setSelectedMember] = useState<string>("");
+  const [search, setSearch] = useState("");
+
+  const addMemberMutation = useAddBoardMember();
+  const removeMemberMutation = useRemoveBoardMember();
+  const { data: userResponse } = useGetUserList(1, 100, search);
 
   const board = boards?.find((b) => b.id === boardId);
   const isLoading = isLoadingBoards || isLoadingMembers;
+
+  // Filter out users who are already members
+  const availableUsers = userResponse?.success
+    ? userResponse.data.data.filter(
+        (user) =>
+          !members?.some(
+            (member) => member.users.id.toString() === user.id.toString()
+          )
+      )
+    : [];
 
   if (isLoading) {
     return (
@@ -74,13 +95,26 @@ export default function BoardMembersClient({
   }
 
   const handleAddMember = () => {
-    // TODO: Implement add member functionality
-    console.log("Add member:", selectedMember);
+    if (!selectedMember) return;
+
+    addMemberMutation.mutate(
+      {
+        boardId,
+        userId: parseInt(selectedMember),
+      },
+      {
+        onSuccess: () => {
+          setSelectedMember("");
+        },
+      }
+    );
   };
 
   const handleRemoveMember = (memberId: number) => {
-    // TODO: Implement remove member functionality
-    console.log("Remove member:", memberId);
+    removeMemberMutation.mutate({
+      boardId,
+      memberId,
+    });
   };
 
   return (
@@ -96,9 +130,9 @@ export default function BoardMembersClient({
               <SelectValue placeholder={t("selectMember")} />
             </SelectTrigger>
             <SelectContent>
-              {members?.map((member) => (
-                <SelectItem key={member.id} value={member.id.toString()}>
-                  {member.users.name}
+              {availableUsers.map((user) => (
+                <SelectItem key={user.id} value={user.id.toString()}>
+                  {user.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -111,7 +145,9 @@ export default function BoardMembersClient({
 
       <Card>
         <CardHeader>
-          <CardTitle>{t("currentMembers")}</CardTitle>
+          <CardTitle>
+            {t("currentMembers", { count: members?.length || 0 })}
+          </CardTitle>
           <CardDescription>{t("membersDescription")}</CardDescription>
         </CardHeader>
         <CardContent>

@@ -114,3 +114,53 @@ export const useGetBoardMembers = (boardId: number) => {
     error,
   };
 };
+
+export const useAddBoardMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      boardId,
+      userId,
+    }: {
+      boardId: number;
+      userId: number;
+    }) => {
+      const response = await apiClient.post<{ message: string }>(
+        `/api/boards/${boardId}/members`,
+        { user_id: userId }
+      );
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["board-members", variables.boardId],
+      });
+    },
+  });
+};
+
+export const useRemoveBoardMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      boardId,
+      memberId,
+    }: {
+      boardId: number;
+      memberId: number;
+    }) => {
+      const response = await apiClient.delete<{ message: string }>(
+        `/api/boards/${boardId}/members`,
+        { data: { member_id: memberId } }
+      );
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["board-members", variables.boardId],
+      });
+    },
+  });
+};

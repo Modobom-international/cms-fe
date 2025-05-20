@@ -63,7 +63,7 @@ export default async function BoardMembersPage({
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
-            <BreadcrumbItem>
+            {/* <BreadcrumbItem>
               <BreadcrumbLink
                 href={`/workspaces/${workspaceId}/boards/${boardId}`}
                 asChild
@@ -76,7 +76,7 @@ export default async function BoardMembersPage({
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator />
+            <BreadcrumbSeparator /> */}
             <BreadcrumbItem>
               <BreadcrumbPage className="text-foreground">
                 {t("members")}
