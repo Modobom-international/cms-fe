@@ -1156,7 +1156,7 @@
   },
   "Board": {
     "title": "Bảng của tôi",
-    "owner": "Chủ sở hữu #{id}",
+    "owner": "Chủ sở hữu: {id}",
     "created": "Tạo ngày {date}",
     "lists": {
       "count": "{count} Danh sách",
@@ -1228,7 +1228,8 @@
         "generic": "Không thể tải các bảng. Vui lòng thử lại sau.",
         "403": "Bạn không có quyền xem các bảng này. Vui lòng kiểm tra quyền truy cập của bạn."
       },
-      "noBoards": "Không tìm thấy bảng nào. Tạo bảng đầu tiên của bạn để bắt đầu."
+      "noBoards": "Không tìm thấy bảng nào. Tạo bảng đầu tiên của bạn để bắt đầu.",
+      "boardNotFound": "Không tìm thấy bảng"
     },
     "operations": {
       "edit": "Chỉnh sửa",
@@ -1246,14 +1247,29 @@
       "createError": "Không thể tạo bảng",
       "deleteSuccess": "Xóa bảng thành công",
       "deleteError": "Không thể xóa bảng",
-      "genericError": "Đã xảy ra lỗi"
-    }
+      "genericError": "Đã xảy ra lỗi",
+      "manageBoardMembers": "Quản lý thành viên bảng"
+    },
+    "members": "Thành viên",
+    "selectMember": "Chọn thành viên",
+    "manageBoardMembers": "Quản lý thành viên bảng",
+    "currentMembers": "Thành viên hiện tại: {count}",
+    "addMember": "Thêm thành viên",
+    "membersDescription": "Xem và quản lý thành viên của bảng này",
+    "name": "Tên",
+    "email": "Email",
+    "role": "Vai trò",
+    "joined": "Tham gia",
+    "actions": "Thao tác",
+    "remove": "Xóa"
   },
   "Workspace": {
     "title": "Không gian làm việc",
     "breadcrumb": "Không gian làm việc",
     "boards": "Bảng",
     "board": "Bảng",
+    "members": "Thành viên",
+    "manageMembers": "Quản lý thành viên",
     "errors": {
       "failedToLoad": "Không thể tải không gian làm việc. Vui lòng thử lại sau.",
       "noWorkspaces": "Không tìm thấy không gian làm việc nào. Tạo không gian làm việc đầu tiên của bạn để bắt đầu.",
@@ -1268,7 +1284,9 @@
     },
     "role": {
       "owner": "Chủ sở hữu",
-      "member": "Thành viên"
+      "member": "Thành viên",
+      "admin": "Quản trị viên",
+      "notMember": "Không phải là thành viên"
     },
     "noDescription": "Không có mô tả",
     "owner": "Chủ sở hữu",
@@ -1318,6 +1336,31 @@
         "loading": "Đang tải...",
         "update": "Cập nhật",
         "create": "Tạo"
+      }
+    },
+    "Members": {
+      "title": "Thành viên không gian làm việc",
+      "description": "Quản lý thành viên và vai trò của họ trong không gian làm việc này",
+      "addMember": "Thêm thành viên",
+      "addMemberDescription": "Mời thành viên mới tham gia không gian làm việc này",
+      "email": "Địa chỉ email",
+      "role": "Vai trò",
+      "roles": {
+        "member": "Thành viên",
+        "admin": "Quản trị viên"
+      },
+      "cancel": "Hủy",
+      "add": "Thêm thành viên",
+      "setAsMember": "Đặt làm thành viên",
+      "setAsAdmin": "Đặt làm quản trị viên",
+      "remove": "Xóa thành viên",
+      "joinedAt": "Tham gia ngày {date}",
+      "joinWorkspace": "Tham gia không gian làm việc",
+      "errors": {
+        "failedToLoad": "Không thể tải danh sách thành viên",
+        "failedToJoin": "Không thể tham gia không gian làm việc",
+        "failedToAdd": "Không thể thêm thành viên",
+        "failedToRemove": "Không thể xóa thành viên"
       }
     }
   }

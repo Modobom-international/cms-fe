@@ -1,19 +1,48 @@
 import { IUser } from "./user.type";
 import { Workspace } from "./workspaces.type";
 
+export interface Label {
+  id: number;
+  name: string;
+  color: string;
+  created_at: string;
+  updated_at: string;
+  pivot?: {
+    card_id: number;
+    label_id: number;
+    created_at: string;
+    updated_at: string;
+  };
+}
+
 export interface ChecklistItem {
-  id: string;
-  text: string;
-  completed: boolean;
+  id: number;
+  checklist_id: number;
+  content: string;
+  is_completed: number;
+  created_at: string;
+  updated_at: string;
+  isNew?: boolean;
+  isDeleted?: boolean;
+  isModified?: boolean;
+  card_id?: number;
+}
+
+export interface Checklist {
+  id: number;
+  title: string;
+  items: ChecklistItem[];
+  position: number;
 }
 
 export interface Attachment {
-  id: string;
-  name: string;
+  id: number;
+  title: string;
+  file_path: string;
   url: string;
-  type: string; // mime type
-  size: number; // in bytes
-  createdAt: string; // ISO string format
+  created_at: string;
+  updated_at: string;
+  card_id: number;
 }
 
 export interface ApiResponse<T> {
@@ -22,15 +51,36 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+export interface CardMember {
+  id: number;
+  name: string;
+  email: string;
+  email_verified_at: string | null;
+  created_at: string;
+  updated_at: string;
+  role: string;
+  type_user: string;
+  profile_photo_path: string | null;
+  exclude_token: string | null;
+  pivot: {
+    card_id: number;
+    user_id: number;
+  };
+}
+
 export interface Card {
   id: number;
   title: string;
-  description: string;
-  order?: number;
-  listId: number;
-  dueDate?: string; // ISO string format
+  description?: string;
+  list_id: number;
+  position: number;
+  dueDate?: string;
   checklist?: ChecklistItem[];
   attachments?: Attachment[];
+  labels?: Label[];
+  members?: CardMember[];
+  created_at: string;
+  updated_at: string;
 }
 
 export interface List {
@@ -53,6 +103,40 @@ export interface Board {
   created_at: string;
   updated_at: string;
   lists?: List[];
+  members?: {
+    id: number;
+    user_id: number;
+    board_id: number;
+    role: string;
+    created_at: string;
+    users: {
+      id: number;
+      name: string;
+      email: string;
+      profile_photo_path: string | null;
+    };
+  }[];
+}
+
+export interface BoardMember {
+  id: number;
+  user_id: number;
+  board_id: number;
+  role: string;
+  created_at: string;
+  users: {
+    id: number;
+    name: string;
+    email: string;
+    profile_photo_path: string | null;
+  };
+}
+
+export interface BoardMembersResponse {
+  success: boolean;
+  members: BoardMember[];
+  message: string;
+  type: string;
 }
 
 export interface CreateBoardDto {
@@ -126,3 +210,22 @@ export const visibilityToNumber = (
 export const numberToVisibility = (num: number): "private" | "public" => {
   return num === 1 ? "private" : "public";
 };
+
+export interface CardResponse {
+  success: boolean;
+  message: string;
+  data: Card[] | Card | number;
+}
+
+export interface CreateCardPayload {
+  list_id: string;
+  title: string;
+  description: string;
+}
+
+export interface UpdateCardPayload {
+  id: number;
+  title: string;
+  description: string;
+  list_id: number;
+}

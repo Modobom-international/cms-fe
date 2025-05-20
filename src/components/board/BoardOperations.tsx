@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 
-import { MoreHorizontal, Pencil, Plus, Trash } from "lucide-react";
+import Link from "next/link";
+
+import { MoreHorizontal, Pencil, Plus, Trash, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -124,6 +126,14 @@ export function BoardOperations({ workspaceId, board }: BoardOperationsProps) {
             >
               <Trash className="mr-2 h-4 w-4" />
               {t("operations.delete")}
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Users className="mr-2 h-4 w-4" />
+              <Link
+                href={`/workspaces/${workspaceId}/boards/${board.id}/members`}
+              >
+                {t("operations.manageBoardMembers")}
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

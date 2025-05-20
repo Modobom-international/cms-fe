@@ -1,3 +1,5 @@
+import { Attachment, ChecklistItem } from "./board.type";
+
 export interface Card {
   id: number;
   list_id: number;
@@ -6,13 +8,16 @@ export interface Card {
   position: number;
   created_at: string;
   updated_at: string;
+  dueDate?: string;
+  checklist?: ChecklistItem[];
+  attachments?: Attachment[];
 }
 
 export interface CardResponse {
   success: boolean;
   message: string;
   type: string;
-  data: Card[] | Card;
+  data: Card[] | Card | number;
 }
 
 export interface CreateCardPayload {

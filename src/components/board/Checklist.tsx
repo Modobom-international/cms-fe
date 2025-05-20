@@ -9,31 +9,39 @@ import { ChecklistItem } from "@/types/board.type";
 interface ChecklistProps {
   items: ChecklistItem[];
   onChange: (items: ChecklistItem[]) => void;
+  onToggle: (itemId: number) => void;
 }
 
 // Use memo to prevent unnecessary re-renders
-const Checklist = memo(function Checklist({ items, onChange }: ChecklistProps) {
+const Checklist = memo(function Checklist({
+  items,
+  onChange,
+  onToggle,
+}: ChecklistProps) {
   const [newItemText, setNewItemText] = useState("");
   const [isAddingItem, setIsAddingItem] = useState(false);
 
-  const toggleItem = (id: string) => {
-    const updatedItems = items.map((item) =>
-      item.id === id ? { ...item, completed: !item.completed } : item
-    );
-    onChange(updatedItems);
+  const toggleItem = (id: number) => {
+    onToggle(id);
   };
 
-  const deleteItem = (id: string) => {
-    const updatedItems = items.filter((item) => item.id !== id);
+  const deleteItem = (id: number) => {
+    const updatedItems = items.map((item) =>
+      item.id === id ? { ...item, isDeleted: true } : item
+    );
     onChange(updatedItems);
   };
 
   const addItem = () => {
     if (newItemText.trim()) {
       const newItem: ChecklistItem = {
-        id: String(Date.now()),
-        text: newItemText.trim(),
-        completed: false,
+        id: Date.now(),
+        checklist_id: items[0]?.checklist_id || 0,
+        content: newItemText.trim(),
+        is_completed: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        isNew: true,
       };
       onChange([...items, newItem]);
       setNewItemText("");
@@ -41,15 +49,25 @@ const Checklist = memo(function Checklist({ items, onChange }: ChecklistProps) {
     }
   };
 
-  const completedCount = items.filter((item) => item.completed).length;
-  const progress = items.length > 0 ? (completedCount / items.length) * 100 : 0;
+  const updateItem = (id: number, content: string) => {
+    const updatedItems = items.map((item) =>
+      item.id === id ? { ...item, content, isModified: true } : item
+    );
+    onChange(updatedItems);
+  };
+
+  const completedCount = items.filter(
+    (item) => item.is_completed === 1 && !item.isDeleted
+  ).length;
+  const totalCount = items.filter((item) => !item.isDeleted).length;
+  const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   return (
     <div className="mb-4">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="font-medium">Checklist</h3>
         <div className="text-sm text-gray-500">
-          {completedCount}/{items.length}
+          {completedCount}/{totalCount}
         </div>
       </div>
 
@@ -61,34 +79,38 @@ const Checklist = memo(function Checklist({ items, onChange }: ChecklistProps) {
       </div>
 
       <ul className="mb-3 space-y-2">
-        {items.map((item) => (
-          <li key={item.id} className="flex items-center gap-2">
-            <button
-              onClick={() => toggleItem(item.id)}
-              className={`flex h-5 w-5 items-center justify-center rounded border ${
-                item.completed
-                  ? "border-green-500 bg-green-500 text-white"
-                  : "border-gray-300"
-              }`}
-            >
-              {item.completed && <Check size={12} />}
-            </button>
-            <span
-              className={`flex-grow ${
-                item.completed ? "text-gray-500 line-through" : ""
-              }`}
-            >
-              {item.text}
-            </span>
-            <button
-              onClick={() => deleteItem(item.id)}
-              className="text-gray-400 hover:text-red-500"
-              title="Delete item"
-            >
-              <Trash2 size={14} />
-            </button>
-          </li>
-        ))}
+        {items
+          .filter((item) => !item.isDeleted)
+          .map((item) => (
+            <li key={item.id} className="flex items-center gap-2">
+              <button
+                onClick={() => toggleItem(item.id)}
+                className={`flex h-5 w-5 items-center justify-center rounded border ${
+                  item.is_completed === 1
+                    ? "border-green-500 bg-green-500 text-white"
+                    : "border-gray-300"
+                }`}
+              >
+                {item.is_completed === 1 && <Check size={12} />}
+              </button>
+              <input
+                type="text"
+                value={item.content}
+                onChange={(e) => updateItem(item.id, e.target.value)}
+                className={`flex-grow bg-transparent ${
+                  item.is_completed === 1 ? "text-gray-500 line-through" : ""
+                }`}
+                title={`Edit checklist item: ${item.content}`}
+              />
+              <button
+                onClick={() => deleteItem(item.id)}
+                className="text-gray-400 hover:text-red-500"
+                title="Delete item"
+              >
+                <Trash2 size={14} />
+              </button>
+            </li>
+          ))}
       </ul>
 
       {isAddingItem ? (

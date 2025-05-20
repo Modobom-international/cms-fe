@@ -1138,7 +1138,7 @@
   },
   "Board": {
     "title": "My Board",
-    "owner": "Owner #{id}",
+    "owner": "Owner: #{id}",
     "created": "Created {date}",
     "lists": {
       "count": "{count} Lists",
@@ -1208,9 +1208,11 @@
     "errors": {
       "loadBoards": {
         "permission": "You don't have permission to view these boards. Please check your access rights.",
-        "generic": "Failed to load boards. Please try again later."
+        "generic": "Failed to load boards. Please try again later.",
+        "403": "You don't have permission to view these boards. Please check your access rights."
       },
-      "noBoards": "No boards found. Create your first board to get started."
+      "noBoards": "No boards found. Create your first board to get started.",
+      "boardNotFound": "Board not found"
     },
     "operations": {
       "edit": "Edit",
@@ -1228,14 +1230,29 @@
       "createError": "Failed to create board",
       "deleteSuccess": "Board deleted successfully",
       "deleteError": "Failed to delete board",
-      "genericError": "Something went wrong"
-    }
+      "genericError": "Something went wrong",
+      "manageBoardMembers": "Manage board members"
+    },
+    "members": "Members",
+    "manageBoardMembers": "Manage board members",
+    "selectMember": "Select a member",
+    "addMember": "Add Member",
+    "currentMembers": "Current Members: {count}",
+    "membersDescription": "View and manage members of this board",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "joined": "Joined",
+    "actions": "Actions",
+    "remove": "Remove"
   },
   "Workspace": {
     "title": "Workspaces",
     "breadcrumb": "Workspaces",
     "boards": "Boards",
     "board": "Board",
+    "members": "Members",
+    "manageMembers": "Manage Members",
     "errors": {
       "failedToLoad": "Failed to load workspaces. Please try again later.",
       "noWorkspaces": "No workspaces found. Create your first workspace to get started.",
@@ -1250,7 +1267,9 @@
     },
     "role": {
       "owner": "Owner",
-      "member": "Member"
+      "member": "Member",
+      "admin": "Admin",
+      "notMember": "Not a member"
     },
     "noDescription": "No description",
     "owner": "Owner",
@@ -1300,6 +1319,31 @@
         "loading": "Loading...",
         "update": "Update",
         "create": "Create"
+      }
+    },
+    "Members": {
+      "title": "Workspace Members",
+      "description": "Manage members and their roles in this workspace",
+      "addMember": "Add Member",
+      "addMemberDescription": "Invite a new member to join this workspace",
+      "email": "Email Address",
+      "role": "Role",
+      "roles": {
+        "member": "Member",
+        "admin": "Admin"
+      },
+      "cancel": "Cancel",
+      "add": "Add Member",
+      "setAsMember": "Set as Member",
+      "setAsAdmin": "Set as Admin",
+      "remove": "Remove Member",
+      "joinedAt": "Joined {date}",
+      "joinWorkspace": "Join Workspace",
+      "errors": {
+        "failedToLoad": "Failed to load workspace members",
+        "failedToJoin": "Failed to join workspace",
+        "failedToAdd": "Failed to add member",
+        "failedToRemove": "Failed to remove member"
       }
     }
   }

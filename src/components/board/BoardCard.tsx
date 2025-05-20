@@ -4,21 +4,31 @@ import { useState } from "react";
 
 import { Draggable } from "@hello-pangea/dnd";
 import { format } from "date-fns";
-import { CheckSquare, Clock, GripVertical, Pencil, Trash2 } from "lucide-react";
+import {
+  CheckSquare,
+  Clock,
+  GripVertical,
+  Pencil,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Card } from "@/types/board.type";
 
 import { cn } from "@/lib/utils";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CardContent, Card as ShadCard } from "@/components/ui/card";
 
 import CardDetail from "./CardDetail";
+import CardLabels from "./CardLabels";
 
 interface BoardCardProps {
   card: Card;
   index: number;
+  boardId: number;
   onUpdate: (card: Card) => void;
   onDelete: (cardId: number) => void;
 }
@@ -26,6 +36,7 @@ interface BoardCardProps {
 export default function BoardCard({
   card,
   index,
+  boardId,
   onUpdate,
   onDelete,
 }: BoardCardProps) {
@@ -43,7 +54,7 @@ export default function BoardCard({
   // Calculate checklist progress if it exists
   const checklistProgress = hasChecklist
     ? Math.round(
-        (card.checklist!.filter((item) => item.completed).length /
+        (card.checklist!.filter((item) => item.is_completed === 1).length /
           card.checklist!.length) *
           100
       )
@@ -64,64 +75,104 @@ export default function BoardCard({
           >
             <ShadCard
               className={cn(
-                "relative mb-1.5 cursor-pointer border-none bg-white/90 py-2 shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-white hover:shadow",
-                snapshot.isDragging && "scale-105 rotate-2 bg-white shadow-lg"
+                "group relative mb-2 rounded-md border bg-white p-2 shadow-sm transition-shadow hover:shadow-md",
+                snapshot.isDragging && "shadow-lg"
               )}
             >
-              {/* Drag Handle */}
               <div
                 {...provided.dragHandleProps}
-                className="absolute top-0 bottom-0 left-0 flex w-6 cursor-grab items-center justify-center rounded-l bg-transparent opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
-                onClick={(e) => e.stopPropagation()}
+                className="absolute top-1/2 left-1 -translate-y-1/2 cursor-grab opacity-0 transition-opacity group-hover:opacity-100"
               >
-                <GripVertical className="text-muted-foreground/40 h-4 w-4" />
+                <GripVertical className="h-4 w-4 text-gray-400" />
               </div>
 
-              {/* Card Content */}
               <CardContent className="space-y-2 p-2.5 pl-8">
-                <div>
-                  <h3 className="truncate text-sm leading-none font-medium tracking-tight">
-                    {card.title}
-                  </h3>
-                  {card.description && (
-                    <p className="text-muted-foreground/80 mt-1.5 line-clamp-2 text-xs">
-                      {card.description || t("detail.description")}
-                    </p>
-                  )}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="truncate text-sm leading-none font-medium tracking-tight">
+                      {card.title}
+                    </h3>
+                    {/* {card.description && (
+                      <p className="text-muted-foreground/80 mt-1.5 line-clamp-2 text-xs">
+                        {card.description || t("detail.description")}
+                      </p>
+                    )} */}
+                  </div>
+                  <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    {/* <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsDetailOpen(true)}
+                      className="h-7"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button> */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onDelete(card.id)}
+                      className="h-7 text-red-500 hover:text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Card badges */}
-                {(formattedDueDate || hasChecklist) && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {formattedDueDate && (
-                      <div
-                        className={cn(
-                          "bg-secondary/30 flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium transition-colors",
-                          new Date(card.dueDate!) < new Date()
-                            ? "text-destructive bg-destructive/10"
-                            : "text-secondary-foreground"
-                        )}
-                      >
-                        <Clock className="h-2.5 w-2.5" />
-                        <span>
-                          {t("detail.dueDate.due", {
-                            date: formattedDueDate,
-                          })}
-                        </span>
-                      </div>
-                    )}
+                <div className="flex flex-wrap gap-1.5">
+                  {formattedDueDate && (
+                    <div
+                      className={cn(
+                        "bg-secondary/30 flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium transition-colors",
+                        new Date(card.dueDate!) < new Date()
+                          ? "text-destructive bg-destructive/10"
+                          : "text-secondary-foreground"
+                      )}
+                    >
+                      <Clock className="h-2.5 w-2.5" />
+                      <span>
+                        {t("detail.dueDate.due", {
+                          date: formattedDueDate,
+                        })}
+                      </span>
+                    </div>
+                  )}
 
-                    {hasChecklist && (
-                      <div className="bg-secondary/30 text-secondary-foreground flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium">
-                        <CheckSquare className="h-2.5 w-2.5" />
-                        <span>
-                          {t("detail.checklist.title")}:{" "}
-                          {
-                            card.checklist!.filter((item) => item.completed)
-                              .length
-                          }
-                          /{card.checklist!.length}
-                        </span>
+                  {hasChecklist && (
+                    <div className="bg-secondary/30 text-secondary-foreground flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium">
+                      <CheckSquare className="h-2.5 w-2.5" />
+                      <span>{checklistProgress}%</span>
+                    </div>
+                  )}
+
+                  <CardLabels labels={card.labels || []} />
+                </div>
+
+                {/* Member avatars */}
+                {card.members && card.members.length > 0 && (
+                  <div className="flex items-center justify-end gap-1">
+                    <div className="flex -space-x-2">
+                      {card.members.slice(0, 3).map((member) => (
+                        <Avatar
+                          key={member.id}
+                          className="border-background h-8 w-8 border-2"
+                        >
+                          <AvatarImage
+                            src={member.profile_photo_path || undefined}
+                            alt={member.name}
+                          />
+                          <AvatarFallback className="text-[10px]">
+                            {member.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                      ))}
+                    </div>
+                    {card.members.length > 3 && (
+                      <div className="bg-secondary/30 text-secondary-foreground flex h-6 items-center rounded-full px-1.5 text-[10px] font-medium">
+                        +{card.members.length - 3}
                       </div>
                     )}
                   </div>
@@ -135,11 +186,9 @@ export default function BoardCard({
       {isDetailOpen && (
         <CardDetail
           card={card}
+          boardId={boardId}
           onClose={() => setIsDetailOpen(false)}
-          onUpdate={(updatedCard) => {
-            onUpdate(updatedCard);
-            setIsDetailOpen(false);
-          }}
+          onUpdate={onUpdate}
           onDelete={() => {
             onDelete(card.id);
             setIsDetailOpen(false);

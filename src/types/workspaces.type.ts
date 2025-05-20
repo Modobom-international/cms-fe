@@ -11,6 +11,15 @@ export interface User {
   exclude_token: string | null;
 }
 
+export interface WorkspaceMember {
+  id: number;
+  user_id: number;
+  workspace_id: number;
+  role: string;
+  created_at: string;
+  users: User;
+}
+
 export interface Workspace {
   id: number;
   name: string;
@@ -23,10 +32,11 @@ export interface Workspace {
   is_admin: boolean;
 }
 
-export interface WorkspaceMember {
+export interface WorkspaceMemberInfo {
   workspace: Workspace;
-  role: "owner" | "member";
+  role: "owner" | "admin" | "member";
   is_member: boolean;
+  members: WorkspaceMember[];
 }
 
 export interface CreateWorkspaceDto {
@@ -43,7 +53,7 @@ export interface UpdateWorkspaceDto {
 
 export interface WorkspaceResponse {
   success: boolean;
-  workspaces: WorkspaceMember[];
+  workspaces: WorkspaceMemberInfo[];
   message: string;
   type: string;
 }

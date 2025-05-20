@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   Board,
+  BoardMembersResponse,
   BoardsResponse,
   CreateBoardDto,
   CreateBoardResponse,
@@ -91,6 +92,74 @@ export const useDeleteBoard = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["boards"],
+      });
+    },
+  });
+};
+
+export const useGetBoardMembers = (boardId: number) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["board-members", boardId],
+    queryFn: async () => {
+      const response = await apiClient.get<BoardMembersResponse>(
+        `/api/boards/${boardId}/members`
+      );
+      return response.data;
+    },
+  });
+
+  return {
+    members: data?.members,
+    isLoading,
+    error,
+  };
+};
+
+export const useAddBoardMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      boardId,
+      userId,
+    }: {
+      boardId: number;
+      userId: number;
+    }) => {
+      const response = await apiClient.post<{ message: string }>(
+        `/api/boards/${boardId}/members`,
+        { user_id: userId }
+      );
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["board-members", variables.boardId],
+      });
+    },
+  });
+};
+
+export const useRemoveBoardMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      boardId,
+      memberId,
+    }: {
+      boardId: number;
+      memberId: number;
+    }) => {
+      const response = await apiClient.delete<{ message: string }>(
+        `/api/boards/${boardId}/members`,
+        { data: { member_id: memberId } }
+      );
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["board-members", variables.boardId],
       });
     },
   });
