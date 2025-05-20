@@ -9,9 +9,11 @@ export interface Label {
 
 export interface ChecklistItem {
   id: number;
+  checklist_id: number;
   content: string;
-  completed: boolean;
-  position: number;
+  is_completed: number;
+  created_at: string;
+  updated_at: string;
   isNew?: boolean;
   isDeleted?: boolean;
   isModified?: boolean;

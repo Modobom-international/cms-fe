@@ -146,7 +146,7 @@ export default function CardDetail({
             checklistId,
             cardId: card.id,
             content: item.content,
-            completed: item.completed,
+            completed: item.is_completed === 1,
           });
         } else if (item.isDeleted) {
           // Delete item
@@ -161,7 +161,7 @@ export default function CardDetail({
             checklistId,
             itemId: item.id,
             content: item.content,
-            completed: item.completed,
+            completed: item.is_completed === 1,
             cardId: card.id,
           });
         }

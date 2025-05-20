@@ -692,7 +692,7 @@ export function useCreateChecklistItem() {
         `/api/checklists/${checklistId}/items`,
         {
           content,
-          completed,
+          is_completed: completed ? 1 : 0,
         }
       );
       return { ...data.data, card_id: cardId };
@@ -729,7 +729,7 @@ export function useUpdateChecklistItem() {
         `/api/checklists/${checklistId}/items/${itemId}`,
         {
           content,
-          completed,
+          is_completed: completed ? 1 : 0,
         }
       );
       return data.data;

@@ -36,9 +36,11 @@ const Checklist = memo(function Checklist({
     if (newItemText.trim()) {
       const newItem: ChecklistItem = {
         id: Date.now(),
+        checklist_id: items[0]?.checklist_id || 0,
         content: newItemText.trim(),
-        completed: false,
-        position: items.length,
+        is_completed: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
         isNew: true,
       };
       onChange([...items, newItem]);
@@ -47,15 +49,15 @@ const Checklist = memo(function Checklist({
     }
   };
 
-  const updateItem = (id: number, title: string) => {
+  const updateItem = (id: number, content: string) => {
     const updatedItems = items.map((item) =>
-      item.id === id ? { ...item, title, isModified: true } : item
+      item.id === id ? { ...item, content, isModified: true } : item
     );
     onChange(updatedItems);
   };
 
   const completedCount = items.filter(
-    (item) => item.completed && !item.isDeleted
+    (item) => item.is_completed === 1 && !item.isDeleted
   ).length;
   const totalCount = items.filter((item) => !item.isDeleted).length;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
@@ -84,19 +86,19 @@ const Checklist = memo(function Checklist({
               <button
                 onClick={() => toggleItem(item.id)}
                 className={`flex h-5 w-5 items-center justify-center rounded border ${
-                  item.completed
+                  item.is_completed === 1
                     ? "border-green-500 bg-green-500 text-white"
                     : "border-gray-300"
                 }`}
               >
-                {item.completed && <Check size={12} />}
+                {item.is_completed === 1 && <Check size={12} />}
               </button>
               <input
                 type="text"
                 value={item.content}
                 onChange={(e) => updateItem(item.id, e.target.value)}
                 className={`flex-grow bg-transparent ${
-                  item.completed ? "text-gray-500 line-through" : ""
+                  item.is_completed === 1 ? "text-gray-500 line-through" : ""
                 }`}
                 title={`Edit checklist item: ${item.content}`}
               />
