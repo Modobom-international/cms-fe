@@ -6,10 +6,11 @@ import {
   Card,
   CardPosition,
   CardResponse,
+  ChecklistItem,
   CreateCardPayload,
   MoveCardPayload,
   UpdateCardPayload,
-} from "@/types/card.type";
+} from "@/types/board.type";
 
 import apiClient from "@/lib/api/client";
 
@@ -110,12 +111,12 @@ export function useUpdateCard() {
       description: string;
       list_id: number;
     }) => {
-      console.log("🚀 Updating card with data:", card);
+      // console.log("🚀 Updating card with data:", card);
       const { data } = await apiClient.post(`/api/cards/${card.id}`, {
         title: card.title,
         description: card.description,
       });
-      console.log("✅ Update response:", data);
+      // console.log("✅ Update response:", data);
       // Return the card data we sent since server only returns success status
       return {
         ...card,
@@ -125,7 +126,7 @@ export function useUpdateCard() {
       } as Card;
     },
     onMutate: async (updatedCard) => {
-      console.log("🔄 Starting optimistic update for card:", updatedCard);
+      // console.log("🔄 Starting optimistic update for card:", updatedCard);
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({
         queryKey: ["cards", String(updatedCard.list_id)],
@@ -137,7 +138,7 @@ export function useUpdateCard() {
           "cards",
           String(updatedCard.list_id),
         ]) || [];
-      console.log("📸 Previous cards:", previousCards);
+      // console.log("📸 Previous cards:", previousCards);
 
       // Optimistically update the card
       const optimisticCards = previousCards.map((card) =>
@@ -149,7 +150,7 @@ export function useUpdateCard() {
             }
           : card
       );
-      console.log("✨ Optimistic cards:", optimisticCards);
+      // console.log("✨ Optimistic cards:", optimisticCards);
 
       // Optimistically update the UI
       queryClient.setQueryData(
@@ -171,10 +172,10 @@ export function useUpdateCard() {
       }
     },
     onSettled: (data) => {
-      console.log("🏁 Update settled, data:", data);
+      // console.log("🏁 Update settled, data:", data);
       // Always refetch after error or success to ensure we have the correct data
       if (data) {
-        console.log("🔄 Invalidating queries for list:", data.list_id);
+        // console.log("🔄 Invalidating queries for list:", data.list_id);
         queryClient.invalidateQueries({
           queryKey: ["cards", String(data.list_id)],
         });
@@ -248,28 +249,28 @@ export function useMoveCard() {
     cardId: number,
     newOrder: number
   ): CardPosition[] => {
-    console.log("📊 Calculating positions:", {
-      sourceListId,
-      destinationListId,
-      cardId,
-      newOrder,
-    });
+    // console.log("📊 Calculating positions:", {
+    //   sourceListId,
+    //   destinationListId,
+    //   cardId,
+    //   newOrder,
+    // });
 
     const positions: CardPosition[] = [];
 
     if (sourceListId === destinationListId) {
-      console.log("🔄 Same list movement");
+      // console.log("🔄 Same list movement");
       const currentCards =
         queryClient.getQueryData<Card[]>(["cards", String(sourceListId)]) || [];
 
-      console.log("📋 Current cards in list:", currentCards);
+      // console.log("📋 Current cards in list:", currentCards);
 
       const cards = [...currentCards];
       const movedCardIndex = cards.findIndex((c) => c.id === cardId);
 
       if (movedCardIndex !== -1) {
         const [movedCard] = cards.splice(movedCardIndex, 1);
-        console.log("🎴 Moving card:", movedCard);
+        //  console.log("🎴 Moving card:", movedCard);
         cards.splice(newOrder, 0, movedCard);
 
         const updatedPositions = cards.map((card, index) => ({
@@ -279,12 +280,12 @@ export function useMoveCard() {
         }));
 
         positions.push(...updatedPositions);
-        console.log("📍 Updated positions:", updatedPositions);
+        // console.log("📍 Updated positions:", updatedPositions);
       } else {
-        console.warn("⚠️ Card not found in source list:", cardId);
+        // console.warn("⚠️ Card not found in source list:", cardId);
       }
     } else {
-      console.log("↔️ Cross-list movement");
+      // console.log("↔️ Cross-list movement");
       const sourceCards =
         queryClient.getQueryData<Card[]>(["cards", String(sourceListId)]) || [];
 
@@ -294,8 +295,8 @@ export function useMoveCard() {
           String(destinationListId),
         ]) || [];
 
-      console.log("📤 Source list cards:", sourceCards);
-      console.log("📥 Destination list cards:", destCards);
+      // console.log("📤 Source list cards:", sourceCards);
+      // console.log("📥 Destination list cards:", destCards);
 
       // Update source list positions
       const sourceCardsUpdated = sourceCards
@@ -311,7 +312,7 @@ export function useMoveCard() {
       const destCardsUpdated = [...destCards];
       const movedCard = sourceCards.find((c) => c.id === cardId);
       if (movedCard) {
-        console.log("🎴 Moving card between lists:", movedCard);
+        // console.log("🎴 Moving card between lists:", movedCard);
         destCardsUpdated.splice(newOrder, 0, {
           ...movedCard,
           list_id: Number(destinationListId),
@@ -322,9 +323,9 @@ export function useMoveCard() {
           list_id: Number(destinationListId),
         }));
         positions.push(...destPositions);
-        console.log("📍 Updated positions for both lists:", positions);
+        // console.log("📍 Updated positions for both lists:", positions);
       } else {
-        console.warn("⚠️ Card not found for cross-list movement:", cardId);
+        // console.warn("⚠️ Card not found for cross-list movement:", cardId);
       }
     }
 
@@ -333,7 +334,7 @@ export function useMoveCard() {
 
   const { mutate: executeMutation } = useMutation({
     mutationFn: async (payload: { positions: CardPosition[] }) => {
-      console.log("🚀 Executing API call with positions:", payload.positions);
+      // console.log("🚀 Executing API call with positions:", payload.positions);
       const { data } = await apiClient.put("/api/cards/positions", payload);
 
       if (!data.success) {
@@ -341,12 +342,12 @@ export function useMoveCard() {
         throw new Error(data.message || "Failed to update card positions");
       }
 
-      console.log("✅ API call successful:", data);
+      // console.log("✅ API call successful:", data);
       return data.data;
     },
     onError: (err, variables, context: MoveCardContext | undefined) => {
       console.error("❌ Error during mutation:", err);
-      console.log("🔄 Rolling back to previous state:", context);
+      // console.log("🔄 Rolling back to previous state:", context);
 
       if (context?.previousSourceCards) {
         queryClient.setQueryData(
@@ -362,7 +363,7 @@ export function useMoveCard() {
       }
     },
     onSettled: async (_, __, ___, context: MoveCardContext | undefined) => {
-      console.log("✨ Mutation settled, invalidating queries");
+      // console.log("✨ Mutation settled, invalidating queries");
       if (context) {
         await Promise.all([
           queryClient.invalidateQueries({
@@ -377,30 +378,30 @@ export function useMoveCard() {
   });
 
   const debouncedMutation = useCallback(() => {
-    console.log("⏳ Debounced mutation triggered");
-    console.log("📊 Current positions map:", latestPositionsRef.current);
+    // console.log("⏳ Debounced mutation triggered");
+    // console.log("📊 Current positions map:", latestPositionsRef.current);
 
     if (timerRef.current) {
-      console.log("🔄 Clearing previous debounce timer");
+      // console.log("🔄 Clearing previous debounce timer");
       clearTimeout(timerRef.current);
     }
 
     timerRef.current = setTimeout(() => {
-      console.log("⌛ Debounce timer expired, preparing to send positions");
+      // console.log("⌛ Debounce timer expired, preparing to send positions");
       // Get all positions from the latest state
       const allPositions: CardPosition[] = [];
       latestPositionsRef.current.forEach((positions) => {
         allPositions.push(...positions);
       });
 
-      console.log("📊 Final positions to send:", allPositions);
+      // console.log("📊 Final positions to send:", allPositions);
 
       if (allPositions.length > 0) {
-        console.log("🚀 Executing mutation with all positions");
+        // console.log("🚀 Executing mutation with all positions");
         executeMutation({ positions: allPositions });
         // Clear the positions after sending
         latestPositionsRef.current.clear();
-        console.log("🧹 Cleared positions map");
+        // console.log("🧹 Cleared positions map");
       } else {
         console.warn("⚠️ No positions to update");
       }
@@ -409,7 +410,7 @@ export function useMoveCard() {
 
   return {
     mutate: async (payload: MoveCardPayload) => {
-      console.log("🎯 Card move initiated:", payload);
+      // console.log("🎯 Card move initiated:", payload);
 
       await queryClient.cancelQueries({
         queryKey: ["cards", String(payload.sourceListId)],
@@ -429,8 +430,8 @@ export function useMoveCard() {
         String(payload.destinationListId),
       ]);
 
-      console.log("💾 Previous source cards:", previousSourceCards);
-      console.log("💾 Previous destination cards:", previousDestCards);
+      // console.log("💾 Previous source cards:", previousSourceCards);
+      // console.log("💾 Previous destination cards:", previousDestCards);
 
       const cardToMove = previousSourceCards?.find(
         (c) => c.id === payload.cardId
@@ -441,7 +442,7 @@ export function useMoveCard() {
         return;
       }
 
-      console.log("🎴 Card to move:", cardToMove);
+      // console.log("🎴 Card to move:", cardToMove);
 
       // Store context for potential rollback
       const context = {
@@ -458,14 +459,14 @@ export function useMoveCard() {
         payload.newOrder
       );
 
-      console.log("📊 Calculated positions:", positions);
+      // console.log("📊 Calculated positions:", positions);
 
       // Update the latest positions map
       if (payload.sourceListId === payload.destinationListId) {
-        console.log("🔄 Updating positions for same list");
+        // console.log("🔄 Updating positions for same list");
         latestPositionsRef.current.set(String(payload.sourceListId), positions);
       } else {
-        console.log("↔️ Updating positions for cross-list movement");
+        // console.log("↔️ Updating positions for cross-list movement");
         // Split positions by list
         const sourcePositions = positions.filter(
           (p) => p.list_id === Number(payload.sourceListId)
@@ -483,11 +484,11 @@ export function useMoveCard() {
         );
       }
 
-      console.log("📊 Updated positions map:", latestPositionsRef.current);
+      // console.log("📊 Updated positions map:", latestPositionsRef.current);
 
       // Perform optimistic update
       if (payload.sourceListId === payload.destinationListId) {
-        console.log("🔄 Applying optimistic update for same list");
+        // console.log("🔄 Applying optimistic update for same list");
         const updatedCards = positions.map((pos) => ({
           ...(previousSourceCards?.find((c) => c.id === pos.id) as Card),
           position: pos.position,
@@ -496,9 +497,9 @@ export function useMoveCard() {
           ["cards", String(payload.sourceListId)],
           updatedCards
         );
-        console.log("✨ Optimistic update applied:", updatedCards);
+        // console.log("✨ Optimistic update applied:", updatedCards);
       } else {
-        console.log("↔️ Applying optimistic update for cross-list movement");
+        // console.log("↔️ Applying optimistic update for cross-list movement");
         const sourceCards = positions
           .filter((p) => p.list_id === Number(payload.sourceListId))
           .map((pos) => ({
@@ -514,8 +515,8 @@ export function useMoveCard() {
             list_id: Number(payload.destinationListId),
           }));
 
-        console.log("📤 Updated source cards:", sourceCards);
-        console.log("📥 Updated destination cards:", destCards);
+        // console.log("📤 Updated source cards:", sourceCards);
+        // console.log("📥 Updated destination cards:", destCards);
 
         queryClient.setQueryData(
           ["cards", String(payload.sourceListId)],
@@ -540,10 +541,274 @@ export function useGetCard(cardId: number) {
   return useQuery({
     queryKey: ["card", cardId],
     queryFn: async () => {
-      console.log("📥 Fetching card details for ID:", cardId);
+      // console.log("📥 Fetching card details for ID:", cardId);
       const { data } = await apiClient.get(`/api/cards/${cardId}`);
-      console.log("📦 Card details response:", data);
+      // console.log("📦 Card details response:", data);
       return data.data as Card;
+    },
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+  });
+}
+
+export function useGetCardChecklists(cardId: number) {
+  return useQuery({
+    queryKey: ["card", cardId, "checklists"],
+    queryFn: async () => {
+      const { data } = await apiClient.get(`/api/cards/${cardId}/checklists`);
+      return data.data || [];
+    },
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+  });
+}
+
+export function useCreateCardChecklist() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      cardId,
+      title,
+      items,
+    }: {
+      cardId: number;
+      title: string;
+      items: { title: string; completed?: boolean }[];
+    }) => {
+      const { data } = await apiClient.post(`/api/cards/${cardId}/checklists`, {
+        title,
+        items,
+      });
+      return data.data;
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["card", variables.cardId, "checklists"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["card", variables.cardId],
+      });
+    },
+  });
+}
+
+export function useAssignCardLabel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      cardId,
+      labelId,
+    }: {
+      cardId: number;
+      labelId: number;
+    }) => {
+      const { data } = await apiClient.post(`/api/cards/${cardId}/labels`, {
+        label_id: labelId,
+      });
+      return data.data;
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["card", variables.cardId],
+      });
+    },
+  });
+}
+
+export function useRemoveCardLabel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      cardId,
+      labelId,
+    }: {
+      cardId: number;
+      labelId: number;
+    }) => {
+      await apiClient.delete(`/api/cards/${cardId}/labels/${labelId}`);
+      return { cardId, labelId };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: ["card", data.cardId],
+      });
+    },
+  });
+}
+
+export function useUpdateChecklistItems() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      cardId,
+      checklistId,
+      items,
+    }: {
+      cardId: number;
+      checklistId: number;
+      items: ChecklistItem[];
+    }) => {
+      const { data } = await apiClient.put(
+        `/api/cards/${cardId}/checklists/${checklistId}`,
+        { items }
+      );
+      return data.data;
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["card", variables.cardId, "checklists"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["card", variables.cardId],
+      });
+    },
+  });
+}
+
+export function useCreateChecklistItem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      checklistId,
+      cardId,
+      content,
+      completed = false,
+    }: {
+      checklistId: number;
+      cardId: number;
+      content: string;
+      completed?: boolean;
+    }) => {
+      const { data } = await apiClient.post(
+        `/api/checklists/${checklistId}/items`,
+        {
+          content,
+          completed,
+        }
+      );
+      return { ...data.data, card_id: cardId };
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["checklist", variables.checklistId, "items"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["card", variables.cardId, "checklists"],
+      });
+    },
+  });
+}
+
+export function useUpdateChecklistItem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      checklistId,
+      itemId,
+      cardId,
+      content,
+      completed,
+    }: {
+      checklistId: number;
+      itemId: number;
+      cardId: number;
+      content?: string;
+      completed?: boolean;
+    }) => {
+      const { data } = await apiClient.post(
+        `/api/checklists/${checklistId}/items/${itemId}`,
+        {
+          content,
+          completed,
+        }
+      );
+      return data.data;
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["checklist", variables.checklistId, "items"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["card", variables.cardId, "checklists"],
+      });
+    },
+  });
+}
+
+export function useDeleteChecklistItem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      checklistId,
+      itemId,
+      cardId,
+    }: {
+      checklistId: number;
+      itemId: number;
+      cardId: number;
+    }) => {
+      await apiClient.delete(`/api/checklists/${checklistId}/items/${itemId}`);
+      return { checklistId, itemId };
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["checklist", variables.checklistId, "items"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["card", variables.cardId, "checklists"],
+      });
+    },
+  });
+}
+
+export function useToggleChecklistItem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      checklistId,
+      itemId,
+      cardId,
+    }: {
+      checklistId: number;
+      itemId: number;
+      cardId: number;
+    }) => {
+      const { data } = await apiClient.post(
+        `/api/checklists/${checklistId}/items/${itemId}/toggle`
+      );
+      return data.data;
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["checklist", variables.checklistId, "items"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["card", variables.cardId, "checklists"],
+      });
+    },
+  });
+}
+
+export function useGetChecklistItems(checklistId: number) {
+  return useQuery({
+    queryKey: ["checklist", checklistId, "items"],
+    queryFn: async () => {
+      const { data } = await apiClient.get(
+        `/api/checklists/${checklistId}/items`
+      );
+      return data.data || [];
     },
     staleTime: 0,
     gcTime: 5 * 60 * 1000,

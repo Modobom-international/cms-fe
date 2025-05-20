@@ -18,15 +18,43 @@ import {
   File,
   Image,
   Paperclip,
+  Plus,
+  Tag,
   Trash2,
   X,
 } from "lucide-react";
 
-import { Attachment, Card, ChecklistItem } from "@/types/board.type";
+import {
+  Attachment,
+  Card,
+  ChecklistItem,
+  Checklist as ChecklistType,
+  Label,
+} from "@/types/board.type";
 
-import { useGetCard, useUpdateCard } from "@/hooks/board/card";
+import {
+  useAssignCardLabel,
+  useCreateCardChecklist,
+  useCreateChecklistItem,
+  useDeleteChecklistItem,
+  useGetCard,
+  useGetCardChecklists,
+  useGetChecklistItems,
+  useRemoveCardLabel,
+  useToggleChecklistItem,
+  useUpdateCard,
+  useUpdateChecklistItem,
+} from "@/hooks/board/card";
 
-import Checklist from "./Checklist";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+import ChecklistComponent from "./Checklist";
 import RichTextEditor from "./RichTextEditor";
 
 // Register languages with highlight.js
@@ -52,7 +80,16 @@ export default function CardDetail({
   onDelete,
 }: CardDetailProps) {
   const { data: cardData } = useGetCard(card.id);
+  const { data: checklists = [] } = useGetCardChecklists(card.id);
   const { mutate: updateCard } = useUpdateCard();
+  const { mutate: createChecklist } = useCreateCardChecklist();
+  const { mutate: assignLabel } = useAssignCardLabel();
+  const { mutate: removeLabel } = useRemoveCardLabel();
+  const { mutate: createChecklistItem } = useCreateChecklistItem();
+  const { mutate: updateChecklistItem } = useUpdateChecklistItem();
+  const { mutate: deleteChecklistItem } = useDeleteChecklistItem();
+  const { mutate: toggleChecklistItem } = useToggleChecklistItem();
+
   const [title, setTitle] = useState(cardData?.title || card.title);
   const [description, setDescription] = useState(
     cardData?.description || card.description || ""
@@ -68,23 +105,25 @@ export default function CardDetail({
   );
   const [isEditing, setIsEditing] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [newChecklistTitle, setNewChecklistTitle] = useState("");
+  const [isAddingChecklist, setIsAddingChecklist] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Debug logs for card data changes
-  useEffect(() => {
-    console.log("🔄 Card data changed:", cardData);
-  }, [cardData]);
+  // useEffect(() => {
+  //   // console.log("🔄 Card data changed:", cardData);
+  // }, [cardData]);
 
   // Debug logs for local state changes
-  useEffect(() => {
-    console.log("📝 Local state:", {
-      title,
-      description,
-      dueDate,
-      checklist,
-      attachments,
-    });
-  }, [title, description, dueDate, checklist, attachments]);
+  // useEffect(() => {
+  //     console.log("📝 Local state:", {
+  //     title,
+  //     description,
+  //     dueDate,
+  //     checklist,
+  //     attachments,
+  //   });
+  // }, [title, description, dueDate, checklist, attachments]);
 
   // Update local state when card data changes
   useEffect(() => {
@@ -98,21 +137,59 @@ export default function CardDetail({
   }, [cardData]);
 
   const handleChecklistChange = useCallback(
-    (updatedChecklist: ChecklistItem[]) => {
-      setChecklist(updatedChecklist);
+    (checklistId: number, items: ChecklistItem[]) => {
+      // Handle individual item changes
+      items.forEach((item) => {
+        if (item.isNew) {
+          // Create new item
+          createChecklistItem({
+            checklistId,
+            cardId: card.id,
+            content: item.content,
+            completed: item.completed,
+          });
+        } else if (item.isDeleted) {
+          // Delete item
+          deleteChecklistItem({
+            checklistId,
+            itemId: item.id,
+            cardId: card.id,
+          });
+        } else if (item.isModified) {
+          // Update existing item
+          updateChecklistItem({
+            checklistId,
+            itemId: item.id,
+            content: item.content,
+            completed: item.completed,
+            cardId: card.id,
+          });
+        }
+      });
     },
-    []
+    [createChecklistItem, updateChecklistItem, deleteChecklistItem, card.id]
+  );
+
+  const handleToggleChecklistItem = useCallback(
+    (checklistId: number, itemId: number) => {
+      toggleChecklistItem({
+        checklistId,
+        itemId,
+        cardId: card.id,
+      });
+    },
+    [toggleChecklistItem, card.id]
   );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      console.log("💾 Submitting card update:", {
-        id: card.id,
-        title: title.trim(),
-        description,
-        list_id: card.list_id,
-      });
+      // console.log("💾 Submitting card update:", {
+      //   id: card.id,
+      //   title: title.trim(),
+      //   description,
+      //   list_id: card.list_id,
+      // });
       updateCard({
         id: card.id,
         title: title.trim(),
@@ -234,6 +311,26 @@ export default function CardDetail({
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  const handleCreateChecklist = () => {
+    if (newChecklistTitle.trim()) {
+      createChecklist({
+        cardId: card.id,
+        title: newChecklistTitle.trim(),
+        items: [],
+      });
+      setNewChecklistTitle("");
+      setIsAddingChecklist(false);
+    }
+  };
+
+  const handleAssignLabel = (labelId: number) => {
+    assignLabel({ cardId: card.id, labelId });
+  };
+
+  const handleRemoveLabel = (labelId: number) => {
+    removeLabel({ cardId: card.id, labelId });
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
@@ -333,7 +430,104 @@ export default function CardDetail({
         )}
 
         <div className="mb-6">
-          <Checklist items={checklist} onChange={handleChecklistChange} />
+          <div className="mb-2 flex items-center gap-2">
+            <p className="text-sm font-medium text-gray-700">Labels</p>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-7">
+                  <Tag className="mr-2 h-4 w-4" />
+                  Add Label
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80">
+                <div className="space-y-4">
+                  <h4 className="font-medium">Labels</h4>
+                  <div className="space-y-2">
+                    {cardData?.labels?.map((label: Label) => (
+                      <div
+                        key={label.id}
+                        className="flex items-center justify-between rounded-md border p-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-4 w-4 rounded-full"
+                            style={{ backgroundColor: label.color }}
+                          />
+                          <span className="text-sm">{label.name}</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveLabel(label.id)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-sm font-medium text-gray-700">Checklists</p>
+            {!isAddingChecklist ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAddingChecklist(true)}
+                className="h-7"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add Checklist
+              </Button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Input
+                  value={newChecklistTitle}
+                  onChange={(e) => setNewChecklistTitle(e.target.value)}
+                  placeholder="Enter checklist title"
+                  className="h-7"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCreateChecklist}
+                  className="h-7"
+                >
+                  Add
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setIsAddingChecklist(false);
+                    setNewChecklistTitle("");
+                  }}
+                  className="h-7"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+          <div className="space-y-4">
+            {checklists.map((checklist: ChecklistType) => (
+              <ChecklistComponent
+                key={checklist.id}
+                items={checklist.items}
+                onChange={(items: ChecklistItem[]) =>
+                  handleChecklistChange(checklist.id, items)
+                }
+                onToggle={(itemId: number) =>
+                  handleToggleChecklistItem(checklist.id, itemId)
+                }
+              />
+            ))}
+          </div>
         </div>
 
         {/* Attachments Section */}

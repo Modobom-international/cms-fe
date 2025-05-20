@@ -1,10 +1,28 @@
 import { IUser } from "./user.type";
 import { Workspace } from "./workspaces.type";
 
+export interface Label {
+  id: number;
+  name: string;
+  color: string;
+}
+
 export interface ChecklistItem {
-  id: string;
-  text: string;
+  id: number;
+  content: string;
   completed: boolean;
+  position: number;
+  isNew?: boolean;
+  isDeleted?: boolean;
+  isModified?: boolean;
+  card_id?: number;
+}
+
+export interface Checklist {
+  id: number;
+  title: string;
+  items: ChecklistItem[];
+  position: number;
 }
 
 export interface Attachment {
@@ -25,12 +43,15 @@ export interface ApiResponse<T> {
 export interface Card {
   id: number;
   title: string;
-  description: string;
-  order?: number;
+  description?: string;
   list_id: number;
-  dueDate?: string; // ISO string format
+  position: number;
+  dueDate?: string;
   checklist?: ChecklistItem[];
   attachments?: Attachment[];
+  labels?: Label[];
+  created_at: string;
+  updated_at: string;
 }
 
 export interface List {
@@ -160,3 +181,22 @@ export const visibilityToNumber = (
 export const numberToVisibility = (num: number): "private" | "public" => {
   return num === 1 ? "private" : "public";
 };
+
+export interface CardResponse {
+  success: boolean;
+  message: string;
+  data: Card[] | Card | number;
+}
+
+export interface CreateCardPayload {
+  list_id: string;
+  title: string;
+  description: string;
+}
+
+export interface UpdateCardPayload {
+  id: number;
+  title: string;
+  description: string;
+  list_id: number;
+}
