@@ -542,6 +542,7 @@
         "Button": "Tạo Trang web",
         "Title": "Tạo Trang web Mới",
         "Description": "Thêm một trang web mới vào danh mục của bạn. Điền thông tin chi tiết bên dưới.",
+        "Required": "*",
         "SiteName": {
           "Label": "Tên Trang web",
           "Required": "*",
