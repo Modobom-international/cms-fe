@@ -1283,14 +1283,18 @@
       "description": "This action cannot be undone. This will permanently delete the workspace and all its data.",
       "cancel": "Cancel",
       "confirm": "Delete",
-      "deleting": "Deleting..."
+      "deleting": "Deleting...",
+      "success": "Workspace deleted successfully"
     },
     "edit": {
-      "title": "Edit Workspace"
+      "title": "Edit Workspace",
+      "success": "Workspace updated successfully",
+      "error": "Failed to update workspace"
     },
     "create": {
       "title": "Create Workspace",
-      "button": "Create Workspace"
+      "button": "Create Workspace",
+      "success": "Workspace created successfully"
     },
     "form": {
       "name": {

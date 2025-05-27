@@ -75,7 +75,7 @@ export function WorkspaceOperations({ workspace }: WorkspaceOperationsProps) {
           { id: workspace.id, data },
           {
             onSuccess: (response) => {
-              toast.success(response.message);
+              toast.success(t("edit.success"));
               setIsFormOpen(false);
             },
             onError: () => {
@@ -86,7 +86,7 @@ export function WorkspaceOperations({ workspace }: WorkspaceOperationsProps) {
       } else {
         createMutation.mutate(data as CreateWorkspaceDto, {
           onSuccess: (response) => {
-            toast.success(response.message);
+            toast.success(t("create.success"));
             setIsFormOpen(false);
           },
           onError: () => {
@@ -105,7 +105,7 @@ export function WorkspaceOperations({ workspace }: WorkspaceOperationsProps) {
     try {
       deleteMutation.mutate(workspace.id, {
         onSuccess: (response) => {
-          toast.success(response.message);
+          toast.success(t("delete.success"));
           setIsDeleteOpen(false);
         },
         onError: () => {
@@ -203,3 +203,4 @@ export function WorkspaceOperations({ workspace }: WorkspaceOperationsProps) {
     </Dialog>
   );
 }
+

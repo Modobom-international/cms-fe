@@ -1300,14 +1300,18 @@
       "description": "Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn không gian làm việc và tất cả dữ liệu của nó.",
       "cancel": "Hủy",
       "confirm": "Xóa",
-      "deleting": "Đang xóa..."
+      "deleting": "Đang xóa...",
+      "success": "Xóa không gian làm việc thành công"
     },
     "edit": {
-      "title": "Chỉnh sửa không gian làm việc"
+      "title": "Chỉnh sửa không gian làm việc",
+      "success": "Cập nhật không gian làm việc thành công",
+      "error": "Không thể cập nhật không gian làm việc"
     },
     "create": {
       "title": "Tạo không gian làm việc",
-      "button": "Tạo không gian làm việc"
+      "button": "Tạo không gian làm việc",
+      "success": "Tạo không gian làm việc thành công"
     },
     "form": {
       "name": {
@@ -1365,3 +1369,4 @@
     }
   }
 }
+
