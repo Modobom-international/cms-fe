@@ -127,7 +127,7 @@ export const buttonBlock = (editor: any) => {
       component.setAttributes({ ...attrs, id: "Download" });
     }
     if (attrs.class?.includes("sticky-download-button")) {
-      component.setAttributes({ ...attrs, id: "StickyDownload" });
+      component.setAttributes({ ...attrs, id: "Download" });
     }
   });
 
