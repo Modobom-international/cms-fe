@@ -1253,6 +1253,11 @@
     "board": "Board",
     "members": "Members",
     "manageMembers": "Manage Members",
+    "operations": {
+      "createSuccess": "Create workspace successfully",
+      "updateSuccess": "Update workspace successfully",
+      "deleteSuccess": "Delete workspace successfully"
+    },
     "errors": {
       "failedToLoad": "Failed to load workspaces. Please try again later.",
       "noWorkspaces": "No workspaces found. Create your first workspace to get started.",
@@ -1322,6 +1327,11 @@
       }
     },
     "Members": {
+      "removeMemberSuccess": "Member removed successfully",
+      "removeMemberError": "Failed to remove member",
+      "addMemberSuccess": "Add Member successfully",
+      "addMemberError": "Add Member fail",
+      "confirm": "Delete Members",
       "title": "Workspace Members",
       "description": "Manage members and their roles in this workspace",
       "addMember": "Add Member",
@@ -1340,10 +1350,20 @@
       "joinedAt": "Joined {date}",
       "joinWorkspace": "Join Workspace",
       "errors": {
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Email is invalid",
+        "emailNotFound": "Email does not exist in the system",
+        "roleRequired": "Role is required",
         "failedToLoad": "Failed to load workspace members",
         "failedToJoin": "Failed to join workspace",
         "failedToAdd": "Failed to add member",
-        "failedToRemove": "Failed to remove member"
+        "failedToRemove": "Failed to remove member",
+        "unauthorized": "You do not have permission to perform this action.",
+        "userNotFound": "User not found.",
+        "userAlreadyMember": "The user is already a member of this workspace."
+      },
+      "validation": {
+        "email_not_found": "Email không tồn tại trong hệ thống"
       }
     }
   }
