@@ -1270,6 +1270,11 @@
     "board": "Bảng",
     "members": "Thành viên",
     "manageMembers": "Quản lý thành viên",
+    "operations": {
+      "createSuccess": "Tạo không gian làm việc thành công",
+      "updateSuccess": "Cập nhật không gian làm việc thành công",
+      "deleteSuccess": "Xóa không gian làm việc thành công"
+    },
     "errors": {
       "failedToLoad": "Không thể tải không gian làm việc. Vui lòng thử lại sau.",
       "noWorkspaces": "Không tìm thấy không gian làm việc nào. Tạo không gian làm việc đầu tiên của bạn để bắt đầu.",
@@ -1339,6 +1344,10 @@
       }
     },
     "Members": {
+      "removeMemberSuccess": "Xóa thành viên thành công",
+      "removeMemberError": "Lỗi khi xóa thành viên",
+      "addMemberSuccess": "Thêm thành viên thành công",
+      "addMemberError": "Lỗi khi thêm thành viên",
       "title": "Thành viên không gian làm việc",
       "description": "Quản lý thành viên và vai trò của họ trong không gian làm việc này",
       "addMember": "Thêm thành viên",
@@ -1360,7 +1369,14 @@
         "failedToLoad": "Không thể tải danh sách thành viên",
         "failedToJoin": "Không thể tham gia không gian làm việc",
         "failedToAdd": "Không thể thêm thành viên",
-        "failedToRemove": "Không thể xóa thành viên"
+        "failedToRemove": "Không thể xóa thành viên",
+        "emailRequired": "Email không được để trống.",
+        "emailInvalid": "Email không hợp lệ.",
+        "emailNotFound": "Email không tồn tại trong hệ thống",
+        "roleRequired": "Vai trò không được để trống.",
+        "unauthorized": "Bạn không có quyền thực hiện hành động này",
+        "userNotFound": "Không tìm thấy người dùng",
+        "userAlreadyMember": "Người dùng đã là thành viên trong workspace"
       }
     }
   }

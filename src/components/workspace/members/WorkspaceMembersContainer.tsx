@@ -1,13 +1,11 @@
 "use client";
-
 import { useState } from "react";
-
 import { format } from "date-fns";
 import { AlertCircle, MoreHorizontal, Plus, UserPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Workspace } from "@/types/workspaces.type";
-
+import { toast } from "sonner";
 import { useGetWorkspace } from "@/hooks/workspace";
 import {
   useAddWorkspaceMember,
@@ -25,6 +23,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -57,7 +65,7 @@ export function WorkspaceMembersContainer({
   const [newMemberEmail, setNewMemberEmail] = useState("");
   const [newMemberRole, setNewMemberRole] = useState("member");
   const { workspace } = useGetWorkspace(workspaceId);
-
+  const [errors, setErrors] = useState<{ email?: string; role?: string }>({});
   const {
     data: members,
     isLoading,
@@ -66,7 +74,12 @@ export function WorkspaceMembersContainer({
   const addMember = useAddWorkspaceMember(workspaceId);
   const joinWorkspace = useJoinPublicWorkspace(workspaceId);
   const removeMember = useRemoveWorkspaceMember(workspaceId);
-
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const openDeleteDialog = (userId) => {
+    setSelectedUserId(userId);
+    setIsDeleteOpen(true);
+  };
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -101,16 +114,70 @@ export function WorkspaceMembersContainer({
   }
 
   const handleAddMember = async () => {
+    const newErrors: { email?: string; role?: string } = {};
+
+    // Validate email
+    if (!newMemberEmail) {
+      newErrors.email = t("errors.emailRequired");
+    } else if (!/^\S+@\S+\.\S+$/.test(newMemberEmail)) {
+      newErrors.email = t("errors.emailInvalid");
+    }
+
+    // Validate role
+    if (!newMemberRole) {
+      newErrors.role = t("errors.roleRequired");
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+
     try {
       await addMember.mutateAsync({
         email: newMemberEmail,
         role: newMemberRole,
       });
+      toast.success(t("addMemberSuccess")); // toast thành công
       setIsAddMemberOpen(false);
       setNewMemberEmail("");
       setNewMemberRole("member");
-    } catch (error) {
-      console.error("Failed to add member:", error);
+      setErrors({});
+    } catch (error: any) {
+      const beErrors: { email?: string; role?: string } = {};
+      const response = error.response;
+
+      if (response?.data?.errors) {
+        const errors = response.data.errors;
+
+        if (errors.email?.[0]) {
+          beErrors.email = errors.email[0];
+        }
+
+        if (errors.role?.[0]) {
+          beErrors.role = errors.role[0];
+        }
+
+        setErrors(beErrors);
+      }
+
+      const type = response?.data?.type;
+      const message = response?.data?.message || t("addMemberError");
+
+      switch (type) {
+        case "unauthorized":
+          toast.error(t("errors.unauthorized")); // "Chỉ admin workspace mới có quyền..."
+          break;
+        case "user_not_found":
+          toast.error(t("errors.userNotFound")); // "Không tìm thấy user"
+          break;
+        case "user_exist":
+          toast.error(t("errors.userAlreadyMember")); // "User đã là thành viên"
+          break;
+        default:
+          toast.error(message);
+      }
     }
   };
 
@@ -122,11 +189,24 @@ export function WorkspaceMembersContainer({
     }
   };
 
+  // const handleRemoveMember = async () => {
+  //   try {
+  //     await removeMember.mutateAsync();
+  //   } catch (error) {
+  //     console.error("Failed to remove member:", error);
+  //   }
+  // };
+
+  // Xử lý khi confirm xóa
   const handleRemoveMember = async () => {
+    if (!selectedUserId) return;
     try {
-      await removeMember.mutateAsync();
-    } catch (error) {
-      console.error("Failed to remove member:", error);
+      await removeMember.mutateAsync({ user_id: selectedUserId });
+      toast.success(t("removeMemberSuccess")); // ví dụ: "Xóa thành viên thành công"
+      setIsDeleteOpen(false);
+    } catch (error: any) {
+      const message = error.response?.data?.message || t("removeMemberError");
+      toast.error(message); // ví dụ: "Không thể xóa thành viên"
     }
   };
 
@@ -169,6 +249,9 @@ export function WorkspaceMembersContainer({
                       value={newMemberEmail}
                       onChange={(e) => setNewMemberEmail(e.target.value)}
                     />
+                    {errors.email && (
+                        <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+                    )}
                   </div>
                   <div>
                     <Label htmlFor="role">{t("role")}</Label>
@@ -188,6 +271,9 @@ export function WorkspaceMembersContainer({
                         </SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.role && (
+                        <p className="text-sm text-red-500 mt-1">{errors.role}</p>
+                    )}
                   </div>
                 </div>
                 <DialogFooter>
@@ -209,42 +295,65 @@ export function WorkspaceMembersContainer({
 
       <div className="space-y-4">
         {members?.map((member) => (
-          <Card key={member.id}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>{member.users.name}</CardTitle>
-                  <CardDescription>{member.users.email}</CardDescription>
+            <Card key={member.id}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>{member.users.name}</CardTitle>
+                    <CardDescription>{member.users.email}</CardDescription>
+                  </div>
+                  {members.some(
+                      (m) => m.role === "admin" && m.users.id !== member.users.id
+                  ) && (
+                      <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive"
+                          onClick={() => openDeleteDialog(member.users.id)}
+                      >
+                        {t("remove")}
+                      </Button>
+                  )}
                 </div>
-                {members.some(
-                  (m) => m.role === "admin" && m.users.id !== member.users.id
-                ) && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive"
-                    onClick={handleRemoveMember}
-                  >
-                    {t("remove")}
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-muted-foreground space-y-1 text-sm">
-                <div>
-                  {t("role")}: {member.role}
+              </CardHeader>
+              <CardContent>
+                <div className="text-muted-foreground space-y-1 text-sm">
+                  <div>
+                    {t("role")}: {member.role}
+                  </div>
+                  <div>
+                    {t("joinedAt", {
+                      date: format(new Date(member.created_at), "MMM d, yyyy"),
+                    })}
+                  </div>
                 </div>
-                <div>
-                  {t("joinedAt", {
-                    date: format(new Date(member.created_at), "MMM d, yyyy"),
-                  })}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
         ))}
       </div>
+
+      <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("title")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("description")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+                onClick={handleRemoveMember}
+                className="bg-red-600"
+                disabled={removeMember.isLoading}
+            >
+              {removeMember.isLoading
+                  ? t("deleting")
+                  : t("confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
