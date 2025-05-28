@@ -16,6 +16,7 @@ const getAuthCookies = async () => {
 // Base API configuration
 const baseConfig = {
   baseURL: env.NEXT_PUBLIC_BACKEND_URL,
+  // baseURL: "https://api.modobom.test",
   headers: {
     "X-Requested-With": "XMLHttpRequest",
     Accept: "application/json",
@@ -83,51 +84,71 @@ export const apiServer = {
     data?: any,
     options: RequestInit = {}
   ): Promise<T> {
-    // Get authentication cookies
-    const { xsrfToken, accessToken } = await getAuthCookies();
+    try {
+      // Get authentication cookies
+      const { xsrfToken, accessToken } = await getAuthCookies();
 
-    // Prepare headers with auth tokens
-    const headers = new Headers({
-      ...baseConfig.headers,
-      ...(options.headers || {}),
-    });
+      // Prepare headers with auth tokens
+      const headers = new Headers({
+        ...baseConfig.headers,
+        ...(options.headers || {}),
+      });
 
-    // Add authentication headers if available
-    if (xsrfToken) {
-      headers.set("X-XSRF-TOKEN", xsrfToken);
+      // Add authentication headers if available
+      if (xsrfToken) {
+        headers.set("X-XSRF-TOKEN", xsrfToken);
+      }
+
+      if (accessToken) {
+        headers.set("Authorization", `Bearer ${accessToken}`);
+        // console.log("accessToken apiServer", accessToken);
+      }
+
+      // Build full URL
+      const fullUrl = new URL(
+        url.startsWith("/") ? url.substring(1) : url,
+        baseConfig.baseURL
+      );
+
+      // Prepare fetch options
+      const fetchOptions: RequestInit = {
+        ...options,
+        method,
+        headers,
+        body: data !== undefined ? JSON.stringify(data) : undefined,
+      };
+
+      // console.log("Making request to:", fullUrl.toString());
+      // console.log("Request config:", {
+      //   method: fetchOptions.method,
+      //   headers: Object.fromEntries(headers.entries()),
+      //   body: fetchOptions.body,
+      // });
+
+      // Make the request
+      const response = await fetch(fullUrl.toString(), fetchOptions);
+      // console.log("Response status:", response.status);
+
+      // Handle response
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `API error: ${response.status} ${response.statusText} - ${errorData.message || "Unknown error"}`
+        );
+      }
+
+      // Return JSON response or empty object if no content
+      if (response.status === 204) {
+        return {} as T;
+      }
+
+      const responseData = await response.json();
+      // console.log("Response data:", responseData);
+      return responseData as T;
+    } catch (error) {
+      console.error("API request failed:", error);
+      throw error;
     }
-
-    if (accessToken) {
-      headers.set("Authorization", `Bearer ${accessToken}`);
-    }
-
-    // Build full URL
-    const fullUrl = new URL(
-      url.startsWith("/") ? url.substring(1) : url,
-      baseConfig.baseURL
-    );
-
-    // Prepare fetch options
-    const fetchOptions: RequestInit = {
-      ...options,
-      method,
-      headers,
-      body: data !== undefined ? JSON.stringify(data) : undefined,
-    };
-
-    // Make the request
-    const response = await fetch(fullUrl.toString(), fetchOptions);
-
-    // Handle response
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
-    }
-
-    // Return JSON response or empty object if no content
-    if (response.status === 204) {
-      return {} as T;
-    }
-
-    return response.json() as Promise<T>;
   },
 };
+
