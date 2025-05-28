@@ -68,19 +68,20 @@ export function WorkspaceMembersContainer({
   const [errors, setErrors] = useState<{ email?: string; role?: string }>({});
   const {
     data: members,
-    isLoading,
+    isPending,
     error,
   } = useGetWorkspaceMembers(workspaceId);
   const addMember = useAddWorkspaceMember(workspaceId);
   const joinWorkspace = useJoinPublicWorkspace(workspaceId);
   const removeMember = useRemoveWorkspaceMember(workspaceId);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState(null);
-  const openDeleteDialog = (userId) => {
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+
+  const openDeleteDialog = (userId: number) => {
     setSelectedUserId(userId);
     setIsDeleteOpen(true);
   };
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
@@ -345,9 +346,9 @@ export function WorkspaceMembersContainer({
             <AlertDialogAction
                 onClick={handleRemoveMember}
                 className="bg-red-600"
-                disabled={removeMember.isLoading}
+                disabled={removeMember.isPending} // ✅ đổi ở đây
             >
-              {removeMember.isLoading
+              {removeMember.isPending // ✅ đổi ở đây
                   ? t("deleting")
                   : t("confirm")}
             </AlertDialogAction>
