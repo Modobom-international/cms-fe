@@ -1288,14 +1288,18 @@
       "description": "This action cannot be undone. This will permanently delete the workspace and all its data.",
       "cancel": "Cancel",
       "confirm": "Delete",
-      "deleting": "Deleting..."
+      "deleting": "Deleting...",
+      "success": "Workspace deleted successfully"
     },
     "edit": {
-      "title": "Edit Workspace"
+      "title": "Edit Workspace",
+      "success": "Workspace updated successfully",
+      "error": "Failed to update workspace"
     },
     "create": {
       "title": "Create Workspace",
-      "button": "Create Workspace"
+      "button": "Create Workspace",
+      "success": "Workspace created successfully"
     },
     "form": {
       "name": {
@@ -1363,7 +1367,7 @@
         "userAlreadyMember": "The user is already a member of this workspace."
       },
       "validation": {
-        "email_not_found": "Email không tồn tại trong hệ thống"
+        "email_not_found": "Email does not exist in the system"
       }
     }
   }
