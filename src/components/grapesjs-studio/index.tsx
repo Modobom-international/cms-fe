@@ -7,7 +7,6 @@ import type { Editor } from "grapesjs";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-
 import {
   useDeployPage,
   useExportPage,
@@ -70,6 +69,70 @@ export default function WebBuilderStudio({
     // Get the body content by extracting only the inner content of the body tag
     const bodyContent = doc.body ? doc.body.innerHTML : editorHTML;
 
+    // Loading overlay styles that need to be included in export
+    const loadingOverlayStyles = `
+      /* Loading overlay styles */
+      #download-loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 10000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      .loading-content {
+        text-align: center;
+        color: white;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+
+      .loading-content p {
+        margin-top: 16px;
+        font-size: 18px;
+        font-weight: 500;
+      }
+
+      .loading-svg {
+        animation: spin 1.5s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 767px) {
+        .loading-content p {
+          font-size: 16px;
+        }
+        .loading-svg {
+          width: 40px;
+          height: 40px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .loading-content p {
+          font-size: 14px;
+        }
+        .loading-svg {
+          width: 36px;
+          height: 36px;
+        }
+      }
+    `;
+
     // Combine everything into a proper HTML structure
     const htmlContent = `<!DOCTYPE html>
 <html lang="${pageContent?.language}">
@@ -77,10 +140,9 @@ export default function WebBuilderStudio({
   ${headContent}
   <style>
     ${editor.getCss()}
+    ${loadingOverlayStyles}
   </style>
-  <script>
-    ${editor.getJs()}
-  </script>
+  
   <script>
     // Hàm kiểm tra query parameter force=1 trên URL hiện tại
     function updateDownloadLink() {
@@ -125,6 +187,9 @@ export default function WebBuilderStudio({
       });
     });
   </script>
+
+
+
 </head>
 <body>
   ${bodyContent}
