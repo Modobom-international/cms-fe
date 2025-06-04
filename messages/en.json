@@ -1370,6 +1370,54 @@
         "email_not_found": "Email does not exist in the system"
       }
     }
+  },
+  "AttendancePage": {
+    "title": "Attendance",
+    "description": "Manage employee attendance",
+    "breadcrumb": "Attendance",
+    "table": {
+      "title": "Attendance List",
+      "description": "View and manage employee attendance information",
+      "filters": {
+        "search": "Search",
+        "date": "Date",
+        "status": "Status",
+        "department": "Department"
+      },
+      "columns": {
+        "id": "ID",
+        "employee": "Employee",
+        "department": "Department",
+        "date": "Date",
+        "checkin": "Check-in",
+        "checkout": "Check-out",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": {
+        "present": "Present",
+        "absent": "Absent",
+        "late": "Late",
+        "early": "Early Leave"
+      },
+      "actions": {
+        "view": "View Details",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "empty": "No attendance data",
+      "loading": "Loading attendance data..."
+    },
+    "form": {
+      "title": "Attendance Information",
+      "employee": "Employee",
+      "date": "Date",
+      "checkin": "Check-in",
+      "checkout": "Check-out",
+      "status": "Status",
+      "note": "Note",
+      "submit": "Save",
+      "cancel": "Cancel"
+    }
   }
 }
-
