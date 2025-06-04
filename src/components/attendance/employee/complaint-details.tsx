@@ -19,6 +19,14 @@ import {
   IAttendanceComplaint,
 } from "@/types/attendance.type";
 
+import {
+  formatDateForDisplay,
+  formatDateTimeForDisplay,
+  formatTimeForDisplay,
+} from "@/lib/utils";
+
+import { useIsClient } from "@/hooks/use-client";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,6 +43,8 @@ export function ComplaintDetails({
   onClose,
   onEdit,
 }: ComplaintDetailsProps) {
+  const isClient = useIsClient();
+
   const getStatusBadge = (status: ComplaintStatus) => {
     const configs = {
       pending: {
@@ -80,8 +90,16 @@ export function ComplaintDetails({
     return labels[type];
   };
 
-  const formatDateTime = (dateString: string) => {
-    return format(new Date(dateString), "MMM d, yyyy 'at' HH:mm");
+  const formatDateTime = (dateString: string | null | undefined) => {
+    return formatDateTimeForDisplay(dateString, isClient);
+  };
+
+  const formatTime = (timeString: string | null | undefined) => {
+    return formatTimeForDisplay(timeString, false, isClient);
+  };
+
+  const formatDate = (dateString: string | null | undefined) => {
+    return formatDateForDisplay(dateString, isClient);
   };
 
   return (
@@ -132,7 +150,7 @@ export function ComplaintDetails({
                         </span>
                         <span className="text-muted-foreground">
                           {typeof value === "string" && key.includes("time")
-                            ? format(new Date(value), "HH:mm")
+                            ? formatTime(value)
                             : String(value)}
                         </span>
                       </div>
@@ -159,10 +177,7 @@ export function ComplaintDetails({
               <div>
                 <span className="font-medium">Date:</span>
                 <p className="text-muted-foreground">
-                  {format(
-                    new Date(complaint.attendance.date),
-                    "EEEE, MMMM d, yyyy"
-                  )}
+                  {formatDate(complaint.attendance.date)}
                 </p>
               </div>
               <div>
@@ -175,10 +190,7 @@ export function ComplaintDetails({
                 <span className="font-medium">Check-in:</span>
                 <p className="text-muted-foreground">
                   {complaint.attendance.checkin_time
-                    ? format(
-                        new Date(complaint.attendance.checkin_time),
-                        "HH:mm"
-                      )
+                    ? formatTime(complaint.attendance.checkin_time)
                     : "Not recorded"}
                 </p>
               </div>
@@ -186,10 +198,7 @@ export function ComplaintDetails({
                 <span className="font-medium">Check-out:</span>
                 <p className="text-muted-foreground">
                   {complaint.attendance.checkout_time
-                    ? format(
-                        new Date(complaint.attendance.checkout_time),
-                        "HH:mm"
-                      )
+                    ? formatTime(complaint.attendance.checkout_time)
                     : "Not recorded"}
                 </p>
               </div>

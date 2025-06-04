@@ -25,6 +25,7 @@ import {
 } from "@/types/attendance.type";
 
 import apiClient from "@/lib/api/client";
+import { formatTimeForDisplay } from "@/lib/utils";
 
 // ============================================================================
 // EMPLOYEE ATTENDANCE HOOKS
@@ -61,7 +62,7 @@ export const useCheckIn = () => {
         });
       } else {
         toast.success("Check-in successful", {
-          description: `Time: ${new Date(data.data.checkin_time!).toLocaleTimeString()}`,
+          description: `Time: ${formatTimeForDisplay(data.data.checkin_time!)}`,
         });
       }
     },

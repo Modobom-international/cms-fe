@@ -8,10 +8,17 @@ import { AlertCircle, Calendar, Clock, Home, MapPin, Wifi } from "lucide-react";
 import { AttendanceType } from "@/types/attendance.type";
 
 import {
+  formatTimeForDisplay,
+  getCurrentLocaleTime,
+  getTimezoneInfo,
+} from "@/lib/utils";
+
+import {
   useCheckIn,
   useCheckOut,
   useTodayAttendance,
 } from "@/hooks/attendance";
+import { useIsClient } from "@/hooks/use-client";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +45,7 @@ export function AttendanceDashboard({
   const [currentTime, setCurrentTime] = useState(new Date());
   const [attendanceType, setAttendanceType] =
     useState<AttendanceType>("full_day");
+  const isClient = useIsClient();
 
   const {
     data: todayAttendance,
@@ -142,17 +150,45 @@ export function AttendanceDashboard({
             <div className="flex items-center gap-3">
               <Clock className="h-6 w-6" />
               <span>
-                Attendance - {format(currentTime, "EEEE, MMMM d, yyyy")}
+                Attendance -{" "}
+                {isClient
+                  ? currentTime.toLocaleDateString(
+                      getTimezoneInfo(isClient).locale,
+                      {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        timeZone: getTimezoneInfo(isClient).timezone,
+                      }
+                    )
+                  : format(currentTime, "EEEE, MMMM d, yyyy")}
               </span>
             </div>
             <div className="text-muted-foreground font-mono text-2xl">
-              {format(currentTime, "HH:mm:ss")}
+              {isClient
+                ? currentTime.toLocaleTimeString(
+                    getTimezoneInfo(isClient).locale,
+                    {
+                      hour12: false,
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                      timeZone: getTimezoneInfo(isClient).timezone,
+                    }
+                  )
+                : format(currentTime, "HH:mm:ss")}
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-muted-foreground text-sm">
             Welcome back, <span className="font-medium">{employeeName}</span>
+            {isClient && (
+              <span className="ml-2 text-xs">
+                ({getTimezoneInfo(isClient).timezone})
+              </span>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -176,7 +212,11 @@ export function AttendanceDashboard({
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Check-in:</span>
                 <span className="text-sm">
-                  {format(new Date(todayAttendance.data.checkin_time), "HH:mm")}
+                  {formatTimeForDisplay(
+                    todayAttendance.data.checkin_time,
+                    false,
+                    isClient
+                  )}
                 </span>
               </div>
             )}
@@ -185,9 +225,10 @@ export function AttendanceDashboard({
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Check-out:</span>
                 <span className="text-sm">
-                  {format(
-                    new Date(todayAttendance.data.checkout_time),
-                    "HH:mm"
+                  {formatTimeForDisplay(
+                    todayAttendance.data.checkout_time,
+                    false,
+                    isClient
                   )}
                 </span>
               </div>

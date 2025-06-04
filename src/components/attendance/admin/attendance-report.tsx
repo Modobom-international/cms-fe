@@ -21,7 +21,14 @@ import {
   IAttendanceReportRecord,
 } from "@/types/attendance.type";
 
+import {
+  formatTimeForDisplay,
+  formatTimeForExport,
+  getTimezoneInfo,
+} from "@/lib/utils";
+
 import { useAttendanceReport } from "@/hooks/attendance";
+import { useIsClient } from "@/hooks/use-client";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -58,6 +65,7 @@ export function AttendanceReport() {
   });
 
   const [searchTerm, setSearchTerm] = useState("");
+  const isClient = useIsClient();
 
   const { data: reportData, isLoading, refetch } = useAttendanceReport(filters);
 
@@ -111,8 +119,8 @@ export function AttendanceReport() {
       ...filteredData.map((record) =>
         [
           record.employee_name,
-          record.checkin_time || "N/A",
-          record.checkout_time || "N/A",
+          formatTimeForExport(record.checkin_time),
+          formatTimeForExport(record.checkout_time),
           record.total_work_hours || "N/A",
           record.status_display,
           record.branch_name || "N/A",
@@ -137,10 +145,14 @@ export function AttendanceReport() {
     const remoteWork = filteredData.filter(
       (r) => r.status === "remote_work"
     ).length;
-    const totalHours = filteredData.reduce(
-      (sum, record) => sum + (record.total_work_hours || 0),
-      0
-    );
+    const totalHours = filteredData.reduce((sum, record) => {
+      const hours =
+        typeof record.total_work_hours === "number"
+          ? record.total_work_hours
+          : parseFloat(record.total_work_hours || "0") || 0;
+      // Only add positive hours to avoid negative totals from data issues
+      return sum + Math.max(0, hours);
+    }, 0);
 
     return { total, present, onLeave, remoteWork, totalHours };
   };
@@ -155,7 +167,15 @@ export function AttendanceReport() {
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Attendance Report
+              <div className="flex flex-col">
+                <span>Attendance Report</span>
+                {isClient && (
+                  <span className="text-muted-foreground text-xs font-normal">
+                    Times shown in {getTimezoneInfo(isClient).timezone} (
+                    {getTimezoneInfo(isClient).locale})
+                  </span>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={() => refetch()}>
@@ -332,7 +352,10 @@ export function AttendanceReport() {
                   Total Hours
                 </p>
                 <p className="text-2xl font-bold text-orange-600">
-                  {summary.totalHours.toFixed(1)}
+                  {typeof summary.totalHours === "number" &&
+                  !isNaN(summary.totalHours)
+                    ? summary.totalHours.toFixed(1)
+                    : "0.0"}
                 </p>
               </div>
               <Clock className="h-8 w-8 text-orange-600" />
@@ -389,7 +412,11 @@ export function AttendanceReport() {
                       <TableCell>
                         {record.checkin_time ? (
                           <span className="font-mono">
-                            {record.checkin_time}
+                            {formatTimeForDisplay(
+                              record.checkin_time,
+                              false,
+                              isClient
+                            )}
                           </span>
                         ) : (
                           <span className="text-muted-foreground">--</span>
@@ -398,17 +425,33 @@ export function AttendanceReport() {
                       <TableCell>
                         {record.checkout_time ? (
                           <span className="font-mono">
-                            {record.checkout_time}
+                            {formatTimeForDisplay(
+                              record.checkout_time,
+                              false,
+                              isClient
+                            )}
                           </span>
                         ) : (
                           <span className="text-muted-foreground">--</span>
                         )}
                       </TableCell>
                       <TableCell>
-                        {record.total_work_hours ? (
-                          <span className="font-mono">
-                            {record.total_work_hours}h
-                          </span>
+                        {record.total_work_hours !== null ? (
+                          (() => {
+                            const hours =
+                              typeof record.total_work_hours === "number"
+                                ? record.total_work_hours
+                                : parseFloat(String(record.total_work_hours));
+                            const isNegative = hours < 0;
+
+                            return (
+                              <span
+                                className={`font-mono ${isNegative ? "text-red-600" : ""}`}
+                              >
+                                {isNegative ? `${hours}h (Error)` : `${hours}h`}
+                              </span>
+                            );
+                          })()
                         ) : (
                           <span className="text-muted-foreground">--</span>
                         )}

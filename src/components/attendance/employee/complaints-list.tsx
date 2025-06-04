@@ -22,9 +22,16 @@ import {
 } from "@/types/attendance.type";
 
 import {
+  formatDateForDisplay,
+  formatDateTimeForDisplay,
+  formatTimeForDisplay,
+} from "@/lib/utils";
+
+import {
   useAttendanceComplaints,
   useCreateComplaint,
 } from "@/hooks/attendance";
+import { useIsClient } from "@/hooks/use-client";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,12 +60,21 @@ export function ComplaintsList({ employeeId }: ComplaintsListProps) {
   const [selectedComplaint, setSelectedComplaint] =
     useState<IAttendanceComplaint | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const isClient = useIsClient();
 
   const { data: complaintsData, isLoading } = useAttendanceComplaints({
     status: selectedStatus === "all" ? undefined : selectedStatus,
   });
 
   const complaints = complaintsData?.data || [];
+
+  const formatDateTime = (dateString: string | null | undefined) => {
+    return formatDateTimeForDisplay(dateString, isClient);
+  };
+
+  const formatDate = (dateString: string | null | undefined) => {
+    return formatDateForDisplay(dateString, isClient);
+  };
 
   const getStatusBadge = (status: ComplaintStatus) => {
     const configs = {
@@ -209,19 +225,11 @@ export function ComplaintsList({ employeeId }: ComplaintsListProps) {
 
                         <div className="text-muted-foreground flex items-center gap-4 text-xs">
                           <span>
-                            Filed{" "}
-                            {format(
-                              new Date(complaint.created_at),
-                              "MMM d, yyyy 'at' HH:mm"
-                            )}
+                            Filed {formatDateTime(complaint.created_at)}
                           </span>
                           {complaint.attendance && (
                             <span>
-                              For{" "}
-                              {format(
-                                new Date(complaint.attendance.date),
-                                "MMM d, yyyy"
-                              )}
+                              For {formatDate(complaint.attendance.date)}
                             </span>
                           )}
                         </div>
