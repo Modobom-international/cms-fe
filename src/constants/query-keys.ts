@@ -42,10 +42,10 @@ export const domainQueryKeys = {
       registrar_created_at?: string;
     }
   ) => [
-      ...domainQueryKeys.origin,
-      "list",
-      { page, pageSize, search, ...filters },
-    ],
+    ...domainQueryKeys.origin,
+    "list",
+    { page, pageSize, search, ...filters },
+  ],
   available: (page: number, pageSize: number, search: string) => [
     ...domainQueryKeys.origin,
     "list",
@@ -151,4 +151,25 @@ export const pageQueryKeys = {
     [...pageQueryKeys.origin, "list", siteId] as const,
   details: (pageId: string) =>
     [...pageQueryKeys.origin, "detail", pageId] as const,
+};
+
+export const attendanceQueryKeys = {
+  origin: ["attendance"] as const,
+  today: (employeeId: number) =>
+    [...attendanceQueryKeys.origin, "today", employeeId] as const,
+  report: (
+    date: string,
+    filters?: { type?: string; branch_name?: string; include_leave?: boolean }
+  ) => [...attendanceQueryKeys.origin, "report", { date, ...filters }] as const,
+  complaints: (params?: {
+    status?: string;
+    employee_id?: number;
+    complaint_type?: string;
+    page?: number;
+    per_page?: number;
+  }) => [...attendanceQueryKeys.origin, "complaints", { ...params }] as const,
+  complaintDetails: (id: number) =>
+    [...attendanceQueryKeys.origin, "complaints", "detail", id] as const,
+  complaintStatistics: () =>
+    [...attendanceQueryKeys.origin, "complaints", "statistics"] as const,
 };

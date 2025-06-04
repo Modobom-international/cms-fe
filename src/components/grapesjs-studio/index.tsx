@@ -162,6 +162,34 @@ export default function WebBuilderStudio({
       const downloadLink = e.target;
       const downloadUrl = downloadLink.href;
       
+      // Check if this is an Android Intent URL
+      if (downloadUrl.startsWith('@intent://')) {
+        // For Android Intent URLs, we'll use a direct approach
+        showLoadingOverlay();
+        
+        
+
+        // Create a temporary link element
+        const tempLink = document.createElement('a');
+        tempLink.href = downloadUrl;
+        tempLink.target = '_blank';
+        tempLink.rel = 'noopener noreferrer';
+        
+        // Add click event to handle completion
+        tempLink.onclick = function() {
+          // Hide overlay after a short delay
+          setTimeout(hideLoadingOverlay, 1000);
+        };
+        
+        // Trigger the click
+        tempLink.click();
+        
+        // Fallback: hide overlay after 5 seconds if not hidden already
+        setTimeout(hideLoadingOverlay, 5000);
+        return;
+      }
+      
+      // Regular download handling for non-Intent URLs
       showLoadingOverlay();
       
       // Report conversion if available
@@ -743,4 +771,3 @@ export default function WebBuilderStudio({
     </div>
   );
 }
-
