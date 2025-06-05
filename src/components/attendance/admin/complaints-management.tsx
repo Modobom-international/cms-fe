@@ -25,6 +25,14 @@ import {
 } from "@/types/attendance.type";
 
 import {
+  convertUtcToVietnamTime,
+  convertVietnamTimeToUtc,
+  formatDateTimeForDisplay,
+  formatFullDateTime,
+  prepareTimeForApi,
+} from "@/lib/utils";
+
+import {
   useAdminAttendanceComplaints,
   useRespondToComplaint,
   useUpdateCustomAttendance,
@@ -69,6 +77,11 @@ interface ComplaintFilters {
   endDate?: string;
 }
 
+interface CustomTimeInputs {
+  checkin_time?: string;
+  checkout_time?: string;
+}
+
 export function ComplaintsManagement() {
   const [filters, setFilters] = useState<ComplaintFilters>({});
   const [searchTerm, setSearchTerm] = useState("");
@@ -79,6 +92,10 @@ export function ComplaintsManagement() {
     "approve" | "reject" | null
   >(null);
   const [isResponseDialogOpen, setIsResponseDialogOpen] = useState(false);
+  const [customTimeInputs, setCustomTimeInputs] = useState<CustomTimeInputs>(
+    {}
+  );
+  const [useCustomTime, setUseCustomTime] = useState(false);
 
   const {
     data: complaintsResponse,
@@ -174,44 +191,54 @@ export function ComplaintsManagement() {
     setSelectedComplaint(complaint);
     setResponseAction(action);
     setResponseText("");
+
+    // Initialize custom time inputs with proposed changes if they exist
+    if (complaint.proposed_changes) {
+      const proposedTimes = {
+        checkin_time: complaint.proposed_changes.checkin_time
+          ? formatFullDateTime(complaint.proposed_changes.checkin_time)
+          : "",
+        checkout_time: complaint.proposed_changes.checkout_time
+          ? formatFullDateTime(complaint.proposed_changes.checkout_time)
+          : "",
+      };
+      setCustomTimeInputs(proposedTimes);
+    } else {
+      setCustomTimeInputs({});
+    }
+
     setIsResponseDialogOpen(true);
   };
 
   const submitResponse = () => {
-    if (!selectedComplaint || !responseAction) return;
+    if (!selectedComplaint || !responseAction || !responseText.trim()) return;
 
     const responseData = {
-      complaint_id: selectedComplaint.id,
-      status:
-        responseAction === "approve"
-          ? ("resolved" as const)
-          : ("rejected" as const),
+      complaintId: selectedComplaint.id,
+      response_type: responseAction,
       admin_response: responseText,
+      ...(responseAction === "approve" &&
+        selectedComplaint.attendance && {
+          attendance_updates: {
+            ...(useCustomTime
+              ? prepareTimeForApi(customTimeInputs)
+              : selectedComplaint.proposed_changes),
+            type: selectedComplaint.attendance.type || "full_day",
+            description: "Updated after reviewing complaint",
+          },
+        }),
     };
 
     respondToComplaint(responseData, {
-      onSuccess: () => {
-        // If approving and there are proposed changes, update the attendance record
-        if (
-          responseAction === "approve" &&
-          selectedComplaint.attendance &&
-          selectedComplaint.proposed_changes
-        ) {
-          const attendanceData: Partial<ICustomAttendanceRequest> = {
-            ...selectedComplaint.proposed_changes,
-            description: `Updated via complaint #${selectedComplaint.id}: ${responseText}`,
-          };
-
-          updateCustomAttendance({
-            id: selectedComplaint.attendance.id,
-            data: attendanceData,
-          });
-        }
-
+      onSuccess: (response) => {
+        // No need to make a separate call to update attendance
+        // as it's handled by the complaint response API
         setIsResponseDialogOpen(false);
         setSelectedComplaint(null);
         setResponseAction(null);
         setResponseText("");
+        setCustomTimeInputs({});
+        setUseCustomTime(false);
         refetch();
       },
     });
@@ -255,7 +282,7 @@ export function ComplaintsManagement() {
           complaint.employee?.name || "N/A",
           getComplaintTypeLabel(complaint.complaint_type),
           complaint.status,
-          format(new Date(complaint.created_at), "yyyy-MM-dd HH:mm"),
+          formatFullDateTime(complaint.created_at),
           complaint.description.replace(/,/g, ";"), // Replace commas to avoid CSV issues
         ].join(",")
       ),
@@ -528,13 +555,7 @@ export function ComplaintsManagement() {
                       <TableCell>
                         <div className="flex flex-col">
                           <span className="font-mono text-sm">
-                            {format(
-                              new Date(complaint.created_at),
-                              "MMM d, yyyy"
-                            )}
-                          </span>
-                          <span className="text-muted-foreground text-xs">
-                            {format(new Date(complaint.created_at), "HH:mm")}
+                            {formatDateTimeForDisplay(complaint.created_at)}
                           </span>
                         </div>
                       </TableCell>
@@ -562,10 +583,7 @@ export function ComplaintsManagement() {
                                 <DialogDescription>
                                   Submitted by{" "}
                                   {complaint.employee?.name || "N/A"} on{" "}
-                                  {format(
-                                    new Date(complaint.created_at),
-                                    "MMMM d, yyyy 'at' HH:mm"
-                                  )}
+                                  {formatFullDateTime(complaint.created_at)}
                                 </DialogDescription>
                               </DialogHeader>
                               <div className="space-y-4">
@@ -594,7 +612,12 @@ export function ComplaintsManagement() {
                                         ).map(([key, value]) => (
                                           <p key={key}>
                                             <strong>{key}:</strong>{" "}
-                                            {String(value)}
+                                            {key === "checkin_time" ||
+                                            key === "checkout_time"
+                                              ? formatDateTimeForDisplay(
+                                                  value as string
+                                                )
+                                              : String(value)}
                                           </p>
                                         ))}
                                       </div>
@@ -607,6 +630,115 @@ export function ComplaintsManagement() {
                                     <p className="mt-1 text-sm">
                                       {complaint.admin_response}
                                     </p>
+                                  </div>
+                                )}
+
+                                {complaint.attendance && (
+                                  <div>
+                                    <Label>Related Attendance Record</Label>
+                                    <div className="mt-2 rounded-lg border p-4">
+                                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                                        <div>
+                                          <span className="text-muted-foreground">
+                                            Date:
+                                          </span>{" "}
+                                          <span className="font-medium">
+                                            {formatDateTimeForDisplay(
+                                              complaint.attendance.date
+                                            )}
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <span className="text-muted-foreground">
+                                            Type:
+                                          </span>{" "}
+                                          <span className="font-medium capitalize">
+                                            {complaint.attendance.type}
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <span className="text-muted-foreground">
+                                            Check-in:
+                                          </span>{" "}
+                                          <span className="font-medium">
+                                            {complaint.attendance.checkin_time
+                                              ? formatDateTimeForDisplay(
+                                                  complaint.attendance
+                                                    .checkin_time
+                                                )
+                                              : "Not recorded"}
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <span className="text-muted-foreground">
+                                            Check-out:
+                                          </span>{" "}
+                                          <span className="font-medium">
+                                            {complaint.attendance.checkout_time
+                                              ? formatDateTimeForDisplay(
+                                                  complaint.attendance
+                                                    .checkout_time
+                                                )
+                                              : "Not recorded"}
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <span className="text-muted-foreground">
+                                            Total Hours:
+                                          </span>{" "}
+                                          <span className="font-medium">
+                                            {complaint.attendance
+                                              .total_work_hours
+                                              ? `${complaint.attendance.total_work_hours} hours`
+                                              : "N/A"}
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <span className="text-muted-foreground">
+                                            Status:
+                                          </span>{" "}
+                                          <Badge
+                                            variant="outline"
+                                            className={
+                                              complaint.attendance.status ===
+                                              "completed"
+                                                ? "border-green-200 bg-green-50 text-green-700"
+                                                : complaint.attendance
+                                                      .status === "incomplete"
+                                                  ? "border-yellow-200 bg-yellow-50 text-yellow-700"
+                                                  : complaint.attendance
+                                                        .status === "on_leave"
+                                                    ? "border-blue-200 bg-blue-50 text-blue-700"
+                                                    : "border-purple-200 bg-purple-50 text-purple-700"
+                                            }
+                                          >
+                                            {complaint.attendance.status
+                                              .replace("_", " ")
+                                              .toUpperCase()}
+                                          </Badge>
+                                        </div>
+                                        {complaint.attendance.branch_name && (
+                                          <div className="col-span-2">
+                                            <span className="text-muted-foreground">
+                                              Branch:
+                                            </span>{" "}
+                                            <span className="font-medium">
+                                              {complaint.attendance.branch_name}
+                                            </span>
+                                          </div>
+                                        )}
+                                        {complaint.attendance.description && (
+                                          <div className="col-span-2">
+                                            <span className="text-muted-foreground">
+                                              Description:
+                                            </span>{" "}
+                                            <span className="font-medium">
+                                              {complaint.attendance.description}
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
                                   </div>
                                 )}
 
@@ -711,17 +843,154 @@ export function ComplaintsManagement() {
                     </strong>
                     <div className="mt-2 space-y-1 text-sm">
                       {Object.entries(selectedComplaint.proposed_changes).map(
-                        ([key, value]) => (
-                          <div key={key} className="grid grid-cols-2 gap-2">
-                            <span className="font-medium">{key}:</span>
-                            <span>{String(value)}</span>
-                          </div>
-                        )
+                        ([key, value]) => {
+                          // Special handling for time fields
+                          if (
+                            key === "checkin_time" ||
+                            key === "checkout_time"
+                          ) {
+                            return (
+                              <div key={key} className="grid grid-cols-2 gap-2">
+                                <span className="font-medium">
+                                  {key === "checkin_time"
+                                    ? "Check-in Time"
+                                    : "Check-out Time"}
+                                  :
+                                </span>
+                                <span>
+                                  {formatDateTimeForDisplay(value as string)}
+                                </span>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div key={key} className="grid grid-cols-2 gap-2">
+                              <span className="font-medium">{key}:</span>
+                              <span>{String(value)}</span>
+                            </div>
+                          );
+                        }
                       )}
+                    </div>
+                    <div className="mt-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-green-800 hover:bg-green-100"
+                        onClick={() => {
+                          // Initialize with the proposed times in local format
+                          const proposedTimes = {
+                            checkin_time: selectedComplaint.proposed_changes
+                              ?.checkin_time
+                              ? formatDateTimeForDisplay(
+                                  selectedComplaint.proposed_changes
+                                    .checkin_time as string
+                                )
+                              : "",
+                            checkout_time: selectedComplaint.proposed_changes
+                              ?.checkout_time
+                              ? formatDateTimeForDisplay(
+                                  selectedComplaint.proposed_changes
+                                    .checkout_time as string
+                                )
+                              : "",
+                          };
+                          setCustomTimeInputs(proposedTimes);
+                          setUseCustomTime(false);
+                        }}
+                      >
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Use Proposed Times
+                      </Button>
                     </div>
                   </AlertDescription>
                 </Alert>
               )}
+
+            <div className="space-y-4">
+              {responseAction === "approve" && (
+                <>
+                  <div className="flex items-center space-x-2">
+                    <Label htmlFor="useCustomTime">Time Update Method:</Label>
+                    <Select
+                      value={useCustomTime ? "custom" : "proposed"}
+                      onValueChange={(value) => {
+                        setUseCustomTime(value === "custom");
+                        if (
+                          value === "proposed" &&
+                          selectedComplaint?.proposed_changes
+                        ) {
+                          // Reset to proposed times when switching back
+                          const proposedTimes = {
+                            checkin_time: selectedComplaint.proposed_changes
+                              ?.checkin_time
+                              ? formatDateTimeForDisplay(
+                                  selectedComplaint.proposed_changes
+                                    .checkin_time as string
+                                )
+                              : "",
+                            checkout_time: selectedComplaint.proposed_changes
+                              ?.checkout_time
+                              ? formatDateTimeForDisplay(
+                                  selectedComplaint.proposed_changes
+                                    .checkout_time as string
+                                )
+                              : "",
+                          };
+                          setCustomTimeInputs(proposedTimes);
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Select time update method" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="proposed">
+                          Use Proposed Times
+                        </SelectItem>
+                        <SelectItem value="custom">Use Custom Times</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {useCustomTime && (
+                    <div className="space-y-4 rounded-lg border p-4">
+                      <h4 className="font-medium">Custom Time Input</h4>
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="checkin_time">Check-in Time</Label>
+                          <Input
+                            type="datetime-local"
+                            id="checkin_time"
+                            value={customTimeInputs.checkin_time || ""}
+                            onChange={(e) =>
+                              setCustomTimeInputs((prev) => ({
+                                ...prev,
+                                checkin_time: e.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="checkout_time">Check-out Time</Label>
+                          <Input
+                            type="datetime-local"
+                            id="checkout_time"
+                            value={customTimeInputs.checkout_time || ""}
+                            onChange={(e) =>
+                              setCustomTimeInputs((prev) => ({
+                                ...prev,
+                                checkout_time: e.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="response">

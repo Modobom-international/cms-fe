@@ -438,17 +438,23 @@ export const useRespondToComplaint = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
-      complaint_id: number;
-      status: "resolved" | "rejected";
+    mutationFn: async ({
+      complaintId,
+      ...data
+    }: {
+      complaintId: number;
+      response_type: "approve" | "reject";
       admin_response: string;
+      attendance_updates?: {
+        checkin_time?: string;
+        checkout_time?: string;
+        type?: "full_day" | "half_day";
+        description?: string;
+      };
     }): Promise<IAttendanceComplaint> => {
-      const { data: response } = await apiClient.put<{
+      const { data: response } = await apiClient.post<{
         data: IAttendanceComplaint;
-      }>(`/api/admin/attendance-complaints/${data.complaint_id}/respond`, {
-        status: data.status,
-        admin_response: data.admin_response,
-      });
+      }>(`/api/admin/attendance-complaints/${complaintId}/respond`, data);
       return response.data;
     },
     onSuccess: (data) => {
