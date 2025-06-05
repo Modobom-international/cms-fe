@@ -132,6 +132,29 @@ export const useTodayAttendance = (employeeId: number) => {
   });
 };
 
+/**
+ * Hook to get attendance record by date for an employee
+ */
+export const useAttendanceByDate = (employeeId: number, date: string) => {
+  return useQuery({
+    queryKey: [...attendanceQueryKeys.origin, "by-date", employeeId, date],
+    queryFn: async (): Promise<ITodayAttendanceResponse> => {
+      try {
+        const { data } = await apiClient.get<ITodayAttendanceResponse>(
+          `/api/attendance/${employeeId}/by-date/${date}`
+        );
+        return data;
+      } catch (error) {
+        if (error instanceof AxiosError && error.response?.status === 404) {
+          return {};
+        }
+        throw error;
+      }
+    },
+    enabled: !!employeeId && !!date,
+  });
+};
+
 // ============================================================================
 // ADMIN ATTENDANCE HOOKS
 // ============================================================================

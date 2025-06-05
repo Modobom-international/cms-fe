@@ -21,11 +21,13 @@ import {
   ComplaintStatus,
   ComplaintType,
   IAttendanceComplaint,
+  ICustomAttendanceRequest,
 } from "@/types/attendance.type";
 
 import {
   useAdminAttendanceComplaints,
   useRespondToComplaint,
+  useUpdateCustomAttendance,
 } from "@/hooks/attendance";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -85,6 +87,7 @@ export function ComplaintsManagement() {
   } = useAdminAttendanceComplaints({});
   const { mutate: respondToComplaint, isPending: isResponding } =
     useRespondToComplaint();
+  const { mutate: updateCustomAttendance } = useUpdateCustomAttendance();
 
   // Extract complaints from paginated response and filter based on filters and search
   const complaints = complaintsResponse?.data || [];
@@ -188,6 +191,23 @@ export function ComplaintsManagement() {
 
     respondToComplaint(responseData, {
       onSuccess: () => {
+        // If approving and there are proposed changes, update the attendance record
+        if (
+          responseAction === "approve" &&
+          selectedComplaint.attendance &&
+          selectedComplaint.proposed_changes
+        ) {
+          const attendanceData: Partial<ICustomAttendanceRequest> = {
+            ...selectedComplaint.proposed_changes,
+            description: `Updated via complaint #${selectedComplaint.id}: ${responseText}`,
+          };
+
+          updateCustomAttendance({
+            id: selectedComplaint.attendance.id,
+            data: attendanceData,
+          });
+        }
+
         setIsResponseDialogOpen(false);
         setSelectedComplaint(null);
         setResponseAction(null);
@@ -679,6 +699,29 @@ export function ComplaintsManagement() {
                 </AlertDescription>
               </Alert>
             )}
+
+            {selectedComplaint &&
+              responseAction === "approve" &&
+              selectedComplaint.proposed_changes && (
+                <Alert className="border-green-200 bg-green-50">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription>
+                    <strong className="text-green-800">
+                      Proposed Changes:
+                    </strong>
+                    <div className="mt-2 space-y-1 text-sm">
+                      {Object.entries(selectedComplaint.proposed_changes).map(
+                        ([key, value]) => (
+                          <div key={key} className="grid grid-cols-2 gap-2">
+                            <span className="font-medium">{key}:</span>
+                            <span>{String(value)}</span>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
 
             <div className="space-y-2">
               <Label htmlFor="response">

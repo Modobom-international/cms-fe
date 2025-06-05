@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { format } from "date-fns";
+import { format as formatDate, parseISO } from "date-fns";
 import { AlertTriangle, Calendar, Clock, FileText } from "lucide-react";
 
 import {
@@ -10,13 +11,21 @@ import {
   ICreateComplaintRequest,
 } from "@/types/attendance.type";
 
-import { useCreateComplaint, useTodayAttendance } from "@/hooks/attendance";
+import { convertVietnamTimeToUtc, vietnamDateToUtcString } from "@/lib/utils";
+
+import { useAttendanceByDate, useCreateComplaint } from "@/hooks/attendance";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -42,11 +51,15 @@ export function CreateComplaintForm({
     proposed_checkout_time: "",
     reason: "",
   });
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  const { data: todayAttendance } = useTodayAttendance(employeeId);
+  const { data: attendanceData } = useAttendanceByDate(
+    employeeId,
+    formatDate(selectedDate, "yyyy-MM-dd")
+  );
   const createComplaintMutation = useCreateComplaint();
 
-  const attendanceRecord = todayAttendance?.data;
+  const attendanceRecord = attendanceData?.data;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,14 +68,60 @@ export function CreateComplaintForm({
       return;
     }
 
+    console.log("Form submission - Input values:", {
+      attendanceDate: attendanceRecord.date,
+      proposedCheckinTime: formData.proposed_checkin_time,
+      proposedCheckoutTime: formData.proposed_checkout_time,
+    });
+
     const proposedChanges: Record<string, any> = {};
 
+    // Convert the UTC ISO date to a plain date string
+    const plainDate = formatDate(parseISO(attendanceRecord.date), "yyyy-MM-dd");
+    console.log("Using plain date:", plainDate);
+
     if (formData.proposed_checkin_time) {
-      proposedChanges.checkin_time = `${attendanceRecord.date} ${formData.proposed_checkin_time}:00`;
+      const timeWithSeconds = `${formData.proposed_checkin_time}:00`;
+      const fullDateTime = `${plainDate}T${timeWithSeconds}`;
+      console.log("Converting check-in time:", {
+        fullDateTime,
+        timezone: "Asia/Ho_Chi_Minh",
+      });
+
+      try {
+        // Create a Date object in Vietnam timezone
+        const vietnamDate = new Date(fullDateTime);
+        proposedChanges.checkin_time = vietnamDateToUtcString(vietnamDate);
+        console.log(
+          "Converted check-in time (UTC):",
+          proposedChanges.checkin_time
+        );
+      } catch (error) {
+        console.error("Error converting check-in time:", error);
+        throw error;
+      }
     }
 
     if (formData.proposed_checkout_time) {
-      proposedChanges.checkout_time = `${attendanceRecord.date} ${formData.proposed_checkout_time}:00`;
+      const timeWithSeconds = `${formData.proposed_checkout_time}:00`;
+      const fullDateTime = `${plainDate}T${timeWithSeconds}`;
+      console.log("Converting check-out time:", {
+        fullDateTime,
+        timezone: "Asia/Ho_Chi_Minh",
+      });
+
+      try {
+        // Create a Date object in Vietnam timezone
+        const vietnamDate = new Date(fullDateTime);
+        proposedChanges.checkout_time = vietnamDateToUtcString(vietnamDate);
+        console.log(
+          "Converted check-out time (UTC):",
+          proposedChanges.checkout_time
+        );
+      } catch (error) {
+        console.error("Error converting check-out time:", error);
+        throw error;
+      }
     }
 
     if (formData.reason) {
@@ -76,10 +135,13 @@ export function CreateComplaintForm({
       proposed_changes: proposedChanges,
     };
 
+    console.log("Final complaint data:", complaintData);
+
     try {
       await createComplaintMutation.mutateAsync(complaintData);
       onSuccess();
     } catch (error) {
+      console.error("Error submitting complaint:", error);
       // Error handling is done in the hook
     }
   };
@@ -107,61 +169,92 @@ export function CreateComplaintForm({
     },
   ] as const;
 
-  if (!attendanceRecord) {
-    return (
-      <Alert>
-        <AlertTriangle className="h-4 w-4" />
-        <AlertDescription>
-          No attendance record found for today. You need to check in first
-          before filing a complaint.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Date Selection */}
+      <div className="space-y-2">
+        <Label>Select Date</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-start text-left font-normal"
+            >
+              <Calendar className="mr-2 h-4 w-4" />
+              {selectedDate ? (
+                format(selectedDate, "PPP")
+              ) : (
+                <span>Pick a date</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <CalendarComponent
+              mode="single"
+              selected={selectedDate}
+              onSelect={(date) => date && setSelectedDate(date)}
+              disabled={(date) => date > new Date()}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+
       {/* Current Attendance Record */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="space-y-3">
-            <h4 className="font-medium">Current Attendance Record</h4>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <Label className="text-muted-foreground">Date</Label>
-                <p>
-                  {format(
-                    new Date(attendanceRecord.date),
-                    "EEEE, MMMM d, yyyy"
-                  )}
-                </p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Type</Label>
-                <p className="capitalize">
-                  {attendanceRecord.type.replace("_", " ")}
-                </p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Check-in Time</Label>
-                <p>
-                  {attendanceRecord.checkin_time
-                    ? format(new Date(attendanceRecord.checkin_time), "HH:mm")
-                    : "Not recorded"}
-                </p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground">Check-out Time</Label>
-                <p>
-                  {attendanceRecord.checkout_time
-                    ? format(new Date(attendanceRecord.checkout_time), "HH:mm")
-                    : "Not recorded"}
-                </p>
+      {attendanceRecord ? (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="space-y-3">
+              <h4 className="font-medium">Selected Attendance Record</h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <Label className="text-muted-foreground">Date</Label>
+                  <p>
+                    {format(
+                      new Date(attendanceRecord.date),
+                      "EEEE, MMMM d, yyyy"
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Type</Label>
+                  <p className="capitalize">
+                    {attendanceRecord.type.replace("_", " ")}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">Check-in Time</Label>
+                  <p>
+                    {attendanceRecord.checkin_time
+                      ? format(new Date(attendanceRecord.checkin_time), "HH:mm")
+                      : "Not recorded"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground">
+                    Check-out Time
+                  </Label>
+                  <p>
+                    {attendanceRecord.checkout_time
+                      ? format(
+                          new Date(attendanceRecord.checkout_time),
+                          "HH:mm"
+                        )
+                      : "Not recorded"}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            No attendance record found for the selected date.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Complaint Type */}
       <div className="space-y-2">
@@ -262,7 +355,7 @@ export function CreateComplaintForm({
       )}
 
       {/* Submit Buttons */}
-      <div className="flex justify-end space-x-2 pt-4">
+      <div className="flex items-center gap-2">
         <Button type="button" variant="outline" onClick={onSuccess}>
           Cancel
         </Button>
@@ -271,6 +364,7 @@ export function CreateComplaintForm({
           disabled={
             !formData.complaint_type ||
             !formData.description ||
+            !attendanceRecord ||
             createComplaintMutation.isPending
           }
         >
@@ -282,3 +376,4 @@ export function CreateComplaintForm({
     </form>
   );
 }
+
