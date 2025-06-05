@@ -1384,6 +1384,54 @@
         "userAlreadyMember": "Người dùng đã là thành viên trong workspace"
       }
     }
+  },
+  "AttendancePage": {
+    "title": "Chấm công",
+    "description": "Quản lý chấm công nhân viên",
+    "breadcrumb": "Chấm công",
+    "table": {
+      "title": "Danh sách chấm công",
+      "description": "Xem và quản lý thông tin chấm công của nhân viên",
+      "filters": {
+        "search": "Tìm kiếm",
+        "date": "Ngày",
+        "status": "Trạng thái",
+        "department": "Phòng ban"
+      },
+      "columns": {
+        "id": "ID",
+        "employee": "Nhân viên",
+        "department": "Phòng ban",
+        "date": "Ngày",
+        "checkin": "Giờ vào",
+        "checkout": "Giờ ra",
+        "status": "Trạng thái",
+        "actions": "Thao tác"
+      },
+      "status": {
+        "present": "Có mặt",
+        "absent": "Vắng mặt",
+        "late": "Đi muộn",
+        "early": "Về sớm"
+      },
+      "actions": {
+        "view": "Xem chi tiết",
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa"
+      },
+      "empty": "Không có dữ liệu chấm công",
+      "loading": "Đang tải dữ liệu chấm công..."
+    },
+    "form": {
+      "title": "Thông tin chấm công",
+      "employee": "Nhân viên",
+      "date": "Ngày",
+      "checkin": "Giờ vào",
+      "checkout": "Giờ ra",
+      "status": "Trạng thái",
+      "note": "Ghi chú",
+      "submit": "Lưu",
+      "cancel": "Hủy"
+    }
   }
 }
-
