@@ -1484,6 +1484,11 @@
         "inactive": "Không hoạt động",
         "expired": "Hết hạn", 
         "never": "Chưa bao giờ"
+      },
+      "copy": {
+        "success": "Đã sao chép vào clipboard",
+        "copied": "đã sao chép thành công",
+        "error": "Không thể sao chép"
       }
     },
     "dialogs": {
@@ -1568,19 +1573,53 @@
       },
       "update": {
         "title": "Cập nhật API Key",
-        "description": "Chỉnh sửa cài đặt API key",
+        "description": "Chỉnh sửa cài đặt và trạng thái API key",
+        "form": {
+          "name": {
+            "label": "Tên API Key",
+            "placeholder": "Nhập tên API key",
+            "description": "Tên mô tả cho API key này"
+          },
+          "isActive": {
+            "label": "Trạng thái Hoạt động",
+            "description": "Bật hoặc tắt API key này"
+          }
+        },
+        "info": {
+          "keyPrefix": "Tiền tố Key",
+          "createdAt": "Ngày tạo"
+        },
         "buttons": {
           "cancel": "Hủy",
-          "update": "Cập nhật API Key"
+          "update": "Cập nhật API Key",
+          "updating": "Đang cập nhật..."
         }
       },
       "delete": {
         "title": "Xóa API Key",
-        "description": "Bạn có chắc chắn muốn xóa API key này?",
-        "warning": "Hành động này không thể hoàn tác. API key sẽ bị xóa vĩnh viễn và các ứng dụng đang sử dụng sẽ mất quyền truy cập.",
+        "description": "Hành động này không thể hoàn tác. Vui lòng xác nhận bằng cách nhập tên API key.",
+        "warning": {
+          "title": "⚠️ Cảnh báo Xóa Vĩnh viễn",
+          "message": "Hành động này sẽ xóa vĩnh viễn API key và ngay lập tức thu hồi quyền truy cập cho tất cả ứng dụng đang sử dụng. Điều này không thể hoàn tác."
+        },
+        "info": {
+          "name": "Tên",
+          "keyPrefix": "Tiền tố Key",
+          "createdAt": "Ngày tạo"
+        },
+        "confirmation": {
+          "label": "Nhập",
+          "suffix": "để xác nhận xóa:",
+          "placeholder": "Nhập tên API key ở đây",
+          "mismatch": "Tên API key không khớp"
+        },
+        "error": {
+          "nameRequired": "Vui lòng nhập tên API key để xác nhận xóa"
+        },
         "buttons": {
           "cancel": "Hủy",
-          "delete": "Xóa API Key"
+          "delete": "Xóa API Key",
+          "deleting": "Đang xóa..."
         }
       }
     },
@@ -1596,6 +1635,7 @@
       "deleted": "Xóa API key thành công",
       "copied": "Đã sao chép API key vào clipboard",
       "copyError": "Không thể sao chép API key vào clipboard",
+      "noChanges": "Không có thay đổi nào được phát hiện",
       "error": "Đã xảy ra lỗi. Vui lòng thử lại."
     }
   }

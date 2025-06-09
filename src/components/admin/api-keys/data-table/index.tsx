@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
@@ -38,9 +38,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import DeleteApiKeyDialog from "@/components/admin/api-keys/dialogs/delete-api-key-dialog";
+import UpdateApiKeyDialog from "@/components/admin/api-keys/dialogs/update-api-key-dialog";
 import { ApiKeyStatusBadge } from "@/components/badge/api-key-status-badge";
-// import DeleteApiKeyDialog from "@/components/admin/api-keys/dialogs/delete-api-key-dialog";
-// import UpdateApiKeyDialog from "@/components/admin/api-keys/dialogs/update-api-key-dialog";
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 import { SearchInput } from "@/components/inputs/search-input";
@@ -237,37 +237,28 @@ export default function ApiKeyDataTable() {
                                   {t("actions.title")}
                                 </DropdownMenuLabel>
 
-                                {/* Commented out until dialogs are created */}
-                                {/* <UpdateApiKeyDialog
+                                <UpdateApiKeyDialog
                                   apiKey={apiKey}
                                   trigger={
                                     <DropdownMenuItem
                                       onSelect={(e) => e.preventDefault()}
                                     >
-                                      <Edit className="mr-2 h-4 w-4" />
                                       {t("actions.edit")}
                                     </DropdownMenuItem>
                                   }
-                                /> */}
-                                <DropdownMenuItem>
-                                  {t("actions.edit")}
-                                </DropdownMenuItem>
+                                />
                                 <DropdownMenuSeparator />
-                                {/* <DeleteApiKeyDialog
+                                <DeleteApiKeyDialog
                                   apiKey={apiKey}
                                   trigger={
                                     <DropdownMenuItem
                                       onSelect={(e) => e.preventDefault()}
                                       className="text-destructive focus:text-destructive hover:!bg-destructive/10"
                                     >
-                                      <Trash className="mr-2 h-4 w-4" />
                                       {t("actions.delete")}
                                     </DropdownMenuItem>
                                   }
-                                /> */}
-                                <DropdownMenuItem className="text-destructive focus:text-destructive hover:!bg-destructive/10">
-                                  {t("actions.delete")}
-                                </DropdownMenuItem>
+                                />
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </TableCell>

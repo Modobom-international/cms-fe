@@ -1554,34 +1554,74 @@
       },
       "update": {
         "title": "Update API Key",
-        "description": "Modify the API key settings",
+        "description": "Modify the API key settings and status",
+        "form": {
+          "name": {
+            "label": "API Key Name",
+            "placeholder": "Enter API key name", 
+            "description": "A descriptive name for this API key"
+          },
+          "isActive": {
+            "label": "Active Status",
+            "description": "Enable or disable this API key"
+          }
+        },
+        "info": {
+          "keyPrefix": "Key Prefix",
+          "createdAt": "Created At"
+        },
         "buttons": {
           "cancel": "Cancel",
-          "update": "Update API Key"
+          "update": "Update API Key",
+          "updating": "Updating..."
         }
       },
       "delete": {
         "title": "Delete API Key",
-        "description": "Are you sure you want to delete this API key?",
-        "warning": "This action cannot be undone. The API key will be permanently deleted and any applications using it will lose access.",
+        "description": "This action cannot be undone. Please confirm by typing the API key name.",
+        "warning": {
+          "title": "⚠️ Permanent Deletion Warning",
+          "message": "This action will permanently delete the API key and immediately revoke access for all applications using it. This cannot be undone."
+        },
+        "info": {
+          "name": "Name",
+          "keyPrefix": "Key Prefix", 
+          "createdAt": "Created At"
+        },
+        "confirmation": {
+          "label": "Type",
+          "suffix": "to confirm deletion:",
+          "placeholder": "Type the API key name here",
+          "mismatch": "API key name does not match"
+        },
+        "error": {
+          "nameRequired": "Please type the API key name to confirm deletion"
+        },
         "buttons": {
           "cancel": "Cancel",
-          "delete": "Delete API Key"
+          "delete": "Delete API Key",
+          "deleting": "Deleting..."
         }
       }
     },
-    "status": {
-      "active": "Active",
-      "inactive": "Inactive",
-      "expired": "Expired",
-      "never": "Never"
-    },
+          "status": {
+        "active": "Active",
+        "inactive": "Inactive", 
+        "expired": "Expired",
+        "never": "Never"
+      },
+      "copy": {
+        "success": "Copied to clipboard",
+        "copied": "copied successfully",
+        "error": "Failed to copy"
+      },
     "notifications": {
       "created": "API key created successfully",
       "updated": "API key updated successfully",
       "deleted": "API key deleted successfully",
       "copied": "API key copied to clipboard",
       "copyError": "Failed to copy API key to clipboard",
+      "noChanges": "No changes detected",
       "error": "An error occurred. Please try again."
     }
   }
