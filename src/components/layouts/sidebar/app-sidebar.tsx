@@ -8,6 +8,7 @@ import Link from "next/link";
 import {
   Bell,
   GanttChartSquare,
+  KeyIcon,
   LayoutGrid,
   Network,
   PenTool,
@@ -93,6 +94,11 @@ const data = {
       url: "/workspaces",
       icon: GanttChartSquare,
     },
+    {
+      title: "API Keys",
+      url: "/admin/api-keys",
+      icon: KeyIcon,
+    },
   ],
   navSecondary: [],
 };
@@ -138,3 +144,4 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     </Sidebar>
   );
 }
+
