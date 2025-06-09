@@ -217,16 +217,18 @@ export function ComplaintsManagement() {
       complaintId: selectedComplaint.id,
       response_type: responseAction,
       admin_response: responseText,
-      ...(responseAction === "approve" &&
-        selectedComplaint.attendance && {
-          attendance_updates: {
-            ...(useCustomTime
-              ? prepareTimeForApi(customTimeInputs)
-              : selectedComplaint.proposed_changes),
-            type: selectedComplaint.attendance.type || "full_day",
-            description: "Updated after reviewing complaint",
-          },
-        }),
+      ...(responseAction === "approve" && {
+        attendance_data: {
+          date:
+            selectedComplaint.attendance?.date ||
+            format(new Date(), "yyyy-MM-dd"),
+          ...(useCustomTime
+            ? prepareTimeForApi(customTimeInputs)
+            : selectedComplaint.proposed_changes),
+          type: selectedComplaint.attendance?.type || "full_day",
+          description: "Manually created from approved complaint",
+        },
+      }),
     };
 
     respondToComplaint(responseData, {

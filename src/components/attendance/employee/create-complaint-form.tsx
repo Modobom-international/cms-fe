@@ -64,13 +64,9 @@ export function CreateComplaintForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!attendanceRecord) {
-      console.error("Cannot submit complaint: No attendance record found");
-      return;
-    }
-
     console.log("Form submission - Input values:", {
-      attendanceDate: attendanceRecord.date,
+      attendanceDate:
+        attendanceRecord?.date || formatDate(selectedDate, "yyyy-MM-dd"),
       proposedCheckinTime: formData.proposed_checkin_time,
       proposedCheckoutTime: formData.proposed_checkout_time,
     });
@@ -78,7 +74,9 @@ export function CreateComplaintForm({
     const proposedChanges: Record<string, any> = {};
 
     // Convert the UTC ISO date to a plain date string
-    const plainDate = formatDate(parseISO(attendanceRecord.date), "yyyy-MM-dd");
+    const plainDate = attendanceRecord
+      ? formatDate(parseISO(attendanceRecord.date), "yyyy-MM-dd")
+      : formatDate(selectedDate, "yyyy-MM-dd");
     console.log("Using plain date:", plainDate);
 
     if (formData.proposed_checkin_time) {
@@ -130,11 +128,11 @@ export function CreateComplaintForm({
     }
 
     const complaintData: ICreateComplaintRequest = {
-      attendance_id: attendanceRecord.id,
+      ...(attendanceRecord && { attendance_id: attendanceRecord.id }),
       complaint_type: formData.complaint_type,
       description: formData.description,
       proposed_changes: proposedChanges,
-    };
+    } as ICreateComplaintRequest;
 
     console.log("Final complaint data:", complaintData);
 
@@ -252,9 +250,8 @@ export function CreateComplaintForm({
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            No attendance record found for the selected date. Please select a
-            different date or contact your supervisor if you believe this is an
-            error.
+            No attendance record found for the selected date. You can still
+            submit a complaint about missing attendance records.
           </AlertDescription>
         </Alert>
       )}
@@ -365,7 +362,6 @@ export function CreateComplaintForm({
         <Button
           type="submit"
           disabled={
-            !attendanceRecord ||
             !formData.complaint_type ||
             !formData.description ||
             createComplaintMutation.isPending
@@ -373,9 +369,7 @@ export function CreateComplaintForm({
         >
           {createComplaintMutation.isPending
             ? "Submitting..."
-            : !attendanceRecord
-              ? "No Attendance Record"
-              : "Submit Complaint"}
+            : "Submit Complaint"}
         </Button>
       </div>
     </form>

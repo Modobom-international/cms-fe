@@ -445,11 +445,12 @@ export const useRespondToComplaint = () => {
       complaintId: number;
       response_type: "approve" | "reject";
       admin_response: string;
-      attendance_updates?: {
+      attendance_data?: {
+        date: string;
         checkin_time?: string;
         checkout_time?: string;
-        type?: "full_day" | "half_day";
-        description?: string;
+        type: "full_day" | "half_day";
+        description: string;
       };
     }): Promise<IAttendanceComplaint> => {
       const { data: response } = await apiClient.post<{
