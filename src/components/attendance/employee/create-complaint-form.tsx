@@ -65,6 +65,7 @@ export function CreateComplaintForm({
     e.preventDefault();
 
     if (!attendanceRecord) {
+      console.error("Cannot submit complaint: No attendance record found");
       return;
     }
 
@@ -251,7 +252,9 @@ export function CreateComplaintForm({
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            No attendance record found for the selected date.
+            No attendance record found for the selected date. Please select a
+            different date or contact your supervisor if you believe this is an
+            error.
           </AlertDescription>
         </Alert>
       )}
@@ -362,18 +365,19 @@ export function CreateComplaintForm({
         <Button
           type="submit"
           disabled={
+            !attendanceRecord ||
             !formData.complaint_type ||
             !formData.description ||
-            !attendanceRecord ||
             createComplaintMutation.isPending
           }
         >
           {createComplaintMutation.isPending
             ? "Submitting..."
-            : "Submit Complaint"}
+            : !attendanceRecord
+              ? "No Attendance Record"
+              : "Submit Complaint"}
         </Button>
       </div>
     </form>
   );
 }
-
