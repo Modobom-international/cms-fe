@@ -1487,6 +1487,57 @@
       }
     },
     "dialogs": {
+      "create": {
+        "title": "Tạo API Key mới",
+        "description": "Tạo API key mới để truy cập hệ thống",
+        "form": {
+          "name": {
+            "label": "Tên API Key",
+            "placeholder": "Nhập tên API key",
+            "description": "Tên mô tả cho API key này"
+          },
+          "expiresAt": {
+            "label": "Hết hạn",
+            "placeholder": "Chọn tùy chọn hết hạn",
+            "description": "API key sẽ hết hạn vào ngày đã chọn"
+          },
+          "expirationOptions": {
+            "7days": "7 ngày",
+            "30days": "30 ngày",
+            "60days": "60 ngày", 
+            "90days": "90 ngày",
+            "custom": "Tùy chỉnh",
+            "noExpiration": "Không hết hạn"
+          },
+          "customDate": {
+            "label": "Chọn ngày *",
+            "placeholder": "dd/mm/yyyy",
+            "description": "Token sẽ hết hạn vào ngày đã chọn"
+          },
+          "generatedKey": {
+            "label": "API Key của bạn"
+          }
+        },
+        "warning": {
+          "title": "⚠️ Thông báo Bảo mật Quan trọng",
+          "message": "Đây là lần duy nhất bạn có thể xem API key này. Vui lòng sao chép ngay bây giờ và lưu trữ an toàn. Bạn sẽ không thể lấy lại nó nữa."
+        },
+        "success": {
+          "title": "Tạo API Key Thành công",
+          "description": "API key mới của bạn đã được tạo. Hãy chắc chắn sao chép nó ngay vì bạn sẽ không thể xem lại.",
+          "copied": "Đã sao chép API key vào clipboard thành công"
+        },
+        "error": {
+          "description": "Không thể tạo API key. Vui lòng thử lại.",
+          "copyFailed": "Không thể sao chép API key vào clipboard"
+        },
+        "buttons": {
+          "cancel": "Hủy",
+          "create": "Tạo API Key",
+          "creating": "Đang tạo...",
+          "done": "Xong, tôi đã lưu lại"
+        }
+      },
       "add": {
         "title": "Thêm API Key mới",
         "description": "Tạo API key mới để truy cập hệ thống",

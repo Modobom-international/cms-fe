@@ -73,7 +73,7 @@
     "react": "^19.0.0",
     "react-aria-components": "^1.7.1",
     "react-beautiful-dnd": "^13.1.1",
-    "react-day-picker": "8.10.1",
+    "react-day-picker": "9.7.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
     "recharts": "^2.15.1",

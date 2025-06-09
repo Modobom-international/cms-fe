@@ -1,7 +1,10 @@
-import { ChevronRight, Home } from "lucide-react";
+import { ChevronRight, Home, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { buttonVariants } from "@/components/ui/button";
+
 import ApiKeyDataTable from "@/components/admin/api-keys/data-table";
+import CreateApiKeyDialog from "@/components/admin/api-keys/dialogs/create-api-key-dialog";
 
 export default function ApiKeyPage() {
   const t = useTranslations("ApiKeyPage");
@@ -25,7 +28,7 @@ export default function ApiKeyPage() {
             </p>
           </div>
 
-          {/* <AddApiKeyDialog
+          <CreateApiKeyDialog
             trigger={
               <div
                 className={buttonVariants({
@@ -36,7 +39,7 @@ export default function ApiKeyPage() {
                 {t("addApiKey")}
               </div>
             }
-          /> */}
+          />
         </div>
       </div>
 

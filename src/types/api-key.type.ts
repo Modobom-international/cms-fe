@@ -8,9 +8,23 @@ export type IApiKey = {
     created_at: string
 }
 
+export type IApiKeyWithKey = IApiKey & {
+    key: string
+}
+
 export interface IGetApiKeysResponse {
     success: true
     data: IApiKey[]
     message: string
     type: string
 }
+
+export interface ICreateApiKeyResponse {
+    success: true
+    data: IApiKeyWithKey
+    message: string
+    type: string
+}
+
+
+

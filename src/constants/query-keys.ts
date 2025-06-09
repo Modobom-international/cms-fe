@@ -180,4 +180,7 @@ export const apiKeyQueryKeys = {
     ...apiKeyQueryKeys.origin,
     "list",
   ],
+  create: () => [...apiKeyQueryKeys.origin, "create"],
+  update: (id: string) => [...apiKeyQueryKeys.origin, "update", id],
+  delete: (id: string) => [...apiKeyQueryKeys.origin, "delete", id],
 };

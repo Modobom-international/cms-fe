@@ -1473,6 +1473,57 @@
       }
     },
     "dialogs": {
+      "create": {
+        "title": "Create New API Key",
+        "description": "Generate a new API key for system access",
+        "form": {
+          "name": {
+            "label": "API Key Name",
+            "placeholder": "Enter API key name",
+            "description": "A descriptive name for this API key"
+          },
+          "expiresAt": {
+            "label": "Expiration",
+            "placeholder": "Select expiration option",
+            "description": "The token will expire on the selected date"
+          },
+          "expirationOptions": {
+            "7days": "7 days",
+            "30days": "30 days", 
+            "60days": "60 days",
+            "90days": "90 days",
+            "custom": "Custom",
+            "noExpiration": "No expiration"
+          },
+          "customDate": {
+            "label": "Select date *",
+            "placeholder": "dd/mm/yyyy",
+            "description": "The token will expire on the selected date"
+          },
+          "generatedKey": {
+            "label": "Your API Key"
+          }
+        },
+        "warning": {
+          "title": "⚠️ Important Security Notice",
+          "message": "This is the only time you will be able to see this API key. Please copy it now and store it securely. You will not be able to retrieve it again."
+        },
+        "success": {
+          "title": "API Key Created Successfully",
+          "description": "Your new API key has been generated. Make sure to copy it now as you won't be able to see it again.",
+          "copied": "API key copied to clipboard successfully"
+        },
+        "error": {
+          "description": "Failed to create API key. Please try again.",
+          "copyFailed": "Failed to copy API key to clipboard"
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "create": "Create API Key",
+          "creating": "Creating...",
+          "done": "Done, I've Saved It"
+        }
+      },
       "add": {
         "title": "Add New API Key",
         "description": "Create a new API key for system access",
