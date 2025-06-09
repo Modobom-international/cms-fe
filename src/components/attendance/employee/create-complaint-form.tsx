@@ -49,6 +49,7 @@ export function CreateComplaintForm({
     description: "",
     proposed_checkin_time: "",
     proposed_checkout_time: "",
+    proposed_attendance_type: "full_day" as "full_day" | "half_day",
     reason: "",
   });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -127,12 +128,18 @@ export function CreateComplaintForm({
       proposedChanges.reason = formData.reason;
     }
 
+    // For missing record complaints, include date and type
+    if (!attendanceRecord && formData.complaint_type === "missing_record") {
+      proposedChanges.date = plainDate;
+      proposedChanges.type = formData.proposed_attendance_type;
+    }
+
     const complaintData: ICreateComplaintRequest = {
       ...(attendanceRecord && { attendance_id: attendanceRecord.id }),
       complaint_type: formData.complaint_type,
       description: formData.description,
       proposed_changes: proposedChanges,
-    } as ICreateComplaintRequest;
+    };
 
     console.log("Final complaint data:", complaintData);
 
@@ -303,6 +310,33 @@ export function CreateComplaintForm({
         formData.complaint_type === "missing_record") && (
         <div className="space-y-4">
           <Label className="text-base font-medium">Proposed Corrections</Label>
+
+          {/* Attendance Type - only show for missing records */}
+          {formData.complaint_type === "missing_record" &&
+            !attendanceRecord && (
+              <div className="space-y-2">
+                <Label htmlFor="proposed_attendance_type">
+                  Attendance Type
+                </Label>
+                <Select
+                  value={formData.proposed_attendance_type}
+                  onValueChange={(value: "full_day" | "half_day") =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      proposed_attendance_type: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select attendance type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="full_day">Full Day</SelectItem>
+                    <SelectItem value="half_day">Half Day</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

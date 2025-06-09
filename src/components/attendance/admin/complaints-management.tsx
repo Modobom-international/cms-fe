@@ -220,12 +220,16 @@ export function ComplaintsManagement() {
       ...(responseAction === "approve" && {
         attendance_data: {
           date:
+            selectedComplaint.proposed_changes?.date ||
             selectedComplaint.attendance?.date ||
             format(new Date(), "yyyy-MM-dd"),
           ...(useCustomTime
             ? prepareTimeForApi(customTimeInputs)
             : selectedComplaint.proposed_changes),
-          type: selectedComplaint.attendance?.type || "full_day",
+          type:
+            selectedComplaint.proposed_changes?.type ||
+            selectedComplaint.attendance?.type ||
+            "full_day",
           description: "Manually created from approved complaint",
         },
       }),
@@ -861,6 +865,30 @@ export function ComplaintsManagement() {
                                 </span>
                                 <span>
                                   {formatDateTimeForDisplay(value as string)}
+                                </span>
+                              </div>
+                            );
+                          }
+                          // Special handling for date field
+                          if (key === "date") {
+                            return (
+                              <div key={key} className="grid grid-cols-2 gap-2">
+                                <span className="font-medium">Date:</span>
+                                <span>
+                                  {format(new Date(value as string), "PPP")}
+                                </span>
+                              </div>
+                            );
+                          }
+                          // Special handling for type field
+                          if (key === "type") {
+                            return (
+                              <div key={key} className="grid grid-cols-2 gap-2">
+                                <span className="font-medium">
+                                  Attendance Type:
+                                </span>
+                                <span className="capitalize">
+                                  {String(value).replace("_", " ")}
                                 </span>
                               </div>
                             );

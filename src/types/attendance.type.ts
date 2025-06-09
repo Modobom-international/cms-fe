@@ -136,7 +136,7 @@ export type ComplaintStatus =
 
 // Create Complaint Request
 export interface ICreateComplaintRequest {
-  attendance_id: number;
+  attendance_id?: number;
   complaint_type: ComplaintType;
   description: string;
   proposed_changes: Record<string, any>;
