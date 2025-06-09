@@ -42,10 +42,10 @@ export const domainQueryKeys = {
       registrar_created_at?: string;
     }
   ) => [
-    ...domainQueryKeys.origin,
-    "list",
-    { page, pageSize, search, ...filters },
-  ],
+      ...domainQueryKeys.origin,
+      "list",
+      { page, pageSize, search, ...filters },
+    ],
   available: (page: number, pageSize: number, search: string) => [
     ...domainQueryKeys.origin,
     "list",
@@ -172,4 +172,15 @@ export const attendanceQueryKeys = {
     [...attendanceQueryKeys.origin, "complaints", "detail", id] as const,
   complaintStatistics: () =>
     [...attendanceQueryKeys.origin, "complaints", "statistics"] as const,
+};
+
+export const apiKeyQueryKeys = {
+  origin: ["api-keys"] as const,
+  list: () => [
+    ...apiKeyQueryKeys.origin,
+    "list",
+  ],
+  create: () => [...apiKeyQueryKeys.origin, "create"],
+  update: (id: string) => [...apiKeyQueryKeys.origin, "update", id],
+  delete: (id: string) => [...apiKeyQueryKeys.origin, "delete", id],
 };
