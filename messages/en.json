@@ -1419,5 +1419,119 @@
       "submit": "Save",
       "cancel": "Cancel"
     }
+  },
+  "ApiKeyPage": {
+    "breadcrumb": "API Keys",
+    "pageHeader": {
+      "title": "API Keys",
+      "description": "Manage your API keys for system access"
+    },
+    "addApiKey": "Add API Key",
+    "title": "API Keys",
+    "description": "Manage your API keys for system access",
+    "addButton": "Add API Key",
+    "table": {
+      "filters": {
+        "search": "Search API Keys"
+      },
+      "placeholders": {
+        "search": "Search by name or key prefix..."
+      },
+      "columns": {
+        "name": "Name",
+        "apiKey": "API Key",
+        "status": "Status",
+        "lastUsed": "Last Used",
+        "expiresAt": "Expires At",
+        "createdAt": "Created At",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Actions",
+        "copy": "Copy Key",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "pagination": {
+        "rowsPerPage": "Rows per page",
+        "previousPage": "Previous",
+        "nextPage": "Next",
+        "viewing": "Viewing",
+        "of": "of",
+        "results": "results",
+        "page": "Page"
+      },
+      "loadingStates": {
+        "loading": "Loading API keys...",
+        "error": "Failed to load API keys. Please try again."
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive", 
+        "expired": "Expired",
+        "never": "Never"
+      }
+    },
+    "dialogs": {
+      "add": {
+        "title": "Add New API Key",
+        "description": "Create a new API key for system access",
+        "form": {
+          "name": {
+            "label": "API Key Name",
+            "placeholder": "Enter API key name",
+            "description": "A descriptive name for this API key"
+          },
+          "permissions": {
+            "label": "Permissions",
+            "description": "Select the permissions for this API key"
+          },
+          "expiresAt": {
+            "label": "Expiration Date",
+            "placeholder": "Select expiration date",
+            "description": "When this API key should expire (optional)"
+          },
+          "isActive": {
+            "label": "Active",
+            "description": "Whether this API key is active"
+          }
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "create": "Create API Key"
+        }
+      },
+      "update": {
+        "title": "Update API Key",
+        "description": "Modify the API key settings",
+        "buttons": {
+          "cancel": "Cancel",
+          "update": "Update API Key"
+        }
+      },
+      "delete": {
+        "title": "Delete API Key",
+        "description": "Are you sure you want to delete this API key?",
+        "warning": "This action cannot be undone. The API key will be permanently deleted and any applications using it will lose access.",
+        "buttons": {
+          "cancel": "Cancel",
+          "delete": "Delete API Key"
+        }
+      }
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "expired": "Expired",
+      "never": "Never"
+    },
+    "notifications": {
+      "created": "API key created successfully",
+      "updated": "API key updated successfully",
+      "deleted": "API key deleted successfully",
+      "copied": "API key copied to clipboard",
+      "copyError": "Failed to copy API key to clipboard",
+      "error": "An error occurred. Please try again."
+    }
   }
 }

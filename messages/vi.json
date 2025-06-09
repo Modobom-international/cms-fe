@@ -1433,5 +1433,119 @@
       "submit": "Lưu",
       "cancel": "Hủy"
     }
+  },
+  "ApiKeyPage": {
+    "breadcrumb": "API Keys",
+    "pageHeader": {
+      "title": "API Keys",
+      "description": "Quản lý các API key để truy cập hệ thống"
+    },
+    "addApiKey": "Thêm API Key",
+    "title": "API Keys",
+    "description": "Quản lý các API key để truy cập hệ thống",
+    "addButton": "Thêm API Key",
+    "table": {
+      "filters": {
+        "search": "Tìm kiếm API Keys"
+      },
+      "placeholders": {
+        "search": "Tìm theo tên hoặc tiền tố key..."
+      },
+      "columns": {
+        "name": "Tên",
+        "apiKey": "API Key",
+        "status": "Trạng thái",
+        "lastUsed": "Lần cuối sử dụng",
+        "expiresAt": "Hết hạn lúc",
+        "createdAt": "Ngày tạo",
+        "actions": "Thao tác"
+      },
+      "actions": {
+        "title": "Thao tác",
+        "copy": "Sao chép Key",
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa"
+      },
+      "pagination": {
+        "rowsPerPage": "Số dòng mỗi trang",
+        "previousPage": "Trước",
+        "nextPage": "Tiếp",
+        "viewing": "Đang xem",
+        "of": "trên",
+        "results": "kết quả",
+        "page": "Trang"
+      },
+      "loadingStates": {
+        "loading": "Đang tải API keys...",
+        "error": "Không thể tải API keys. Vui lòng thử lại."
+      },
+      "status": {
+        "active": "Hoạt động",
+        "inactive": "Không hoạt động",
+        "expired": "Hết hạn", 
+        "never": "Chưa bao giờ"
+      }
+    },
+    "dialogs": {
+      "add": {
+        "title": "Thêm API Key mới",
+        "description": "Tạo API key mới để truy cập hệ thống",
+        "form": {
+          "name": {
+            "label": "Tên API Key",
+            "placeholder": "Nhập tên API key",
+            "description": "Tên mô tả cho API key này"
+          },
+          "permissions": {
+            "label": "Quyền hạn",
+            "description": "Chọn quyền hạn cho API key này"
+          },
+          "expiresAt": {
+            "label": "Ngày hết hạn",
+            "placeholder": "Chọn ngày hết hạn",
+            "description": "Khi nào API key này sẽ hết hạn (tùy chọn)"
+          },
+          "isActive": {
+            "label": "Kích hoạt",
+            "description": "API key này có được kích hoạt hay không"
+          }
+        },
+        "buttons": {
+          "cancel": "Hủy",
+          "create": "Tạo API Key"
+        }
+      },
+      "update": {
+        "title": "Cập nhật API Key",
+        "description": "Chỉnh sửa cài đặt API key",
+        "buttons": {
+          "cancel": "Hủy",
+          "update": "Cập nhật API Key"
+        }
+      },
+      "delete": {
+        "title": "Xóa API Key",
+        "description": "Bạn có chắc chắn muốn xóa API key này?",
+        "warning": "Hành động này không thể hoàn tác. API key sẽ bị xóa vĩnh viễn và các ứng dụng đang sử dụng sẽ mất quyền truy cập.",
+        "buttons": {
+          "cancel": "Hủy",
+          "delete": "Xóa API Key"
+        }
+      }
+    },
+    "status": {
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động",
+      "expired": "Hết hạn",
+      "never": "Chưa bao giờ"
+    },
+    "notifications": {
+      "created": "Tạo API key thành công",
+      "updated": "Cập nhật API key thành công",
+      "deleted": "Xóa API key thành công",
+      "copied": "Đã sao chép API key vào clipboard",
+      "copyError": "Không thể sao chép API key vào clipboard",
+      "error": "Đã xảy ra lỗi. Vui lòng thử lại."
+    }
   }
 }
