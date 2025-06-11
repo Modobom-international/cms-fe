@@ -532,7 +532,13 @@
     "NewPage": {
       "Title": "Trang mới: {slug}",
       "Description": "Bắt đầu xây dựng trang của bạn tại đây."
-    }
+    },
+    "DeletingAssets": "Đang xóa file...",
+    "AssetsDeletedSuccessfully": "File đã được xóa thành công!",
+    "FailedToDeleteAssets": "Không thể xóa file",
+    "UploadingAssets": "Đang tải lên file...",
+    "AssetsUploadedSuccessfully": "File đã được tải lên thành công!",
+    "FailedToUploadAssets": "Không thể tải file lên"
   },
   "Studio": {
     "Sites": {
@@ -1482,7 +1488,7 @@
       "status": {
         "active": "Hoạt động",
         "inactive": "Không hoạt động",
-        "expired": "Hết hạn", 
+        "expired": "Hết hạn",
         "never": "Chưa bao giờ"
       },
       "copy": {
@@ -1509,7 +1515,7 @@
           "expirationOptions": {
             "7days": "7 ngày",
             "30days": "30 ngày",
-            "60days": "60 ngày", 
+            "60days": "60 ngày",
             "90days": "90 ngày",
             "custom": "Tùy chỉnh",
             "noExpiration": "Không hết hạn"

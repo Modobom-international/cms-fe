@@ -531,7 +531,13 @@
     "NewPage": {
       "Title": "New Page: {slug}",
       "Description": "Start building your page here."
-    }
+    },
+    "DeletingAssets": "Deleting assets...",
+    "AssetsDeletedSuccessfully": "Assets deleted successfully!",
+    "FailedToDeleteAssets": "Failed to delete assets",
+    "UploadingAssets": "Uploading assets...",
+    "AssetsUploadedSuccessfully": "Assets uploaded successfully!",
+    "FailedToUploadAssets": "Failed to upload assets"
   },
   "Studio": {
     "Sites": {
@@ -1467,7 +1473,7 @@
       },
       "status": {
         "active": "Active",
-        "inactive": "Inactive", 
+        "inactive": "Inactive",
         "expired": "Expired",
         "never": "Never"
       }
@@ -1489,7 +1495,7 @@
           },
           "expirationOptions": {
             "7days": "7 days",
-            "30days": "30 days", 
+            "30days": "30 days",
             "60days": "60 days",
             "90days": "90 days",
             "custom": "Custom",
@@ -1558,7 +1564,7 @@
         "form": {
           "name": {
             "label": "API Key Name",
-            "placeholder": "Enter API key name", 
+            "placeholder": "Enter API key name",
             "description": "A descriptive name for this API key"
           },
           "isActive": {
@@ -1585,7 +1591,7 @@
         },
         "info": {
           "name": "Name",
-          "keyPrefix": "Key Prefix", 
+          "keyPrefix": "Key Prefix",
           "createdAt": "Created At"
         },
         "confirmation": {
@@ -1604,17 +1610,17 @@
         }
       }
     },
-          "status": {
-        "active": "Active",
-        "inactive": "Inactive", 
-        "expired": "Expired",
-        "never": "Never"
-      },
-      "copy": {
-        "success": "Copied to clipboard",
-        "copied": "copied successfully",
-        "error": "Failed to copy"
-      },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "expired": "Expired",
+      "never": "Never"
+    },
+    "copy": {
+      "success": "Copied to clipboard",
+      "copied": "copied successfully",
+      "error": "Failed to copy"
+    },
     "notifications": {
       "created": "API key created successfully",
       "updated": "API key updated successfully",

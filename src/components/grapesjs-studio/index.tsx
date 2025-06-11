@@ -512,13 +512,18 @@ export default function WebBuilderStudio({
             },
             onDelete: async ({ assets, editor }) => {
               try {
-                toast.loading("Deleting assets...");
-                await deleteAssets({
-                  assets,
-                  editor,
-                  siteId,
-                });
-                toast.success("Assets deleted successfully!");
+                await toast.promise(
+                  deleteAssets({
+                    assets,
+                    editor,
+                    siteId,
+                  }),
+                  {
+                    loading: t("DeletingAssets"),
+                    success: t("AssetsDeletedSuccessfully"),
+                    error: t("FailedToDeleteAssets"),
+                  }
+                );
               } catch (error) {
                 const errorMessage =
                   error instanceof Error
