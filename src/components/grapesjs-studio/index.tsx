@@ -108,240 +108,9 @@ export default function WebBuilderStudio({
       }
     }
 
-    // Monitor download start
-    function monitorDownload(url) {
-      return new Promise((resolve, reject) => {
-        // Create a hidden iframe to handle the download
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = url;
-        document.body.appendChild(iframe);
-
-        // Set a timeout to hide loading after reasonable time
-        const timeout = setTimeout(() => {
-          hideLoadingOverlay();
-          document.body.removeChild(iframe);
-          resolve('Download started');
-        }, 3000); // 3 seconds timeout
-
-        // Try to detect when download starts by monitoring the iframe load
-        iframe.onload = () => {
-          clearTimeout(timeout);
-          hideLoadingOverlay();
-          document.body.removeChild(iframe);
-          resolve('Download completed');
-        };
-
-        iframe.onerror = () => {
-          clearTimeout(timeout);
-          hideLoadingOverlay();
-          document.body.removeChild(iframe);
-          reject('Download failed');
-        };
-      });
-    }
-
-    // Alternative method using fetch to check server response
-    async function checkServerResponse(url) {
-      try {
-        const response = await fetch(url, { 
-          method: 'HEAD',
-          mode: 'no-cors' // This allows cross-origin requests but limits response data
-        });
-        return true;
-      } catch (error) {
-        // If HEAD fails, the server might not support it, so we'll proceed anyway
-        return true;
-      }
-    }
-
-    // Handle download button click
-    function handleDownloadClick(e) {
-      e.preventDefault(); // Prevent immediate navigation
-      
-      const downloadLink = e.target;
-      const downloadUrl = downloadLink.href;
-      
-      // Check if this is an Android Intent URL
-      if (downloadUrl.startsWith('@intent://')) {
-        // For Android Intent URLs, we'll use a direct approach
-        showLoadingOverlay();
-        
-        
-
-        // Create a temporary link element
-        const tempLink = document.createElement('a');
-        tempLink.href = downloadUrl;
-        tempLink.target = '_blank';
-        tempLink.rel = 'noopener noreferrer';
-        
-        // Add click event to handle completion
-        tempLink.onclick = function() {
-          // Hide overlay after a short delay
-          setTimeout(hideLoadingOverlay, 1000);
-        };
-        
-        // Trigger the click
-        tempLink.click();
-        
-        // Fallback: hide overlay after 5 seconds if not hidden already
-        setTimeout(hideLoadingOverlay, 5000);
-        return;
-      }
-      
-      // Regular download handling for non-Intent URLs
-      showLoadingOverlay();
-      
-      // Report conversion if available
-      if (typeof gtag_report_conversion === "function") {
-        gtag_report_conversion();
-      }
-
-      // Method 1: Monitor server response with fetch
-      async function checkServerAndDownload() {
-        try {
-          // First, try to fetch the URL to check server response
-          const response = await fetch(downloadUrl, {
-            method: 'GET',
-            mode: 'no-cors' // Handle CORS issues
-          });
-          
-          // If we get here, server responded, start download
-          startDownloadWithIframe();
-          
-        } catch (error) {
-          console.log('Fetch failed, trying iframe method directly');
-          // If fetch fails due to CORS or other issues, try iframe method
-          startDownloadWithIframe();
-        }
-      }
-
-      // Method 2: Use iframe and monitor load events
-      function startDownloadWithIframe() {
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = 'none';
-        
-        let responseReceived = false;
-        
-        // Monitor iframe load events
-        iframe.onload = function() {
-          if (!responseReceived) {
-            responseReceived = true;
-            console.log('Server responded - download should start');
-            hideLoadingOverlay();
-            
-            // Clean up iframe after a delay
-            setTimeout(() => {
-              if (document.body.contains(iframe)) {
-                document.body.removeChild(iframe);
-              }
-            }, 2000);
-          }
-        };
-        
-        iframe.onerror = function() {
-          console.log('Download error occurred');
-          responseReceived = true;
-          hideLoadingOverlay();
-          // Show error or fallback to direct navigation
-          window.location.href = downloadUrl;
-        };
-        
-        // Set a maximum timeout for server response (30 seconds)
-        const maxTimeout = setTimeout(() => {
-          if (!responseReceived) {
-            console.log('Server response timeout');
-            responseReceived = true;
-            hideLoadingOverlay();
-            if (document.body.contains(iframe)) {
-              document.body.removeChild(iframe);
-            }
-            // Fallback to direct navigation
-            window.location.href = downloadUrl;
-          }
-        }, 30000); // 30 second maximum wait
-        
-        // Add iframe to DOM and start download
-        document.body.appendChild(iframe);
-        iframe.src = downloadUrl;
-        
-        // Clean up timeout when response is received
-        iframe.addEventListener('load', () => {
-          clearTimeout(maxTimeout);
-        });
-        iframe.addEventListener('error', () => {
-          clearTimeout(maxTimeout);
-        });
-      }
-
-      // Method 3: Monitor document visibility and focus (backup method)
-      function monitorPageEvents() {
-        let eventTimeout;
-        
-        const handleVisibilityChange = () => {
-          if (document.hidden) {
-            // Page became hidden, might indicate download started
-            eventTimeout = setTimeout(() => {
-              hideLoadingOverlay();
-            }, 1000);
-          } else if (eventTimeout) {
-            clearTimeout(eventTimeout);
-          }
-        };
-        
-        const handleFocusChange = () => {
-          // Browser focus changed, might indicate download dialog
-          eventTimeout = setTimeout(() => {
-            hideLoadingOverlay();
-          }, 1500);
-        };
-        
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('blur', handleFocusChange);
-        
-        // Clean up listeners after 35 seconds
-        setTimeout(() => {
-          document.removeEventListener('visibilitychange', handleVisibilityChange);
-          window.removeEventListener('blur', handleFocusChange);
-          if (eventTimeout) clearTimeout(eventTimeout);
-        }, 35000);
-      }
-
-      // Start monitoring with multiple methods
-      checkServerAndDownload();
-      monitorPageEvents();
-    }
-
     // Initialize
     document.addEventListener("DOMContentLoaded", function() {
       createLoadingOverlay();
-      
-      // Add click event to Download button
-      const downloadBtn = document.getElementById('Download');
-      if (downloadBtn) {
-        downloadBtn.addEventListener('click', handleDownloadClick);
-      }
-      
-      // Also listen for any changes to the DOM in case the button is added later
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'childList') {
-            const newDownloadBtn = document.getElementById('Download');
-            if (newDownloadBtn && !newDownloadBtn.hasAttribute('data-listener-added')) {
-              newDownloadBtn.setAttribute('data-listener-added', 'true');
-              newDownloadBtn.addEventListener('click', handleDownloadClick);
-            }
-          }
-        });
-      });
-      
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true
-      });
     });
   </script>
   `;
@@ -444,24 +213,38 @@ export default function WebBuilderStudio({
       }
     }
 
-    // Function to handle download clicks
-    function handleDownloadClick(e) {
-      if (typeof gtag_report_conversion === "function") {
-        gtag_report_conversion();
-      }
-    }
+         // Function to handle download clicks
+     function handleDownloadClick(e) {
+       // Show loading overlay
+       showLoadingOverlay();
+       
+       // Hide loading overlay after 3 seconds (adjust as needed)
+       setTimeout(() => {
+         hideLoadingOverlay();
+       }, 3000);
+       
+       if (typeof gtag_report_conversion === "function") {
+         gtag_report_conversion();
+       }
+     }
 
-    // Initialize when DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      // Update download links
-      updateDownloadLink();
+     // Initialize when DOM is loaded
+     document.addEventListener('DOMContentLoaded', function() {
+       // Update download links
+       updateDownloadLink();
 
-      // Add click handlers to all download links
-      const downloadLinks = document.querySelectorAll('.download');
-      downloadLinks.forEach(link => {
-        link.addEventListener('click', handleDownloadClick);
-      });
-    });
+       // Add click handlers to all download links
+       const downloadLinks = document.querySelectorAll('.download');
+       downloadLinks.forEach(link => {
+         link.addEventListener('click', handleDownloadClick);
+       });
+       
+       // Add click handler to Download button specifically
+       const downloadBtn = document.getElementById('Download');
+       if (downloadBtn) {
+         downloadBtn.addEventListener('click', handleDownloadClick);
+       }
+     });
   </script>
 
 
