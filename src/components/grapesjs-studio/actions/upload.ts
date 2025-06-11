@@ -1,4 +1,4 @@
-import { getApiUrl, bucketPublicUrl } from "@/lib/s3";
+import { bucketPublicUrl, getApiUrl } from "@/lib/s3";
 
 // Define InputAssetProps type based on what GrapeJS expects
 interface InputAssetProps {
@@ -73,19 +73,23 @@ export const uploadAssets = async ({
       }
 
       const result = await response.json();
-      
-      // Use direct public URL for better performance
-      const publicUrl = `${bucketPublicUrl}/${key}`;
+
+      // Use the returned URL from the API (may have a different extension)
+      const publicUrl = result.url;
+      // Extract the actual file name and key from the URL
+      const urlParts = publicUrl.split("/");
+      const actualFileName = urlParts[urlParts.length - 1];
+      const actualR2Path = urlParts.slice(-3).join("/"); // e.g., cms/siteId/assets/filename.webp
 
       // Prepare asset metadata
       const asset: InputAssetProps = {
         src: publicUrl,
-        name: file.name,
+        name: actualFileName,
         metadata: {
           originalName: file.name,
           size: file.size,
           type: file.type,
-          r2Path: key,
+          r2Path: actualR2Path,
           timestamp: timestamp,
         },
       };
@@ -117,9 +121,12 @@ export const deleteAssets = async ({
 
       if (r2Path) {
         // Delete via API route
-        const response = await fetch(`/api/r2?key=${encodeURIComponent(r2Path)}`, {
-          method: "DELETE",
-        });
+        const response = await fetch(
+          `/api/r2?key=${encodeURIComponent(r2Path)}`,
+          {
+            method: "DELETE",
+          }
+        );
 
         if (!response.ok) {
           throw new Error(`Delete failed: ${response.statusText}`);
@@ -146,25 +153,28 @@ export const loadAssets = async ({
     const folderPath = getCMSFolderPath(siteId);
 
     // Use the API proxy to list assets with caching
-    const response = await fetch(`/api/r2?prefix=${encodeURIComponent(folderPath)}`, {
-      // Add cache control to prevent unnecessary refetches
-      cache: "no-store",
-      headers: {
-        "Cache-Control": "no-cache"
+    const response = await fetch(
+      `/api/r2?prefix=${encodeURIComponent(folderPath)}`,
+      {
+        // Add cache control to prevent unnecessary refetches
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache",
+        },
       }
-    });
-    
+    );
+
     if (!response.ok) {
       throw new Error(`Failed to load assets: ${response.statusText}`);
     }
-    
+
     const data = await response.json();
-    
+
     if (!data.items || !Array.isArray(data.items)) {
-      console.warn('Invalid response format from assets API:', data);
+      console.warn("Invalid response format from assets API:", data);
       return [];
     }
-    
+
     // Define the expected item type from API
     interface AssetItem {
       key: string;
@@ -174,12 +184,12 @@ export const loadAssets = async ({
       timestamp?: number;
       url: string;
     }
-    
+
     // Map the API response to the format expected by GrapeJS
     const assets = data.items.map((item: AssetItem) => {
       // Extract original name from filename if possible
       const fileName = item.name;
-      
+
       return {
         src: item.url,
         name: fileName,
@@ -192,7 +202,7 @@ export const loadAssets = async ({
         },
       } as InputAssetProps;
     });
-    
+
     return assets;
   } catch (error) {
     console.error("Error loading assets from R2:", error);

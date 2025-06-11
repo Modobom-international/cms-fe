@@ -1,11 +1,14 @@
-import { bucketName, bucketPublicUrl, s3Client } from "@/lib/s3";
-import {
-    DeleteObjectCommand,
-    GetObjectCommand,
-    ListObjectsV2Command,
-    PutObjectCommand,
-} from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
+
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+} from "@aws-sdk/client-s3";
+import sharp from "sharp";
+
+import { bucketName, bucketPublicUrl, s3Client } from "@/lib/s3";
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,7 +24,7 @@ export async function GET(request: NextRequest) {
       });
 
       const listResult = await s3Client.send(command);
-      
+
       if (!listResult.Contents) {
         return NextResponse.json({ items: [] });
       }
@@ -51,7 +54,7 @@ export async function GET(request: NextRequest) {
       });
 
       // Filter out null items and sort by timestamp
-      const validItems = items.filter(item => item !== null);
+      const validItems = items.filter((item) => item !== null);
       validItems.sort((a, b) => (b?.timestamp || 0) - (a?.timestamp || 0));
 
       return NextResponse.json({ items: validItems });
@@ -59,7 +62,10 @@ export async function GET(request: NextRequest) {
 
     // Handle single file retrieval if key is provided
     if (!key) {
-      return NextResponse.json({ error: "Key or prefix is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Key or prefix is required" },
+        { status: 400 }
+      );
     }
 
     const command = new GetObjectCommand({
@@ -68,7 +74,7 @@ export async function GET(request: NextRequest) {
     });
 
     const response = await s3Client.send(command);
-    
+
     // Convert stream to buffer
     const chunks: Uint8Array[] = [];
     for await (const chunk of response.Body as any) {
@@ -102,14 +108,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    
+    // Use Buffer.from with Uint8Array for compatibility and cast to any to satisfy type checker
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(new Uint8Array(arrayBuffer)) as any;
+    const mimeType = file.type;
+    let uploadBuffer = buffer;
+    let uploadContentType = mimeType;
+    let uploadKey = key;
+
+    // Only process if it's an image (not GIF)
+    if (mimeType.startsWith("image/") && mimeType !== "image/gif") {
+      try {
+        // Convert to webp using sharp
+        const webpBuffer = await sharp(buffer).webp({ quality: 85 }).toBuffer();
+        uploadBuffer = webpBuffer;
+        uploadContentType = "image/webp";
+        // Change file extension to .webp
+        uploadKey = key.replace(/\.[^.]+$/, ".webp");
+      } catch (err) {
+        console.error(
+          "Sharp image conversion failed, uploading original:",
+          err
+        );
+      }
+    }
+    // GIFs and non-images are uploaded as-is
+
     await s3Client.send(
       new PutObjectCommand({
         Bucket: bucketName,
-        Key: key,
-        Body: buffer,
-        ContentType: file.type,
+        Key: uploadKey,
+        Body: uploadBuffer,
+        ContentType: uploadContentType,
         Metadata: {
           originalName: file.name,
         },
@@ -117,8 +147,8 @@ export async function POST(request: NextRequest) {
     );
 
     // Return the direct public URL for better performance
-    const fileUrl = `${bucketPublicUrl}/${key}`;
-    
+    const fileUrl = `${bucketPublicUrl}/${uploadKey}`;
+
     return NextResponse.json({ url: fileUrl });
   } catch (error) {
     console.error("Error uploading asset:", error);
@@ -153,4 +183,4 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
