@@ -4,7 +4,6 @@ import { cookies } from "next/headers";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
-import { EchoProvider } from "@/components/context/echo";
 import Footer from "@/components/layouts/footer";
 import { AppSidebar } from "@/components/layouts/sidebar/app-sidebar";
 import { SiteHeader } from "@/components/layouts/site-header";
@@ -17,24 +16,28 @@ export default async function AdminLayout({
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
   return (
-    <div className="[--header-height:calc(--spacing(14))]">
-      <SidebarProvider className="flex flex-col" defaultOpen={defaultOpen}>
-        <EchoProvider>
-          <SiteHeader />
-          <div className="flex flex-1">
-            <AppSidebar />
-            <SidebarInset>
-              <div className="flex flex-1 flex-col gap-4">
-                <main className="mx-auto w-full max-w-7xl space-y-4 px-4 py-6 sm:px-6 lg:px-8">
-                  {children}
-                  <Footer />
-                </main>
-              </div>
-            </SidebarInset>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+      defaultOpen={defaultOpen}
+    >
+      <AppSidebar variant="sidebar" />
+      <SidebarInset>
+        <SiteHeader />
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              {children}
+              <Footer />
+            </div>
           </div>
-        </EchoProvider>
-      </SidebarProvider>
-    </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
 
