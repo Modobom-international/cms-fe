@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-
 import {
   addDays,
   eachDayOfInterval,
@@ -9,6 +8,8 @@ import {
   endOfWeek,
   format,
   isSameDay,
+  isSameMonth,
+  isToday,
   startOfMonth,
   startOfWeek,
 } from "date-fns";
@@ -18,24 +19,24 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
-import { EventGap, EventHeight } from "@/components/calendar/constants";
-import { DraggableEvent } from "@/components/calendar/draggable-event";
-import { DroppableCell } from "@/components/calendar/droppable-cell";
-import { EventItem } from "@/components/calendar/event-item";
-import { CalendarEvent } from "@/components/calendar/types";
-import { useEventVisibility } from "@/components/calendar/use-event-visibility";
 import {
+  DraggableEvent,
+  DroppableCell,
+  EventGap,
+  EventHeight,
+  EventItem,
   getAllEventsForDay,
   getEventsForDay,
   getSpanningEventsForDay,
   sortEvents,
-} from "@/components/calendar/utils";
+  useEventVisibility,
+  type CalendarEvent,
+} from "@/components/event-calendar";
+import { DefaultStartHour } from "@/components/event-calendar/constants";
 
 interface MonthViewProps {
   currentDate: Date;
   events: CalendarEvent[];
-  today: Date;
   onEventSelect: (event: CalendarEvent) => void;
   onEventCreate: (startTime: Date) => void;
 }
@@ -43,7 +44,6 @@ interface MonthViewProps {
 export function MonthView({
   currentDate,
   events,
-  today, // Sử dụng prop today
   onEventSelect,
   onEventCreate,
 }: MonthViewProps) {
@@ -93,17 +93,13 @@ export function MonthView({
     setIsMounted(true);
   }, []);
 
-  function isToday(day: Date): boolean {
-    return isSameDay(day, today); // Sử dụng prop today và isSameDay từ date-fns
-  }
-
   return (
-    <>
-      <div className="border-border/70 grid grid-cols-7 border-b">
+    <div data-slot="month-view" className="contents">
+      <div className="border-border/70 grid grid-cols-7 border-y uppercase">
         {weekdays.map((day) => (
           <div
             key={day}
-            className="text-muted-foreground/70 py-2 text-center text-sm"
+            className="text-muted-foreground/70 py-2 text-center text-xs"
           >
             {day}
           </div>
@@ -116,8 +112,11 @@ export function MonthView({
             className="grid grid-cols-7 [&:last-child>*]:border-b-0"
           >
             {week.map((day, dayIndex) => {
+              if (!day) return null; // Skip if day is undefined
+
               const dayEvents = getEventsForDay(events, day);
               const spanningEvents = getSpanningEventsForDay(events, day);
+              const isCurrentMonth = isSameMonth(day, currentDate);
               const cellId = `month-cell-${day.toISOString()}`;
               const allDayEvents = [...spanningEvents, ...dayEvents];
               const allEvents = getAllEventsForDay(events, day);
@@ -137,14 +136,15 @@ export function MonthView({
                 <div
                   key={day.toString()}
                   className="group border-border/70 data-outside-cell:bg-muted/25 data-outside-cell:text-muted-foreground/70 border-r border-b last:border-r-0"
-                  data-today={isToday(day)}
+                  data-today={isToday(day) || undefined}
+                  data-outside-cell={!isCurrentMonth || undefined}
                 >
                   <DroppableCell
                     id={cellId}
                     date={day}
                     onClick={() => {
                       const startTime = new Date(day);
-                      startTime.setHours(9, 0, 0); // Default to 9:00 AM
+                      startTime.setHours(DefaultStartHour, 0, 0);
                       onEventCreate(startTime);
                     }}
                   >
@@ -185,7 +185,7 @@ export function MonthView({
                                     <span>
                                       {format(
                                         new Date(event.start),
-                                        "h:mm"
+                                        "h:mm",
                                       )}{" "}
                                     </span>
                                   )}
@@ -217,7 +217,7 @@ export function MonthView({
                         <Popover modal>
                           <PopoverTrigger asChild>
                             <button
-                              className="focus-visible:border-ring focus-visible:ring-ring/50 text-muted-foreground hover:text-foreground hover:bg-muted/50 mt-[var(--event-gap)] flex h-[var(--event-height)] w-full items-center overflow-hidden px-1 text-left text-[10px] backdrop-blur-md transition outline-none select-none focus-visible:ring-[3px] data-dragging:cursor-grabbing data-dragging:shadow-lg data-past-event:line-through sm:px-2 sm:text-xs"
+                              className="focus-visible:border-ring focus-visible:ring-ring/50 text-muted-foreground hover:text-foreground hover:bg-muted/50 mt-[var(--event-gap)] flex h-[var(--event-height)] w-full items-center overflow-hidden px-1 text-left text-[10px] backdrop-blur-md transition outline-none select-none focus-visible:ring-[3px] sm:px-2 sm:text-xs"
                               onClick={(e) => e.stopPropagation()}
                             >
                               <span>
@@ -272,6 +272,6 @@ export function MonthView({
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 }

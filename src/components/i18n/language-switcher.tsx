@@ -13,6 +13,7 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 
 type LanguageOption = {
@@ -54,51 +55,67 @@ export default function LanguageSwitcher() {
       disabled={isPending}
     >
       <SelectTrigger
-        className="focus:ring-primary flex h-9 w-auto items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium shadow-sm hover:bg-gray-100 focus:ring-2 focus:outline-none"
+        className="focus-visible:ring-ring/20 dark:focus-visible:ring-ring/40 hover:bg-accent/50 dark:hover:bg-accent/30 border-border bg-background text-foreground flex h-9 w-auto min-w-[140px] items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium shadow-sm transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         aria-label="Select language"
       >
-        {selectedLanguage && (
+        {selectedLanguage && !isPending && (
           <div className="flex items-center gap-2">
             <img
               src={selectedLanguage.flag}
               alt={selectedLanguage.label}
-              className="h-5 w-5"
+              className="h-5 w-5 rounded-sm"
+              loading="lazy"
             />
-            <span>{selectedLanguage.label}</span>
+            <span className="truncate">{selectedLanguage.label}</span>
           </div>
         )}
         {isPending && (
-          <svg
-            className="text-muted-foreground ml-2 h-4 w-4 animate-spin"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-              fill="none"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            />
-          </svg>
+          <div className="flex items-center gap-2">
+            <div className="bg-muted h-5 w-5 animate-pulse rounded-sm" />
+            <div className="bg-muted h-4 w-16 animate-pulse rounded" />
+            <svg
+              className="text-muted-foreground ml-auto h-4 w-4 animate-spin"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              />
+            </svg>
+          </div>
         )}
       </SelectTrigger>
       <SelectContent
         align="end"
-        className="w-[180px] rounded-md border border-gray-300 bg-white shadow-lg"
+        className="border-border bg-popover text-popover-foreground w-[180px] rounded-md border shadow-lg"
+        sideOffset={4}
       >
         <SelectGroup>
           {LANGUAGES.map(({ value, label, flag }) => (
-            <SelectItem key={value} value={value}>
+            <SelectItem
+              key={value}
+              value={value}
+              className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer rounded-sm transition-colors duration-150"
+            >
               <div className="flex items-center gap-2">
-                <img src={flag} alt={label} className="h-5 w-5" />
-                <span>{label}</span>
+                <img
+                  src={flag}
+                  alt={label}
+                  className="h-5 w-5 rounded-sm"
+                  loading="lazy"
+                />
+                <span className="font-medium">{label}</span>
               </div>
             </SelectItem>
           ))}

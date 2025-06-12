@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
 
-import AvatarButton from "@/components/avatars/avatar-button";
 import NotificationsButton from "@/components/notifications";
 
 import LanguageSwitcher from "../i18n/language-switcher";
@@ -40,8 +39,6 @@ export function SiteHeader() {
               <Skeleton className="h-6 w-6 rounded-lg" />
             )}
             <LanguageSwitcher />
-
-            <AvatarButton />
           </div>
         </div>
       </div>

@@ -1,11 +1,13 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
-import { DayPicker } from "react-day-picker"
+import * as React from "react";
 
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { DayPicker } from "react-day-picker";
+
+import { cn } from "@/lib/utils";
+
+import { buttonVariants } from "@/components/ui/button";
 
 function Calendar({
   className,
@@ -23,16 +25,16 @@ function Calendar({
     nav: "absolute top-0 flex w-full justify-between z-10",
     button_previous: cn(
       buttonVariants({ variant: "ghost" }),
-      "size-9 text-muted-foreground/80 hover:text-foreground p-0"
+      "size-8 text-muted-foreground/80 hover:text-foreground p-0"
     ),
     button_next: cn(
       buttonVariants({ variant: "ghost" }),
-      "size-9 text-muted-foreground/80 hover:text-foreground p-0"
+      "size-8 text-muted-foreground/80 hover:text-foreground p-0"
     ),
-    weekday: "size-9 p-0 text-xs font-medium text-muted-foreground/80",
+    weekday: "size-8 p-0 text-xs font-medium text-muted-foreground/80",
     day_button:
-      "relative flex size-9 items-center justify-center whitespace-nowrap rounded-md p-0 text-foreground group-[[data-selected]:not(.range-middle)]:[transition-property:color,background-color,border-radius,box-shadow] group-[[data-selected]:not(.range-middle)]:duration-150 group-data-disabled:pointer-events-none focus-visible:z-10 hover:not-in-data-selected:bg-accent group-data-selected:bg-primary hover:not-in-data-selected:text-foreground group-data-selected:text-primary-foreground group-data-disabled:text-foreground/30 group-data-disabled:line-through group-data-outside:text-foreground/30 group-data-selected:group-data-outside:text-primary-foreground outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px] group-[.range-start:not(.range-end)]:rounded-e-none group-[.range-end:not(.range-start)]:rounded-s-none group-[.range-middle]:rounded-none group-[.range-middle]:group-data-selected:bg-accent group-[.range-middle]:group-data-selected:text-foreground",
-    day: "group size-9 px-0 py-px text-sm",
+      "relative flex size-8 items-center justify-center whitespace-nowrap rounded-full p-0 text-foreground group-[[data-selected]:not(.range-middle)]:[transition-property:color,background-color,border-radius,box-shadow] group-[[data-selected]:not(.range-middle)]:duration-150 group-data-disabled:pointer-events-none focus-visible:z-10 hover:not-in-data-selected:bg-accent group-data-selected:bg-primary hover:not-in-data-selected:text-foreground group-data-selected:text-primary-foreground group-data-disabled:text-foreground/30 group-data-disabled:line-through group-data-outside:text-foreground/30 group-data-selected:group-data-outside:text-primary-foreground outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px] group-[.range-start:not(.range-end)]:rounded-e-full group-[.range-end:not(.range-start)]:rounded-s-full group-[.range-middle]:rounded-none group-[.range-middle]:group-data-selected:bg-accent group-[.range-middle]:group-data-selected:text-foreground",
+    day: "group size-8 px-0 py-px text-sm relative before:absolute before:inset-y-px before:inset-x-0 [&.range-start:not(.range-end):before]:bg-linear-to-r before:from-transparent before:from-50% before:to-accent before:to-50% [&.range-end:not(.range-start):before]:bg-linear-to-l",
     range_start: "range-start",
     range_end: "range-end",
     range_middle: "range-middle",
@@ -41,8 +43,8 @@ function Calendar({
     outside:
       "text-muted-foreground data-selected:bg-accent/50 data-selected:text-muted-foreground",
     hidden: "invisible",
-    week_number: "size-9 p-0 text-xs font-medium text-muted-foreground/80",
-  }
+    week_number: "size-8 p-0 text-xs font-medium text-muted-foreground/80",
+  };
 
   const mergedClassNames: typeof defaultClassNames = Object.keys(
     defaultClassNames
@@ -57,26 +59,26 @@ function Calendar({
         : defaultClassNames[key as keyof typeof defaultClassNames],
     }),
     {} as typeof defaultClassNames
-  )
+  );
 
   const defaultComponents = {
     Chevron: (props: {
-      className?: string
-      size?: number
-      disabled?: boolean
-      orientation?: "left" | "right" | "up" | "down"
+      className?: string;
+      size?: number;
+      disabled?: boolean;
+      orientation?: "left" | "right" | "up" | "down";
     }) => {
       if (props.orientation === "left") {
-        return <ChevronLeftIcon size={16} {...props} aria-hidden="true" />
+        return <ChevronLeftIcon size={16} {...props} aria-hidden="true" />;
       }
-      return <ChevronRightIcon size={16} {...props} aria-hidden="true" />
+      return <ChevronRightIcon size={16} {...props} aria-hidden="true" />;
     },
-  }
+  };
 
   const mergedComponents = {
     ...defaultComponents,
     ...userComponents,
-  }
+  };
 
   return (
     <DayPicker
@@ -86,7 +88,7 @@ function Calendar({
       components={mergedComponents}
       {...props}
     />
-  )
+  );
 }
 
-export { Calendar }
+export { Calendar };
