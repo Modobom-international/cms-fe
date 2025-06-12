@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
-import dynamic from "next/dynamic"
+import dynamic from "next/dynamic";
 
 import {
   IconCamera,
@@ -20,20 +20,20 @@ import {
   IconServer,
   IconSettings,
   IconUsers,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-} from "@/components/ui/sidebar"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 
-import { NavDocuments } from "@/components/sidebar/nav-documents"
-import { NavMain } from "@/components/sidebar/nav-main"
-import { NavSecondary } from "@/components/sidebar/nav-secondary"
-import { ServerSwitcher } from "@/components/sidebar/server-switcher"
+import { NavDocuments } from "@/components/sidebar/nav-documents";
+import { NavMain } from "@/components/sidebar/nav-main";
+import { NavSecondary } from "@/components/sidebar/nav-secondary";
+import { PlatformModeSwitcher } from "@/components/sidebar/platform-mode-switcher";
 
 const NavUser = dynamic(
   () => import("@/components/sidebar/nav-user").then((mod) => mod.NavUser),
@@ -41,7 +41,7 @@ const NavUser = dynamic(
     loading: () => <Skeleton className="h-12 w-full rounded-lg" />,
     ssr: false,
   }
-)
+);
 
 const data = {
   user: {
@@ -158,26 +158,13 @@ const data = {
       icon: IconFileWord,
     },
   ],
-}
-
-const servers = [
-  {
-    name: "Server 1",
-    logo: IconServer,
-    plan: "Pro",
-  },
-  {
-    name: "Server 2",
-    logo: IconServer,
-    plan: "Pro",
-  },
-]
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader className="border-sidebar-border h-16 border-b">
-        <ServerSwitcher servers={servers} />
+        <PlatformModeSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
@@ -188,5 +175,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

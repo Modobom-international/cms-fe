@@ -5,8 +5,9 @@ import { cookies } from "next/headers";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 import Footer from "@/components/layouts/footer";
-import { AppSidebar } from "@/components/layouts/sidebar/app-sidebar";
+import MaxWidthWrapper from "@/components/layouts/max-width-wrapper";
 import { SiteHeader } from "@/components/layouts/site-header";
+import { AppSidebar } from "@/components/sidebar/app-sidebar";
 
 export default async function AdminLayout({
   children,
@@ -30,14 +31,13 @@ export default async function AdminLayout({
         <SiteHeader />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+            <MaxWidthWrapper className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               {children}
               <Footer />
-            </div>
+            </MaxWidthWrapper>
           </div>
         </div>
       </SidebarInset>
     </SidebarProvider>
   );
 }
-
