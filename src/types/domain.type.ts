@@ -40,21 +40,31 @@ export interface IUser {
   address?: string;
 }
 
+export interface IDnsRecord {
+  type: string;
+  host: string;
+  ip?: string;
+  target?: string;
+  priority?: number;
+  ttl: number;
+}
+
 export interface IDomainActual {
   id: number;
   domain: string;
-  time_expired: string;
-  registrar: string;
-  created_at: string;
-  updated_at: string;
-  is_locked: number;
-  renewable: number;
   status: string;
-  name_servers: string;
-  renew_deadline: string;
-  registrar_created_at: string;
+  is_locked: boolean;
+  dns_records?: IDnsRecord[];
+  time_expired?: string;
+  registrar?: string;
+  created_at?: string;
+  updated_at?: string;
+  renewable?: number;
+  name_servers?: string;
+  renew_deadline?: string;
+  registrar_created_at?: string;
   activeUsers?: number;
-  sites: ISite;
+  sites?: ISite;
 }
 
 export interface IDomainForTracking {
@@ -78,9 +88,16 @@ export interface IDomainResponseTracking {
   type: string;
 }
 
+export interface IDomainListData {
+  data: IDomainActual[];
+  total: number;
+  per_page: number;
+  current_page: number;
+}
+
 export interface IDomainResponse {
   success: boolean;
-  data: IPaginatedResponse<IDomainActual>;
+  data: IDomainListData;
   message: string;
   type: string;
 }

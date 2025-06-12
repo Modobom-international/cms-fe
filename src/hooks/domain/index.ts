@@ -71,7 +71,7 @@ export const useGetDomainList = ({
     queryFn: async (): Promise<IDomainResponse | IBackendErrorRes> => {
       try {
         const { data } = await apiClient.get<IDomainResponse>(
-          `/api/domains?${params}`
+          `/api/domains?include_dns=true&${params}`
         );
         return data;
       } catch (error) {

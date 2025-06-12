@@ -104,7 +104,20 @@ export default function DomainDataTable() {
       : [];
   const paginationInfo =
     domainResponse && "data" in domainResponse
-      ? domainResponse.data
+      ? {
+          from:
+            (domainResponse.data.current_page - 1) *
+              domainResponse.data.per_page +
+            1,
+          to: Math.min(
+            domainResponse.data.current_page * domainResponse.data.per_page,
+            domainResponse.data.total
+          ),
+          total: domainResponse.data.total,
+          last_page: Math.ceil(
+            domainResponse.data.total / domainResponse.data.per_page
+          ),
+        }
       : {
           from: 0,
           to: 0,
@@ -115,12 +128,10 @@ export default function DomainDataTable() {
 
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1));
-    
   };
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
-    
   };
 
   const handleRefresh = () => {
