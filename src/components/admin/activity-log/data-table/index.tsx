@@ -10,9 +10,7 @@ import {
   parseAsString,
   useQueryState,
 } from "nuqs";
-import {
-  DatePicker,
-} from "react-aria-components";
+import { DatePicker } from "react-aria-components";
 
 import { IActivityLog } from "@/types/activity-log.type";
 
@@ -21,9 +19,11 @@ import { formatDateTime } from "@/lib/utils";
 import { useGetActivityLogs } from "@/hooks/activity-log";
 import { useDebounce } from "@/hooks/use-debounce";
 
+import { ActivityLogBadge } from "@/components/ui/badge/activity-log-badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DateInput } from "@/components/ui/datefield-rac";
+import { SearchInput } from "@/components/ui/inputs/search-input";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
@@ -47,10 +47,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { ActivityLogBadge } from "@/components/badge/activity-log-badge";
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
-import { SearchInput } from "@/components/inputs/search-input";
 
 // Action type constants
 const ACTION_TYPES = {
@@ -108,13 +106,11 @@ export default function ActivityLogDataTable() {
   // Handle next page navigation - increment by 1
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1));
-    
   };
 
   // Handle previous page navigation - decrement by 1
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
-    
   };
 
   const calendarDate = date ? parseDate(date) : undefined;

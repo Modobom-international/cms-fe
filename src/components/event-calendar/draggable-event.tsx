@@ -6,9 +6,11 @@ import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { differenceInDays } from "date-fns";
 
-import { useCalendarDnd } from "@/components/calendar/calendar-dnd-context";
-import { EventItem } from "@/components/calendar/event-item";
-import { CalendarEvent } from "@/components/calendar/types";
+import {
+  CalendarEvent,
+  EventItem,
+  useCalendarDnd,
+} from "@/components/event-calendar";
 
 interface DraggableEventProps {
   event: CalendarEvent;
@@ -21,7 +23,6 @@ interface DraggableEventProps {
   isFirstDay?: boolean;
   isLastDay?: boolean;
   "aria-hidden"?: boolean | "true" | "false";
-  elementRef?: React.MutableRefObject<HTMLElement | null>;
 }
 
 export function DraggableEvent({
@@ -37,7 +38,7 @@ export function DraggableEvent({
   "aria-hidden": ariaHidden,
 }: DraggableEventProps) {
   const { activeId } = useCalendarDnd();
-  const elementRef = useRef<HTMLElement | null>(null);
+  const elementRef = useRef<HTMLDivElement>(null);
   const [dragHandlePosition, setDragHandlePosition] = useState<{
     x: number;
     y: number;
@@ -104,10 +105,12 @@ export function DraggableEvent({
     if (elementRef.current) {
       const rect = elementRef.current.getBoundingClientRect();
       const touch = e.touches[0];
-      setDragHandlePosition({
-        x: touch.clientX - rect.left,
-        y: touch.clientY - rect.top,
-      });
+      if (touch) {
+        setDragHandlePosition({
+          x: touch.clientX - rect.left,
+          y: touch.clientY - rect.top,
+        });
+      }
     }
   };
 
@@ -115,6 +118,7 @@ export function DraggableEvent({
     <div
       ref={(node) => {
         setNodeRef(node);
+        // @ts-ignore
         if (elementRef) elementRef.current = node;
       }}
       style={style}
@@ -137,3 +141,4 @@ export function DraggableEvent({
     </div>
   );
 }
+

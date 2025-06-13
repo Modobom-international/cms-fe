@@ -13,6 +13,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { useDeleteUser, useGetUserList } from "@/hooks/user";
 
 import { Button } from "@/components/ui/button";
+import ConfirmationAlertDialog from "@/components/ui/dialogs/confirmation-alert-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SearchInput } from "@/components/ui/inputs/search-input";
 import {
   Select,
   SelectContent,
@@ -37,9 +39,7 @@ import {
 } from "@/components/ui/table";
 
 import { EmptyTable } from "@/components/data-table/empty-table";
-import ConfirmationAlertDialog from "@/components/dialogs/confirmation-alert-dialog";
 import { Spinner } from "@/components/global/spinner";
-import { SearchInput } from "@/components/inputs/search-input";
 
 export default function UsersDataTable() {
   const t = useTranslations("UserPage.table");
@@ -111,13 +111,11 @@ export default function UsersDataTable() {
   // Handle next page navigation
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.totalPages, prev + 1));
-    
   };
 
   // Handle previous page navigation
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
-    
   };
 
   const handleDeleteUser = async (userId: string) => {
@@ -321,4 +319,3 @@ export default function UsersDataTable() {
     </div>
   );
 }
-

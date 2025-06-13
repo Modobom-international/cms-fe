@@ -1,14 +1,15 @@
 "use client";
 
 import { useMemo } from "react";
-
 import { RiCalendarEventLine } from "@remixicon/react";
 import { addDays, format, isToday } from "date-fns";
 
-import { AgendaDaysToShow } from "@/components/calendar/constants";
-import { EventItem } from "@/components/calendar/event-item";
-import { CalendarEvent } from "@/components/calendar/types";
-import { getAgendaEventsForDay } from "@/components/calendar/utils";
+import {
+  AgendaDaysToShow,
+  CalendarEvent,
+  EventItem,
+  getAgendaEventsForDay,
+} from "@/components/event-calendar";
 
 interface AgendaViewProps {
   currentDate: Date;
@@ -25,7 +26,7 @@ export function AgendaView({
   const days = useMemo(() => {
     console.log("Agenda view updating with date:", currentDate.toISOString());
     return Array.from({ length: AgendaDaysToShow }, (_, i) =>
-      addDays(new Date(currentDate), i)
+      addDays(new Date(currentDate), i),
     );
   }, [currentDate]);
 
@@ -37,11 +38,11 @@ export function AgendaView({
 
   // Check if there are any days with events
   const hasEvents = days.some(
-    (day) => getAgendaEventsForDay(events, day).length > 0
+    (day) => getAgendaEventsForDay(events, day).length > 0,
   );
 
   return (
-    <div className="border-border/70 border-t px-4">
+    <div className="border-border/70 border-t ps-4">
       {!hasEvents ? (
         <div className="flex min-h-[70svh] flex-col items-center justify-center py-16 text-center">
           <RiCalendarEventLine

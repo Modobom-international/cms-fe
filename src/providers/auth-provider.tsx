@@ -20,7 +20,7 @@ import { IUser } from "@/types/user.type";
 
 import apiClient from "@/lib/api/client";
 
-import LogoutDialog from "@/components/dialogs/logout-dialog";
+import LogoutDialog from "@/components/ui/dialogs/logout-dialog";
 
 type AuthProviderProps = {
   children: React.ReactNode;
