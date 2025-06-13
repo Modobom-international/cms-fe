@@ -29,34 +29,34 @@ import {
 
 const platformModes = [
   {
-    name: "Dashboard",
+    name: "My Dashboard",
     logo: Home,
-    description: "Dashboard view",
+    description: "Profile, tasks & attendance",
   },
   {
-    name: "Manage Platform",
+    name: "Platform Admin",
     logo: IconSettings,
-    description: "Platform Management",
+    description: "Admin settings & metrics",
   },
   {
     name: "Manage Storage",
     logo: IconDatabase,
-    description: "Storage Management",
+    description: "Database & file storage",
   },
   {
     name: "Studio",
     logo: IconBrush,
-    description: "Website Builder",
+    description: "Build & design websites",
   },
   {
     name: "Task Tracking",
     logo: IconChecklist,
-    description: "Project Management",
+    description: "Projects & task management",
   },
   {
     name: "Calendar",
     logo: IconCalendar,
-    description: "Calendar view",
+    description: "Schedule & events",
   },
 ];
 

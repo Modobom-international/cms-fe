@@ -6,22 +6,30 @@ import dynamic from "next/dynamic";
 
 import {
   IconCamera,
-  IconChartBar,
-  IconDashboard,
   IconDatabase,
   IconFileAi,
   IconFileDescription,
   IconFileWord,
-  IconFolder,
   IconHelp,
-  IconListDetails,
   IconReport,
   IconSearch,
-  IconServer,
   IconSettings,
-  IconUsers,
 } from "@tabler/icons-react";
+import {
+  Bell,
+  GanttChartSquare,
+  Home,
+  KeyIcon,
+  LayoutGrid,
+  Network,
+  PenTool,
+  Server,
+  SquareActivity,
+  Terminal,
+  User,
+} from "lucide-react";
 
+import { Icons } from "@/components/ui/icons";
 import {
   Sidebar,
   SidebarContent,
@@ -30,13 +38,13 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { NavDocuments } from "@/components/sidebar/nav-documents";
-import { NavMain } from "@/components/sidebar/nav-main";
-import { NavSecondary } from "@/components/sidebar/nav-secondary";
-import { PlatformModeSwitcher } from "@/components/sidebar/platform-mode-switcher";
+import { NavDocuments } from "@/components/layouts/admin/nav-documents";
+import { NavMain, navMain } from "@/components/layouts/admin/nav-main";
+import { NavSecondary } from "@/components/layouts/admin/nav-secondary";
+import { PlatformModeSwitcher } from "@/components/layouts/platform-mode-switcher";
 
 const NavUser = dynamic(
-  () => import("@/components/sidebar/nav-user").then((mod) => mod.NavUser),
+  () => import("@/components/layouts/nav-user").then((mod) => mod.NavUser),
   {
     loading: () => <Skeleton className="h-12 w-full rounded-lg" />,
     ssr: false,
@@ -49,33 +57,7 @@ const data = {
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "#",
-      icon: IconDashboard,
-    },
-    {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
-    },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
-    },
-  ],
+  navMain,
   navClouds: [
     {
       title: "Capture",
@@ -168,7 +150,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+        {/* <NavDocuments items={data.documents} /> */}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

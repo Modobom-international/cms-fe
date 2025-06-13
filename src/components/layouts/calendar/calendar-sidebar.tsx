@@ -24,10 +24,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCalendarContext } from "@/components/event-calendar/calendar-context";
 import { etiquettes } from "@/components/layouts/calendar/big-calendar";
 import SidebarCalendar from "@/components/layouts/calendar/sidebar-calendar";
-import { PlatformModeSwitcher } from "@/components/sidebar/platform-mode-switcher";
+import { PlatformModeSwitcher } from "@/components/layouts/platform-mode-switcher";
 
 const NavUser = dynamic(
-  () => import("@/components/sidebar/nav-user").then((mod) => mod.NavUser),
+  () => import("@/components/layouts/nav-user").then((mod) => mod.NavUser),
   {
     loading: () => <Skeleton className="h-12 w-full rounded-lg" />,
     ssr: false,

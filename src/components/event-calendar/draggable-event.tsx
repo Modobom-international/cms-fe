@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { differenceInDays } from "date-fns";
@@ -117,6 +118,7 @@ export function DraggableEvent({
     <div
       ref={(node) => {
         setNodeRef(node);
+        // @ts-ignore
         if (elementRef) elementRef.current = node;
       }}
       style={style}
@@ -139,3 +141,4 @@ export function DraggableEvent({
     </div>
   );
 }
+

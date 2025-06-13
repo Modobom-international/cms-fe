@@ -17,9 +17,8 @@ import ScrollToTop from "@/components/layouts/scroll-to-top";
 
 import "@/styles/globals.css";
 
-const jakarta = JakartaSans({
+const fontSans = JakartaSans({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-sans",
 });
 
@@ -35,7 +34,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body className={cn(jakarta.variable, "font-jakarta antialiased")}>
+      <body className={cn(fontSans.variable, "font-sans antialiased")}>
         <ReactQueryClientProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
             <AuthProvider>

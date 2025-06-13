@@ -4,10 +4,10 @@ import { cookies } from "next/headers";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
+import { AppSidebar } from "@/components/layouts/admin/admin-sidebar";
 import Footer from "@/components/layouts/footer";
 import MaxWidthWrapper from "@/components/layouts/max-width-wrapper";
 import { SiteHeader } from "@/components/layouts/site-header";
-import { AppSidebar } from "@/components/sidebar/app-sidebar";
 
 export default async function AdminLayout({
   children,

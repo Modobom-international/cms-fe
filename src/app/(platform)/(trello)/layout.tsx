@@ -4,8 +4,8 @@ import { cookies } from "next/headers";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
+import { AppSidebar } from "@/components/layouts/admin/admin-sidebar";
 import Footer from "@/components/layouts/footer";
-import { AppSidebar } from "@/components/layouts/sidebar/app-sidebar";
 import { SiteHeader } from "@/components/layouts/site-header";
 
 export default async function AdminLayout({

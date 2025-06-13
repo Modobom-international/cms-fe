@@ -20,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SearchInput } from "@/components/ui/inputs/search-input";
 import {
   Select,
   SelectContent,
@@ -40,7 +41,6 @@ import DeleteServerDialog from "@/components/admin/servers/dialogs/delete-server
 import UpdateServerDialog from "@/components/admin/servers/dialogs/update-server-dialog";
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
-import { SearchInput } from "@/components/inputs/search-input";
 
 interface RefreshDialogProps {
   isOpen: boolean;
@@ -87,12 +87,10 @@ export default function ServerDataTable() {
 
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.last_page ?? 1, prev + 1));
-    
   };
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
-    
   };
 
   return (
@@ -291,4 +289,3 @@ export default function ServerDataTable() {
     </div>
   );
 }
-

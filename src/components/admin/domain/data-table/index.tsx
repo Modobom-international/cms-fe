@@ -17,7 +17,9 @@ import { formatDateTime } from "@/lib/utils";
 import { useGetDomainList, useRefreshDomainList } from "@/hooks/domain";
 import { useDebounce } from "@/hooks/use-debounce";
 
+import { DomainStatusBadge } from "@/components/ui/badge/domain-status-badge";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { SearchInput } from "@/components/ui/inputs/search-input";
 import {
   Select,
   SelectContent,
@@ -35,10 +37,8 @@ import {
 } from "@/components/ui/table";
 
 import { RefreshDialog } from "@/components/admin/domain/data-table/dialog";
-import { DomainStatusBadge } from "@/components/badge/domain-status-badge";
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
-import { SearchInput } from "@/components/inputs/search-input";
 
 export default function DomainDataTable() {
   const t = useTranslations("DomainPage.table");
@@ -115,12 +115,10 @@ export default function DomainDataTable() {
 
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1));
-    
   };
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
-    
   };
 
   const handleRefresh = () => {
