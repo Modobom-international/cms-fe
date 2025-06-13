@@ -23,6 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/inputs/password-input";
 import { Label } from "@/components/ui/label";
 
 export function LoginForm({
@@ -69,11 +70,7 @@ export function LoginForm({
                       <FormItem className="grid gap-2">
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;"
-                            type="password"
-                            {...field}
-                          />
+                          <PasswordInput {...field} />
                         </FormControl>
 
                         <FormMessage />
