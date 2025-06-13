@@ -623,10 +623,12 @@ export default function PagesPage() {
                 {filteredPages.map((page: Page) => (
                   <TableRow
                     key={page.id}
-                    className="border-b border-gray-200 hover:bg-gray-50"
+                    className="border-border hover:bg-muted/50 border-b transition-colors"
                   >
-                    <TableCell className="py-3 text-sm font-medium">
-                      {page.name}
+                    <TableCell className="py-3">
+                      <span className="text-primary font-medium">
+                        {page.name}
+                      </span>
                     </TableCell>
                     <TableCell className="text-muted-foreground py-3 font-mono text-sm">
                       {page.slug}
@@ -701,4 +703,3 @@ export default function PagesPage() {
     </div>
   );
 }
-

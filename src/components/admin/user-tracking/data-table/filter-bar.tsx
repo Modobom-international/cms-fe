@@ -175,7 +175,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
         <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
           <div>
             <label
-              className="mb-2 block text-sm font-medium text-gray-700"
+              className="text-foreground mb-2 block text-sm font-medium"
               htmlFor="domain"
             >
               {t("filters.selectDomain")}
@@ -193,7 +193,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
           </div>
           <div>
             <label
-              className="mb-2 block text-sm font-medium text-gray-700"
+              className="text-foreground mb-2 block text-sm font-medium"
               htmlFor="path"
             >
               {t("filters.selectPath")}
@@ -219,7 +219,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
       <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
         <div>
           <label
-            className="mb-2 block text-sm font-medium text-gray-700"
+            className="text-foreground mb-2 block text-sm font-medium"
             htmlFor="domain"
           >
             {t("filters.selectDomain")}
@@ -296,7 +296,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
 
         <div>
           <label
-            className="mb-2 block text-sm font-medium text-gray-700"
+            className="text-foreground mb-2 block text-sm font-medium"
             htmlFor="path"
           >
             {t("filters.selectPath")}

@@ -844,10 +844,12 @@ export default function SitesManagementPage() {
                   {sitesData.data.map((site: Site) => (
                     <TableRow
                       key={site.id}
-                      className="border-b border-gray-200 hover:bg-gray-50"
+                      className="border-border hover:bg-muted/50 border-b transition-colors"
                     >
-                      <TableCell className="py-3 text-sm font-medium">
-                        {site.name}
+                      <TableCell className="py-3">
+                        <span className="text-primary font-medium">
+                          {site.name}
+                        </span>
                       </TableCell>
                       <TableCell className="text-muted-foreground py-3 text-sm">
                         {site.domain}
@@ -944,20 +946,20 @@ export default function SitesManagementPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                    className="h-8 px-4 text-sm font-medium"
                     onClick={handlePreviousPage}
-                    disabled={currentPage <= 1}
+                    disabled={currentPage === 1}
                   >
-                    {t("Table.Previous")}
+                    {t("pagination.previousPage")}
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                    className="h-8 px-4 text-sm font-medium"
                     onClick={handleNextPage}
-                    disabled={currentPage >= sitesData.meta.last_page}
+                    disabled={currentPage === sitesData.meta.last_page}
                   >
-                    {t("Table.Next")}
+                    {t("pagination.nextPage")}
                   </Button>
                 </div>
               </div>
@@ -1004,4 +1006,3 @@ export default function SitesManagementPage() {
     </div>
   );
 }
-

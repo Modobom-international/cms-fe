@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { format } from "date-fns";
 import { Map, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
 import { IUserTrackingData } from "@/types/user-tracking.type";
+
 import { formatDateTime } from "@/lib/utils";
+
 import { useGetUserTracking } from "@/hooks/user-tracking";
 import { useActiveUsers } from "@/hooks/user-tracking/use-active-users";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,8 +38,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
+
 import FilterBar from "./filter-bar";
 
 const groupByUuid = (data: IUserTrackingData[]) => {
@@ -52,7 +58,8 @@ const groupByUuid = (data: IUserTrackingData[]) => {
 
   Object.entries(grouped).forEach(([uuid, records]) => {
     const sortedRecords = records.sort(
-      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
     latestRecords.push(sortedRecords[0]);
     allRecordsByUuid[uuid] = sortedRecords;
@@ -65,23 +72,37 @@ export default function UserTrackingDataTable() {
   const t = useTranslations("UserTrackingPage.table");
   const [showHeatmapModal, setShowHeatmapModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<IUserTrackingData | null>(null);
-  const [selectedUuidRecords, setSelectedUuidRecords] = useState<IUserTrackingData[]>([]);
-  const [currentPage, setCurrentPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [pageSize, setPageSize] = useQueryState("pageSize", parseAsInteger.withDefault(10));
-  const [date] = useQueryState("date", parseAsString.withDefault(format(new Date(), "yyyy-MM-dd")));
+  const [selectedRecord, setSelectedRecord] =
+    useState<IUserTrackingData | null>(null);
+  const [selectedUuidRecords, setSelectedUuidRecords] = useState<
+    IUserTrackingData[]
+  >([]);
+  const [currentPage, setCurrentPage] = useQueryState(
+    "page",
+    parseAsInteger.withDefault(1)
+  );
+  const [pageSize, setPageSize] = useQueryState(
+    "pageSize",
+    parseAsInteger.withDefault(10)
+  );
+  const [date] = useQueryState(
+    "date",
+    parseAsString.withDefault(format(new Date(), "yyyy-MM-dd"))
+  );
   const [domain] = useQueryState("domains", parseAsString.withDefault(""));
   const [path] = useQueryState("path", parseAsString.withDefault("all"));
 
-  const { data: userTrackingResponse, isFetching, isError, refetch } = useGetUserTracking(
-    currentPage,
-    pageSize,
-    date,
+  const {
+    data: userTrackingResponse,
+    isFetching,
+    isError,
+    refetch,
+  } = useGetUserTracking(currentPage, pageSize, date, domain, path);
+
+  const { data: activeUsers, isLoading: isLoadingActiveUsers } = useActiveUsers(
     domain,
     path
   );
-
-  const { data: activeUsers, isLoading: isLoadingActiveUsers } = useActiveUsers(domain, path);
 
   const [paginationInfo, setPaginationInfo] = useState({
     from: 0,
@@ -91,11 +112,19 @@ export default function UserTrackingDataTable() {
     currentPage: 1,
   });
   const [latestRecords, setLatestRecords] = useState<IUserTrackingData[]>([]);
-  const [allRecordsByUuid, setAllRecordsByUuid] = useState<{ [uuid: string]: IUserTrackingData[] }>({});
+  const [allRecordsByUuid, setAllRecordsByUuid] = useState<{
+    [uuid: string]: IUserTrackingData[];
+  }>({});
 
   useEffect(() => {
     if (isFetching || !userTrackingResponse || !userTrackingResponse.success) {
-      setPaginationInfo({ from: 0, to: 0, total: 0, last_page: 1, currentPage: 1 });
+      setPaginationInfo({
+        from: 0,
+        to: 0,
+        total: 0,
+        last_page: 1,
+        currentPage: 1,
+      });
       setLatestRecords([]);
       setAllRecordsByUuid({});
       return;
@@ -104,7 +133,13 @@ export default function UserTrackingDataTable() {
     const paginationData = userTrackingResponse.data;
     if (!paginationData) {
       console.error("Invalid pagination data:", paginationData);
-      setPaginationInfo({ from: 0, to: 0, total: 0, last_page: 1, currentPage: 1 });
+      setPaginationInfo({
+        from: 0,
+        to: 0,
+        total: 0,
+        last_page: 1,
+        currentPage: 1,
+      });
       setLatestRecords([]);
       setAllRecordsByUuid({});
       return;
@@ -121,7 +156,11 @@ export default function UserTrackingDataTable() {
 
     const responseData = paginationData.data;
 
-    if (!responseData || !Array.isArray(responseData) || !responseData.every(Array.isArray)) {
+    if (
+      !responseData ||
+      !Array.isArray(responseData) ||
+      !responseData.every(Array.isArray)
+    ) {
       console.error("Invalid responseData format:", responseData);
       setLatestRecords([]);
       setAllRecordsByUuid({});
@@ -129,7 +168,10 @@ export default function UserTrackingDataTable() {
     }
 
     const flatData = responseData.flat();
-    const { latestRecords: computedLatestRecords, allRecordsByUuid: computedAllRecordsByUuid } = groupByUuid(flatData);
+    const {
+      latestRecords: computedLatestRecords,
+      allRecordsByUuid: computedAllRecordsByUuid,
+    } = groupByUuid(flatData);
     setLatestRecords(computedLatestRecords);
     setAllRecordsByUuid(computedAllRecordsByUuid);
   }, [userTrackingResponse, isFetching, pageSize]);
@@ -138,12 +180,10 @@ export default function UserTrackingDataTable() {
 
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1));
-    
   };
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
-    
   };
 
   const handleRefresh = () => {
@@ -178,13 +218,17 @@ export default function UserTrackingDataTable() {
             <div className="flex items-center space-x-4">
               <Users className="text-primary h-8 w-8" />
               <div>
-                <h3 className="text-lg font-semibold">{t("activeUsers.title")}</h3>
+                <h3 className="text-lg font-semibold">
+                  {t("activeUsers.title")}
+                </h3>
                 <div className="flex items-baseline space-x-2">
                   {isLoadingActiveUsers ? (
                     <Spinner />
                   ) : (
                     <>
-                      <span className="text-2xl font-bold">{activeUsers?.online_count || 0}</span>
+                      <span className="text-2xl font-bold">
+                        {activeUsers?.online_count || 0}
+                      </span>
                       <span className="text-muted-foreground text-sm">
                         {t("activeUsers.description")}
                       </span>
@@ -203,8 +247,14 @@ export default function UserTrackingDataTable() {
           ) : isError ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-center">
-                <p className="text-destructive text-sm">{t("loadingStates.error")}</p>
-                <Button onClick={handleRefresh} variant="outline" className="mt-4">
+                <p className="text-destructive text-sm">
+                  {t("loadingStates.error")}
+                </p>
+                <Button
+                  onClick={handleRefresh}
+                  variant="outline"
+                  className="mt-4"
+                >
                   {t("actions.retry")}
                 </Button>
               </div>
@@ -215,107 +265,117 @@ export default function UserTrackingDataTable() {
             <div className="flex flex-col">
               <div className="relative w-full">
                 <Table className="w-full">
-                  <TableHeader className="sticky top-0 z-10 bg-white">
-                    <TableRow className="border-b border-gray-200 hover:bg-white">
-                      <TableHead className="w-[80px] py-3 font-medium text-gray-700">
+                  <TableHeader className="bg-background dark:bg-card sticky top-0 z-10">
+                    <TableRow className="border-border hover:bg-muted/50 border-b">
+                      <TableHead className="text-foreground w-[80px] py-3 font-medium">
                         {t("columns.id")}
                       </TableHead>
-                      <TableHead className="w-[180px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[180px] py-3 font-medium">
                         {t("columns.domain")}
                       </TableHead>
-                      <TableHead className="w-[180px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[180px] py-3 font-medium">
                         {t("columns.timestamp")}
                       </TableHead>
-                      <TableHead className="w-[130px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[130px] py-3 font-medium">
                         {t("columns.browser")}
                       </TableHead>
-                      <TableHead className="w-[140px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[140px] py-3 font-medium">
                         {t("columns.device")}
                       </TableHead>
-                      <TableHead className="w-[200px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[200px] py-3 font-medium">
                         {t("columns.userBehavior")}
                       </TableHead>
-                      <TableHead className="w-[100px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[100px] py-3 font-medium">
                         {t("columns.eventCount")}
                       </TableHead>
-                      <TableHead className="py-3 text-right font-medium text-gray-700">
+                      <TableHead className="text-foreground py-3 text-right font-medium">
                         <span className="sr-only">{t("columns.actions")}</span>
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {latestRecords.map((record: IUserTrackingData, index: number) => (
-                      <TableRow
-                        key={record.id || index}
-                        className="border-b border-gray-200 hover:bg-gray-50"
-                      >
-                        <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                          {record.id || "—"}
-                        </TableCell>
-                        <TableCell className="py-3 text-sm font-medium text-indigo-600">
-                          {record.domain || "—"}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground py-3">
-                          {record.timestamp
-                            ? formatDateTime(new Date(record.timestamp))
-                            : "—"}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground py-3">
-                          {record.user?.browser?.name && record.user?.browser?.version
-                            ? `${record.user.browser.name} ${record.user.browser.version}`
-                            : "—"}
-                        </TableCell>
-                        <TableCell className="py-3">
-                          <Badge
-                            variant="outline"
-                            className={getBadgeColor(record.event_data?.device || "unknown")}
-                          >
-                            {getLocalizedDeviceType(t, record.event_data?.device || "unknown")}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground py-3 text-sm">
-                          {renderUserBehavior(record, t)}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground py-3 text-sm font-medium">
-                          {allRecordsByUuid[record.uuid]?.length || 0}
-                        </TableCell>
-                        <TableCell className="py-3 text-right">
-                          <div className="flex justify-end space-x-2">
-                            {hasHeatmapData(record) && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-emerald-600 hover:text-emerald-900"
-                                onClick={() => handleOpenHeatmap(record)}
-                              >
-                                <Map className="mr-2 h-3 w-3" />
-                                Heatmap
-                              </Button>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-indigo-600 hover:text-indigo-900"
-                              onClick={() => handleOpenDetails(record.uuid)}
+                    {latestRecords.map(
+                      (record: IUserTrackingData, index: number) => (
+                        <TableRow
+                          key={record.id || index}
+                          className="border-border hover:bg-muted/50 border-b transition-colors"
+                        >
+                          <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                            {record.id || "—"}
+                          </TableCell>
+                          <TableCell className="py-3 text-sm font-medium text-indigo-600">
+                            {record.domain || "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3">
+                            {record.timestamp
+                              ? formatDateTime(new Date(record.timestamp))
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3">
+                            {record.user?.browser?.name &&
+                            record.user?.browser?.version
+                              ? `${record.user.browser.name} ${record.user.browser.version}`
+                              : "—"}
+                          </TableCell>
+                          <TableCell className="py-3">
+                            <Badge
+                              variant="outline"
+                              className={getBadgeColor(
+                                record.event_data?.device || "unknown"
+                              )}
                             >
-                              {t("actions.details")}
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                              {getLocalizedDeviceType(
+                                t,
+                                record.event_data?.device || "unknown"
+                              )}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {renderUserBehavior(record, t)}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                            {allRecordsByUuid[record.uuid]?.length || 0}
+                          </TableCell>
+                          <TableCell className="py-3 text-right">
+                            <div className="flex justify-end space-x-2">
+                              {hasHeatmapData(record) && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-emerald-600 hover:text-emerald-900"
+                                  onClick={() => handleOpenHeatmap(record)}
+                                >
+                                  <Map className="mr-2 h-3 w-3" />
+                                  Heatmap
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-indigo-600 hover:text-indigo-900"
+                                onClick={() => handleOpenDetails(record.uuid)}
+                              >
+                                {t("actions.details")}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )}
                   </TableBody>
                 </Table>
               </div>
-              <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
-                <div className="flex items-center justify-between px-4 py-2">
+              <div className="border-border bg-muted sticky bottom-0 mt-auto border-t px-4 py-2">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">Rows per page</span>
+                    <span className="text-muted-foreground text-sm">
+                      Rows per page
+                    </span>
                     <Select
                       value={pageSize.toString()}
                       onValueChange={(value) => setPageSize(Number(value))}
                     >
-                      <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
+                      <SelectTrigger className="border-border h-8 w-auto text-sm">
                         <SelectValue placeholder="10" />
                       </SelectTrigger>
                       <SelectContent className="text-sm">
@@ -330,28 +390,29 @@ export default function UserTrackingDataTable() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      className="h-8 px-4 text-sm font-medium"
                       onClick={handlePreviousPage}
                       disabled={currentPage === 1}
                     >
-                      Previous
+                      {t("pagination.previousPage")}
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      className="h-8 px-4 text-sm font-medium"
                       onClick={handleNextPage}
                       disabled={currentPage === paginationInfo.last_page}
                     >
-                      Next
+                      {t("pagination.nextPage")}
                     </Button>
                   </div>
                 </div>
-                <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+                <div className="border-border bg-muted text-muted-foreground flex items-center justify-between border-t px-4 py-2 text-xs">
                   <div>
                     Viewing {paginationInfo.from || 1}-
-                    {paginationInfo.to || Math.min(pageSize, paginationInfo.total || 0)} of{" "}
-                    {paginationInfo.total || 0} results
+                    {paginationInfo.to ||
+                      Math.min(pageSize, paginationInfo.total || 0)}{" "}
+                    of {paginationInfo.total || 0} results
                   </div>
                   <div>
                     Page {currentPage} of {paginationInfo.last_page || 1}
@@ -372,10 +433,12 @@ export default function UserTrackingDataTable() {
             <div className="mt-4">
               <div className="mb-4 grid grid-cols-3 gap-4 text-sm">
                 <div>
-                  <span className="font-semibold">UUID:</span> {selectedRecord.uuid || "N/A"}
+                  <span className="font-semibold">UUID:</span>{" "}
+                  {selectedRecord.uuid || "N/A"}
                 </div>
                 <div>
-                  <span className="font-semibold">Domain:</span> {selectedRecord.domain || "N/A"}
+                  <span className="font-semibold">Domain:</span>{" "}
+                  {selectedRecord.domain || "N/A"}
                 </div>
                 <div>
                   <span className="font-semibold">Date:</span>{" "}
@@ -390,11 +453,13 @@ export default function UserTrackingDataTable() {
                     <p className="text-gray-500">
                       Heatmap visualization for mouse movement data:
                       <br />
-                      Position: ({selectedRecord.event_data?.x ?? 0}, {selectedRecord.event_data?.y ?? 0})
+                      Position: ({selectedRecord.event_data?.x ?? 0},{" "}
+                      {selectedRecord.event_data?.y ?? 0})
                       <br />
                       Device: {selectedRecord.event_data?.device || "Unknown"}
                       <br />
-                      Browser: {selectedRecord.user?.browser?.name || "Unknown"}{" "}
+                      Browser: {selectedRecord.user?.browser?.name ||
+                        "Unknown"}{" "}
                       {selectedRecord.user?.browser?.version || ""}
                     </p>
                   </div>
@@ -415,10 +480,18 @@ export default function UserTrackingDataTable() {
               <TableDialog>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{t("modal.detail.table.columns.eventName")}</TableHead>
-                    <TableHead>{t("modal.detail.table.columns.timestamp")}</TableHead>
-                    <TableHead>{t("modal.detail.table.columns.device")}</TableHead>
-                    <TableHead>{t("modal.detail.table.columns.details")}</TableHead>
+                    <TableHead>
+                      {t("modal.detail.table.columns.eventName")}
+                    </TableHead>
+                    <TableHead>
+                      {t("modal.detail.table.columns.timestamp")}
+                    </TableHead>
+                    <TableHead>
+                      {t("modal.detail.table.columns.device")}
+                    </TableHead>
+                    <TableHead>
+                      {t("modal.detail.table.columns.details")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -433,20 +506,31 @@ export default function UserTrackingDataTable() {
                       <TableCell>
                         <Badge
                           variant="outline"
-                          className={getBadgeColor(record.event_data?.device || "unknown")}
+                          className={getBadgeColor(
+                            record.event_data?.device || "unknown"
+                          )}
                         >
-                          {getLocalizedDeviceType(t, record.event_data?.device || "unknown")}
+                          {getLocalizedDeviceType(
+                            t,
+                            record.event_data?.device || "unknown"
+                          )}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {renderEventDetails(record.event_name, record.event_data, t)}
+                        {renderEventDetails(
+                          record.event_name,
+                          record.event_data,
+                          t
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </TableDialog>
             ) : (
-              <p className="text-center text-gray-500">{t("modal.detail.noData")}</p>
+              <p className="text-center text-gray-500">
+                {t("modal.detail.noData")}
+              </p>
             )}
           </div>
         </DialogContent>
@@ -468,7 +552,10 @@ const getBadgeColor = (device: string) => {
   }
 };
 
-const getLocalizedDeviceType = (t: (key: string) => string, device: string): string => {
+const getLocalizedDeviceType = (
+  t: (key: string) => string,
+  device: string
+): string => {
   switch (device.toLowerCase()) {
     case "mobile":
       return t("deviceTypes.mobile");
@@ -500,7 +587,8 @@ const renderUserBehavior = (record: any, t: (key: string) => string) => {
             {t("behaviors.mouseMovement")}
           </span>
           <span className="text-xs">
-            {t("behaviors.position")}: ({event_data.x ?? 0}, {event_data.y ?? 0})
+            {t("behaviors.position")}: ({event_data.x ?? 0}, {event_data.y ?? 0}
+            )
           </span>
           {event_data.mouseMovements && (
             <span className="text-xs">
@@ -512,16 +600,20 @@ const renderUserBehavior = (record: any, t: (key: string) => string) => {
     case "click":
       return (
         <div className="flex flex-col">
-          <span className="font-medium text-blue-600">{t("behaviors.click")}</span>
+          <span className="font-medium text-blue-600">
+            {t("behaviors.click")}
+          </span>
           <span className="text-xs">
-            {t("behaviors.position")}: ({event_data.x ?? 0}, {event_data.y ?? 0})
+            {t("behaviors.position")}: ({event_data.x ?? 0}, {event_data.y ?? 0}
+            )
           </span>
           {(event_data.target || event_data.elementDetails) && (
             <span className="text-xs">
               {t("behaviors.target")}:{" "}
               {event_data.target ||
                 (event_data.elementDetails &&
-                  (event_data.elementDetails.textContent || event_data.elementDetails.tagName)) ||
+                  (event_data.elementDetails.textContent ||
+                    event_data.elementDetails.tagName)) ||
                 "Unknown"}
             </span>
           )}
@@ -530,21 +622,26 @@ const renderUserBehavior = (record: any, t: (key: string) => string) => {
     case "scroll":
       return (
         <div className="flex flex-col">
-          <span className="font-medium text-amber-600">{t("behaviors.scroll")}</span>
+          <span className="font-medium text-amber-600">
+            {t("behaviors.scroll")}
+          </span>
           {event_data.height && (
             <span className="text-xs">
               {t("behaviors.height")}: {event_data.height}px
             </span>
           )}
           <span className="text-xs">
-            {t("behaviors.scroll")}: ({event_data.scrollLeft ?? 0}, {event_data.scrollTop ?? 0})
+            {t("behaviors.scroll")}: ({event_data.scrollLeft ?? 0},{" "}
+            {event_data.scrollTop ?? 0})
           </span>
         </div>
       );
     case "pageview":
       return (
         <div className="flex flex-col">
-          <span className="font-medium text-green-600">{t("behaviors.pageView")}</span>
+          <span className="font-medium text-green-600">
+            {t("behaviors.pageView")}
+          </span>
           <span className="text-xs">
             {t("behaviors.target")}: {record.path || "Unknown"}
           </span>
@@ -553,7 +650,9 @@ const renderUserBehavior = (record: any, t: (key: string) => string) => {
     case "timespent":
       return (
         <div className="flex flex-col">
-          <span className="font-medium text-purple-600">{t("behaviors.timeSpent")}</span>
+          <span className="font-medium text-purple-600">
+            {t("behaviors.timeSpent")}
+          </span>
           {(event_data.total || event_data.mouseMovements) && (
             <span className="text-xs">
               {t("behaviors.duration")}:{" "}
@@ -586,7 +685,11 @@ const renderUserBehavior = (record: any, t: (key: string) => string) => {
   }
 };
 
-const renderEventDetails = (event_name: string, event_data: any, t: (key: string) => string) => {
+const renderEventDetails = (
+  event_name: string,
+  event_data: any,
+  t: (key: string) => string
+) => {
   const renderElementDetails = (elementDetails: any) => {
     if (!elementDetails) return null;
     return (
@@ -604,7 +707,11 @@ const renderEventDetails = (event_name: string, event_data: any, t: (key: string
         {elementDetails.attributes?.href && (
           <span className="text-xs">
             {t("behaviors.elementHref")}:{" "}
-            <a href={elementDetails.attributes.href} target="_blank" rel="noopener noreferrer">
+            <a
+              href={elementDetails.attributes.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {elementDetails.attributes.href}
             </a>
           </span>
@@ -623,32 +730,37 @@ const renderEventDetails = (event_name: string, event_data: any, t: (key: string
       return (
         <div className="flex flex-col">
           <span className="text-xs">
-            {t("behaviors.position")}: ({event_data?.x ?? 0}, {event_data?.y ?? 0})
+            {t("behaviors.position")}: ({event_data?.x ?? 0},{" "}
+            {event_data?.y ?? 0})
           </span>
           {event_data?.mouseMovements && (
             <span className="text-xs">
               {t("behaviors.totalMovements")}: {event_data.mouseMovements}
             </span>
           )}
-          {event_data?.elementDetails && renderElementDetails(event_data.elementDetails)}
+          {event_data?.elementDetails &&
+            renderElementDetails(event_data.elementDetails)}
         </div>
       );
     case "click":
       return (
         <div className="flex flex-col">
           <span className="text-xs">
-            {t("behaviors.position")}: ({event_data?.x ?? 0}, {event_data?.y ?? 0})
+            {t("behaviors.position")}: ({event_data?.x ?? 0},{" "}
+            {event_data?.y ?? 0})
           </span>
           {(event_data?.target || event_data?.elementDetails) && (
             <span className="text-xs">
               {t("behaviors.target")}:{" "}
               {event_data?.target ||
                 (event_data?.elementDetails &&
-                  (event_data.elementDetails.textContent || event_data.elementDetails.tagName)) ||
+                  (event_data.elementDetails.textContent ||
+                    event_data.elementDetails.tagName)) ||
                 "Unknown"}
             </span>
           )}
-          {event_data?.elementDetails && renderElementDetails(event_data.elementDetails)}
+          {event_data?.elementDetails &&
+            renderElementDetails(event_data.elementDetails)}
         </div>
       );
     case "scroll":
@@ -660,16 +772,19 @@ const renderEventDetails = (event_name: string, event_data: any, t: (key: string
             </span>
           )}
           <span className="text-xs">
-            {t("behaviors.scroll")}: ({event_data?.scrollLeft ?? 0}, {event_data?.scrollTop ?? 0})
+            {t("behaviors.scroll")}: ({event_data?.scrollLeft ?? 0},{" "}
+            {event_data?.scrollTop ?? 0})
           </span>
-          {event_data?.elementDetails && renderElementDetails(event_data.elementDetails)}
+          {event_data?.elementDetails &&
+            renderElementDetails(event_data.elementDetails)}
         </div>
       );
     case "pageview":
       return (
         <div className="flex flex-col">
           <span className="text-xs">{t("behaviors.pageView")}</span>
-          {event_data?.elementDetails && renderElementDetails(event_data.elementDetails)}
+          {event_data?.elementDetails &&
+            renderElementDetails(event_data.elementDetails)}
         </div>
       );
     case "timespent":
@@ -685,7 +800,8 @@ const renderEventDetails = (event_name: string, event_data: any, t: (key: string
                   : "N/A"}
             </span>
           )}
-          {event_data?.elementDetails && renderElementDetails(event_data.elementDetails)}
+          {event_data?.elementDetails &&
+            renderElementDetails(event_data.elementDetails)}
         </div>
       );
     default:
@@ -702,7 +818,8 @@ const renderEventDetails = (event_name: string, event_data: any, t: (key: string
                   : String(value ?? "")}
               </span>
             ))}
-          {event_data?.elementDetails && renderElementDetails(event_data.elementDetails)}
+          {event_data?.elementDetails &&
+            renderElementDetails(event_data.elementDetails)}
         </div>
       );
   }
