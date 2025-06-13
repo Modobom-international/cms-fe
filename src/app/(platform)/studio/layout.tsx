@@ -4,7 +4,6 @@ import { cookies } from "next/headers";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
-import { EchoProvider } from "@/components/context/echo";
 import { AppSidebar } from "@/components/layouts/admin/admin-sidebar";
 import Footer from "@/components/layouts/footer";
 import MaxWidthWrapper from "@/components/layouts/max-width-wrapper";

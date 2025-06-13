@@ -55,7 +55,9 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => {
             const isActive =
-              pathname === item.url || pathname.startsWith(item.url + "/");
+              pathname === item.url ||
+              (item.url !== "/admin" && pathname.startsWith(item.url + "/")) ||
+              (item.url === "/admin" && pathname === "/admin");
 
             return (
               <SidebarMenuItem key={item.title}>
