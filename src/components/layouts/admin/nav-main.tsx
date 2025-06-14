@@ -86,18 +86,14 @@ export function NavMain({
                     )}
 
                     {/* Icon Container */}
-                    <div className="flex w-6 shrink-0 items-center justify-center font-medium">
+                    <div className="flex w-6 shrink-0 items-center justify-center">
                       {item.icon && (
                         <item.icon className={cn("size-4 transition-colors")} />
                       )}
                     </div>
 
                     {/* Label Container */}
-                    <span
-                      className={cn(
-                        "grow text-sm font-medium transition-colors"
-                      )}
-                    >
+                    <span className={cn("grow text-sm transition-colors")}>
                       {item.title}
                     </span>
                   </Link>
@@ -174,4 +170,3 @@ export const navMain = [
     icon: KeyIcon,
   },
 ];
-

@@ -15,21 +15,7 @@ import {
   IconSearch,
   IconSettings,
 } from "@tabler/icons-react";
-import {
-  Bell,
-  GanttChartSquare,
-  Home,
-  KeyIcon,
-  LayoutGrid,
-  Network,
-  PenTool,
-  Server,
-  SquareActivity,
-  Terminal,
-  User,
-} from "lucide-react";
 
-import { Icons } from "@/components/ui/icons";
 import {
   Sidebar,
   SidebarContent,
@@ -38,7 +24,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { NavDocuments } from "@/components/layouts/admin/nav-documents";
 import { NavMain, navMain } from "@/components/layouts/admin/nav-main";
 import { NavSecondary } from "@/components/layouts/admin/nav-secondary";
 import { PlatformModeSwitcher } from "@/components/layouts/platform-mode-switcher";

@@ -352,7 +352,7 @@ export default function DomainDataTable() {
               </Table>
             </div>
 
-            <div className="border-border bg-muted sticky bottom-0 mt-auto border-t px-4 py-2">
+            <div className="border-border sticky bottom-0 mt-auto border-t px-4 py-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-foreground text-sm">

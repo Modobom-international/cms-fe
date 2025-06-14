@@ -378,7 +378,7 @@ export default function ActivityLogDataTable() {
                         {t("columns.details")}
                       </TableHead>
                       <TableHead className="text-foreground py-3 font-medium">
-                        {t("columns.ipAddress")}
+                        {t("columns.description")}
                       </TableHead>
                     </TableRow>
                   </TableHeader>

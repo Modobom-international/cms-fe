@@ -222,7 +222,7 @@ export default function ServerDataTable() {
                 </Table>
               </div>
 
-              <div className="border-border bg-muted sticky bottom-0 mt-auto border-t">
+              <div className="border-border sticky bottom-0 mt-auto border-t">
                 <div className="flex items-center justify-between px-4 py-2">
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground text-sm">
