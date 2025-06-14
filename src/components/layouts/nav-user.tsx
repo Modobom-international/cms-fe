@@ -3,14 +3,9 @@
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/providers/auth-provider";
-import {
-  IconCreditCard,
-  IconDotsVertical,
-  IconLogout,
-  IconNotification,
-  IconUserCircle,
-} from "@tabler/icons-react";
-import { BoltIcon, LogOutIcon } from "lucide-react";
+import { IconDotsVertical } from "@tabler/icons-react";
+import { Settings } from "lucide-react";
+import { useTheme } from "next-themes";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -19,6 +14,8 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -32,7 +29,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { user, logout, isLoggingOut, isLoadingUser } = useAuth();
+  const { user, logout, isLoadingUser } = useAuth();
+  const { theme, setTheme } = useTheme();
 
   const router = useRouter();
   if (isLoadingUser) return <Skeleton className="h-12 w-full rounded-lg" />;
@@ -72,24 +70,37 @@ export function NavUser() {
           >
             <DropdownMenuLabel className="flex min-w-0 flex-col">
               <span className="text-foreground truncate text-sm font-medium">
-                Modobom Admin
+                {user?.name}
               </span>
               <span className="text-muted-foreground truncate text-xs font-normal">
-                admin@modobom.com
+                {user?.email}
               </span>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => router.push("/admin/profile")}>
-                <BoltIcon size={16} className="opacity-60" aria-hidden="true" />
-                <span>Profile</span>
+                <Settings size={16} className="opacity-60" aria-hidden="true" />
+                <span className="text-xs">Account preferences</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
             <DropdownMenuSeparator />
+            <DropdownMenuLabel>Theme</DropdownMenuLabel>
+            <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+              <DropdownMenuRadioItem value="light" className="!text-xs">
+                Light
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="dark" className="!text-xs">
+                Dark
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="system" className="!text-xs">
+                System
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={logout}>
-              <LogOutIcon size={16} className="opacity-60" aria-hidden="true" />
-              <span>Logout</span>
+              <span className="text-xs">Logout</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -97,3 +108,4 @@ export function NavUser() {
     </SidebarMenu>
   );
 }
+
