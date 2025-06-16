@@ -18,7 +18,7 @@ export default async function PageEditor({
 
   return (
     <div className="flex h-screen w-screen flex-col">
-      <EditorHeader slug={slug} siteId={siteId} />
+      <EditorHeader slug={slug} />
       <div className="relative flex-1">
         <WebBuilderStudio slug={slug} siteId={siteId} pageId={pageId} />
       </div>
