@@ -13,7 +13,7 @@ export default function EditorHeader({ slug }: EditorHeaderProps) {
   const router = useRouter();
 
   return (
-    <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-border/40 sticky top-0 z-50 border-b backdrop-blur">
+    <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-border/40 sticky top-0 border-b backdrop-blur">
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-4">
           <button
