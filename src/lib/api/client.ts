@@ -3,6 +3,7 @@
 import { env } from "@/env";
 import axios from "axios";
 import Cookies from "js-cookie";
+
 import { updateEchoAuthToken } from "@/lib/echo";
 
 const apiClient = axios.create({

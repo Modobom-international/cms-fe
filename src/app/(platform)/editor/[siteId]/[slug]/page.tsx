@@ -1,6 +1,5 @@
-
-import WebBuilderStudio from "@/components/grapesjs-studio";
 import EditorHeader from "@/components/editor/EditorHeader";
+import WebBuilderStudio from "@/components/grapesjs-studio";
 
 export default async function PageEditor({
   params,
@@ -26,4 +25,3 @@ export default async function PageEditor({
     </div>
   );
 }
-

@@ -65,7 +65,7 @@ export default function ApiKeyDataTable() {
 
   const { data: apiKeysResponse, isLoading, isError } = useGetApiKeys();
 
-  const apiKeysData = apiKeysResponse?.data ?? [];
+  const apiKeysData = apiKeysResponse?.data;
 
   // Frontend filtering and pagination
   const filteredData = useMemo(() => {
@@ -332,4 +332,3 @@ export default function ApiKeyDataTable() {
     </div>
   );
 }
-

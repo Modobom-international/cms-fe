@@ -14,8 +14,6 @@ import { IHtmlSource } from "@/types/html-source.type";
 
 import { formatDateTime } from "@/lib/utils";
 
-import { useDebounce } from "@/hooks/use-debounce";
-
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/ui/datefield-rac";
 import { Input } from "@/components/ui/input";
@@ -47,7 +45,7 @@ import { Spinner } from "@/components/global/spinner";
 
 export default function HtmlSourceDataTable() {
   const t = useTranslations("HtmlSourcePage.table");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<string | null>(
     null
   );
@@ -70,8 +68,6 @@ export default function HtmlSourceDataTable() {
     "date",
     parseAsString.withDefault(format(new Date(), "yyyy-MM-dd"))
   );
-
-  const debouncedSearch = useDebounce(search, 500);
 
   // Extract data from the mock response
   const htmlSourceData: IHtmlSource[] = [];

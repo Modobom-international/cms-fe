@@ -1,13 +1,29 @@
 import { DomainStatusEnum } from "@/enums/domain-status";
-import { CheckCircle, HelpCircle, Lock, CircleOff, CircleX, ClockAlert, CircleDashed, type LucideIcon } from "lucide-react";
+import {
+  CheckCircle,
+  CircleDashed,
+  CircleOff,
+  CircleX,
+  ClockAlert,
+  HelpCircle,
+  Lock,
+  type LucideIcon,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
-import { useTranslations } from "next-intl";
 
 import { Badge } from "@/components/ui/badge";
 
 type StatusConfig = {
-  variant: "active" | "in_use" | "cancelled" | "held_expired_redemption_mock" | "pending_hold_redemption" | "cancelled_redeemable" | "default";
+  variant:
+    | "active"
+    | "in_use"
+    | "cancelled"
+    | "held_expired_redemption_mock"
+    | "pending_hold_redemption"
+    | "cancelled_redeemable"
+    | "default";
   icon: LucideIcon;
   label: string;
 };
@@ -17,7 +33,8 @@ const STATUS_VARIANTS = {
   active: "bg-green-100 text-green-800 border-green-200",
   in_use: "bg-blue-100 text-blue-800 border-blue-200",
   default: "bg-gray-50 text-gray-700 border-gray-200",
-  held_expired_redemption_mock: "bg-yellow-50 text-yellow-800 border-yellow-200",
+  held_expired_redemption_mock:
+    "bg-yellow-50 text-yellow-800 border-yellow-200",
   pending_hold_redemption: "bg-purple-50 text-purple-700 border-purple-200",
   cancelled_redeemable: "bg-amber-50 text-amber-700 border-amber-200",
 } as const;
@@ -31,9 +48,7 @@ export function DomainStatusBadge({
 }) {
   const t = useTranslations("DomainPage.table");
 
-  const getStatusConfig = (
-    status: DomainStatusEnum,
-  ): StatusConfig => {
+  const getStatusConfig = (status: DomainStatusEnum): StatusConfig => {
     switch (status) {
       case DomainStatusEnum.ACTIVE:
         return {

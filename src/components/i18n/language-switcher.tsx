@@ -2,6 +2,8 @@
 
 import { useTransition } from "react";
 
+import Image from "next/image";
+
 import { Locale } from "@/i18n/config";
 import { useLocale } from "next-intl";
 
@@ -13,7 +15,6 @@ import {
   SelectGroup,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 
 type LanguageOption = {
@@ -60,11 +61,13 @@ export default function LanguageSwitcher() {
       >
         {selectedLanguage && !isPending && (
           <div className="flex items-center gap-2">
-            <img
+            <Image
               src={selectedLanguage.flag}
               alt={selectedLanguage.label}
+              width={20}
+              height={20}
               className="h-5 w-5 rounded-sm"
-              loading="lazy"
+              priority
             />
             <span className="truncate">{selectedLanguage.label}</span>
           </div>
@@ -109,11 +112,12 @@ export default function LanguageSwitcher() {
               className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer rounded-sm transition-colors duration-150"
             >
               <div className="flex items-center gap-2">
-                <img
+                <Image
                   src={flag}
                   alt={label}
+                  width={20}
+                  height={20}
                   className="h-5 w-5 rounded-sm"
-                  loading="lazy"
                 />
                 <span className="font-medium">{label}</span>
               </div>

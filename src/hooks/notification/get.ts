@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import { useEcho } from "@/components/context/echo";
+
 import { INotification } from "@/types/notification";
+
 import { useNotificationsData } from "@/hooks/notification";
+
+import { useEcho } from "@/components/context/echo";
 
 export function useNotifications(socketUrl: string, email: string) {
   const echo = useEcho();

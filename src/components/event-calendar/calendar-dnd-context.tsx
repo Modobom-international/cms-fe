@@ -2,28 +2,29 @@
 
 import {
   createContext,
+  type ReactNode,
   useContext,
   useId,
   useRef,
   useState,
-  type ReactNode,
 } from "react";
+
 import {
   DndContext,
+  type DragEndEvent,
+  type DragOverEvent,
   DragOverlay,
+  type DragStartEvent,
   MouseSensor,
   PointerSensor,
   TouchSensor,
+  type UniqueIdentifier,
   useSensor,
   useSensors,
-  type DragEndEvent,
-  type DragOverEvent,
-  type DragStartEvent,
-  type UniqueIdentifier,
 } from "@dnd-kit/core";
 import { addMinutes, differenceInMinutes } from "date-fns";
 
-import { EventItem, type CalendarEvent } from "@/components/event-calendar";
+import { type CalendarEvent, EventItem } from "@/components/event-calendar";
 
 // Define the context type
 type CalendarDndContextType = {
@@ -72,7 +73,7 @@ export function CalendarDndProvider({
   const [activeEvent, setActiveEvent] = useState<CalendarEvent | null>(null);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [activeView, setActiveView] = useState<"month" | "week" | "day" | null>(
-    null,
+    null
   );
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
   const [eventHeight, setEventHeight] = useState<number | null>(null);
@@ -110,7 +111,7 @@ export function CalendarDndProvider({
       activationConstraint: {
         distance: 5,
       },
-    }),
+    })
   );
 
   // Generate a stable ID for the DndContext
@@ -205,7 +206,7 @@ export function CalendarDndProvider({
             currentTime.getHours(),
             currentTime.getMinutes(),
             currentTime.getSeconds(),
-            currentTime.getMilliseconds(),
+            currentTime.getMilliseconds()
           );
         }
 
@@ -282,7 +283,7 @@ export function CalendarDndProvider({
           currentTime.getHours(),
           currentTime.getMinutes(),
           currentTime.getSeconds(),
-          currentTime.getMilliseconds(),
+          currentTime.getMilliseconds()
         );
       }
 

@@ -5,7 +5,6 @@ import {
   ICreatePageData,
   ICreatePageResponse,
   IDeletePageResponse,
-  IPage,
   IPageDetailResponse,
   IPageListResponse,
   IPageResponse,

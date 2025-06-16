@@ -1,6 +1,6 @@
 "use client";
 
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
@@ -42,14 +42,6 @@ import UpdateServerDialog from "@/components/admin/servers/dialogs/update-server
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 
-interface RefreshDialogProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  refreshServers: () => void;
-  isRefreshing: boolean;
-  refetch: () => void;
-}
-
 export default function ServerDataTable() {
   const t = useTranslations("ServerPage.table");
 
@@ -72,7 +64,6 @@ export default function ServerDataTable() {
     data: serverResponse,
     isFetching,
     isError,
-    error,
   } = useGetServerList(currentPage, pageSize, debouncedSearch);
 
   const serverData = serverResponse?.data?.data ?? [];
@@ -156,7 +147,7 @@ export default function ServerDataTable() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {serverData.map((server: IServer, index: number) => (
+                    {serverData.map((server: IServer) => (
                       <TableRow
                         key={server.id}
                         className="border-border hover:bg-muted/50 border-b transition-colors"

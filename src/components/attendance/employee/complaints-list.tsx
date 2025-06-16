@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 
-import { format } from "date-fns";
 import {
-  AlertCircle,
   CheckCircle,
   Clock,
   Eye,
@@ -18,19 +16,11 @@ import {
   ComplaintStatus,
   ComplaintType,
   IAttendanceComplaint,
-  ICreateComplaintRequest,
 } from "@/types/attendance.type";
 
-import {
-  formatDateForDisplay,
-  formatDateTimeForDisplay,
-  formatTimeForDisplay,
-} from "@/lib/utils";
+import { formatDateForDisplay, formatDateTimeForDisplay } from "@/lib/utils";
 
-import {
-  useAttendanceComplaints,
-  useCreateComplaint,
-} from "@/hooks/attendance";
+import { useAttendanceComplaints } from "@/hooks/attendance";
 import { useIsClient } from "@/hooks/use-client";
 
 import { Badge } from "@/components/ui/badge";

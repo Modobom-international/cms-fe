@@ -50,8 +50,7 @@ export default function UpdateApiKeyDialog({
     apiKey.id.toString()
   );
 
-  const { handleSubmit, control, reset, formState, setValue } =
-    updateApiKeyForm;
+  const { handleSubmit, control, reset, formState } = updateApiKeyForm;
   const { isSubmitting, isDirty, dirtyFields } = formState;
 
   const { mutateAsync: updateApiKey, isPending } = useUpdateApiKeyMutation;
@@ -89,7 +88,7 @@ export default function UpdateApiKeyDialog({
       await updateApiKey(modifiedData as IUpdateApiKeyForm);
       toast.success(tNotifications("updated"));
       handleClose();
-    } catch (error) {
+    } catch {
       toast.error(tNotifications("error"));
     }
   };
@@ -194,4 +193,3 @@ export default function UpdateApiKeyDialog({
     </Dialog>
   );
 }
-

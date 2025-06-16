@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import {
   IAttendanceComplaint,
   IAttendanceError,
-  IAttendanceRecord,
   IAttendanceReportParams,
   IAttendanceReportRecord,
   ICheckInRequest,

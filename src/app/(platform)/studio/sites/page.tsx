@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { LANGUAGES } from "@/constants/languages";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -602,8 +601,7 @@ const paginateData = (
 
 export default function SitesManagementPage() {
   const t = useTranslations("Studio.Sites");
-  const router = useRouter();
-  const [editingSite, setEditingSite] = useState<Site | null>(null);
+
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean;
     siteId: string;
@@ -669,29 +667,7 @@ export default function SitesManagementPage() {
     selectedUser,
   ]);
 
-  const updateSiteMutation = useUpdateSite(editingSite?.id || "");
   const deleteSiteMutation = useDeleteSite();
-
-  const handleUpdateSite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingSite) return;
-
-    try {
-      const updatedSite = {
-        ...editingSite,
-        name: editingSite.name.trim(),
-      };
-
-      await toast.promise(updateSiteMutation.mutateAsync(updatedSite), {
-        loading: t("CreateSite.Loading"),
-        success: t("CreateSite.Success"),
-        error: t("CreateSite.Error"),
-      });
-      setEditingSite(null);
-    } catch (err) {
-      console.error("Error updating site:", err);
-    }
-  };
 
   const handleDeleteClick = (siteId: string, siteName: string) => {
     setDeleteDialog({

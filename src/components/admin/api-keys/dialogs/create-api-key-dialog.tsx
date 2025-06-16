@@ -3,13 +3,7 @@
 import { cloneElement, ReactElement, useState } from "react";
 
 import { ICreateApiKeyForm } from "@/validations/api-key.validation";
-import {
-  Calendar as CalendarIcon,
-  Copy,
-  Eye,
-  EyeOff,
-  Plus,
-} from "lucide-react";
+import { Calendar as CalendarIcon, Copy, Eye, EyeOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { DropdownNavProps, DropdownProps } from "react-day-picker";
 import { toast } from "sonner";
@@ -76,8 +70,7 @@ export default function CreateApiKeyDialog({
   const { createApiKeyForm, useCreateApiKeyMutation } = useCreateApiKey();
 
   // Set default values to prevent controlled/uncontrolled input error
-  const { handleSubmit, control, reset, formState, setValue } =
-    createApiKeyForm;
+  const { handleSubmit, control, reset, formState } = createApiKeyForm;
   const { isSubmitting } = formState;
 
   const { mutateAsync: createApiKey, isPending } = useCreateApiKeyMutation;
@@ -90,7 +83,7 @@ export default function CreateApiKeyDialog({
         setCreatedApiKey(response.data);
         toast.success(tNotifications("created"));
       }
-    } catch (error) {
+    } catch {
       toast.error(tNotifications("error"));
     }
   };
@@ -155,7 +148,7 @@ export default function CreateApiKeyDialog({
     try {
       await navigator.clipboard.writeText(createdApiKey.key);
       toast.success(tNotifications("copied"));
-    } catch (err) {
+    } catch {
       toast.error(tNotifications("copyError"));
     }
   };
@@ -472,4 +465,3 @@ export default function CreateApiKeyDialog({
     </Dialog>
   );
 }
-

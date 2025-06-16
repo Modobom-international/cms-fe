@@ -102,16 +102,21 @@ export const useRemoveWorkspaceMember = (workspaceId: number) => {
 
   return useMutation({
     mutationFn: async ({ user_id }: { user_id: number }) => {
-      const response = await apiClient.delete(`/api/workspaces/${workspaceId}/members`, {
-        data: {
-          workspace_id: workspaceId,
-          user_id: user_id,
-        },
-      });
+      const response = await apiClient.delete(
+        `/api/workspaces/${workspaceId}/members`,
+        {
+          data: {
+            workspace_id: workspaceId,
+            user_id: user_id,
+          },
+        }
+      );
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["workspace-members", workspaceId] });
+      queryClient.invalidateQueries({
+        queryKey: ["workspace-members", workspaceId],
+      });
       queryClient.invalidateQueries({ queryKey: ["workspaces"] });
     },
   });

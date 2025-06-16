@@ -35,9 +35,6 @@ export function NavUser() {
   const router = useRouter();
   if (isLoadingUser) return <Skeleton className="h-12 w-full rounded-lg" />;
 
-  // Map profile_photo_path to avatar for easier access
-  const avatar = user?.profile_photo_path;
-
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -108,4 +105,3 @@ export function NavUser() {
     </SidebarMenu>
   );
 }
-

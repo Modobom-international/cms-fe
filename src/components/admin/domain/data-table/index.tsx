@@ -3,7 +3,6 @@
 import { useState } from "react";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { DomainStatusEnum } from "@/enums/domain-status";
 import { RefreshCw } from "lucide-react";
@@ -42,7 +41,7 @@ import { Spinner } from "@/components/global/spinner";
 
 export default function DomainDataTable() {
   const t = useTranslations("DomainPage.table");
-  const router = useRouter();
+
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
     parseAsInteger.withDefault(1)

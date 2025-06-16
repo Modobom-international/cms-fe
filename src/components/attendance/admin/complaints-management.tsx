@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import { format } from "date-fns";
 import {
-  Calendar,
   CheckCircle,
   Clock,
   Download,
@@ -21,12 +20,9 @@ import {
   ComplaintStatus,
   ComplaintType,
   IAttendanceComplaint,
-  ICustomAttendanceRequest,
 } from "@/types/attendance.type";
 
 import {
-  convertUtcToVietnamTime,
-  convertVietnamTimeToUtc,
   formatDateTimeForDisplay,
   formatFullDateTime,
   prepareTimeForApi,

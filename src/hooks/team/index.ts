@@ -1,13 +1,20 @@
-import { teamQueryKeys, teamPermissionQueryKeys } from "@/constants/query-keys";
+import { teamPermissionQueryKeys, teamQueryKeys } from "@/constants/query-keys";
 import { ITeamForm, TeamFormSchema } from "@/validations/team.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AxiosError } from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import qs from "qs";
 import { useForm } from "react-hook-form";
 
-import { GetTeamByIdResponse, ITeamResponse, CreateTeamResponse } from "@/types/team.type";
-import { TeamPermissionResponse, Permission } from "@/types/team-permission.type";
+import {
+  Permission,
+  TeamPermissionResponse,
+} from "@/types/team-permission.type";
+import {
+  CreateTeamResponse,
+  GetTeamByIdResponse,
+  ITeamResponse,
+} from "@/types/team.type";
 
 import apiClient from "@/lib/api/client";
 import { extractApiError } from "@/lib/api/error-handler";
@@ -126,14 +133,18 @@ export const useCreateTeam = () => {
           .filter(([_, isChecked]) => isChecked)
           .map(([key]) => key);
 
-        const response = await apiClient.post<CreateTeamResponse>("/api/team/store", {
-          name: data.name,
-          permissions: permissionArray,
-        });
+        const response = await apiClient.post<CreateTeamResponse>(
+          "/api/team/store",
+          {
+            name: data.name,
+            permissions: permissionArray,
+          }
+        );
 
         return response.data;
       } catch (error) {
-        const errRes = error instanceof AxiosError ? error.response?.data : null;
+        const errRes =
+          error instanceof AxiosError ? error.response?.data : null;
         return {
           success: false,
           message: errRes?.message ?? "Tạo phòng ban không thành công",

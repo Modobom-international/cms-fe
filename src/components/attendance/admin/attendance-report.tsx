@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { endOfMonth, format, startOfMonth } from "date-fns";
+import { format } from "date-fns";
 import {
   Calendar,
   Clock,
@@ -18,7 +18,6 @@ import {
 import {
   AttendanceType,
   IAttendanceReportParams,
-  IAttendanceReportRecord,
 } from "@/types/attendance.type";
 
 import {

@@ -75,4 +75,3 @@ export function CalendarProvider({ children }: CalendarProviderProps) {
     </CalendarContext.Provider>
   );
 }
-

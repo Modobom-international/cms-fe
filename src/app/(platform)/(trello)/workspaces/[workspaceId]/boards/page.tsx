@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { Home } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 
 import {

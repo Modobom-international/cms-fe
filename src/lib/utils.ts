@@ -331,4 +331,3 @@ export const processTimeFromApi = (
 
   return processed;
 };
-

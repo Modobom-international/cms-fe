@@ -2,16 +2,14 @@
 
 import Link from "next/link";
 
-import { useAuth } from "@/providers/auth-provider";
 import { AxiosError } from "axios";
 import { format } from "date-fns";
-import { AlertCircle, Clock, Globe2, Lock, User } from "lucide-react";
+import { AlertCircle, Clock, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useGetBoards } from "@/hooks/board/board";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,

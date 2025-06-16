@@ -16,4 +16,3 @@ export interface IHtmlSourceResponse {
   message: string;
   data: IPaginatedResponse<IHtmlSource>;
 }
-

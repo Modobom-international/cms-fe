@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+
 import { useTranslations } from "next-intl";
 
 interface EditorHeaderProps {
@@ -22,4 +23,4 @@ export default function EditorHeader({ slug, siteId }: EditorHeaderProps) {
       <h1 className="text-2xl font-semibold">{t("Editing", { slug })}</h1>
     </div>
   );
-} 
+}

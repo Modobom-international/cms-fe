@@ -1,5 +1,3 @@
-import { bucketPublicUrl, getApiUrl } from "@/lib/s3";
-
 // Define InputAssetProps type based on what GrapeJS expects
 interface InputAssetProps {
   src: string;

@@ -9,7 +9,7 @@ const getS3Config = (): S3ClientConfig => {
     credentials: {
       accessKeyId: env.NEXT_PUBLIC_R2_ACCESS_KEY_ID,
       secretAccessKey: env.NEXT_PUBLIC_R2_SECRET_ACCESS_KEY,
-      accountId: env.NEXT_PUBLIC_R2_ACCOUNT_ID,     
+      accountId: env.NEXT_PUBLIC_R2_ACCOUNT_ID,
     },
   };
 };

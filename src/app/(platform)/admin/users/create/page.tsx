@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
 import { CreateUserFormSchema } from "@/validations/user.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -14,8 +16,13 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
-import { useCreateUser } from "@/hooks/user";
+
+import { Permission } from "@/types/team-permission.type";
+import { ITeam } from "@/types/team.type";
+
 import { useGetTeamPermissionList } from "@/hooks/team";
+import { useCreateUser } from "@/hooks/user";
+
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -27,8 +34,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ITeam } from "@/types/team.type";
-import { Permission } from "@/types/team-permission.type";
 
 export default function Page() {
   const t = useTranslations("CreateUserPage");
@@ -70,9 +75,9 @@ export default function Page() {
   // Handle loading and error states
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <svg
-          className="animate-spin h-8 w-8 text-primary"
+          className="text-primary h-8 w-8 animate-spin"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"

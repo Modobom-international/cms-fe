@@ -2,10 +2,7 @@
 
 import { useState } from "react";
 
-import { serverQueryKeys } from "@/constants/query-keys";
-import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 
 import { IServer } from "@/types/server.type";
 
