@@ -140,7 +140,7 @@ export default function ActivityLogDataTable() {
         <div className="grid grid-cols-1 items-end justify-end gap-4 md:grid-cols-3">
           <div>
             <Label
-              className="mb-2 block text-sm font-medium text-gray-700"
+              className="text-foreground mb-2 block text-sm font-medium"
               htmlFor="search"
             >
               {t("filters.searchByEmail")}
@@ -360,24 +360,24 @@ export default function ActivityLogDataTable() {
               {/* Data Table Section */}
               <div className="relative w-full overflow-auto">
                 <Table className="w-full">
-                  <TableHeader className="sticky top-0 z-10 bg-white">
-                    <TableRow className="border-b border-gray-200 hover:bg-white">
-                      <TableHead className="w-[60px] py-3 font-medium text-gray-700">
+                  <TableHeader className="bg-background dark:bg-card sticky top-0 z-10">
+                    <TableRow className="border-border hover:bg-muted/50 border-b">
+                      <TableHead className="text-foreground w-[60px] py-3 font-medium">
                         {t("columns.id")}
                       </TableHead>
-                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[120px] py-3 font-medium">
                         {t("columns.action")}
                       </TableHead>
-                      <TableHead className="w-[180px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[180px] py-3 font-medium">
+                        {t("columns.user")}
+                      </TableHead>
+                      <TableHead className="text-foreground w-[180px] py-3 font-medium">
                         {t("columns.timestamp")}
                       </TableHead>
-                      <TableHead className="w-[180px] py-3 font-medium text-gray-700">
-                        {t("columns.userEmail")}
-                      </TableHead>
-                      <TableHead className="w-[250px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[250px] py-3 font-medium">
                         {t("columns.details")}
                       </TableHead>
-                      <TableHead className="py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground py-3 font-medium">
                         {t("columns.description")}
                       </TableHead>
                     </TableRow>
@@ -387,7 +387,7 @@ export default function ActivityLogDataTable() {
                       return (
                         <TableRow
                           key={index}
-                          className="border-b border-gray-200 hover:bg-gray-50"
+                          className="border-border hover:bg-muted/50 border-b transition-colors"
                         >
                           <TableCell className="text-muted-foreground py-3 text-sm font-medium">
                             {log.id}
@@ -396,16 +396,15 @@ export default function ActivityLogDataTable() {
                             <ActivityLogBadge action={log.action} />
                           </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
-                            {log.details && log.details.logged_at
-                              ? formatDateTime(new Date(log.details.logged_at))
-                              : "—"}
-                          </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
                             <div className="flex items-center">
                               <span>{log.user_email || "—"}</span>
                             </div>
                           </TableCell>
-
+                          <TableCell className="text-muted-foreground py-3 text-sm">
+                            {log.details && log.details.logged_at
+                              ? formatDateTime(new Date(log.details.logged_at))
+                              : "—"}
+                          </TableCell>
                           <TableCell className="text-muted-foreground py-3 text-sm">
                             <div className="flex flex-col">
                               <div className="grid grid-cols-1 gap-1 text-xs">
@@ -476,7 +475,7 @@ export default function ActivityLogDataTable() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      className="h-8 px-4 text-sm font-medium"
                       onClick={handlePreviousPage}
                       disabled={currentPage === 1}
                     >
@@ -485,7 +484,7 @@ export default function ActivityLogDataTable() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      className="h-8 px-4 text-sm font-medium"
                       onClick={handleNextPage}
                       disabled={currentPage === paginationInfo.last_page}
                     >
@@ -495,7 +494,7 @@ export default function ActivityLogDataTable() {
                 </div>
 
                 {/* Bottom status line */}
-                <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+                <div className="border-border bg-muted text-muted-foreground flex items-center justify-between border-t px-4 py-2 text-xs">
                   <div>
                     Viewing {paginationInfo.from || 1}-
                     {paginationInfo.to ||

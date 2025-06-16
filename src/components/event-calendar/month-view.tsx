@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+
 import {
   addDays,
   eachDayOfInterval,
@@ -19,7 +20,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
 import {
+  type CalendarEvent,
   DraggableEvent,
   DroppableCell,
   EventGap,
@@ -30,7 +33,6 @@ import {
   getSpanningEventsForDay,
   sortEvents,
   useEventVisibility,
-  type CalendarEvent,
 } from "@/components/event-calendar";
 import { DefaultStartHour } from "@/components/event-calendar/constants";
 
@@ -185,7 +187,7 @@ export function MonthView({
                                     <span>
                                       {format(
                                         new Date(event.start),
-                                        "h:mm",
+                                        "h:mm"
                                       )}{" "}
                                     </span>
                                   )}

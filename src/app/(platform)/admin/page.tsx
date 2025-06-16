@@ -7,23 +7,17 @@ import {
   IconCalendar,
   IconCalendarEvent,
   IconCheckbox,
-  IconChevronDown,
   IconClock,
   IconClockHour3,
   IconDots,
-  IconFileText,
   IconFilter,
   IconPlus,
-  IconSearch,
-  IconSettings,
   IconSortAscending,
   IconTarget,
   IconTrendingUp,
-  IconUser,
   IconUsers,
 } from "@tabler/icons-react";
 
-import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -191,7 +185,7 @@ export default function AdminDashboard() {
               Good morning, John! 👋
             </h1>
             <p className="text-muted-foreground">
-              Here's what's on your plate today
+              Here&apos;s what&apos;s on your plate today
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -293,7 +287,7 @@ export default function AdminDashboard() {
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <IconCalendar className="text-muted-foreground size-5" />
-                    <CardTitle>Today's Schedule</CardTitle>
+                    <CardTitle>Today&apos;s Schedule</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -573,7 +567,7 @@ export default function AdminDashboard() {
               {/* Today's Detailed Schedule */}
               <Card className="lg:col-span-2">
                 <CardHeader>
-                  <CardTitle>Today's Schedule</CardTitle>
+                  <CardTitle>Today&apos;s Schedule</CardTitle>
                   <CardAction>
                     <Button size="sm">
                       <IconPlus className="size-4" />
@@ -658,7 +652,7 @@ export default function AdminDashboard() {
                   <div className="text-center">
                     <div className="text-3xl font-bold">4h 32m</div>
                     <div className="text-muted-foreground text-sm">
-                      Today's work time
+                      Today&apos;s work time
                     </div>
                   </div>
 
@@ -693,7 +687,7 @@ export default function AdminDashboard() {
             {/* Weekly Overview */}
             <Card>
               <CardHeader>
-                <CardTitle>This Week's Focus</CardTitle>
+                <CardTitle>This Week&apos;s Focus</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-7">
@@ -790,4 +784,3 @@ export default function AdminDashboard() {
     </div>
   );
 }
-

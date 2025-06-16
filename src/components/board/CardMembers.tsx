@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import { useAuth } from "@/providers/auth-provider";
 import { UserMinus, UserPlus, X } from "lucide-react";
-import { useTranslations } from "next-intl";
 
 import { CardMember } from "@/types/board.type";
 
@@ -19,7 +18,6 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,

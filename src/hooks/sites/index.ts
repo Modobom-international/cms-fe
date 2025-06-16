@@ -1,7 +1,7 @@
 import { siteQueryKeys } from "@/constants/query-keys";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import type { CreateSiteData, Site, UpdateSiteData } from "@/types/site.type";
+import type { CreateSiteData, UpdateSiteData } from "@/types/site.type";
 
 import apiClient from "@/lib/api/client";
 

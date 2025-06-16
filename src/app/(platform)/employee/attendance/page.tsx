@@ -9,7 +9,7 @@ import { AttendanceDashboard } from "@/components/attendance/employee/attendance
 import { ComplaintsList } from "@/components/attendance/employee/complaints-list";
 
 export default function EmployeeAttendancePage() {
-  const { user, isLoadingUser } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="flex flex-col gap-8">

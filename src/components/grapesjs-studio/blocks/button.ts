@@ -368,4 +368,3 @@ export const buttonBlock = (editor: any) => {
     },
   });
 };
-

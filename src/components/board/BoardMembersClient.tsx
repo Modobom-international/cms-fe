@@ -4,8 +4,6 @@ import { useState } from "react";
 
 import { useTranslations } from "next-intl";
 
-import { WorkspaceMember } from "@/types/workspaces.type";
-
 import {
   useAddBoardMember,
   useGetBoardMembers,

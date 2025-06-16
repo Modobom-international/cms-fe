@@ -49,4 +49,3 @@ export default function SidebarCalendar({ className }: SidebarCalendarProps) {
     </div>
   );
 }
-

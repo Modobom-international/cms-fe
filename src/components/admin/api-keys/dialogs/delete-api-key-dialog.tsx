@@ -51,7 +51,7 @@ export default function DeleteApiKeyDialog({
       await deleteApiKey();
       toast.success(tNotifications("deleted"));
       handleClose();
-    } catch (error) {
+    } catch {
       toast.error(tNotifications("error"));
     }
   };
@@ -152,4 +152,3 @@ export default function DeleteApiKeyDialog({
     </Dialog>
   );
 }
-

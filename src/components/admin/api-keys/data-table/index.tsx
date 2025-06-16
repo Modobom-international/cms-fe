@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { MoreHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -61,13 +61,11 @@ export default function ApiKeyDataTable() {
     parseAsString.withDefault("")
   );
 
-  const [visibleKeys, setVisibleKeys] = useState<Record<number, boolean>>({});
-
   const debouncedSearch = useDebounce(search, 300);
 
   const { data: apiKeysResponse, isLoading, isError } = useGetApiKeys();
 
-  const apiKeysData = apiKeysResponse?.data ?? [];
+  const apiKeysData = apiKeysResponse?.data;
 
   // Frontend filtering and pagination
   const filteredData = useMemo(() => {
@@ -133,7 +131,7 @@ export default function ApiKeyDataTable() {
         <div className="flex items-end justify-between">
           <div className="w-1/2">
             <label
-              className="mb-2 block text-sm font-medium text-gray-700"
+              className="text-foreground mb-2 block text-sm font-medium"
               htmlFor="search"
             >
               {t("filters.search")}
@@ -158,49 +156,47 @@ export default function ApiKeyDataTable() {
             <div className="flex flex-col">
               <div className="relative w-full overflow-auto">
                 <Table className="w-full">
-                  <TableHeader className="sticky top-0 z-10 bg-white">
-                    <TableRow className="border-b border-gray-200 hover:bg-white">
-                      <TableHead className="w-[140px] py-3 font-medium text-gray-700">
+                  <TableHeader className="sticky top-0 z-10">
+                    <TableRow className="border-border hover:bg-muted/50 border-b">
+                      <TableHead className="text-foreground w-[140px] py-3 font-medium">
                         {t("columns.name")}
                       </TableHead>
-                      <TableHead className="w-[200px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[200px] py-3 font-medium">
                         {t("columns.apiKey")}
                       </TableHead>
-                      <TableHead className="w-[100px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[100px] py-3 font-medium">
                         {t("columns.status")}
                       </TableHead>
-                      <TableHead className="w-[150px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[150px] py-3 font-medium">
                         {t("columns.lastUsed")}
                       </TableHead>
-                      <TableHead className="w-[150px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[150px] py-3 font-medium">
                         {t("columns.expiresAt")}
                       </TableHead>
-                      <TableHead className="w-[150px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[150px] py-3 font-medium">
                         {t("columns.createdAt")}
                       </TableHead>
-                      <TableHead className="w-[100px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[100px] py-3 font-medium">
                         {t("columns.actions")}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {paginatedData.map((apiKey: IApiKey) => {
-                      const isKeyVisible = visibleKeys[apiKey.id] || false;
-
                       return (
                         <TableRow
                           key={apiKey.id}
-                          className="border-b border-gray-200 hover:bg-gray-50"
+                          className="data-table-row border-border border-b"
                         >
-                          <TableCell className="text-muted-foreground py-3">
-                            <span className="font-medium text-indigo-600">
+                          <TableCell className="py-3">
+                            <span className="data-table-cell-primary">
                               {apiKey.name}
                             </span>
                           </TableCell>
                           <TableCell className="py-3">
                             <div className="flex items-center gap-2">
-                              <code className="text-muted-foreground rounded bg-gray-100 px-2 py-1 font-mono text-xs">
-                                {formatApiKey(apiKey.key_prefix, isKeyVisible)}
+                              <code className="text-muted-foreground bg-accent rounded px-2 py-1 font-mono text-xs">
+                                {formatApiKey(apiKey.key_prefix, false)}
                               </code>
                             </div>
                           </TableCell>
@@ -269,10 +265,10 @@ export default function ApiKeyDataTable() {
                 </Table>
               </div>
 
-              <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
+              <div className="bg-muted sticky bottom-0 mt-auto border-t">
                 <div className="flex items-center justify-between px-4 py-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">
+                    <span className="text-muted-foreground text-sm">
                       {t("pagination.rowsPerPage")}
                     </span>
                     <Select
@@ -282,7 +278,7 @@ export default function ApiKeyDataTable() {
                         setCurrentPage(1);
                       }}
                     >
-                      <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
+                      <SelectTrigger className="border-border h-8 w-auto text-sm">
                         <SelectValue placeholder="10" />
                       </SelectTrigger>
                       <SelectContent className="text-sm">
@@ -298,7 +294,7 @@ export default function ApiKeyDataTable() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      className="h-8 px-4 text-sm font-medium"
                       onClick={handlePreviousPage}
                       disabled={currentPage === 1}
                     >
@@ -307,7 +303,7 @@ export default function ApiKeyDataTable() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      className="h-8 px-4 text-sm font-medium"
                       onClick={handleNextPage}
                       disabled={currentPage === totalPages}
                     >
@@ -316,7 +312,7 @@ export default function ApiKeyDataTable() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+                <div className="text-muted-foreground bg-muted flex items-center justify-between border-t px-4 py-2 text-xs">
                   <div>
                     {t("pagination.viewing")}{" "}
                     {filteredData.length > 0 ? from : 0}-{to}{" "}

@@ -15,10 +15,6 @@ import {
 import { useEcho } from "@/components/context/echo";
 import { Spinner } from "@/components/global/spinner";
 
-interface Domain {
-  message: string;
-}
-
 interface RefreshDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -38,13 +34,13 @@ export function RefreshDialog({
   const [refreshMessage, setRefreshMessage] = useState(
     t("modal.refresh.messages.initializing")
   );
-  const [newDomains, setNewDomains] = useState<Domain[]>([]);
+
   const echo = useEcho();
 
   useEffect(() => {
     if (isOpen) {
       setRefreshMessage(t("modal.refresh.messages.sending"));
-      setNewDomains([]);
+
       refreshDomains(undefined, {
         onSuccess: () => {
           setRefreshMessage(t("modal.refresh.messages.waiting"));

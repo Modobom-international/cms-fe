@@ -5,11 +5,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Card,
   CardPosition,
-  CardResponse,
   ChecklistItem,
-  CreateCardPayload,
   MoveCardPayload,
-  UpdateCardPayload,
 } from "@/types/board.type";
 
 import apiClient from "@/lib/api/client";

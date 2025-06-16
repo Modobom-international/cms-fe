@@ -1,4 +1,3 @@
-import { IUser } from "./user.type";
 import { Workspace } from "./workspaces.type";
 
 export interface Label {

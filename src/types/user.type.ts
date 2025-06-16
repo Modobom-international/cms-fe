@@ -30,4 +30,3 @@ export interface IUpdateUserResponse {
   data: IUser;
   type: string;
 }
-

@@ -1,7 +1,5 @@
 import React from "react";
 
-import { format } from "date-fns";
-
 import { IUserTrackingSummary } from "@/types/user-tracking.type";
 
 import {

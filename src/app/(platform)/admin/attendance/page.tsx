@@ -1,5 +1,4 @@
 import { ChevronRight, Home } from "lucide-react";
-import { useTranslations } from "next-intl";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -7,8 +6,6 @@ import { AttendanceReport } from "@/components/attendance/admin/attendance-repor
 import { ComplaintsManagement } from "@/components/attendance/admin/complaints-management";
 
 export default function AttendancePage() {
-  const t = useTranslations("AttendancePage");
-
   return (
     <div className="flex flex-col gap-8">
       {/* Header Section */}

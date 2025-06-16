@@ -1,14 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+
 import { useRouter } from "next/navigation";
-import { toast, Toaster } from "sonner";
+
 import { type ITeamForm } from "@/validations/team.validation";
 import { ChevronDown, ChevronRight, ChevronUp, Home } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast, Toaster } from "sonner";
+
 import { Permission } from "@/types/team-permission.type";
+
 import { useCreateTeam } from "@/hooks/team";
 import { useGetTeamPermissionList } from "@/hooks/team";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -18,11 +23,8 @@ export default function CreateTeamPage() {
   const t = useTranslations("AddTeamPage");
   const router = useRouter();
 
-  const {
-    createTeamMutation,
-    isCreatingTeam,
-    createTeamForm,
-  } = useCreateTeam();
+  const { createTeamMutation, isCreatingTeam, createTeamForm } =
+    useCreateTeam();
 
   const {
     register,
@@ -50,9 +52,9 @@ export default function CreateTeamPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <svg
-          className="animate-spin h-8 w-8 text-primary"
+          className="text-primary h-8 w-8 animate-spin"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -113,7 +115,9 @@ export default function CreateTeamPage() {
   };
 
   const getSectionDisplayName = (section: string) => {
-    const sectionKey = section.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+    const sectionKey = section
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
     return sectionKey;
   };
 
@@ -174,11 +178,16 @@ export default function CreateTeamPage() {
               <div className="space-y-4">
                 {Object.entries(permissions).map(([section, routes]) => {
                   const allChecked = routes.every((route) =>
-                    watch(`permissions.${section}_${route.name.replace(/\./g, "_")}`)
+                    watch(
+                      `permissions.${section}_${route.name.replace(/\./g, "_")}`
+                    )
                   );
-                  const someChecked = routes.some((route) =>
-                    watch(`permissions.${section}_${route.name.replace(/\./g, "_")}`)
-                  ) && !allChecked;
+                  const someChecked =
+                    routes.some((route) =>
+                      watch(
+                        `permissions.${section}_${route.name.replace(/\./g, "_")}`
+                      )
+                    ) && !allChecked;
 
                   return (
                     <div key={section} className="rounded-md border">
@@ -228,8 +237,13 @@ export default function CreateTeamPage() {
                               <div className="flex items-center space-x-3">
                                 <Checkbox
                                   id={`permission-${route.id}`}
-                                  {...register(`permissions.${section}_${route.name.replace(/\./g, "_")}`)}
-                                  checked={watch(`permissions.${section}_${route.name.replace(/\./g, "_")}`, false)}
+                                  {...register(
+                                    `permissions.${section}_${route.name.replace(/\./g, "_")}`
+                                  )}
+                                  checked={watch(
+                                    `permissions.${section}_${route.name.replace(/\./g, "_")}`,
+                                    false
+                                  )}
                                   onCheckedChange={(checked) => {
                                     setValue(
                                       `permissions.${section}_${route.name.replace(/\./g, "_")}`,

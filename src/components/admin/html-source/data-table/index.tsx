@@ -7,16 +7,12 @@ import { format } from "date-fns";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import {
-  DatePicker,
-} from "react-aria-components";
+import { DatePicker } from "react-aria-components";
 
 // Import types
 import { IHtmlSource } from "@/types/html-source.type";
 
 import { formatDateTime } from "@/lib/utils";
-
-import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/ui/datefield-rac";
@@ -49,7 +45,7 @@ import { Spinner } from "@/components/global/spinner";
 
 export default function HtmlSourceDataTable() {
   const t = useTranslations("HtmlSourcePage.table");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState<string | null>(
     null
   );
@@ -73,8 +69,6 @@ export default function HtmlSourceDataTable() {
     parseAsString.withDefault(format(new Date(), "yyyy-MM-dd"))
   );
 
-  const debouncedSearch = useDebounce(search, 500);
-
   // Extract data from the mock response
   const htmlSourceData: IHtmlSource[] = [];
   const paginationInfo = {
@@ -91,13 +85,11 @@ export default function HtmlSourceDataTable() {
   // Handle next page navigation - increment by 1
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.last_page, prev + 1));
-    
   };
 
   // Handle previous page navigation - decrement by 1
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
-    
   };
 
   // Date picker handling
@@ -126,7 +118,7 @@ export default function HtmlSourceDataTable() {
           {/* Source Keyword Input */}
           <div>
             <Label
-              className="mb-2 block text-sm font-medium text-gray-700"
+              className="text-foreground mb-2 block text-sm font-medium"
               htmlFor="search"
             >
               {t("filters.search")}
@@ -383,30 +375,30 @@ export default function HtmlSourceDataTable() {
               {/* First Data Table Section */}
               <div className="relative w-full overflow-auto">
                 <Table className="w-full">
-                  <TableHeader className="sticky top-0 z-10 bg-white">
-                    <TableRow className="border-b border-gray-200 hover:bg-white">
-                      <TableHead className="w-[60px] py-3 font-medium text-gray-700">
+                  <TableHeader className="bg-background dark:bg-card sticky top-0 z-10">
+                    <TableRow className="border-border hover:bg-muted/50 border-b">
+                      <TableHead className="text-foreground w-[60px] py-3 font-medium">
                         {t("columns.id")}
                       </TableHead>
-                      <TableHead className="w-[140px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[140px] py-3 font-medium">
                         {t("columns.pathway")}
                       </TableHead>
-                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[120px] py-3 font-medium">
                         {t("columns.nation")}
                       </TableHead>
-                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[120px] py-3 font-medium">
                         {t("columns.platform")}
                       </TableHead>
-                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[120px] py-3 font-medium">
                         {t("columns.source")}
                       </TableHead>
-                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[120px] py-3 font-medium">
                         {t("columns.device")}
                       </TableHead>
-                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[120px] py-3 font-medium">
                         {t("columns.applicationId")}
                       </TableHead>
-                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[120px] py-3 font-medium">
                         {t("columns.version")}
                       </TableHead>
                     </TableRow>
@@ -416,32 +408,32 @@ export default function HtmlSourceDataTable() {
                       (source: IHtmlSource, index: number) => (
                         <TableRow
                           key={index}
-                          className="border-b border-gray-200 hover:bg-gray-50"
+                          className="border-border hover:bg-muted/50 border-b transition-colors"
                         >
                           <TableCell className="text-muted-foreground py-3 text-sm font-medium">
                             {source.id ?? "—"}
                           </TableCell>
-                          <TableCell className="text-muted-foreground py-3">
-                            <span className="font-medium text-indigo-600">
+                          <TableCell className="py-3">
+                            <span className="text-primary font-medium">
                               {source.pathway ?? "—"}
                             </span>
                           </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
+                          <TableCell className="py-3 text-sm">
                             {source.nation ?? "—"}
                           </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
+                          <TableCell className="py-3 text-sm">
                             {source.platform ?? "—"}
                           </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
+                          <TableCell className="py-3 text-sm">
                             {source.source ?? "—"}
                           </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
+                          <TableCell className="py-3 text-sm">
                             {source.device ?? "—"}
                           </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
+                          <TableCell className="py-3 text-sm">
                             {source.application_id ?? "—"}
                           </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
+                          <TableCell className="py-3 text-sm">
                             {source.version ?? "—"}
                           </TableCell>
                         </TableRow>
@@ -454,15 +446,15 @@ export default function HtmlSourceDataTable() {
               {/* Second Data Table Section */}
               <div className="relative w-full overflow-auto">
                 <Table className="w-full">
-                  <TableHeader className="sticky top-0 z-10 bg-white">
-                    <TableRow className="border-b border-gray-200 hover:bg-white">
-                      <TableHead className="w-[140px] py-3 font-medium text-gray-700">
+                  <TableHeader className="bg-background dark:bg-card sticky top-0 z-10">
+                    <TableRow className="border-border hover:bg-muted/50 border-b">
+                      <TableHead className="text-foreground w-[140px] py-3 font-medium">
                         {t("columns.dayCreation")}
                       </TableHead>
-                      <TableHead className="py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground py-3 font-medium">
                         {t("columns.note")}
                       </TableHead>
-                      <TableHead className="w-[100px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[100px] py-3 font-medium">
                         {t("columns.actions")}
                       </TableHead>
                     </TableRow>
@@ -472,14 +464,14 @@ export default function HtmlSourceDataTable() {
                       (source: IHtmlSource, index: number) => (
                         <TableRow
                           key={index}
-                          className="border-b border-gray-200 hover:bg-gray-50"
+                          className="border-border hover:bg-muted/50 border-b transition-colors"
                         >
-                          <TableCell className="text-muted-foreground py-3 text-sm">
+                          <TableCell className="py-3 text-sm">
                             {source.day_creation
                               ? formatDateTime(new Date(source.day_creation))
                               : "—"}
                           </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
+                          <TableCell className="py-3 text-sm">
                             {source.note ?? "—"}
                           </TableCell>
                           <TableCell className="py-3">
@@ -502,19 +494,19 @@ export default function HtmlSourceDataTable() {
               </div>
 
               {/* Pagination Section - Fixed at bottom when scrolling */}
-              <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
+              <div className="border-border bg-background dark:bg-card sticky bottom-0 mt-auto border-t">
                 {/* Main pagination controls */}
                 <div className="flex items-center justify-between px-4 py-2">
                   {/* Results per page */}
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">
+                    <span className="text-muted-foreground text-sm">
                       {t("pagination.rowsPerPage")}
                     </span>
                     <Select
                       value={pageSize.toString()}
                       onValueChange={(value) => setPageSize(Number(value))}
                     >
-                      <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
+                      <SelectTrigger className="border-border h-8 w-auto text-sm">
                         <SelectValue placeholder="10" />
                       </SelectTrigger>
                       <SelectContent className="text-sm">
@@ -531,7 +523,7 @@ export default function HtmlSourceDataTable() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      className="h-8 px-4 text-sm font-medium"
                       onClick={handlePreviousPage}
                       disabled={currentPage === 1}
                     >
@@ -540,7 +532,7 @@ export default function HtmlSourceDataTable() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      className="h-8 px-4 text-sm font-medium"
                       onClick={handleNextPage}
                       disabled={currentPage === paginationInfo.last_page}
                     >
@@ -550,7 +542,7 @@ export default function HtmlSourceDataTable() {
                 </div>
 
                 {/* Bottom status line */}
-                <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+                <div className="border-border bg-muted text-muted-foreground flex items-center justify-between border-t px-4 py-2 text-xs">
                   <div>
                     Viewing {paginationInfo.from || 1}-
                     {paginationInfo.to ||
@@ -570,4 +562,3 @@ export default function HtmlSourceDataTable() {
     </div>
   );
 }
-

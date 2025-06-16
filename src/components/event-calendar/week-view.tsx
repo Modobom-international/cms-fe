@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+
 import {
   addHours,
   areIntervalsOverlapping,
@@ -18,17 +19,18 @@ import {
   startOfWeek,
 } from "date-fns";
 
+import { cn } from "@/lib/utils";
+
 import {
+  type CalendarEvent,
   DraggableEvent,
   DroppableCell,
   EventItem,
   isMultiDayEvent,
   useCurrentTimeIndicator,
   WeekCellsHeight,
-  type CalendarEvent,
 } from "@/components/event-calendar";
-import { StartHour, EndHour } from "@/components/event-calendar/constants";
-import { cn } from "@/lib/utils";
+import { EndHour, StartHour } from "@/components/event-calendar/constants";
 
 interface WeekViewProps {
   currentDate: Date;
@@ -60,7 +62,7 @@ export function WeekView({
 
   const weekStart = useMemo(
     () => startOfWeek(currentDate, { weekStartsOn: 0 }),
-    [currentDate],
+    [currentDate]
   );
 
   const hours = useMemo(() => {
@@ -85,7 +87,7 @@ export function WeekView({
           (day) =>
             isSameDay(day, eventStart) ||
             isSameDay(day, eventEnd) ||
-            (day > eventStart && day < eventEnd),
+            (day > eventStart && day < eventEnd)
         );
       });
   }, [events, days]);
@@ -170,8 +172,8 @@ export function WeekView({
                 {
                   start: new Date(c.event.start),
                   end: new Date(c.event.end),
-                },
-              ),
+                }
+              )
             );
             if (!overlaps) {
               placed = true;
@@ -214,12 +216,12 @@ export function WeekView({
   const showAllDaySection = allDayEvents.length > 0;
   const { currentTimePosition, currentTimeVisible } = useCurrentTimeIndicator(
     currentDate,
-    "week",
+    "week"
   );
 
   return (
     <div data-slot="week-view" className="flex h-full flex-col">
-      <div className="bg-background/80 border-border/70 sticky top-0 z-30 grid grid-cols-8 border-y backdrop-blur-md uppercase">
+      <div className="bg-background/80 border-border/70 sticky top-0 z-30 grid grid-cols-8 border-y uppercase backdrop-blur-md">
         <div className="text-muted-foreground/70 py-2 text-center text-xs">
           <span className="max-[479px]:sr-only">{format(new Date(), "O")}</span>
         </div>
@@ -286,7 +288,7 @@ export function WeekView({
                         <div
                           className={cn(
                             "truncate",
-                            !shouldShowTitle && "invisible",
+                            !shouldShowTitle && "invisible"
                           )}
                           aria-hidden={!shouldShowTitle}
                         >
@@ -303,7 +305,7 @@ export function WeekView({
       )}
 
       <div className="grid flex-1 grid-cols-8 overflow-hidden">
-        <div className="border-border/70 border-r grid auto-cols-fr">
+        <div className="border-border/70 grid auto-cols-fr border-r">
           {hours.map((hour, index) => (
             <div
               key={hour.toString()}
@@ -321,7 +323,7 @@ export function WeekView({
         {days.map((day, dayIndex) => (
           <div
             key={day.toString()}
-            className="border-border/70 relative border-r last:border-r-0 grid auto-cols-fr"
+            className="border-border/70 relative grid auto-cols-fr border-r last:border-r-0"
             data-today={isToday(day) || undefined}
           >
             {/* Positioned events */}
@@ -357,8 +359,8 @@ export function WeekView({
                 style={{ top: `${currentTimePosition}%` }}
               >
                 <div className="relative flex items-center">
-                  <div className="bg-red-500 absolute -left-1 h-2 w-2 rounded-full"></div>
-                  <div className="bg-red-500 h-[2px] w-full"></div>
+                  <div className="absolute -left-1 h-2 w-2 rounded-full bg-red-500"></div>
+                  <div className="h-[2px] w-full bg-red-500"></div>
                 </div>
               </div>
             )}
@@ -386,7 +388,7 @@ export function WeekView({
                           quarter === 2 &&
                             "top-[calc(var(--week-cells-height)/4*2)]",
                           quarter === 3 &&
-                            "top-[calc(var(--week-cells-height)/4*3)]",
+                            "top-[calc(var(--week-cells-height)/4*3)]"
                         )}
                         onClick={() => {
                           const startTime = new Date(day);

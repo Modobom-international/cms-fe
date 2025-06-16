@@ -172,18 +172,18 @@ export default function UsersDataTable() {
             {/* Data Table Section */}
             <div className="relative w-full overflow-auto">
               <Table className="w-full">
-                <TableHeader className="sticky top-0 z-10 bg-white">
-                  <TableRow className="border-b border-gray-200 hover:bg-white">
-                    <TableHead className="w-[200px] py-3 font-medium text-gray-700">
+                <TableHeader className="bg-background dark:bg-card sticky top-0 z-10">
+                  <TableRow className="border-border hover:bg-muted/50 border-b">
+                    <TableHead className="text-foreground w-[200px] py-3 font-medium">
                       {t("columns.name")}
                     </TableHead>
-                    <TableHead className="w-[250px] py-3 font-medium text-gray-700">
+                    <TableHead className="text-foreground w-[250px] py-3 font-medium">
                       {t("columns.email")}
                     </TableHead>
-                    <TableHead className="w-[150px] py-3 font-medium text-gray-700">
+                    <TableHead className="text-foreground w-[150px] py-3 font-medium">
                       {t("columns.team")}
                     </TableHead>
-                    <TableHead className="w-[60px] py-3 font-medium text-gray-700">
+                    <TableHead className="text-foreground w-[60px] py-3 font-medium">
                       {t("columns.actions")}
                     </TableHead>
                   </TableRow>
@@ -192,7 +192,7 @@ export default function UsersDataTable() {
                   {userData.map((user: IUser) => (
                     <TableRow
                       key={user.email}
-                      className="border-b border-gray-200 hover:bg-gray-50"
+                      className="border-border hover:bg-muted/50 border-b transition-colors"
                     >
                       <TableCell className="py-3 text-sm font-medium">
                         {user.name}
@@ -249,19 +249,19 @@ export default function UsersDataTable() {
             </div>
 
             {/* Pagination Section */}
-            <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
+            <div className="border-border sticky bottom-0 mt-auto border-t">
               {/* Main pagination controls */}
               <div className="flex items-center justify-between px-4 py-2">
                 {/* Results per page */}
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-muted-foreground text-sm">
                     {t("pagination.rowsPerPage")}
                   </span>
                   <Select
                     value={pageSize.toString()}
                     onValueChange={(value) => setPageSize(Number(value))}
                   >
-                    <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
+                    <SelectTrigger className="border-border h-8 w-auto text-sm">
                       <SelectValue placeholder="10" />
                     </SelectTrigger>
                     <SelectContent className="text-sm">
@@ -278,18 +278,18 @@ export default function UsersDataTable() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                    className="h-8 px-4 text-sm font-medium"
                     onClick={handlePreviousPage}
-                    disabled={currentPage <= 1}
+                    disabled={currentPage === 1}
                   >
                     {t("pagination.previousPage")}
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                    className="h-8 px-4 text-sm font-medium"
                     onClick={handleNextPage}
-                    disabled={currentPage >= paginationInfo.totalPages}
+                    disabled={currentPage === paginationInfo.totalPages}
                   >
                     {t("pagination.nextPage")}
                   </Button>
@@ -297,7 +297,7 @@ export default function UsersDataTable() {
               </div>
 
               {/* Bottom status line */}
-              <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+              <div className="border-border bg-muted text-muted-foreground flex items-center justify-between border-t px-4 py-2 text-xs">
                 <div>
                   {t("pagination.showing", {
                     from: paginationInfo.from,

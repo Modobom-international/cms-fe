@@ -7,11 +7,7 @@ import { AlertCircle, Calendar, Clock, Home, MapPin, Wifi } from "lucide-react";
 
 import { AttendanceType } from "@/types/attendance.type";
 
-import {
-  formatTimeForDisplay,
-  getCurrentLocaleTime,
-  getTimezoneInfo,
-} from "@/lib/utils";
+import { formatTimeForDisplay, getTimezoneInfo } from "@/lib/utils";
 
 import {
   useCheckIn,
@@ -199,7 +195,7 @@ export function AttendanceDashboard({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {getStatusIcon(todayAttendance.data.status)}
-              Today's Status
+              Today&apos;s Status
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -367,7 +363,7 @@ export function AttendanceDashboard({
           <Alert className="border-orange-200 bg-orange-50">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Don't forget to check out at the end of your work day!
+              Don&apos;t forget to check out at the end of your work day!
             </AlertDescription>
           </Alert>
         )}

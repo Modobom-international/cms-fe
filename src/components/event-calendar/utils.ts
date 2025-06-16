@@ -29,7 +29,7 @@ export function getEventColorClasses(color?: EventColor | string): string {
  */
 export function getBorderRadiusClasses(
   isFirstDay: boolean,
-  isLastDay: boolean,
+  isLastDay: boolean
 ): string {
   if (isFirstDay && isLastDay) {
     return "rounded"; // Both ends rounded
@@ -56,7 +56,7 @@ export function isMultiDayEvent(event: CalendarEvent): boolean {
  */
 export function getEventsForDay(
   events: CalendarEvent[],
-  day: Date,
+  day: Date
 ): CalendarEvent[] {
   return events
     .filter((event) => {
@@ -86,7 +86,7 @@ export function sortEvents(events: CalendarEvent[]): CalendarEvent[] {
  */
 export function getSpanningEventsForDay(
   events: CalendarEvent[],
-  day: Date,
+  day: Date
 ): CalendarEvent[] {
   return events.filter((event) => {
     if (!isMultiDayEvent(event)) return false;
@@ -107,7 +107,7 @@ export function getSpanningEventsForDay(
  */
 export function getAllEventsForDay(
   events: CalendarEvent[],
-  day: Date,
+  day: Date
 ): CalendarEvent[] {
   return events.filter((event) => {
     const eventStart = new Date(event.start);
@@ -125,7 +125,7 @@ export function getAllEventsForDay(
  */
 export function getAgendaEventsForDay(
   events: CalendarEvent[],
-  day: Date,
+  day: Date
 ): CalendarEvent[] {
   return events
     .filter((event) => {

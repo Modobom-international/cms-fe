@@ -4,14 +4,7 @@ import { useState } from "react";
 
 import { Draggable } from "@hello-pangea/dnd";
 import { format } from "date-fns";
-import {
-  CheckSquare,
-  Clock,
-  GripVertical,
-  Pencil,
-  Trash2,
-  Users,
-} from "lucide-react";
+import { CheckSquare, Clock, GripVertical, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Card } from "@/types/board.type";

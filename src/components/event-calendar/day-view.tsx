@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+
 import {
   addHours,
   areIntervalsOverlapping,
@@ -13,17 +14,18 @@ import {
   startOfDay,
 } from "date-fns";
 
+import { cn } from "@/lib/utils";
+
 import {
+  type CalendarEvent,
   DraggableEvent,
   DroppableCell,
   EventItem,
   isMultiDayEvent,
   useCurrentTimeIndicator,
   WeekCellsHeight,
-  type CalendarEvent,
 } from "@/components/event-calendar";
-import { StartHour, EndHour } from "@/components/event-calendar/constants";
-import { cn } from "@/lib/utils";
+import { EndHour, StartHour } from "@/components/event-calendar/constants";
 
 interface DayViewProps {
   currentDate: Date;
@@ -67,7 +69,7 @@ export function DayView({
         );
       })
       .sort(
-        (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime(),
+        (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
       );
   }, [currentDate, events]);
 
@@ -144,8 +146,8 @@ export function DayView({
           const overlaps = col.some((c) =>
             areIntervalsOverlapping(
               { start: adjustedStart, end: adjustedEnd },
-              { start: new Date(c.event.start), end: new Date(c.event.end) },
-            ),
+              { start: new Date(c.event.start), end: new Date(c.event.end) }
+            )
           );
           if (!overlaps) {
             placed = true;
@@ -185,7 +187,7 @@ export function DayView({
   const showAllDaySection = allDayEvents.length > 0;
   const { currentTimePosition, currentTimeVisible } = useCurrentTimeIndicator(
     currentDate,
-    "day",
+    "day"
   );
 
   return (
@@ -224,7 +226,7 @@ export function DayView({
         </div>
       )}
 
-      <div className="border-border/70 grid flex-1 grid-cols-[3rem_1fr] border-t sm:grid-cols-[4rem_1fr] overflow-hidden">
+      <div className="border-border/70 grid flex-1 grid-cols-[3rem_1fr] overflow-hidden border-t sm:grid-cols-[4rem_1fr]">
         <div>
           {hours.map((hour, index) => (
             <div
@@ -273,8 +275,8 @@ export function DayView({
               style={{ top: `${currentTimePosition}%` }}
             >
               <div className="relative flex items-center">
-                <div className="bg-red-500 absolute -left-1 h-2 w-2 rounded-full"></div>
-                <div className="bg-red-500 h-[2px] w-full"></div>
+                <div className="absolute -left-1 h-2 w-2 rounded-full bg-red-500"></div>
+                <div className="h-[2px] w-full bg-red-500"></div>
               </div>
             </div>
           )}
@@ -304,7 +306,7 @@ export function DayView({
                         quarter === 2 &&
                           "top-[calc(var(--week-cells-height)/4*2)]",
                         quarter === 3 &&
-                          "top-[calc(var(--week-cells-height)/4*3)]",
+                          "top-[calc(var(--week-cells-height)/4*3)]"
                       )}
                       onClick={() => {
                         const startTime = new Date(currentDate);

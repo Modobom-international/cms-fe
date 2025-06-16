@@ -29,7 +29,6 @@ import {
   Card,
   ChecklistItem,
   Checklist as ChecklistType,
-  Label,
 } from "@/types/board.type";
 
 import {
@@ -45,7 +44,6 @@ import {
   useDeleteChecklistItem,
   useGetCard,
   useGetCardChecklists,
-  useGetChecklistItems,
   useRemoveCardLabel,
   useToggleChecklistItem,
   useUpdateCard,

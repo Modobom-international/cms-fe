@@ -7,14 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { UpdateUserFormSchema } from "@/validations/user.validation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  ArrowLeft,
-  ChevronDown,
-  ChevronRight,
-  ChevronUp,
-  Home,
-  Loader2,
-} from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 

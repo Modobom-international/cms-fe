@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
-import { format } from "date-fns";
-import { AlertCircle, MoreHorizontal, Plus, UserPlus } from "lucide-react";
-import { useTranslations } from "next-intl";
 
-import { Workspace } from "@/types/workspaces.type";
+import { useState } from "react";
+
+import { format } from "date-fns";
+import { AlertCircle, Plus, UserPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+
 import { useGetWorkspace } from "@/hooks/workspace";
 import {
   useAddWorkspaceMember,
@@ -15,14 +16,6 @@ import {
 } from "@/hooks/workspace/members";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +26,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -251,7 +252,9 @@ export function WorkspaceMembersContainer({
                       onChange={(e) => setNewMemberEmail(e.target.value)}
                     />
                     {errors.email && (
-                        <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.email}
+                      </p>
                     )}
                   </div>
                   <div>
@@ -273,7 +276,7 @@ export function WorkspaceMembersContainer({
                       </SelectContent>
                     </Select>
                     {errors.role && (
-                        <p className="text-sm text-red-500 mt-1">{errors.role}</p>
+                      <p className="mt-1 text-sm text-red-500">{errors.role}</p>
                     )}
                   </div>
                 </div>
@@ -296,40 +299,40 @@ export function WorkspaceMembersContainer({
 
       <div className="space-y-4">
         {members?.map((member) => (
-            <Card key={member.id}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>{member.users.name}</CardTitle>
-                    <CardDescription>{member.users.email}</CardDescription>
-                  </div>
-                  {members.some(
-                      (m) => m.role === "admin" && m.users.id !== member.users.id
-                  ) && (
-                      <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive"
-                          onClick={() => openDeleteDialog(member.users.id)}
-                      >
-                        {t("remove")}
-                      </Button>
-                  )}
+          <Card key={member.id}>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>{member.users.name}</CardTitle>
+                  <CardDescription>{member.users.email}</CardDescription>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-muted-foreground space-y-1 text-sm">
-                  <div>
-                    {t("role")}: {member.role}
-                  </div>
-                  <div>
-                    {t("joinedAt", {
-                      date: format(new Date(member.created_at), "MMM d, yyyy"),
-                    })}
-                  </div>
+                {members.some(
+                  (m) => m.role === "admin" && m.users.id !== member.users.id
+                ) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive"
+                    onClick={() => openDeleteDialog(member.users.id)}
+                  >
+                    {t("remove")}
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-muted-foreground space-y-1 text-sm">
+                <div>
+                  {t("role")}: {member.role}
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  {t("joinedAt", {
+                    date: format(new Date(member.created_at), "MMM d, yyyy"),
+                  })}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
@@ -337,20 +340,18 @@ export function WorkspaceMembersContainer({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{t("title")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("description")}
-            </AlertDialogDescription>
+            <AlertDialogDescription>{t("description")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
             <AlertDialogAction
-                onClick={handleRemoveMember}
-                className="bg-red-600"
-                disabled={removeMember.isPending} // ✅ đổi ở đây
+              onClick={handleRemoveMember}
+              className="bg-red-600"
+              disabled={removeMember.isPending} // ✅ đổi ở đây
             >
               {removeMember.isPending // ✅ đổi ở đây
-                  ? t("deleting")
-                  : t("confirm")}
+                ? t("deleting")
+                : t("confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

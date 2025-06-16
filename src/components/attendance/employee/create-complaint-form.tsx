@@ -4,14 +4,14 @@ import { useState } from "react";
 
 import { format } from "date-fns";
 import { format as formatDate, parseISO } from "date-fns";
-import { AlertTriangle, Calendar, Clock, FileText } from "lucide-react";
+import { AlertTriangle, Calendar } from "lucide-react";
 
 import {
   ComplaintType,
   ICreateComplaintRequest,
 } from "@/types/attendance.type";
 
-import { convertVietnamTimeToUtc, vietnamDateToUtcString } from "@/lib/utils";
+import { vietnamDateToUtcString } from "@/lib/utils";
 
 import { useAttendanceByDate, useCreateComplaint } from "@/hooks/attendance";
 

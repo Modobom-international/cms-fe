@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/providers/auth-provider";
 import { CalendarDate, parseDate } from "@internationalized/date";
@@ -10,18 +10,11 @@ import { useTranslations } from "next-intl";
 import { parseAsString, useQueryState } from "nuqs";
 import { DatePicker } from "react-aria-components";
 
-import {
-  IDomainForTracking,
-  IDomainResponseTracking,
-} from "@/types/domain.type";
+import { IDomainForTracking } from "@/types/domain.type";
 
 import { cn } from "@/lib/utils";
 
-import {
-  useGetDomainList,
-  useGetDomainListWithoutPagination,
-  useGetDomainPaths,
-} from "@/hooks/domain";
+import { useGetDomainList, useGetDomainPaths } from "@/hooks/domain";
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
@@ -82,13 +75,14 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
       has_sites: undefined,
     });
 
-  const domains: IDomainForTracking[] =
-    domainResponse &&
-    "success" in domainResponse &&
-    domainResponse.success &&
-    Array.isArray(domainResponse.data)
+  const domains: IDomainForTracking[] = useMemo(() => {
+    return domainResponse &&
+      "success" in domainResponse &&
+      domainResponse.success &&
+      Array.isArray(domainResponse.data)
       ? domainResponse.data
       : [];
+  }, [domainResponse]);
 
   useEffect(() => {
     setPath("all");
@@ -165,17 +159,13 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
     if (onFilterChange) onFilterChange();
   };
 
-  const handleApplyDateFilter = () => {
-    if (onFilterChange) onFilterChange();
-  };
-
   if (isLoadingUser || !user_id) {
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
           <div>
             <label
-              className="mb-2 block text-sm font-medium text-gray-700"
+              className="text-foreground mb-2 block text-sm font-medium"
               htmlFor="domain"
             >
               {t("filters.selectDomain")}
@@ -193,7 +183,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
           </div>
           <div>
             <label
-              className="mb-2 block text-sm font-medium text-gray-700"
+              className="text-foreground mb-2 block text-sm font-medium"
               htmlFor="path"
             >
               {t("filters.selectPath")}
@@ -219,7 +209,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
       <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
         <div>
           <label
-            className="mb-2 block text-sm font-medium text-gray-700"
+            className="text-foreground mb-2 block text-sm font-medium"
             htmlFor="domain"
           >
             {t("filters.selectDomain")}
@@ -296,7 +286,7 @@ export default function FilterBar({ onFilterChange }: FilterBarProps) {
 
         <div>
           <label
-            className="mb-2 block text-sm font-medium text-gray-700"
+            className="text-foreground mb-2 block text-sm font-medium"
             htmlFor="path"
           >
             {t("filters.selectPath")}

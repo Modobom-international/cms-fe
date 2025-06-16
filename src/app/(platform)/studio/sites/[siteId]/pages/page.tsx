@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
 import Editor from "@monaco-editor/react";
-import { ArrowLeft, ChevronRight, Home, PlusIcon, Search } from "lucide-react";
+import { ChevronRight, Home, PlusIcon, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -21,7 +21,7 @@ import {
 import { useGetSiteById } from "@/hooks/sites";
 import { useDebounce } from "@/hooks/use-debounce";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -95,7 +95,7 @@ function CreatePageDialog({ site }: { site: string }) {
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
     const newSlug = isSlugManuallyEdited ? newPage.slug : generateSlug(newName);
-    setNewPage((prev) => ({
+    setNewPage(() => ({
       name: newName,
       slug: newSlug,
     }));
@@ -623,10 +623,12 @@ export default function PagesPage() {
                 {filteredPages.map((page: Page) => (
                   <TableRow
                     key={page.id}
-                    className="border-b border-gray-200 hover:bg-gray-50"
+                    className="border-border hover:bg-muted/50 border-b transition-colors"
                   >
-                    <TableCell className="py-3 text-sm font-medium">
-                      {page.name}
+                    <TableCell className="py-3">
+                      <span className="text-primary font-medium">
+                        {page.name}
+                      </span>
                     </TableCell>
                     <TableCell className="text-muted-foreground py-3 font-mono text-sm">
                       {page.slug}
@@ -701,4 +703,3 @@ export default function PagesPage() {
     </div>
   );
 }
-

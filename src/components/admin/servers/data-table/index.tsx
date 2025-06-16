@@ -1,6 +1,6 @@
 "use client";
 
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
@@ -42,14 +42,6 @@ import UpdateServerDialog from "@/components/admin/servers/dialogs/update-server
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 
-interface RefreshDialogProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  refreshServers: () => void;
-  isRefreshing: boolean;
-  refetch: () => void;
-}
-
 export default function ServerDataTable() {
   const t = useTranslations("ServerPage.table");
 
@@ -72,7 +64,6 @@ export default function ServerDataTable() {
     data: serverResponse,
     isFetching,
     isError,
-    error,
   } = useGetServerList(currentPage, pageSize, debouncedSearch);
 
   const serverData = serverResponse?.data?.data ?? [];
@@ -99,7 +90,7 @@ export default function ServerDataTable() {
         <div className="flex items-end justify-between">
           <div className="w-1/2">
             <label
-              className="mb-2 block text-sm font-medium text-gray-700"
+              className="text-foreground mb-2 block text-sm font-medium"
               htmlFor="search"
             >
               {t("filters.search")}
@@ -136,45 +127,43 @@ export default function ServerDataTable() {
             <div className="flex flex-col">
               <div className="relative w-full overflow-auto">
                 <Table className="w-full">
-                  <TableHeader className="sticky top-0 z-10 bg-white">
-                    <TableRow className="border-b border-gray-200 hover:bg-white">
-                      <TableHead className="w-[140px] py-3 font-medium text-gray-700">
+                  <TableHeader className="bg-background dark:bg-card sticky top-0 z-10">
+                    <TableRow className="border-border hover:bg-muted/50 border-b">
+                      <TableHead className="text-foreground w-[140px] py-3 font-medium">
                         {t("columns.name")}
                       </TableHead>
-                      <TableHead className="w-[120px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[120px] py-3 font-medium">
                         {t("columns.ip")}
                       </TableHead>
-                      <TableHead className="w-[150px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[150px] py-3 font-medium">
                         {t("columns.createdAt")}
                       </TableHead>
-                      <TableHead className="w-[150px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[150px] py-3 font-medium">
                         {t("columns.updatedAt")}
                       </TableHead>
-                      <TableHead className="w-[100px] py-3 font-medium text-gray-700">
+                      <TableHead className="text-foreground w-[100px] py-3 font-medium">
                         {t("columns.actions")}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {serverData.map((server: IServer, index: number) => (
+                    {serverData.map((server: IServer) => (
                       <TableRow
                         key={server.id}
-                        className="border-b border-gray-200 hover:bg-gray-50"
+                        className="border-border hover:bg-muted/50 border-b transition-colors"
                       >
-                        <TableCell className="text-muted-foreground py-3">
-                          <span className="font-medium text-indigo-600">
+                        <TableCell className="py-3">
+                          <span className="text-primary font-medium">
                             {server.name}
                           </span>
                         </TableCell>
-                        <TableCell className="text-muted-foreground py-3">
-                          {server.ip}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground py-3 text-sm">
+                        <TableCell className="py-3">{server.ip}</TableCell>
+                        <TableCell className="py-3 text-sm">
                           {server.created_at
                             ? formatDateTime(new Date(server.created_at))
                             : "—"}
                         </TableCell>
-                        <TableCell className="text-muted-foreground py-3 text-sm">
+                        <TableCell className="py-3 text-sm">
                           {server.updated_at
                             ? formatDateTime(new Date(server.updated_at))
                             : "—"}
@@ -224,17 +213,17 @@ export default function ServerDataTable() {
                 </Table>
               </div>
 
-              <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
+              <div className="border-border sticky bottom-0 mt-auto border-t">
                 <div className="flex items-center justify-between px-4 py-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">
+                    <span className="text-muted-foreground text-sm">
                       {t("pagination.rowsPerPage")}
                     </span>
                     <Select
                       value={pageSize.toString()}
                       onValueChange={(value) => setPageSize(Number(value))}
                     >
-                      <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
+                      <SelectTrigger className="border-border h-8 w-auto text-sm">
                         <SelectValue placeholder="10" />
                       </SelectTrigger>
                       <SelectContent className="text-sm">
@@ -250,7 +239,7 @@ export default function ServerDataTable() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      className="h-8 px-4 text-sm font-medium"
                       onClick={handlePreviousPage}
                       disabled={currentPage === 1}
                     >
@@ -259,7 +248,7 @@ export default function ServerDataTable() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                      className="h-8 px-4 text-sm font-medium"
                       onClick={handleNextPage}
                       disabled={currentPage === (paginationInfo.last_page ?? 1)}
                     >
@@ -268,7 +257,7 @@ export default function ServerDataTable() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-gray-500">
+                <div className="border-border bg-muted text-muted-foreground flex items-center justify-between border-t px-4 py-2 text-xs">
                   <div>
                     {t("pagination.viewing")} {paginationInfo.from ?? 1}-
                     {paginationInfo.to ??

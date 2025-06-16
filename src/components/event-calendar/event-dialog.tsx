@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+
 import { RiCalendarLine, RiDeleteBinLine } from "@remixicon/react";
 import { format, isBefore } from "date-fns";
 
-import type { CalendarEvent, EventColor } from "@/components/event-calendar";
 import { cn } from "@/lib/utils";
+
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -33,11 +34,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+
+import type { CalendarEvent, EventColor } from "@/components/event-calendar";
 import {
-  StartHour,
-  EndHour,
-  DefaultStartHour,
   DefaultEndHour,
+  DefaultStartHour,
+  EndHour,
+  StartHour,
 } from "@/components/event-calendar/constants";
 
 interface EventDialogProps {
@@ -147,7 +150,7 @@ export function EventDialog({
         endHours > EndHour
       ) {
         setError(
-          `Selected time must be between ${StartHour}:00 and ${EndHour}:00`,
+          `Selected time must be between ${StartHour}:00 and ${EndHour}:00`
         );
         return;
       }
@@ -271,13 +274,13 @@ export function EventDialog({
                     variant={"outline"}
                     className={cn(
                       "group bg-background hover:bg-background border-input w-full justify-between px-3 font-normal outline-offset-0 outline-none focus-visible:outline-[3px]",
-                      !startDate && "text-muted-foreground",
+                      !startDate && "text-muted-foreground"
                     )}
                   >
                     <span
                       className={cn(
                         "truncate",
-                        !startDate && "text-muted-foreground",
+                        !startDate && "text-muted-foreground"
                       )}
                     >
                       {startDate ? format(startDate, "PPP") : "Pick a date"}
@@ -339,13 +342,13 @@ export function EventDialog({
                     variant={"outline"}
                     className={cn(
                       "group bg-background hover:bg-background border-input w-full justify-between px-3 font-normal outline-offset-0 outline-none focus-visible:outline-[3px]",
-                      !endDate && "text-muted-foreground",
+                      !endDate && "text-muted-foreground"
                     )}
                   >
                     <span
                       className={cn(
                         "truncate",
-                        !endDate && "text-muted-foreground",
+                        !endDate && "text-muted-foreground"
                       )}
                     >
                       {endDate ? format(endDate, "PPP") : "Pick a date"}
@@ -430,7 +433,7 @@ export function EventDialog({
                   className={cn(
                     "size-6 shadow-none",
                     colorOption.bgClass,
-                    colorOption.borderClass,
+                    colorOption.borderClass
                   )}
                 />
               ))}

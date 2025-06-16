@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { LANGUAGES } from "@/constants/languages";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -602,8 +601,7 @@ const paginateData = (
 
 export default function SitesManagementPage() {
   const t = useTranslations("Studio.Sites");
-  const router = useRouter();
-  const [editingSite, setEditingSite] = useState<Site | null>(null);
+
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean;
     siteId: string;
@@ -669,29 +667,7 @@ export default function SitesManagementPage() {
     selectedUser,
   ]);
 
-  const updateSiteMutation = useUpdateSite(editingSite?.id || "");
   const deleteSiteMutation = useDeleteSite();
-
-  const handleUpdateSite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingSite) return;
-
-    try {
-      const updatedSite = {
-        ...editingSite,
-        name: editingSite.name.trim(),
-      };
-
-      await toast.promise(updateSiteMutation.mutateAsync(updatedSite), {
-        loading: t("CreateSite.Loading"),
-        success: t("CreateSite.Success"),
-        error: t("CreateSite.Error"),
-      });
-      setEditingSite(null);
-    } catch (err) {
-      console.error("Error updating site:", err);
-    }
-  };
 
   const handleDeleteClick = (siteId: string, siteName: string) => {
     setDeleteDialog({
@@ -844,10 +820,12 @@ export default function SitesManagementPage() {
                   {sitesData.data.map((site: Site) => (
                     <TableRow
                       key={site.id}
-                      className="border-b border-gray-200 hover:bg-gray-50"
+                      className="border-border hover:bg-muted/50 border-b transition-colors"
                     >
-                      <TableCell className="py-3 text-sm font-medium">
-                        {site.name}
+                      <TableCell className="py-3">
+                        <span className="text-primary font-medium">
+                          {site.name}
+                        </span>
                       </TableCell>
                       <TableCell className="text-muted-foreground py-3 text-sm">
                         {site.domain}
@@ -944,20 +922,20 @@ export default function SitesManagementPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                    className="h-8 px-4 text-sm font-medium"
                     onClick={handlePreviousPage}
-                    disabled={currentPage <= 1}
+                    disabled={currentPage === 1}
                   >
-                    {t("Table.Previous")}
+                    {t("pagination.previousPage")}
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-8 border-gray-200 px-4 text-sm font-medium text-gray-700"
+                    className="h-8 px-4 text-sm font-medium"
                     onClick={handleNextPage}
-                    disabled={currentPage >= sitesData.meta.last_page}
+                    disabled={currentPage === sitesData.meta.last_page}
                   >
-                    {t("Table.Next")}
+                    {t("pagination.nextPage")}
                   </Button>
                 </div>
               </div>
@@ -1004,4 +982,3 @@ export default function SitesManagementPage() {
     </div>
   );
 }
-

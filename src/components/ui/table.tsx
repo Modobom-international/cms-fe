@@ -23,7 +23,7 @@ function TableDialog({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto h-[600px]"
+      className="relative h-[600px] w-full overflow-x-auto"
     >
       <table
         data-slot="table"
