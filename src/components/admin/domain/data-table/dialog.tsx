@@ -12,7 +12,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { useEcho } from "@/components/context/echo";
 import { Spinner } from "@/components/global/spinner";
 
 interface RefreshDialogProps {
@@ -35,8 +34,6 @@ export function RefreshDialog({
     t("modal.refresh.messages.initializing")
   );
 
-  const echo = useEcho();
-
   useEffect(() => {
     if (isOpen) {
       setRefreshMessage(t("modal.refresh.messages.sending"));
@@ -51,20 +48,6 @@ export function RefreshDialog({
       });
     }
   }, [isOpen, refreshDomains, t]);
-
-  useEffect(() => {
-    if (isOpen) {
-      echo
-        .channel("domains")
-        .listen("RefreshDomain", (e: { message: string }) => {
-          setRefreshMessage(e.message);
-        });
-
-      return () => {
-        echo.leaveChannel("domains");
-      };
-    }
-  }, [isOpen, echo]);
 
   const handleClose = () => {
     onOpenChange(false);
