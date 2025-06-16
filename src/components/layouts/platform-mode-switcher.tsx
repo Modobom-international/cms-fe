@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 import {
   IconCalendar,
   IconChecklist,
-  IconDatabase,
   IconSettings,
   IconWorldWww,
 } from "@tabler/icons-react";
@@ -44,13 +43,13 @@ const platformModes = [
     route: "/admin",
     pathPattern: /^\/admin/,
   },
-  {
-    name: "Manage Storage",
-    logo: IconDatabase,
-    description: "Database & file storage",
-    route: "/storage",
-    pathPattern: /^\/storage/,
-  },
+  // {
+  //   name: "Manage Storage",
+  //   logo: IconDatabase,
+  //   description: "Database & file storage",
+  //   route: "/storage",
+  //   pathPattern: /^\/storage/,
+  // },
   {
     name: "Ads Sites",
     logo: IconWorldWww,
@@ -63,7 +62,7 @@ const platformModes = [
     logo: IconChecklist,
     description: "Projects & task management",
     route: "/tasks",
-    pathPattern: /^\/tasks/,
+    pathPattern: /^\/workspaces/,
   },
   {
     name: "Calendar",

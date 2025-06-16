@@ -1,0 +1,14 @@
+dist/*
+.cache
+public
+node_modules
+*.esm.js
+src/components/ui/*
+src/components/event-calendar/*
+src/components/grapesjs-studio/*
+src/components/board/*
+src/components/workspace/*
+src/components/attendance/*
+src/lib/utils.ts
+src/validations/*
+src/hooks/*
