@@ -6,17 +6,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { type Icon } from "@tabler/icons-react";
-import { type LucideIcon } from "lucide-react";
 import {
-  Bell,
   GanttChartSquare,
   Home,
   KeyIcon,
+  type LucideIcon,
   Network,
   PenTool,
   Server,
   SquareActivity,
-  Terminal,
   User,
 } from "lucide-react";
 
@@ -129,20 +127,11 @@ export const navMain = [
     url: "/admin/user-tracking",
     icon: Icons.tracking,
   },
-  {
-    title: "HTML Source",
-    url: "/admin/html-source",
-    icon: Terminal,
-  },
+
   {
     title: "Activity Log",
     url: "/admin/activity-log",
     icon: SquareActivity,
-  },
-  {
-    title: "Push System",
-    url: "/admin/push-system",
-    icon: Bell,
   },
   {
     title: "Teams",

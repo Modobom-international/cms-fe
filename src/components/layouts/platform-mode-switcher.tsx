@@ -4,12 +4,7 @@ import * as React from "react";
 
 import { usePathname } from "next/navigation";
 
-import {
-  IconCalendar,
-  IconChecklist,
-  IconSettings,
-  IconWorldWww,
-} from "@tabler/icons-react";
+import { IconCalendar, IconSettings, IconWorldWww } from "@tabler/icons-react";
 import { ChevronsUpDown, Home } from "lucide-react";
 import { useRouter } from "nextjs-toploader/app";
 
@@ -56,13 +51,6 @@ const platformModes = [
     description: "Manage domains & sites",
     route: "/studio",
     pathPattern: /^\/studio/,
-  },
-  {
-    name: "Task Tracking",
-    logo: IconChecklist,
-    description: "Projects & task management",
-    route: "/tasks",
-    pathPattern: /^\/workspaces/,
   },
   {
     name: "Calendar",
