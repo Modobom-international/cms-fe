@@ -926,7 +926,7 @@ export default function SitesManagementPage() {
                     onClick={handlePreviousPage}
                     disabled={currentPage === 1}
                   >
-                    {t("pagination.previousPage")}
+                    {t("Table.Previous")}
                   </Button>
                   <Button
                     variant="outline"
@@ -935,7 +935,7 @@ export default function SitesManagementPage() {
                     onClick={handleNextPage}
                     disabled={currentPage === sitesData.meta.last_page}
                   >
-                    {t("pagination.nextPage")}
+                    {t("Table.Next")}
                   </Button>
                 </div>
               </div>

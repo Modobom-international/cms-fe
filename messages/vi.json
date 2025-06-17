@@ -631,7 +631,7 @@
         "Search": "Tìm kiếm trang web...",
         "Showing": "Hiển thị",
         "Previous": "Trước",
-        "Page": "Trang",
+        "Page": "Trang {current} của {total}",
         "Next": "Tiếp",
         "Loading": "Đang tải trang web...",
         "Saving": "Đang lưu trang web...",
