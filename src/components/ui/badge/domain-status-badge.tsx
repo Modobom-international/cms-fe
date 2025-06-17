@@ -29,14 +29,20 @@ type StatusConfig = {
 };
 
 const STATUS_VARIANTS = {
-  cancelled: "bg-red-50 text-red-800 border-red-200",
-  active: "bg-green-100 text-green-800 border-green-200",
-  in_use: "bg-blue-100 text-blue-800 border-blue-200",
-  default: "bg-gray-50 text-gray-700 border-gray-200",
+  cancelled:
+    "bg-red-50 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/50",
+  active:
+    "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/50",
+  in_use:
+    "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/50",
+  default:
+    "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800/50 dark:text-gray-300 dark:border-gray-700/50",
   held_expired_redemption_mock:
-    "bg-yellow-50 text-yellow-800 border-yellow-200",
-  pending_hold_redemption: "bg-purple-50 text-purple-700 border-purple-200",
-  cancelled_redeemable: "bg-amber-50 text-amber-700 border-amber-200",
+    "bg-yellow-50 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/50",
+  pending_hold_redemption:
+    "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800/50",
+  cancelled_redeemable:
+    "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50",
 } as const;
 
 export function DomainStatusBadge({
