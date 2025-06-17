@@ -256,8 +256,8 @@ export default function TeamsDataTable() {
               </Table>
             </div>
 
-            <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
-              <div className="flex items-center justify-between px-4 py-2">
+            <div className="border-border bg-background dark:bg-card sticky bottom-0 mt-auto border-t">
+              <div className="bg-background flex items-center justify-between px-4 py-2">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-600">
                     {t("pagination.rowsPerPage")}

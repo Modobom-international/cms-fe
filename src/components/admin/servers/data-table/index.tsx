@@ -214,7 +214,7 @@ export default function ServerDataTable() {
               </div>
 
               <div className="border-border sticky bottom-0 mt-auto border-t">
-                <div className="flex items-center justify-between px-4 py-2">
+                <div className="bg-background flex items-center justify-between px-4 py-2">
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground text-sm">
                       {t("pagination.rowsPerPage")}

@@ -14,10 +14,14 @@ type StatusConfig = {
 };
 
 const STATUS_VARIANTS = {
-  active: "bg-green-50 text-green-800 border-green-200",
-  inactive: "bg-gray-50 text-gray-600 border-gray-200",
-  expired: "bg-red-50 text-red-800 border-red-200",
-  default: "bg-gray-50 text-gray-700 border-gray-200",
+  active:
+    "bg-green-50 text-green-800 border-green-200 dark:bg-green-950/30 dark:text-green-400 dark:border-green-800/30",
+  inactive:
+    "bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-950/30 dark:text-gray-400 dark:border-gray-800/30",
+  expired:
+    "bg-red-50 text-red-800 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-800/30",
+  default:
+    "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-950/30 dark:text-gray-300 dark:border-gray-800/30",
 } as const;
 
 export function ApiKeyStatusBadge({
