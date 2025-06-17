@@ -351,10 +351,10 @@ export default function DomainDataTable() {
               </Table>
             </div>
 
-            <div className="border-border sticky bottom-0 mt-auto border-t px-4 py-2">
-              <div className="flex items-center justify-between">
+            <div className="border-border sticky bottom-0 mt-auto border-t">
+              <div className="flex items-center justify-between px-4 py-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-foreground text-sm">
+                  <span className="text-muted-foreground text-sm">
                     {t("pagination.rowsPerPage")}
                   </span>
                   <Select
@@ -397,15 +397,15 @@ export default function DomainDataTable() {
 
               <div className="border-border bg-muted text-muted-foreground flex items-center justify-between border-t px-4 py-2 text-xs">
                 <div>
-                  {t("pagination.viewing")} {paginationInfo.from || 1}-
-                  {paginationInfo.to ||
-                    Math.min(pageSize, paginationInfo.total || 0)}{" "}
-                  {t("pagination.of")} {paginationInfo.total || 0}{" "}
+                  {t("pagination.viewing")} {paginationInfo.from ?? 1}-
+                  {paginationInfo.to ??
+                    Math.min(pageSize, paginationInfo.total ?? 0)}{" "}
+                  {t("pagination.of")} {paginationInfo.total ?? 0}{" "}
                   {t("pagination.results")}
                 </div>
                 <div>
                   {t("pagination.page")} {currentPage} {t("pagination.of")}{" "}
-                  {paginationInfo.last_page || 1}
+                  {paginationInfo.last_page ?? 1}
                 </div>
               </div>
             </div>
