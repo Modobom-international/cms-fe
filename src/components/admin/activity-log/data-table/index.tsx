@@ -160,14 +160,16 @@ export default function ActivityLogDataTable() {
           <div>
             <Popover>
               <PopoverTrigger asChild>
-                <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span className="border-border text-muted-foreground hover:bg-muted hover:text-foreground inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed px-2.5 py-0.5 text-sm font-medium transition-colors">
                   <PlusCircle className="size-3.5" />
                   {t("filters.date")}
                 </span>
               </PopoverTrigger>
               <PopoverContent className="w-72 p-0" align="start">
                 <div className="px-3 pt-3">
-                  <h3 className="text-sm font-medium">Select Date</h3>
+                  <h3 className="text-foreground text-sm font-medium">
+                    Select Date
+                  </h3>
                 </div>
                 <ScrollArea className="max-h-72">
                   <div className="p-3">
@@ -179,7 +181,7 @@ export default function ActivityLogDataTable() {
                     </DatePicker>
                   </div>
                 </ScrollArea>
-                <div className="flex items-center justify-between border-t border-gray-100 p-3">
+                <div className="border-border flex items-center justify-between border-t p-3">
                   <Button
                     onClick={() => {
                       setCurrentPage(1);
@@ -198,14 +200,16 @@ export default function ActivityLogDataTable() {
           <div>
             <Popover>
               <PopoverTrigger asChild>
-                <span className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-gray-300 px-2.5 py-0.5 text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span className="border-border text-muted-foreground hover:bg-muted hover:text-foreground inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed px-2.5 py-0.5 text-sm font-medium transition-colors">
                   <PlusCircle className="size-3.5" />
                   Action Type
                 </span>
               </PopoverTrigger>
               <PopoverContent className="w-72 p-0" align="start">
                 <div className="px-3 pt-3">
-                  <h3 className="text-sm font-medium">Filter by Action Type</h3>
+                  <h3 className="text-foreground text-sm font-medium">
+                    Filter by Action Type
+                  </h3>
                 </div>
                 <ScrollArea className="max-h-72">
                   <div className="space-y-3 p-3">
@@ -224,7 +228,7 @@ export default function ActivityLogDataTable() {
                       />
                       <label
                         htmlFor={ACTION_TYPES.ACCESS_VIEW}
-                        className="text-sm"
+                        className="text-foreground cursor-pointer text-sm"
                       >
                         Access View
                       </label>
@@ -244,7 +248,7 @@ export default function ActivityLogDataTable() {
                       />
                       <label
                         htmlFor={ACTION_TYPES.SHOW_RECORD}
-                        className="text-sm"
+                        className="text-foreground cursor-pointer text-sm"
                       >
                         Show Record
                       </label>
@@ -264,7 +268,7 @@ export default function ActivityLogDataTable() {
                       />
                       <label
                         htmlFor={ACTION_TYPES.CREATE_RECORD}
-                        className="text-sm"
+                        className="text-foreground cursor-pointer text-sm"
                       >
                         Create Record
                       </label>
@@ -284,7 +288,7 @@ export default function ActivityLogDataTable() {
                       />
                       <label
                         htmlFor={ACTION_TYPES.UPDATE_RECORD}
-                        className="text-sm"
+                        className="text-foreground cursor-pointer text-sm"
                       >
                         Update Record
                       </label>
@@ -304,14 +308,14 @@ export default function ActivityLogDataTable() {
                       />
                       <label
                         htmlFor={ACTION_TYPES.DELETE_RECORD}
-                        className="text-sm"
+                        className="text-foreground cursor-pointer text-sm"
                       >
                         Delete Record
                       </label>
                     </div>
                   </div>
                 </ScrollArea>
-                <div className="flex items-center justify-between border-t border-gray-100 p-3">
+                <div className="border-border flex items-center justify-between border-t p-3">
                   <Button
                     onClick={() => {
                       setCurrentPage(1);
@@ -374,9 +378,6 @@ export default function ActivityLogDataTable() {
                       <TableHead className="text-foreground w-[180px] py-3 font-medium">
                         {t("columns.timestamp")}
                       </TableHead>
-                      <TableHead className="text-foreground w-[250px] py-3 font-medium">
-                        {t("columns.details")}
-                      </TableHead>
                       <TableHead className="text-foreground py-3 font-medium">
                         {t("columns.description")}
                       </TableHead>
@@ -387,55 +388,25 @@ export default function ActivityLogDataTable() {
                       return (
                         <TableRow
                           key={index}
-                          className="border-border hover:bg-muted/50 border-b transition-colors"
+                          className="border-border hover:bg-muted/50 group border-b transition-colors"
                         >
-                          <TableCell className="text-muted-foreground py-3 text-sm font-medium">
+                          <TableCell className="text-foreground py-3 text-sm font-medium">
                             {log.id}
                           </TableCell>
                           <TableCell className="py-3">
                             <ActivityLogBadge action={log.action} />
                           </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
+                          <TableCell className="text-foreground py-3 text-sm">
                             <div className="flex items-center">
                               <span>{log.user_email || "—"}</span>
                             </div>
                           </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
+                          <TableCell className="text-foreground py-3 text-sm">
                             {log.details && log.details.logged_at
                               ? formatDateTime(new Date(log.details.logged_at))
                               : "—"}
                           </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
-                            <div className="flex flex-col">
-                              <div className="grid grid-cols-1 gap-1 text-xs">
-                                <div className="flex items-center">
-                                  <span className="mr-1 font-medium">
-                                    Page:
-                                  </span>
-                                  <span>
-                                    {log.details?.filters?.page || "-"}
-                                  </span>
-                                </div>
-                                <div className="flex items-center">
-                                  <span className="mr-1 font-medium">
-                                    Page Size:
-                                  </span>
-                                  <span>
-                                    {log.details?.filters?.pageSize || "-"}
-                                  </span>
-                                </div>
-                                {log.details?.filters?.search && (
-                                  <div className="flex items-center">
-                                    <span className="mr-1 font-medium">
-                                      Search:
-                                    </span>
-                                    <span>{log.details?.filters?.search}</span>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground py-3 text-sm">
+                          <TableCell className="text-foreground py-3 text-sm">
                             {log.description || "—"}
                           </TableCell>
                         </TableRow>
@@ -446,19 +417,19 @@ export default function ActivityLogDataTable() {
               </div>
 
               {/* Pagination Section - Fixed at bottom when scrolling */}
-              <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
+              <div className="border-border bg-background dark:bg-card sticky bottom-0 mt-auto border-t">
                 {/* Main pagination controls */}
                 <div className="flex items-center justify-between px-4 py-2">
                   {/* Results per page */}
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600">
+                    <span className="text-muted-foreground text-sm">
                       {t("pagination.rowsPerPage")}
                     </span>
                     <Select
                       value={pageSize.toString()}
                       onValueChange={(value) => setPageSize(Number(value))}
                     >
-                      <SelectTrigger className="h-8 w-auto border-gray-200 text-sm">
+                      <SelectTrigger className="border-border h-8 w-auto text-sm">
                         <SelectValue placeholder="10" />
                       </SelectTrigger>
                       <SelectContent className="text-sm">
@@ -496,13 +467,14 @@ export default function ActivityLogDataTable() {
                 {/* Bottom status line */}
                 <div className="border-border bg-muted text-muted-foreground flex items-center justify-between border-t px-4 py-2 text-xs">
                   <div>
-                    Viewing {paginationInfo.from || 1}-
+                    {t("pagination.viewing")} {paginationInfo.from || 1}-
                     {paginationInfo.to ||
                       Math.min(pageSize, paginationInfo.total || 0)}{" "}
-                    {t("pagination.of")} {paginationInfo.total || 0} results
+                    {t("pagination.of")} {paginationInfo.total || 0}{" "}
+                    {t("pagination.results")}
                   </div>
                   <div>
-                    Page {currentPage} {t("pagination.of")}{" "}
+                    {t("pagination.page")} {currentPage} {t("pagination.of")}{" "}
                     {paginationInfo.last_page || 1}
                   </div>
                 </div>

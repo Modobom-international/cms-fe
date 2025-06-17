@@ -890,7 +890,7 @@ export default function SitesManagementPage() {
             </div>
 
             {/* Pagination Section */}
-            <div className="sticky bottom-0 mt-auto border-t border-gray-200 bg-white">
+            <div className="border-border bg-background dark:bg-card sticky bottom-0 mt-auto border-t">
               {/* Main pagination controls */}
               <div className="flex items-center justify-between px-4 py-2">
                 {/* Results per page */}

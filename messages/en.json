@@ -432,7 +432,10 @@
         "firstPage": "Go to first page",
         "previousPage": "Previous",
         "nextPage": "Next",
-        "lastPage": "Go to last page"
+        "lastPage": "Go to last page",
+        "viewing": "Viewing",
+        "results": "results",
+        "page": "Page"
       },
       "actions": {
         "details": "View Details",
@@ -1629,6 +1632,69 @@
       "copyError": "Failed to copy API key to clipboard",
       "noChanges": "No changes detected",
       "error": "An error occurred. Please try again."
+    }
+  },
+  "LogBehaviorPage": {
+    "breadcrumb": "Log Behaviors",
+    "pageHeader": {
+      "title": "Log Behaviors",
+      "description": "Monitor and analyze user behavior logs from applications"
+    },
+    "table": {
+      "filters": {
+        "search": "Search logs",
+        "application": "Application",
+        "nation": "Country",
+        "platform": "Platform",
+        "network": "Network",
+        "dateRange": "Date Range"
+      },
+      "placeholders": {
+        "search": "Search by UID or behavior...",
+        "selectApplication": "Select application",
+        "selectNation": "Select country",
+        "selectPlatform": "Select platform",
+        "selectNetwork": "Select network"
+      },
+      "columns": {
+        "uid": "UID",
+        "app": "Application",
+        "country": "Country", 
+        "platform": "Platform",
+        "network": "Network",
+        "behaviors": "Behaviors",
+        "timestamp": "Timestamp",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Actions",
+        "details": "View Details",
+        "export": "Export",
+        "retry": "Retry"
+      },
+      "pagination": {
+        "rowsPerPage": "Rows per page",
+        "of": "of",
+        "previousPage": "Previous",
+        "nextPage": "Next",
+        "viewing": "Viewing",
+        "results": "results",
+        "page": "Page"
+      },
+      "loadingStates": {
+        "loading": "Loading behavior logs...",
+        "error": "Failed to load behavior logs. Please try again."
+      },
+      "behaviors": {
+        "install": "Install",
+        "permission": "Permission",
+        "notification": "Notification",
+        "loadUrl": "Load URL",
+        "click": "Click",
+        "sms": "SMS",
+        "otp": "OTP",
+        "confirm": "Confirm"
+      }
     }
   }
 }

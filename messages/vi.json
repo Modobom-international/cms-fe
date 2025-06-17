@@ -433,7 +433,10 @@
         "firstPage": "Trang đầu tiên",
         "previousPage": "Trước",
         "nextPage": "Tiếp",
-        "lastPage": "Trang cuối cùng"
+        "lastPage": "Trang cuối cùng",
+        "viewing": "Đang xem",
+        "results": "kết quả",
+        "page": "Trang"
       },
       "actions": {
         "details": "Xem chi tiết",
@@ -1643,6 +1646,69 @@
       "copyError": "Không thể sao chép API key vào clipboard",
       "noChanges": "Không có thay đổi nào được phát hiện",
       "error": "Đã xảy ra lỗi. Vui lòng thử lại."
+    }
+  },
+  "LogBehaviorPage": {
+    "breadcrumb": "Nhật ký Hành vi",
+    "pageHeader": {
+      "title": "Nhật ký Hành vi",
+      "description": "Giám sát và phân tích nhật ký hành vi người dùng từ các ứng dụng"
+    },
+    "table": {
+      "filters": {
+        "search": "Tìm kiếm nhật ký",
+        "application": "Ứng dụng",
+        "nation": "Quốc gia",
+        "platform": "Nền tảng",
+        "network": "Mạng",
+        "dateRange": "Khoảng thời gian"
+      },
+      "placeholders": {
+        "search": "Tìm theo UID hoặc hành vi...",
+        "selectApplication": "Chọn ứng dụng",
+        "selectNation": "Chọn quốc gia",
+        "selectPlatform": "Chọn nền tảng",
+        "selectNetwork": "Chọn mạng"
+      },
+      "columns": {
+        "uid": "UID",
+        "app": "Ứng dụng",
+        "country": "Quốc gia",
+        "platform": "Nền tảng", 
+        "network": "Mạng",
+        "behaviors": "Hành vi",
+        "timestamp": "Thời gian",
+        "actions": "Thao tác"
+      },
+      "actions": {
+        "title": "Thao tác",
+        "details": "Xem Chi tiết",
+        "export": "Xuất dữ liệu",
+        "retry": "Thử lại"
+      },
+      "pagination": {
+        "rowsPerPage": "Số dòng mỗi trang",
+        "of": "trên",
+        "previousPage": "Trước",
+        "nextPage": "Tiếp",
+        "viewing": "Đang xem",
+        "results": "kết quả",
+        "page": "Trang"
+      },
+      "loadingStates": {
+        "loading": "Đang tải nhật ký hành vi...",
+        "error": "Không thể tải nhật ký hành vi. Vui lòng thử lại."
+      },
+      "behaviors": {
+        "install": "Cài đặt",
+        "permission": "Quyền",
+        "notification": "Thông báo",
+        "loadUrl": "Tải URL",
+        "click": "Nhấp chuột",
+        "sms": "SMS",
+        "otp": "OTP",
+        "confirm": "Xác nhận"
+      }
     }
   }
 }

@@ -134,6 +134,11 @@ export const navMain = [
     icon: SquareActivity,
   },
   {
+    title: "Log Behaviors",
+    url: "/admin/log-behaviors",
+    icon: Icons.tracking,
+  },
+  {
     title: "Teams",
     url: "/admin/teams",
     icon: Icons.team,

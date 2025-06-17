@@ -10,6 +10,7 @@ import {
   PenSquare,
   Trash2,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
@@ -17,41 +18,56 @@ import { Badge } from "@/components/ui/badge";
 
 type ActionConfig = {
   variant:
-  | "access_view"
-  | "show_record"
-  | "create_record"
-  | "update_record"
-  | "delete_record"
-  | "get_permission_by_team"
-  | "refresh_list_domain"
-  | "get_list_path_by_domain"
-  | "create_project_cloudflare_page"
-  | "update_project_cloudflare_page"
-  | "create_deploy_cloudflare_page"
-  | "apply_page_domain_cloudflare_page"
-  | "deploy_export_cloudflare_page"
-  | "detail_monitor_server"
-  | "default";
+    | "access_view"
+    | "show_record"
+    | "create_record"
+    | "update_record"
+    | "delete_record"
+    | "get_permission_by_team"
+    | "refresh_list_domain"
+    | "get_list_path_by_domain"
+    | "create_project_cloudflare_page"
+    | "update_project_cloudflare_page"
+    | "create_deploy_cloudflare_page"
+    | "apply_page_domain_cloudflare_page"
+    | "deploy_export_cloudflare_page"
+    | "detail_monitor_server"
+    | "default";
   icon: LucideIcon;
   label: string;
 };
 
 const ACTION_VARIANTS = {
-  access_view: "bg-teal-50 text-teal-700 border-teal-200",
-  show_record: "bg-blue-50 text-blue-700 border-blue-200",
-  create_record: "bg-green-50 text-green-700 border-green-200",
-  update_record: "bg-indigo-50 text-indigo-700 border-indigo-200",
-  delete_record: "bg-red-50 text-red-700 border-red-200",
-  get_permission_by_team: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  refresh_list_domain: "bg-amber-50 text-amber-700 border-amber-200",
-  get_list_path_by_domain: "bg-purple-50 text-purple-700 border-purple-200",
-  create_project_cloudflare_page: "bg-green-50 text-green-700 border-green-200",
-  update_project_cloudflare_page: "bg-indigo-50 text-indigo-700 border-indigo-200",
-  create_deploy_cloudflare_page: "bg-green-50 text-green-700 border-green-200",
-  apply_page_domain_cloudflare_page: "bg-neutral-50 text-neutral-700 border-neutral-200",
-  deploy_export_cloudflare_page: "bg-stone-50 text-stone-700 border-stone-200",
-  detail_monitor_server: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
-  default: "bg-gray-50 text-gray-700 border-gray-200",
+  access_view:
+    "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-500/20 dark:text-teal-300 dark:border-teal-500/40",
+  show_record:
+    "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/40",
+  create_record:
+    "bg-green-50 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-300 dark:border-green-500/40",
+  update_record:
+    "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/40",
+  delete_record:
+    "bg-red-50 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-300 dark:border-red-500/40",
+  get_permission_by_team:
+    "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40",
+  refresh_list_domain:
+    "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-500/40",
+  get_list_path_by_domain:
+    "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-500/20 dark:text-purple-300 dark:border-purple-500/40",
+  create_project_cloudflare_page:
+    "bg-green-50 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-300 dark:border-green-500/40",
+  update_project_cloudflare_page:
+    "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/40",
+  create_deploy_cloudflare_page:
+    "bg-green-50 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-300 dark:border-green-500/40",
+  apply_page_domain_cloudflare_page:
+    "bg-neutral-50 text-neutral-700 border-neutral-200 dark:bg-neutral-400/20 dark:text-neutral-300 dark:border-neutral-400/40",
+  deploy_export_cloudflare_page:
+    "bg-stone-50 text-stone-700 border-stone-200 dark:bg-stone-400/20 dark:text-stone-300 dark:border-stone-400/40",
+  detail_monitor_server:
+    "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-500/20 dark:text-fuchsia-300 dark:border-fuchsia-500/40",
+  default:
+    "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-400/20 dark:text-gray-300 dark:border-gray-400/40",
 } as const;
 
 export function ActivityLogBadge({
@@ -61,6 +77,8 @@ export function ActivityLogBadge({
   action: string;
   className?: string;
 }) {
+  const t = useTranslations("ActivityLogPage.table.actionTypes");
+
   const getActionConfig = (action: string): ActionConfig => {
     const normalizedAction = action.toLowerCase();
 
