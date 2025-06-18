@@ -176,13 +176,13 @@ export function ActivityLogBadge({
       case ActivityLogActionEnum.CREATE_PAGE_EXPORTS:
         return {
           variant: "create_page_exports",
-          icon: FileSearch,
+          icon: FilePlus2,
           label: "Create Page Exports",
         };
       case ActivityLogActionEnum.UPDATE_PAGES:
         return {
           variant: "update_pages",
-          icon: FileSearch,
+          icon: PenSquare,
           label: "Update Pages",
         };
       default:
