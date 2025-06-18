@@ -66,10 +66,6 @@ export default function DomainDataTable() {
     "status",
     parseAsString.withDefault("all")
   );
-  const [isLocked, setIsLocked] = useQueryState(
-    "is_locked",
-    parseAsString.withDefault("all")
-  );
   const [renewable, setRenewable] = useQueryState(
     "renewable",
     parseAsString.withDefault("all")
@@ -88,9 +84,6 @@ export default function DomainDataTable() {
   const [localSearch, setLocalSearch] = useState(search);
   const [selectedStatus, setSelectedStatus] = useState<string[]>(
     status !== "all" ? [status] : []
-  );
-  const [selectedLockStatus, setSelectedLockStatus] = useState<string[]>(
-    isLocked !== "all" ? [isLocked] : []
   );
   const [selectedRenewable, setSelectedRenewable] = useState<string[]>(
     renewable !== "all" ? [renewable] : []
@@ -122,12 +115,7 @@ export default function DomainDataTable() {
       label: t("filters.cancelledRedeemable"),
     },
   ];
-
-  const lockStatusOptions = [
-    { value: "true", label: t("filters.locked") },
-    { value: "false", label: t("filters.unlocked") },
-  ];
-
+  
   const renewableOptions = [
     { value: "true", label: t("filters.renewable") },
     { value: "false", label: t("filters.nonRenewable") },
@@ -148,7 +136,6 @@ export default function DomainDataTable() {
     pageSize,
     search: debouncedSearch,
     status: status === "all" ? undefined : status,
-    is_locked: isLocked === "all" ? undefined : isLocked === "true",
     renewable: renewable === "all" ? undefined : renewable === "true",
     registrar: registrar === "all" ? undefined : registrar,
     has_sites: hasSites === "all" ? undefined : hasSites === "true",
@@ -200,13 +187,11 @@ export default function DomainDataTable() {
   const handleClearFilters = () => {
     setSearch("");
     setStatus("all");
-    setIsLocked("all");
     setRenewable("all");
     setRegistrar("all");
     setHasSites("all");
     setLocalSearch("");
     setSelectedStatus([]);
-    setSelectedLockStatus([]);
     setSelectedRenewable([]);
     setSelectedRegistrar([]);
     setSelectedHasSites([]);
@@ -217,7 +202,6 @@ export default function DomainDataTable() {
   const applyFilters = () => {
     setSearch(localSearch);
     setStatus(selectedStatus.length > 0 ? selectedStatus[0] : "all");
-    setIsLocked(selectedLockStatus.length > 0 ? selectedLockStatus[0] : "all");
     setRenewable(selectedRenewable.length > 0 ? selectedRenewable[0] : "all");
     setRegistrar(selectedRegistrar.length > 0 ? selectedRegistrar[0] : "all");
     setHasSites(selectedHasSites.length > 0 ? selectedHasSites[0] : "all");
@@ -227,10 +211,6 @@ export default function DomainDataTable() {
   // Handle checkbox changes
   const handleStatusChange = (status: string, checked: boolean) => {
     setSelectedStatus(checked ? [status] : []);
-  };
-
-  const handleLockStatusChange = (lockStatus: string, checked: boolean) => {
-    setSelectedLockStatus(checked ? [lockStatus] : []);
   };
 
   const handleRenewableChange = (renewable: string, checked: boolean) => {
@@ -311,57 +291,6 @@ export default function DomainDataTable() {
                         />
                         <label
                           htmlFor={option.value}
-                          className="text-foreground cursor-pointer text-sm"
-                        >
-                          {option.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-                <div className="border-border flex items-center justify-between border-t p-3">
-                  <Button onClick={applyFilters} className="w-full">
-                    Apply Filter
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          {/* Lock Status Filter */}
-          <div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <span className="border-border text-muted-foreground hover:bg-muted hover:text-foreground inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed px-2.5 py-0.5 text-sm font-medium transition-colors">
-                  <PlusCircle className="size-3.5" />
-                  {t("filters.lockStatus")}
-                </span>
-              </PopoverTrigger>
-              <PopoverContent className="w-72 p-0" align="start">
-                <div className="px-3 pt-3">
-                  <h3 className="text-foreground text-sm font-medium">
-                    Filter by Lock Status
-                  </h3>
-                </div>
-                <ScrollArea className="max-h-72">
-                  <div className="space-y-3 p-3">
-                    {lockStatusOptions.map((option) => (
-                      <div
-                        key={option.value}
-                        className="flex items-center space-x-2"
-                      >
-                        <Checkbox
-                          id={`lock-${option.value}`}
-                          checked={selectedLockStatus.includes(option.value)}
-                          onCheckedChange={(checked) =>
-                            handleLockStatusChange(
-                              option.value,
-                              checked === true
-                            )
-                          }
-                        />
-                        <label
-                          htmlFor={`lock-${option.value}`}
                           className="text-foreground cursor-pointer text-sm"
                         >
                           {option.label}

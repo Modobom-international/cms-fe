@@ -51,6 +51,7 @@
     "@tiptap/extension-placeholder": "^2.2.4",
     "@tiptap/react": "^2.2.4",
     "@tiptap/starter-kit": "^2.2.4",
+    "aws-sdk": "^2.1692.0",
     "axios": "^1.8.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -120,6 +121,9 @@
       "protobufjs",
       "sharp",
       "unrs-resolver"
+    ],
+    "ignoredBuiltDependencies": [
+      "aws-sdk"
     ]
   },
   "packageManager": "pnpm@10.12.1"
