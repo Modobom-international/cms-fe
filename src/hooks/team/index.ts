@@ -52,7 +52,7 @@ export const useGetTeamPermissionList = () => {
     queryFn: async (): Promise<TeamPermissionResponse> => {
       try {
         const { data } = await apiClient.get<TeamPermissionResponse>(
-          "/api/team/list-with-permission"
+          "/api/team/list/list-with-permission"
         );
         return data;
       } catch (error) {

@@ -18,21 +18,22 @@ import { Badge } from "@/components/ui/badge";
 
 type ActionConfig = {
   variant:
-    | "access_view"
-    | "show_record"
-    | "create_record"
-    | "update_record"
-    | "delete_record"
-    | "get_permission_by_team"
-    | "refresh_list_domain"
-    | "get_list_path_by_domain"
-    | "create_project_cloudflare_page"
-    | "update_project_cloudflare_page"
-    | "create_deploy_cloudflare_page"
-    | "apply_page_domain_cloudflare_page"
-    | "deploy_export_cloudflare_page"
-    | "detail_monitor_server"
-    | "default";
+  | "access_view"
+  | "show_record"
+  | "create_record"
+  | "update_record"
+  | "delete_record"
+  | "get_permission_by_team"
+  | "refresh_list_domain"
+  | "get_list_path_by_domain"
+  | "create_project_cloudflare_page"
+  | "update_project_cloudflare_page"
+  | "create_deploy_cloudflare_page"
+  | "apply_page_domain_cloudflare_page"
+  | "deploy_export_cloudflare_page"
+  | "detail_monitor_server"
+  | "create_page_exports"
+  | "default";
   icon: LucideIcon;
   label: string;
 };
@@ -66,6 +67,10 @@ const ACTION_VARIANTS = {
     "bg-stone-50 text-stone-700 border-stone-200 dark:bg-stone-400/20 dark:text-stone-300 dark:border-stone-400/40",
   detail_monitor_server:
     "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-500/20 dark:text-fuchsia-300 dark:border-fuchsia-500/40",
+  create_page_exports:
+    "bg-green-50 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-300 dark:border-green-500/40",
+  update_pages:
+    "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/40",
   default:
     "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-400/20 dark:text-gray-300 dark:border-gray-400/40",
 } as const;
