@@ -3,14 +3,17 @@
 import { cloneElement, ReactElement, useState } from "react";
 
 import { ICreateApiKeyForm } from "@/validations/api-key.validation";
-import { Calendar as CalendarIcon, Copy, Eye, EyeOff } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  ChevronDownIcon,
+  Copy,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
-import { DropdownNavProps, DropdownProps } from "react-day-picker";
 import { toast } from "sonner";
 
 import { IApiKeyWithKey } from "@/types/api-key.type";
-
-import { cn } from "@/lib/utils";
 
 import { useCreateApiKey } from "@/hooks/api-key";
 
@@ -66,6 +69,7 @@ export default function CreateApiKeyDialog({
   const [isKeyVisible, setIsKeyVisible] = useState(false);
   const [expirationOption, setExpirationOption] =
     useState<string>("no_expiration");
+  const [customDateOpen, setCustomDateOpen] = useState(false);
 
   const { createApiKeyForm, useCreateApiKeyMutation } = useCreateApiKey();
 
@@ -93,6 +97,7 @@ export default function CreateApiKeyDialog({
     setCreatedApiKey(null);
     setIsKeyVisible(false);
     setExpirationOption("no_expiration");
+    setCustomDateOpen(false);
     reset({
       name: "",
       expires_at: null,
@@ -128,18 +133,6 @@ export default function CreateApiKeyDialog({
     }
     const expirationDate = getExpirationDate(option);
     fieldOnChange(expirationDate);
-  };
-
-  const handleCalendarChange = (
-    _value: string | number,
-    _e: React.ChangeEventHandler<HTMLSelectElement>
-  ) => {
-    const _event = {
-      target: {
-        value: String(_value),
-      },
-    } as React.ChangeEvent<HTMLSelectElement>;
-    _e(_event);
   };
 
   const copyToClipboard = async () => {
@@ -338,92 +331,52 @@ export default function CreateApiKeyDialog({
 
                     {/* Custom Date Picker - only show when "custom" is selected */}
                     {expirationOption === "custom" && (
-                      <div>
+                      <div className="space-y-2">
                         <FormLabel className="text-sm font-medium">
                           {t("form.customDate.label")}
                         </FormLabel>
-                        <Popover>
+
+                        <Popover
+                          open={customDateOpen}
+                          onOpenChange={setCustomDateOpen}
+                        >
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
                                 variant="outline"
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
+                                className="w-full justify-between font-normal"
                               >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
                                 {field.value ? (
                                   formatDate(field.value)
                                 ) : (
-                                  <span>
+                                  <span className="text-muted-foreground">
                                     {t("form.customDate.placeholder")}
                                   </span>
                                 )}
+                                <ChevronDownIcon className="h-4 w-4" />
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent
-                            className="w-auto p-1.5"
+                            className="w-auto overflow-hidden p-0"
                             align="start"
                           >
                             <Calendar
                               mode="single"
                               selected={field.value || undefined}
-                              onSelect={field.onChange}
-                              disabled={(date) => date < new Date()}
-                              className="rounded-md border-none p-2"
-                              classNames={{
-                                month_caption: "mx-0",
-                              }}
                               captionLayout="dropdown"
-                              defaultMonth={new Date()}
-                              startMonth={new Date(1980, 6)}
-                              hideNavigation
-                              initialFocus
-                              components={{
-                                DropdownNav: (props: DropdownNavProps) => {
-                                  return (
-                                    <div className="flex w-full items-center gap-2">
-                                      {props.children}
-                                    </div>
-                                  );
-                                },
-                                Dropdown: (props: DropdownProps) => {
-                                  return (
-                                    <Select
-                                      value={String(props.value)}
-                                      onValueChange={(value) => {
-                                        if (props.onChange) {
-                                          handleCalendarChange(
-                                            value,
-                                            props.onChange
-                                          );
-                                        }
-                                      }}
-                                    >
-                                      <SelectTrigger className="h-8 w-fit font-medium first:grow">
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent className="max-h-[min(26rem,var(--radix-select-content-available-height))]">
-                                        {props.options?.map((option) => (
-                                          <SelectItem
-                                            key={option.value}
-                                            value={String(option.value)}
-                                            disabled={option.disabled}
-                                          >
-                                            {option.label}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                  );
-                                },
+                              onSelect={(date) => {
+                                field.onChange(date);
+                                setCustomDateOpen(false);
                               }}
+                              disabled={(date) => date < new Date()}
+                              defaultMonth={field.value || new Date()}
+                              startMonth={new Date(1980, 6)}
                             />
                           </PopoverContent>
                         </Popover>
-                        <p className="text-muted-foreground mt-1 text-xs">
+
+                        <p className="text-muted-foreground text-xs">
                           {t("form.customDate.description")}
                         </p>
                       </div>
@@ -465,3 +418,4 @@ export default function CreateApiKeyDialog({
     </Dialog>
   );
 }
+
