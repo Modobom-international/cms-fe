@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 
 import { LANGUAGES } from "@/constants/languages";
-import { MoreHorizontal, PlusCircle, X } from "lucide-react";
+import { PlusCircle, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { toast } from "sonner";
@@ -18,14 +18,6 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { SearchInput } from "@/components/ui/inputs/search-input";
 import { Label } from "@/components/ui/label";
@@ -470,7 +462,7 @@ export default function SitesDataTable() {
                     <TableHead className="text-foreground w-[150px] py-3 font-medium">
                       {t("Table.CreatedAt")}
                     </TableHead>
-                    <TableHead className="text-foreground w-[200px] py-3 font-medium">
+                    <TableHead className="text-foreground w-[250px] py-3 font-medium">
                       {t("Table.Actions")}
                     </TableHead>
                   </TableRow>
@@ -509,45 +501,41 @@ export default function SitesDataTable() {
                         {new Date(site.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="py-3">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">
-                                {t("Table.Actions")}
-                              </span>
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>
-                              {t("Table.Actions")}
-                            </DropdownMenuLabel>
-                            <DropdownMenuItem asChild>
-                              <Link href={`/studio/sites/${site.id}/pages`}>
-                                {t("Table.Pages")}
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                setUpdateLanguageDialog({
-                                  isOpen: true,
-                                  site,
-                                })
-                              }
-                            >
-                              {t("Table.Language")}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleDeleteClick(site.id, site.name)
-                              }
-                              className="text-destructive hover:!bg-destructive/10 hover:!text-destructive"
-                            >
-                              {t("Table.Delete")}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            asChild
+                            className="h-7 px-2 text-xs"
+                          >
+                            <Link href={`/studio/sites/${site.id}/pages`}>
+                              {t("Table.Pages")}
+                            </Link>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setUpdateLanguageDialog({
+                                isOpen: true,
+                                site,
+                              })
+                            }
+                            className="h-7 px-2 text-xs"
+                          >
+                            {t("Table.Language")}
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() =>
+                              handleDeleteClick(site.id, site.name)
+                            }
+                            className="h-7 px-2 text-xs"
+                          >
+                            {t("Table.Delete")}
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
