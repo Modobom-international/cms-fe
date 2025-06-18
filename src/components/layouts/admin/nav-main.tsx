@@ -134,8 +134,8 @@ export const navMain = [
     icon: SquareActivity,
   },
   {
-    title: "Log Behaviors",
-    url: "/admin/log-behaviors",
+    title: "App Information",
+    url: "/admin/app-information",
     icon: Icons.tracking,
   },
   {

@@ -1634,7 +1634,7 @@
       "error": "An error occurred. Please try again."
     }
   },
-  "LogBehaviorPage": {
+  "AppInformationPage": {
     "breadcrumb": "Log Behaviors",
     "pageHeader": {
       "title": "Log Behaviors",

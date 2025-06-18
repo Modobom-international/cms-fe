@@ -1,10 +1,10 @@
 import { ChevronRight, Home } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import LogBehaviorDataTable from "@/components/admin/log-behavior/data-table";
+import AppInformationDataTable from "@/components/admin/app-information/data-table";
 
-export default function LogBehaviorPage() {
-  const t = useTranslations("LogBehaviorPage");
+export default function AppInformationPage() {
+  const t = useTranslations("AppInformationPage");
 
   return (
     <div className="flex flex-col gap-8">
@@ -28,7 +28,7 @@ export default function LogBehaviorPage() {
       </div>
 
       <div>
-        <LogBehaviorDataTable />
+        <AppInformationDataTable />
       </div>
     </div>
   );

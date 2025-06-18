@@ -48,7 +48,7 @@ import {
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 
-type LogBehaviorItem = {
+type AppInformationItem = {
   id: string;
   request_id: string;
   app_name: string;
@@ -63,7 +63,7 @@ type LogBehaviorItem = {
 };
 
 // Mock data
-const mockLogBehaviors: LogBehaviorItem[] = [
+const mockAppInformation: AppInformationItem[] = [
   {
     id: "1",
     request_id: "req_001_2024",
@@ -170,8 +170,8 @@ const mockLogBehaviors: LogBehaviorItem[] = [
   },
 ];
 
-export default function LogBehaviorDataTable() {
-  const t = useTranslations("LogBehaviorPage.table");
+export default function AppInformationDataTable() {
+  const t = useTranslations("AppInformationPage.table");
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -258,7 +258,7 @@ export default function LogBehaviorDataTable() {
 
   // Filter and paginate data
   const filteredData = useMemo(() => {
-    let filtered = mockLogBehaviors;
+    let filtered = mockAppInformation;
 
     // Apply search filter
     if (debouncedSearch) {
@@ -658,7 +658,7 @@ export default function LogBehaviorDataTable() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paginatedData.map((item: LogBehaviorItem) => (
+                    {paginatedData.map((item: AppInformationItem) => (
                       <TableRow
                         key={item.id}
                         className="border-border hover:bg-muted/50 group border-b transition-colors"

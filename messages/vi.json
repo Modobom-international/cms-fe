@@ -1648,7 +1648,7 @@
       "error": "Đã xảy ra lỗi. Vui lòng thử lại."
     }
   },
-  "LogBehaviorPage": {
+  "AppInformationPage": {
     "breadcrumb": "Nhật ký Hành vi",
     "pageHeader": {
       "title": "Nhật ký Hành vi",
