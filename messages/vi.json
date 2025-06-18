@@ -1666,7 +1666,7 @@
     },
     "table": {
       "filters": {
-        "search": "Tìm kiếm nhật ký",
+        "search": "Tìm kiếm",
         "application": "Ứng dụng",
         "nation": "Quốc gia",
         "platform": "Nền tảng",

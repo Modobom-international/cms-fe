@@ -1652,7 +1652,7 @@
     },
     "table": {
       "filters": {
-        "search": "Search logs",
+        "search": "Search",
         "application": "Application",
         "nation": "Country",
         "platform": "Platform",
