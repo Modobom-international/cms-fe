@@ -1645,14 +1645,14 @@
     }
   },
   "AppInformationPage": {
-    "breadcrumb": "Log Behaviors",
+    "breadcrumb": "App Information",
     "pageHeader": {
-      "title": "Log Behaviors",
+      "title": "App Information",
       "description": "Monitor and analyze user behavior logs from applications"
     },
     "table": {
       "filters": {
-        "search": "Search logs",
+        "search": "Search",
         "application": "Application",
         "nation": "Country",
         "platform": "Platform",

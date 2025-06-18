@@ -1659,14 +1659,14 @@
     }
   },
   "AppInformationPage": {
-    "breadcrumb": "Nhật ký Hành vi",
+    "breadcrumb": "Thông tin Ứng dụng",
     "pageHeader": {
-      "title": "Nhật ký Hành vi",
+      "title": "Thông tin Ứng dụng",
       "description": "Giám sát và phân tích nhật ký hành vi người dùng từ các ứng dụng"
     },
     "table": {
       "filters": {
-        "search": "Tìm kiếm nhật ký",
+        "search": "Tìm kiếm",
         "application": "Ứng dụng",
         "nation": "Quốc gia",
         "platform": "Nền tảng",

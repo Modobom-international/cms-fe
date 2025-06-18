@@ -1,16 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
+import { IAppInformation } from "@/types/app-information.type";
+
 import { formatDateTime } from "@/lib/utils";
 
+import { useGetAppInformation } from "@/hooks/app-infomation";
 import { useDebounce } from "@/hooks/use-debounce";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -48,128 +50,6 @@ import {
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 
-type AppInformationItem = {
-  id: string;
-  request_id: string;
-  app_name: string;
-  app_id: string;
-  app_version: string;
-  os_name: string;
-  os_version: string;
-  event_name: string;
-  event_value: string;
-  category: string;
-  timestamp: string;
-};
-
-// Mock data
-const mockAppInformation: AppInformationItem[] = [
-  {
-    id: "1",
-    request_id: "req_001_2024",
-    app_name: "Modobom App",
-    app_id: "com.modobom.main",
-    app_version: "2.1.4",
-    os_name: "Android",
-    os_version: "13",
-    event_name: "user_login",
-    event_value: "successful",
-    category: "authentication",
-    timestamp: "2024-01-15T08:30:00Z",
-  },
-  {
-    id: "2",
-    request_id: "req_002_2024",
-    app_name: "Modobom Pro",
-    app_id: "com.modobom.pro",
-    app_version: "1.8.2",
-    os_name: "iOS",
-    os_version: "17.2",
-    event_name: "purchase_completed",
-    event_value: "premium_subscription",
-    category: "commerce",
-    timestamp: "2024-01-15T10:15:00Z",
-  },
-  {
-    id: "3",
-    request_id: "req_003_2024",
-    app_name: "Modobom Lite",
-    app_id: "com.modobom.lite",
-    app_version: "3.0.1",
-    os_name: "Android",
-    os_version: "12",
-    event_name: "screen_view",
-    event_value: "dashboard",
-    category: "navigation",
-    timestamp: "2024-01-15T14:22:00Z",
-  },
-  {
-    id: "4",
-    request_id: "req_004_2024",
-    app_name: "Modobom App",
-    app_id: "com.modobom.main",
-    app_version: "2.1.3",
-    os_name: "iOS",
-    os_version: "16.7",
-    event_name: "error_occurred",
-    event_value: "network_timeout",
-    category: "error",
-    timestamp: "2024-01-15T16:45:00Z",
-  },
-  {
-    id: "5",
-    request_id: "req_005_2024",
-    app_name: "Modobom Pro",
-    app_id: "com.modobom.pro",
-    app_version: "1.8.1",
-    os_name: "Android",
-    os_version: "14",
-    event_name: "feature_used",
-    event_value: "export_data",
-    category: "feature",
-    timestamp: "2024-01-15T18:30:00Z",
-  },
-  {
-    id: "6",
-    request_id: "req_006_2024",
-    app_name: "Modobom Lite",
-    app_id: "com.modobom.lite",
-    app_version: "3.0.0",
-    os_name: "iOS",
-    os_version: "17.1",
-    event_name: "notification_clicked",
-    event_value: "daily_reminder",
-    category: "engagement",
-    timestamp: "2024-01-15T20:10:00Z",
-  },
-  {
-    id: "7",
-    request_id: "req_007_2024",
-    app_name: "Modobom App",
-    app_id: "com.modobom.main",
-    app_version: "2.1.4",
-    os_name: "Android",
-    os_version: "11",
-    event_name: "session_start",
-    event_value: "cold_start",
-    category: "session",
-    timestamp: "2024-01-16T09:15:00Z",
-  },
-  {
-    id: "8",
-    request_id: "req_008_2024",
-    app_name: "Modobom Pro",
-    app_id: "com.modobom.pro",
-    app_version: "1.8.2",
-    os_name: "iOS",
-    os_version: "17.2",
-    event_name: "api_call",
-    event_value: "sync_completed",
-    category: "system",
-    timestamp: "2024-01-16T11:30:00Z",
-  },
-];
-
 export default function AppInformationDataTable() {
   const t = useTranslations("AppInformationPage.table");
 
@@ -202,7 +82,6 @@ export default function AppInformationDataTable() {
     parseAsString.withDefault("")
   );
 
-  // Local state for filters (before applying)
   const [localSearch, setLocalSearch] = useState(search);
   const [selectedApps, setSelectedApps] = useState<string[]>(
     appFilter ? [appFilter] : []
@@ -217,10 +96,17 @@ export default function AppInformationDataTable() {
     eventFilter ? [eventFilter] : []
   );
 
-  const [isLoading] = useState(false);
-  const [isError] = useState(false);
-
-  const debouncedSearch = useDebounce(search, 500);
+  const debouncedSearch = useDebounce(localSearch, 500);
+  const {
+    data: appInformationData,
+    isLoading,
+    isError,
+  } = useGetAppInformation(currentPage, pageSize, debouncedSearch, {
+    app_name: appFilter || undefined,
+    os_name: osFilter || undefined,
+    category: categoryFilter || undefined,
+    event_name: eventFilter || undefined,
+  });
 
   // Filter options
   const appOptions = [
@@ -256,68 +142,21 @@ export default function AppInformationDataTable() {
     { value: "api_call", label: "API Call" },
   ];
 
-  // Filter and paginate data
-  const filteredData = useMemo(() => {
-    let filtered = mockAppInformation;
+  const appInformationList: IAppInformation[] =
+    appInformationData?.data?.data ?? [];
 
-    // Apply search filter
-    if (debouncedSearch) {
-      filtered = filtered.filter(
-        (item) =>
-          item.request_id
-            .toLowerCase()
-            .includes(debouncedSearch.toLowerCase()) ||
-          item.app_name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-          item.app_id.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-          item.event_name
-            .toLowerCase()
-            .includes(debouncedSearch.toLowerCase()) ||
-          item.event_value
-            .toLowerCase()
-            .includes(debouncedSearch.toLowerCase()) ||
-          item.category.toLowerCase().includes(debouncedSearch.toLowerCase())
-      );
-    }
+  const paginationInfo =
+    appInformationData?.data ??
+    ({
+      from: 0,
+      to: 0,
+      total: 0,
+      last_page: 1,
+      current_page: 1,
+      per_page: pageSize,
+    } as any);
 
-    // Apply app filter
-    if (appFilter) {
-      filtered = filtered.filter((item) => item.app_name === appFilter);
-    }
-
-    // Apply OS filter
-    if (osFilter) {
-      filtered = filtered.filter((item) => item.os_name === osFilter);
-    }
-
-    // Apply category filter
-    if (categoryFilter) {
-      filtered = filtered.filter((item) => item.category === categoryFilter);
-    }
-
-    // Apply event filter
-    if (eventFilter) {
-      filtered = filtered.filter((item) => item.event_name === eventFilter);
-    }
-
-    return filtered;
-  }, [debouncedSearch, appFilter, osFilter, categoryFilter, eventFilter]);
-
-  // Calculate pagination
-  const totalItems = filteredData.length;
-  const totalPages = Math.ceil(totalItems / pageSize);
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const paginatedData = filteredData.slice(startIndex, endIndex);
-
-  const paginationInfo = {
-    from: startIndex + 1,
-    to: Math.min(endIndex, totalItems),
-    total: totalItems,
-    last_page: totalPages,
-    current_page: currentPage,
-  };
-
-  const isDataEmpty = !paginatedData || paginatedData.length === 0;
+  const isDataEmpty = appInformationList.length === 0;
 
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(paginationInfo.last_page ?? 1, prev + 1));
@@ -357,30 +196,6 @@ export default function AppInformationDataTable() {
   const handleEventChange = (event: string, checked: boolean) => {
     setSelectedEvents((prev) =>
       checked ? [...prev, event] : prev.filter((e) => e !== event)
-    );
-  };
-
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      authentication:
-        "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-      commerce:
-        "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-      navigation:
-        "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
-      error: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-      feature:
-        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-      engagement:
-        "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400",
-      session:
-        "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400",
-      system:
-        "bg-gray-100 text-gray-800 dark:bg-gray-800/50 dark:text-gray-300",
-    };
-    return (
-      colors[category] ||
-      "bg-gray-100 text-gray-800 dark:bg-gray-800/50 dark:text-gray-300"
     );
   };
 
@@ -658,9 +473,9 @@ export default function AppInformationDataTable() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paginatedData.map((item: AppInformationItem) => (
+                    {appInformationList.map((item: IAppInformation) => (
                       <TableRow
-                        key={item.id}
+                        key={item.request_id}
                         className="border-border hover:bg-muted/50 group border-b transition-colors"
                       >
                         <TableCell className="py-3">
@@ -693,16 +508,13 @@ export default function AppInformationDataTable() {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="py-3">
-                          <Badge
-                            variant="secondary"
-                            className={`text-xs ${getCategoryColor(item.category)}`}
-                          >
-                            {item.category}
-                          </Badge>
+                        <TableCell className="text-foreground py-3 text-sm">
+                          {item.category}
                         </TableCell>
                         <TableCell className="text-foreground py-3 text-sm">
-                          {formatDateTime(new Date(item.timestamp))}
+                          {item.created_at
+                            ? formatDateTime(new Date(item.created_at))
+                            : "-"}
                         </TableCell>
                         <TableCell className="py-3">
                           <DropdownMenu>
