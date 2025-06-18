@@ -33,6 +33,7 @@ type ActionConfig = {
   | "deploy_export_cloudflare_page"
   | "detail_monitor_server"
   | "create_page_exports"
+  | "update_pages"
   | "default";
   icon: LucideIcon;
   label: string;
@@ -171,6 +172,18 @@ export function ActivityLogBadge({
           variant: "detail_monitor_server",
           icon: FileSearch,
           label: "Detail Monitor Server",
+        };
+      case ActivityLogActionEnum.CREATE_PAGE_EXPORTS:
+        return {
+          variant: "create_page_exports",
+          icon: FileSearch,
+          label: "Create Page Exports",
+        };
+      case ActivityLogActionEnum.UPDATE_PAGES:
+        return {
+          variant: "update_pages",
+          icon: FileSearch,
+          label: "Update Pages",
         };
       default:
         return {
