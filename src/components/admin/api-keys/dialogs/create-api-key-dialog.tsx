@@ -3,13 +3,7 @@
 import { cloneElement, ReactElement, useState } from "react";
 
 import { ICreateApiKeyForm } from "@/validations/api-key.validation";
-import {
-  Calendar as CalendarIcon,
-  ChevronDownIcon,
-  Copy,
-  Eye,
-  EyeOff,
-} from "lucide-react";
+import { ChevronDownIcon, Copy, Eye, EyeOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
