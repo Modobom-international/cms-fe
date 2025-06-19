@@ -24,7 +24,7 @@ import {
   CommandShortcut,
 } from "@/components/ui/command";
 
-import { navMain } from "@/components/layouts/admin/nav-main";
+import { storageMainNav } from "@/components/layouts/storage/storage-main-nav";
 
 type Props = {
   className?: string;
@@ -59,7 +59,7 @@ export default function StorageCommand({ className }: Props) {
     <>
       <button
         className={cn(
-          "border-input bg-background text-foreground placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-ring/50 inline-flex h-9 w-fit rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]",
+          "border-input bg-background text-foreground placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-ring/50 inline-flex h-9 w-96 rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]",
           className
         )}
         onClick={() => setOpen(true)}
@@ -111,7 +111,7 @@ export default function StorageCommand({ className }: Props) {
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading="Navigation">
-            {navMain.map((item) => (
+            {storageMainNav.map((item) => (
               <CommandItem
                 key={item.title}
                 onSelect={() => {
@@ -129,4 +129,3 @@ export default function StorageCommand({ className }: Props) {
     </>
   );
 }
-

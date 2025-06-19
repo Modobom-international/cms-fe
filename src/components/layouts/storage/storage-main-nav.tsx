@@ -19,27 +19,44 @@ import { cn } from "@/lib/utils";
 import {
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+import { CreateUploadDropdown } from "./create-upload-dropdown";
+
 type IconType = LucideIcon | ComponentType<any>;
 
-export function NavMain({
+export function StorageMainNav({
   items,
+  onCreateFolder,
+  onUploadFile,
+  onUploadFolder,
 }: {
   items: {
     title: string;
     url: string;
     icon?: IconType;
   }[];
+  onCreateFolder?: () => void;
+  onUploadFile?: () => void;
+  onUploadFolder?: () => void;
 }) {
   const pathname = usePathname();
 
   return (
     <SidebarGroup>
-      <SidebarGroupContent className="flex flex-col gap-2">
+      <SidebarGroupContent className="flex flex-col">
+        <CreateUploadDropdown
+          onCreateFolder={onCreateFolder}
+          onUploadFile={onUploadFile}
+          onUploadFolder={onUploadFolder}
+          className="mt-2 mb-4"
+        />
+        <SidebarGroupLabel>Storage</SidebarGroupLabel>
+        {/* Navigation Menu */}
         <SidebarMenu>
           {items.map((item) => {
             const isActive = pathname === item.url;
@@ -73,7 +90,13 @@ export function NavMain({
                         <item.icon className={cn("size-4 transition-colors")} />
                       )}
                     </div>
-                    <span className={cn("grow text-sm transition-colors")}>
+
+                    <span
+                      className={cn(
+                        "grow text-sm font-light transition-colors",
+                        isActive && "font-medium"
+                      )}
+                    >
                       {item.title}
                     </span>
                   </Link>
@@ -86,3 +109,32 @@ export function NavMain({
     </SidebarGroup>
   );
 }
+
+export const storageMainNav = [
+  {
+    title: "Home",
+    url: "/storage",
+    icon: Home,
+  },
+  {
+    title: "My files",
+    url: "/storage/my-files",
+    icon: Files,
+  },
+  {
+    title: "Photos",
+    url: "/storage/photos",
+    icon: Image,
+  },
+  {
+    title: "Shared",
+    url: "/storage/shared",
+    icon: Users,
+  },
+  {
+    title: "Trash",
+    url: "/storage/trash",
+    icon: Trash2,
+  },
+];
+

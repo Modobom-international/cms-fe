@@ -16,7 +16,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import CommandMenu from "@/components/layouts/command-menu";
 import { PlatformModeSwitcher } from "@/components/layouts/platform-mode-switcher";
-import { NavMain } from "@/components/layouts/storage/nav-main";
+import {
+  storageMainNav,
+  StorageMainNav,
+} from "@/components/layouts/storage/storage-main-nav";
 
 const NavUser = dynamic(
   () => import("@/components/layouts/nav-user").then((mod) => mod.NavUser),
@@ -25,34 +28,6 @@ const NavUser = dynamic(
     ssr: false,
   }
 );
-
-export const navMain = [
-  {
-    title: "Home",
-    url: "/storage",
-    icon: Home,
-  },
-  {
-    title: "My files",
-    url: "/storage/my-files",
-    icon: Files,
-  },
-  {
-    title: "Photos",
-    url: "/storage/photos",
-    icon: Image,
-  },
-  {
-    title: "Shared",
-    url: "/storage/shared",
-    icon: Users,
-  },
-  {
-    title: "Trash",
-    url: "/storage/trash",
-    icon: Trash2,
-  },
-];
 
 export function StorageSidebar({
   ...props
@@ -63,7 +38,7 @@ export function StorageSidebar({
         <PlatformModeSwitcher />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navMain} />
+        <StorageMainNav items={storageMainNav} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
@@ -71,4 +46,3 @@ export function StorageSidebar({
     </Sidebar>
   );
 }
-

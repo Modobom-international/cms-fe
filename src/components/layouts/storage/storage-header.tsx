@@ -9,6 +9,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import LanguageSwitcher from "@/components/i18n/language-switcher";
+import StorageCommand from "@/components/layouts/storage/storage-command";
 import NotificationsButton from "@/components/notifications";
 
 export function StorageHeader() {
@@ -28,6 +29,7 @@ export function StorageHeader() {
             <SidebarIcon />
           </Button>
           <Separator orientation="vertical" className="mr-2 h-4" />
+          <StorageCommand />
         </div>
 
         <div className="flex items-center gap-3">
@@ -44,4 +46,3 @@ export function StorageHeader() {
     </header>
   );
 }
-
