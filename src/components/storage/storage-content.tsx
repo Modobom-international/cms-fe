@@ -6,12 +6,25 @@ import { sampleFiles, sampleFolders } from "@/data/storage";
 import { useStorageStore } from "@/stores/storage/useStorageStore";
 import { toast } from "sonner";
 
-import { IFileItem, IFolderItem } from "@/types/storage.type";
+import { IBreadcrumbItem, IFileItem, IFolderItem } from "@/types/storage.type";
 
 import { FloatingSidebar } from "@/components/storage/floating-sidebar";
 import { GridView } from "@/components/storage/grid-view";
 import { ListView } from "@/components/storage/list-view";
+import { StorageBreadcrumb } from "@/components/storage/storage-breadcrumb";
 import { StorageToolbar } from "@/components/storage/storage-toolbar";
+
+// Static mock breadcrumbs for server component
+const mockBreadcrumbs: IBreadcrumbItem[] = [
+  { id: "root", name: "Home", path: "/" },
+  { id: "documents", name: "Documents", path: "/documents/" },
+  { id: "projects", name: "Projects", path: "/documents/projects/" },
+  {
+    id: "current",
+    name: "Current Folder",
+    path: "/documents/projects/current/",
+  },
+];
 
 export function StorageContent() {
   const {
@@ -107,6 +120,9 @@ export function StorageContent() {
           filteredAndSortedItems.files.length
         }
       />
+
+      {/* Breadcrumb */}
+      <StorageBreadcrumb breadcrumbs={mockBreadcrumbs} />
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">

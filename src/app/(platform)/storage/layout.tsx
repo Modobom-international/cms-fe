@@ -30,11 +30,9 @@ export default async function StorageLayout({
         <StorageHeader />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 md:gap-6">
+            <div className="mx-10 flex flex-col gap-4 md:gap-6">
               {children}
-              <div className="mx-4">
-                <Footer />
-              </div>
+              <Footer />
             </div>
           </div>
         </div>

@@ -1,30 +1,24 @@
-import React from "react";
-
-import { IBreadcrumbItem } from "@/types/storage.type";
-
-import { StorageBreadcrumb } from "@/components/storage/storage-breadcrumb";
 import { StorageContent } from "@/components/storage/storage-content";
 
 export default function StoragePage() {
-  // Static mock breadcrumbs for server component
-  const mockBreadcrumbs: IBreadcrumbItem[] = [
-    { id: "root", name: "Home", path: "/" },
-    { id: "documents", name: "Documents", path: "/documents/" },
-    { id: "projects", name: "Projects", path: "/documents/projects/" },
-    {
-      id: "current",
-      name: "Current Folder",
-      path: "/documents/projects/current/",
-    },
-  ];
-
   return (
-    <div className="h-full">
-      {/* Breadcrumb Section */}
-      <StorageBreadcrumb breadcrumbs={mockBreadcrumbs} />
+    <div className="flex flex-col py-6">
+      {/* Page Header */}
+      <div className="flex flex-col gap-4">
+        <div className="flex items-start justify-between">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              File Storage
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              Manage your files and folders with cloud storage capabilities
+            </p>
+          </div>
+        </div>
+      </div>
 
-      {/* Content Section with top margin to account for fixed breadcrumb */}
-      <div className="mt-16">
+      {/* Storage Content */}
+      <div className="h-full">
         <StorageContent />
       </div>
     </div>

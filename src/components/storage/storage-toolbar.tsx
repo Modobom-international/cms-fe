@@ -1,22 +1,7 @@
 "use client";
 
-import React from "react";
-
 import { useStorageStore } from "@/stores/storage/useStorageStore";
-import {
-  Check,
-  ChevronDown,
-  Download,
-  Filter,
-  FolderPlus,
-  Grid3X3,
-  List,
-  MoreHorizontal,
-  Share2,
-  SortAsc,
-  SortDesc,
-  Upload,
-} from "lucide-react";
+import { Check, ChevronDown, Filter, Grid3X3, List } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,23 +21,8 @@ export function StorageToolbar({ itemCount = 0 }: StorageToolbarProps) {
   const { viewMode, setViewMode, sortBy, setSortBy, sortOrder, setSortOrder } =
     useStorageStore();
 
-  const getSortDisplayName = (sortType: string) => {
-    switch (sortType) {
-      case "name":
-        return "Name";
-      case "modified":
-        return "Modified";
-      case "size":
-        return "File size";
-      case "type":
-        return "Type";
-      default:
-        return "Name";
-    }
-  };
-
   return (
-    <div className="bg-background flex items-center justify-end px-6 py-3">
+    <div className="bg-background flex items-center justify-end py-3">
       {/* Right Side - View Controls, Sort, and Stats */}
       <div className="flex items-center gap-4">
         <Badge variant="secondary" className="text-xs font-normal">
