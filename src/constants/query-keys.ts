@@ -197,4 +197,5 @@ export const appInformationQueryKeys = {
     "list",
     { page, pageSize, search, app_name, os_name, category, event_name },
   ] as const,
+  filterMenu: () => [...appInformationQueryKeys.origin, "filter-menu"] as const,
 };

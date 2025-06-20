@@ -1,5 +1,6 @@
 import { appInformationQueryKeys } from "@/constants/query-keys";
 import apiClient from "@/lib/api/client";
+import { IAppInformationFilterMenuResponse } from "@/types/app-information.type";
 import { useQuery } from "@tanstack/react-query";
 import qs from "qs";
 
@@ -43,4 +44,18 @@ export const useGetAppInformation = (
             }
         },
     })
+};
+
+export const useGetAppInformationFilterMenu = () => {
+    return useQuery({
+        queryKey: appInformationQueryKeys.filterMenu(),
+        queryFn: async (): Promise<IAppInformationFilterMenuResponse> => {
+            try {
+                const { data } = await apiClient.get("/api/app-information/menu");
+                return data;
+            } catch (error) {
+                throw new Error("Failed to fetch app information filter menu");
+            }
+        },
+    });
 };
