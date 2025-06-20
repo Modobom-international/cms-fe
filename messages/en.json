@@ -1674,7 +1674,8 @@
         "clearAllFilters": "Clear All Filters",
         "loadingFilters": "Loading filters...",
         "noFiltersAvailable": "No filters available yet for this category",
-        "removeFilter": "Remove {filterType} filter"
+        "removeFilter": "Remove {filterType} filter",
+        "selected": "selected"
       },
       "placeholders": {
         "search": "Search by UID or behavior...",

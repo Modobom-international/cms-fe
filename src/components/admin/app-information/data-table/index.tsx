@@ -8,7 +8,6 @@ import { IAppInformation } from "@/types/app-information.type";
 import { formatDateTime } from "@/lib/utils";
 
 import { useGetAppInformation } from "@/hooks/app-infomation";
-import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -71,17 +70,36 @@ export default function AppInformationDataTable() {
     "app_version",
     parseAsString.withDefault("")
   );
+  const [osVersionFilter, setOsVersionFilter] = useQueryState(
+    "os_version",
+    parseAsString.withDefault("")
+  );
 
-  const debouncedSearch = useDebounce("", 500);
   const {
     data: appInformationData,
     isLoading,
     isError,
-  } = useGetAppInformation(currentPage, pageSize, debouncedSearch, {
-    app_name: appFilter || undefined,
-    os_name: osFilter || undefined,
-    category: categoryFilter || undefined,
-    event_name: eventFilter || undefined,
+  } = useGetAppInformation(currentPage, pageSize, {
+    app_name: appFilter ? appFilter.split(",").filter(Boolean) : undefined,
+    os_name: osFilter ? osFilter.split(",").filter(Boolean) : undefined,
+    os_version: osVersionFilter
+      ? osVersionFilter.split(",").filter(Boolean)
+      : undefined,
+    app_version: appVersionFilter
+      ? appVersionFilter.split(",").filter(Boolean)
+      : undefined,
+    category: categoryFilter
+      ? categoryFilter.split(",").filter(Boolean)
+      : undefined,
+    platform: platformFilter
+      ? platformFilter.split(",").filter(Boolean)
+      : undefined,
+    country: countryFilter
+      ? countryFilter.split(",").filter(Boolean)
+      : undefined,
+    event_name: eventFilter
+      ? eventFilter.split(",").filter(Boolean)
+      : undefined,
   });
 
   const appInformationList: IAppInformation[] =
@@ -109,21 +127,23 @@ export default function AppInformationDataTable() {
   };
 
   const handleFiltersApply = (filters: {
-    app_name: string;
-    os_name: string;
-    category: string;
-    event_name: string;
-    platform: string;
-    country: string;
-    app_version: string;
+    app_name: string[];
+    os_name: string[];
+    os_version: string[];
+    app_version: string[];
+    category: string[];
+    platform: string[];
+    country: string[];
+    event_name: string[];
   }) => {
-    setAppFilter(filters.app_name);
-    setOsFilter(filters.os_name);
-    setCategoryFilter(filters.category);
-    setEventFilter(filters.event_name);
-    setPlatformFilter(filters.platform);
-    setCountryFilter(filters.country);
-    setAppVersionFilter(filters.app_version);
+    setAppFilter(filters.app_name.join(","));
+    setOsFilter(filters.os_name.join(","));
+    setOsVersionFilter(filters.os_version.join(","));
+    setAppVersionFilter(filters.app_version.join(","));
+    setCategoryFilter(filters.category.join(","));
+    setPlatformFilter(filters.platform.join(","));
+    setCountryFilter(filters.country.join(","));
+    setEventFilter(filters.event_name.join(","));
     setCurrentPage(1);
   };
 
@@ -135,11 +155,14 @@ export default function AppInformationDataTable() {
       case "os_name":
         setOsFilter("");
         break;
+      case "os_version":
+        setOsVersionFilter("");
+        break;
+      case "app_version":
+        setAppVersionFilter("");
+        break;
       case "category":
         setCategoryFilter("");
-        break;
-      case "event_name":
-        setEventFilter("");
         break;
       case "platform":
         setPlatformFilter("");
@@ -147,8 +170,8 @@ export default function AppInformationDataTable() {
       case "country":
         setCountryFilter("");
         break;
-      case "app_version":
-        setAppVersionFilter("");
+      case "event_name":
+        setEventFilter("");
         break;
     }
     setCurrentPage(1);
@@ -157,11 +180,12 @@ export default function AppInformationDataTable() {
   const handleClearAllFilters = () => {
     setAppFilter("");
     setOsFilter("");
+    setOsVersionFilter("");
+    setAppVersionFilter("");
     setCategoryFilter("");
-    setEventFilter("");
     setPlatformFilter("");
     setCountryFilter("");
-    setAppVersionFilter("");
+    setEventFilter("");
     setCurrentPage(1);
   };
 
@@ -170,6 +194,7 @@ export default function AppInformationDataTable() {
       <FilterBar
         appFilter={appFilter}
         osFilter={osFilter}
+        osVersionFilter={osVersionFilter}
         categoryFilter={categoryFilter}
         eventFilter={eventFilter}
         platformFilter={platformFilter}
@@ -350,4 +375,3 @@ export default function AppInformationDataTable() {
     </div>
   );
 }
-

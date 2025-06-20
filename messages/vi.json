@@ -1688,7 +1688,8 @@
         "clearAllFilters": "Xóa Tất cả Bộ lọc",
         "loadingFilters": "Đang tải bộ lọc...",
         "noFiltersAvailable": "Chưa có bộ lọc nào cho danh mục này",
-        "removeFilter": "Xóa bộ lọc {filterType}"
+        "removeFilter": "Xóa bộ lọc {filterType}",
+        "selected": "đã chọn"
       },
       "placeholders": {
         "search": "Tìm theo UID hoặc hành vi...",

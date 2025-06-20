@@ -187,15 +187,18 @@ export const appInformationQueryKeys = {
   list: (
     page: number,
     pageSize: number,
-    search?: string,
-    app_name?: string,
-    os_name?: string,
-    category?: string,
-    event_name?: string
+    app_name?: string | string[],
+    os_name?: string | string[],
+    os_version?: string | string[],
+    app_version?: string | string[],
+    category?: string | string[],
+    platform?: string | string[],
+    country?: string | string[],
+    event_name?: string | string[]
   ) => [
     ...appInformationQueryKeys.origin,
     "list",
-    { page, pageSize, search, app_name, os_name, category, event_name },
+    { page, pageSize, app_name, os_name, os_version, app_version, category, platform, country, event_name },
   ] as const,
   filterMenu: () => [...appInformationQueryKeys.origin, "filter-menu"] as const,
 };

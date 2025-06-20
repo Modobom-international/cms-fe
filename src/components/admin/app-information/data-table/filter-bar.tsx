@@ -20,19 +20,21 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface FilterBarProps {
   appFilter: string;
   osFilter: string;
+  osVersionFilter: string;
   categoryFilter: string;
   eventFilter: string;
   platformFilter: string;
   countryFilter: string;
   appVersionFilter: string;
   onFiltersApply: (filters: {
-    app_name: string;
-    os_name: string;
-    category: string;
-    event_name: string;
-    platform: string;
-    country: string;
-    app_version: string;
+    app_name: string[];
+    os_name: string[];
+    os_version: string[];
+    app_version: string[];
+    category: string[];
+    platform: string[];
+    country: string[];
+    event_name: string[];
   }) => void;
   onClearFilter: (filterType: string) => void;
   onClearAllFilters: () => void;
@@ -41,6 +43,7 @@ interface FilterBarProps {
 export function FilterBar({
   appFilter,
   osFilter,
+  osVersionFilter,
   categoryFilter,
   eventFilter,
   platformFilter,
@@ -57,25 +60,28 @@ export function FilterBar({
     useGetAppInformationFilterMenu();
 
   const [selectedApps, setSelectedApps] = useState<string[]>(
-    appFilter ? [appFilter] : []
+    appFilter ? appFilter.split(",").filter(Boolean) : []
   );
   const [selectedOS, setSelectedOS] = useState<string[]>(
-    osFilter ? [osFilter] : []
+    osFilter ? osFilter.split(",").filter(Boolean) : []
+  );
+  const [selectedOSVersions, setSelectedOSVersions] = useState<string[]>(
+    osVersionFilter ? osVersionFilter.split(",").filter(Boolean) : []
   );
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    categoryFilter ? [categoryFilter] : []
+    categoryFilter ? categoryFilter.split(",").filter(Boolean) : []
   );
   const [selectedEvents, setSelectedEvents] = useState<string[]>(
-    eventFilter ? [eventFilter] : []
+    eventFilter ? eventFilter.split(",").filter(Boolean) : []
   );
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(
-    platformFilter ? [platformFilter] : []
+    platformFilter ? platformFilter.split(",").filter(Boolean) : []
   );
   const [selectedCountries, setSelectedCountries] = useState<string[]>(
-    countryFilter ? [countryFilter] : []
+    countryFilter ? countryFilter.split(",").filter(Boolean) : []
   );
   const [selectedAppVersions, setSelectedAppVersions] = useState<string[]>(
-    appVersionFilter ? [appVersionFilter] : []
+    appVersionFilter ? appVersionFilter.split(",").filter(Boolean) : []
   );
 
   // Get filter options from API data or fallback to empty arrays
@@ -98,6 +104,10 @@ export function FilterBar({
   const osOptions = filterOptions.os_name.map((name) => ({
     value: name,
     label: name,
+  }));
+  const osVersionOptions = filterOptions.os_version.map((version) => ({
+    value: version,
+    label: version,
   }));
   const categoryOptions = filterOptions.category.map((category) => ({
     value: category,
@@ -124,6 +134,7 @@ export function FilterBar({
   const hasAppliedFilters = !!(
     appFilter ||
     osFilter ||
+    osVersionFilter ||
     categoryFilter ||
     eventFilter ||
     platformFilter ||
@@ -134,23 +145,34 @@ export function FilterBar({
   // Apply filters
   const applyFilters = () => {
     onFiltersApply({
-      app_name: selectedApps.length > 0 ? selectedApps[0] : "",
-      os_name: selectedOS.length > 0 ? selectedOS[0] : "",
-      category: selectedCategories.length > 0 ? selectedCategories[0] : "",
-      event_name: selectedEvents.length > 0 ? selectedEvents[0] : "",
-      platform: selectedPlatforms.length > 0 ? selectedPlatforms[0] : "",
-      country: selectedCountries.length > 0 ? selectedCountries[0] : "",
-      app_version: selectedAppVersions.length > 0 ? selectedAppVersions[0] : "",
+      app_name: selectedApps,
+      os_name: selectedOS,
+      os_version: selectedOSVersions,
+      app_version: selectedAppVersions,
+      category: selectedCategories,
+      platform: selectedPlatforms,
+      country: selectedCountries,
+      event_name: selectedEvents,
     });
   };
 
   // Handle checkbox changes
   const handleAppChange = (app: string, checked: boolean) => {
-    setSelectedApps(checked ? [app] : []);
+    setSelectedApps((prev) =>
+      checked ? [...prev, app] : prev.filter((a) => a !== app)
+    );
   };
 
   const handleOSChange = (os: string, checked: boolean) => {
-    setSelectedOS(checked ? [os] : []);
+    setSelectedOS((prev) =>
+      checked ? [...prev, os] : prev.filter((o) => o !== os)
+    );
+  };
+
+  const handleOSVersionChange = (osVersion: string, checked: boolean) => {
+    setSelectedOSVersions((prev) =>
+      checked ? [...prev, osVersion] : prev.filter((v) => v !== osVersion)
+    );
   };
 
   const handleCategoryChange = (category: string, checked: boolean) => {
@@ -166,21 +188,28 @@ export function FilterBar({
   };
 
   const handlePlatformChange = (platform: string, checked: boolean) => {
-    setSelectedPlatforms(checked ? [platform] : []);
+    setSelectedPlatforms((prev) =>
+      checked ? [...prev, platform] : prev.filter((p) => p !== platform)
+    );
   };
 
   const handleCountryChange = (country: string, checked: boolean) => {
-    setSelectedCountries(checked ? [country] : []);
+    setSelectedCountries((prev) =>
+      checked ? [...prev, country] : prev.filter((c) => c !== country)
+    );
   };
 
   const handleAppVersionChange = (version: string, checked: boolean) => {
-    setSelectedAppVersions(checked ? [version] : []);
+    setSelectedAppVersions((prev) =>
+      checked ? [...prev, version] : prev.filter((v) => v !== version)
+    );
   };
 
   // Clear all local filter states
   const handleClearAllFilters = () => {
     setSelectedApps([]);
     setSelectedOS([]);
+    setSelectedOSVersions([]);
     setSelectedCategories([]);
     setSelectedEvents([]);
     setSelectedPlatforms([]);
@@ -197,6 +226,9 @@ export function FilterBar({
         break;
       case "os_name":
         setSelectedOS([]);
+        break;
+      case "os_version":
+        setSelectedOSVersions([]);
         break;
       case "category":
         setSelectedCategories([]);
@@ -242,7 +274,14 @@ export function FilterBar({
                 <span className="font-medium text-purple-600 dark:text-purple-400">
                   {t("filters.appName")}:
                 </span>
-                <span className="max-w-32 truncate">{appFilter}</span>
+                <span className="max-w-32 truncate">
+                  {(() => {
+                    const values = appFilter.split(",").filter(Boolean);
+                    return values.length > 3
+                      ? `${values.length} ${t("filters.selected")}`
+                      : values.join(", ");
+                  })()}
+                </span>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -266,7 +305,14 @@ export function FilterBar({
                 <span className="font-medium text-purple-600 dark:text-purple-400">
                   {t("filters.appVersion")}:
                 </span>
-                <span className="max-w-32 truncate">{appVersionFilter}</span>
+                <span className="max-w-32 truncate">
+                  {(() => {
+                    const values = appVersionFilter.split(",").filter(Boolean);
+                    return values.length > 3
+                      ? `${values.length} ${t("filters.selected")}`
+                      : values.join(", ");
+                  })()}
+                </span>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -282,6 +328,33 @@ export function FilterBar({
                 </Button>
               </Badge>
             )}
+            {osVersionFilter && (
+              <Badge
+                variant="secondary"
+                className="gap-1.5 border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 transition-colors hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-950 dark:text-purple-300 dark:hover:bg-purple-900"
+              >
+                <span className="font-medium text-purple-600 dark:text-purple-400">
+                  OS Version:
+                </span>
+                <span className="max-w-32 truncate">
+                  {(() => {
+                    const values = osVersionFilter.split(",").filter(Boolean);
+                    return values.length > 3
+                      ? `${values.length} ${t("filters.selected")}`
+                      : values.join(", ");
+                  })()}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-4 w-4 rounded-full p-0 text-purple-500 transition-colors hover:bg-purple-100 hover:text-purple-700 dark:text-purple-400 dark:hover:bg-purple-800 dark:hover:text-purple-300"
+                  onClick={() => handleClearFilter("os_version")}
+                >
+                  <X className="h-2.5 w-2.5" />
+                  <span className="sr-only">Remove OS Version filter</span>
+                </Button>
+              </Badge>
+            )}
             {platformFilter && (
               <Badge
                 variant="secondary"
@@ -290,7 +363,14 @@ export function FilterBar({
                 <span className="font-medium text-purple-600 dark:text-purple-400">
                   {t("filters.platform")}:
                 </span>
-                <span className="max-w-32 truncate">{platformFilter}</span>
+                <span className="max-w-32 truncate">
+                  {(() => {
+                    const values = platformFilter.split(",").filter(Boolean);
+                    return values.length > 3
+                      ? `${values.length} ${t("filters.selected")}`
+                      : values.join(", ");
+                  })()}
+                </span>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -314,7 +394,14 @@ export function FilterBar({
                 <span className="font-medium text-purple-600 dark:text-purple-400">
                   {t("filters.nation")}:
                 </span>
-                <span className="max-w-32 truncate">{countryFilter}</span>
+                <span className="max-w-32 truncate">
+                  {(() => {
+                    const values = countryFilter.split(",").filter(Boolean);
+                    return values.length > 3
+                      ? `${values.length} ${t("filters.selected")}`
+                      : values.join(", ");
+                  })()}
+                </span>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -338,7 +425,14 @@ export function FilterBar({
                 <span className="font-medium text-purple-600 dark:text-purple-400">
                   {t("filters.osName")}:
                 </span>
-                <span className="max-w-32 truncate">{osFilter}</span>
+                <span className="max-w-32 truncate">
+                  {(() => {
+                    const values = osFilter.split(",").filter(Boolean);
+                    return values.length > 3
+                      ? `${values.length} ${t("filters.selected")}`
+                      : values.join(", ");
+                  })()}
+                </span>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -362,7 +456,14 @@ export function FilterBar({
                 <span className="font-medium text-purple-600 dark:text-purple-400">
                   {t("filters.category")}:
                 </span>
-                <span className="max-w-32 truncate">{categoryFilter}</span>
+                <span className="max-w-32 truncate">
+                  {(() => {
+                    const values = categoryFilter.split(",").filter(Boolean);
+                    return values.length > 3
+                      ? `${values.length} ${t("filters.selected")}`
+                      : values.join(", ");
+                  })()}
+                </span>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -386,7 +487,14 @@ export function FilterBar({
                 <span className="font-medium text-purple-600 dark:text-purple-400">
                   {t("filters.eventType")}:
                 </span>
-                <span className="max-w-32 truncate">{eventFilter}</span>
+                <span className="max-w-32 truncate">
+                  {(() => {
+                    const values = eventFilter.split(",").filter(Boolean);
+                    return values.length > 3
+                      ? `${values.length} ${t("filters.selected")}`
+                      : values.join(", ");
+                  })()}
+                </span>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -468,6 +576,16 @@ export function FilterBar({
           onApply={applyFilters}
         />
 
+        {/* OS Version Filter */}
+        <FilterPopover
+          title="OS Version"
+          label="Filter by OS Version"
+          options={osVersionOptions}
+          selectedValues={selectedOSVersions}
+          onChange={handleOSVersionChange}
+          onApply={applyFilters}
+        />
+
         {/* Category Filter */}
         <FilterPopover
           title={t("filters.category")}
@@ -515,7 +633,7 @@ function FilterPopover({
     <div>
       <Popover>
         <PopoverTrigger asChild>
-          <span className="border-border text-muted-foreground hover:bg-muted hover:text-foreground inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed px-2.5 py-0.5 text-sm font-medium transition-colors">
+          <span className="border-border text-muted-foreground hover:bg-muted inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed px-2.5 py-0.5 text-sm font-medium transition-colors">
             <PlusCircle className="size-3.5" />
             {title}
           </span>
