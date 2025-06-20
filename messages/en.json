@@ -1657,7 +1657,24 @@
         "nation": "Country",
         "platform": "Platform",
         "network": "Network",
-        "dateRange": "Date Range"
+        "dateRange": "Date Range",
+        "appName": "App Name",
+        "appVersion": "App Version",
+        "osName": "OS Name",
+        "category": "Category",
+        "eventType": "Event Type",
+        "filterByApp": "Filter by App",
+        "filterByAppVersion": "Filter by App Version",
+        "filterByPlatform": "Filter by Platform",
+        "filterByCountry": "Filter by Country",
+        "filterByOS": "Filter by OS",
+        "filterByCategory": "Filter by Category",
+        "filterByEvent": "Filter by Event",
+        "applyFilter": "Apply Filter",
+        "clearAllFilters": "Clear All Filters",
+        "loadingFilters": "Loading filters...",
+        "noFiltersAvailable": "No filters available yet for this category",
+        "removeFilter": "Remove {filterType} filter"
       },
       "placeholders": {
         "search": "Search by UID or behavior...",
@@ -1674,7 +1691,16 @@
         "network": "Network",
         "behaviors": "Behaviors",
         "timestamp": "Timestamp",
-        "actions": "Actions"
+        "actions": "Actions",
+        "requestId": "Request ID",
+        "appName": "App Name",
+        "appVersion": "App Version",
+        "osName": "OS Name",
+        "osVersion": "OS Version",
+        "event": "Event",
+        "category": "Category",
+        "createdAt": "Created At",
+        "updatedAt": "Updated At"
       },
       "actions": {
         "title": "Actions",

@@ -1671,7 +1671,24 @@
         "nation": "Quốc gia",
         "platform": "Nền tảng",
         "network": "Mạng",
-        "dateRange": "Khoảng thời gian"
+        "dateRange": "Khoảng thời gian",
+        "appName": "Tên Ứng dụng",
+        "appVersion": "Phiên bản Ứng dụng",
+        "osName": "Tên Hệ điều hành",
+        "category": "Danh mục",
+        "eventType": "Loại Sự kiện",
+        "filterByApp": "Lọc theo Ứng dụng",
+        "filterByAppVersion": "Lọc theo Phiên bản Ứng dụng",
+        "filterByPlatform": "Lọc theo Nền tảng",
+        "filterByCountry": "Lọc theo Quốc gia",
+        "filterByOS": "Lọc theo Hệ điều hành",
+        "filterByCategory": "Lọc theo Danh mục",
+        "filterByEvent": "Lọc theo Sự kiện",
+        "applyFilter": "Áp dụng Bộ lọc",
+        "clearAllFilters": "Xóa Tất cả Bộ lọc",
+        "loadingFilters": "Đang tải bộ lọc...",
+        "noFiltersAvailable": "Chưa có bộ lọc nào cho danh mục này",
+        "removeFilter": "Xóa bộ lọc {filterType}"
       },
       "placeholders": {
         "search": "Tìm theo UID hoặc hành vi...",
@@ -1688,7 +1705,16 @@
         "network": "Mạng",
         "behaviors": "Hành vi",
         "timestamp": "Thời gian",
-        "actions": "Thao tác"
+        "actions": "Thao tác",
+        "requestId": "ID Yêu cầu",
+        "appName": "Tên Ứng dụng",
+        "appVersion": "Phiên bản Ứng dụng",
+        "osName": "Tên Hệ điều hành",
+        "osVersion": "Phiên bản Hệ điều hành",
+        "event": "Sự kiện",
+        "category": "Danh mục",
+        "createdAt": "Ngày Tạo",
+        "updatedAt": "Ngày Cập nhật"
       },
       "actions": {
         "title": "Thao tác",
