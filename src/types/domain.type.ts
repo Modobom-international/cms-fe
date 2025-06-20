@@ -42,11 +42,15 @@ export interface IUser {
 
 export interface IDnsRecord {
   type: string;
-  host: string;
+  name: string;
+  content: string;
+  ttl: number;
+  proxied?: boolean;
+  comment?: string;
+  host?: string;
   ip?: string;
   target?: string;
   priority?: number;
-  ttl: number;
 }
 
 export interface IDomainActual {
@@ -55,6 +59,9 @@ export interface IDomainActual {
   status: string;
   is_locked: boolean;
   dns_records?: IDnsRecord[];
+  dns_source?: string;
+  dns_warning?: string;
+  source?: string | null;
   time_expired?: string;
   registrar?: string;
   created_at?: string;
