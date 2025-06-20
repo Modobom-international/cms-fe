@@ -5,11 +5,17 @@ import { useState } from "react";
 import Link from "next/link";
 
 import { DomainStatusEnum } from "@/enums/domain-status";
-import { PlusCircle, RefreshCw } from "lucide-react";
+import {
+  AlertTriangle,
+  Database,
+  PlusCircle,
+  RefreshCw,
+  Wifi,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
-import { IDomainActual } from "@/types/domain.type";
+import { IDnsRecord, IDomainActual } from "@/types/domain.type";
 
 import { formatDateTime } from "@/lib/utils";
 
@@ -46,6 +52,93 @@ import {
 import { RefreshDialog } from "@/components/admin/domain/data-table/dialog";
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
+
+// Add DNS Records component before the main component
+function DNSRecordsPopover({
+  records,
+  source,
+  warning,
+}: {
+  records?: IDnsRecord[];
+  source?: string;
+  warning?: string;
+}) {
+  if (!records || records.length === 0) {
+    return <span className="text-muted-foreground text-sm">No records</span>;
+  }
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="sm" className="h-8 px-3">
+          <Database className="mr-1 h-3 w-3" />
+          {records.length} records
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-96 p-0" align="end">
+        <div className="px-3 pt-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-foreground text-sm font-medium">DNS Records</h3>
+            <div className="flex items-center gap-1">
+              {source === "realtime" ? (
+                <Wifi className="h-3 w-3 text-blue-500" />
+              ) : (
+                <Database className="h-3 w-3 text-green-500" />
+              )}
+              <span className="text-muted-foreground text-xs capitalize">
+                {source}
+              </span>
+            </div>
+          </div>
+          {warning && (
+            <div className="mt-2 flex items-start gap-2 rounded-md bg-yellow-50 p-2 text-xs">
+              <AlertTriangle className="mt-0.5 h-3 w-3 flex-shrink-0 text-yellow-600" />
+              <span className="text-yellow-800">{warning}</span>
+            </div>
+          )}
+        </div>
+        <ScrollArea className="max-h-72">
+          <div className="space-y-2 p-3">
+            {records.map((record, index) => (
+              <div
+                key={index}
+                className="border-border rounded-md border p-2 text-xs"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="bg-muted text-foreground rounded px-1.5 py-0.5 font-mono font-medium">
+                    {record.type}
+                  </span>
+                  <span className="text-muted-foreground">
+                    TTL: {record.ttl}
+                  </span>
+                </div>
+                <div className="mt-1 space-y-1">
+                  <div className="text-foreground font-medium">
+                    {record.name}
+                  </div>
+                  <div className="text-muted-foreground">{record.content}</div>
+                  {record.proxied !== undefined && (
+                    <div className="text-xs">
+                      <span
+                        className={`inline-flex items-center rounded px-1.5 py-0.5 ${
+                          record.proxied
+                            ? "bg-orange-100 text-orange-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {record.proxied ? "Proxied" : "DNS Only"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export default function DomainDataTable() {
   const t = useTranslations("DomainPage.table");
@@ -115,7 +208,7 @@ export default function DomainDataTable() {
       label: t("filters.cancelledRedeemable"),
     },
   ];
-  
+
   const renewableOptions = [
     { value: "true", label: t("filters.renewable") },
     { value: "false", label: t("filters.nonRenewable") },
@@ -469,6 +562,12 @@ export default function DomainDataTable() {
                       {t("columns.status")}
                     </TableHead>
                     <TableHead className="text-foreground py-3 font-medium">
+                      Source
+                    </TableHead>
+                    <TableHead className="text-foreground py-3 font-medium">
+                      DNS Records
+                    </TableHead>
+                    <TableHead className="text-foreground py-3 font-medium">
                       {t("columns.timestamp")}
                     </TableHead>
                     <TableHead className="text-foreground py-3 font-medium">
@@ -480,9 +579,9 @@ export default function DomainDataTable() {
                     <TableHead className="text-foreground py-3 font-medium">
                       {t("columns.registrar")}
                     </TableHead>
-                    {/* <TableHead className="text-foreground w-[120px] py-3 font-medium">
+                    <TableHead className="text-foreground w-[120px] py-3 font-medium">
                       {t("columns.actions")}
-                    </TableHead> */}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -500,6 +599,22 @@ export default function DomainDataTable() {
                         </TableCell>
                         <TableCell className="py-3">
                           <DomainStatusBadge status={domainStatus} />
+                        </TableCell>
+                        <TableCell className="text-foreground py-3 text-sm">
+                          {domain.source ? (
+                            <span className="bg-muted text-foreground rounded px-2 py-1 text-xs font-medium">
+                              {domain.source}
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </TableCell>
+                        <TableCell className="py-3">
+                          <DNSRecordsPopover
+                            records={domain.dns_records}
+                            source={domain.dns_source}
+                            warning={domain.dns_warning}
+                          />
                         </TableCell>
                         <TableCell className="text-foreground py-3 text-sm">
                           {domain.updated_at
