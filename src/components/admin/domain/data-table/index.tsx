@@ -75,66 +75,79 @@ function DNSRecordsPopover({
           {records.length} records
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-96 p-0" align="end">
-        <div className="px-3 pt-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-foreground text-sm font-medium">DNS Records</h3>
-            <div className="flex items-center gap-1">
-              {source === "realtime" ? (
-                <Wifi className="h-3 w-3 text-blue-500" />
-              ) : (
-                <Database className="h-3 w-3 text-green-500" />
-              )}
-              <span className="text-muted-foreground text-xs capitalize">
-                {source}
-              </span>
-            </div>
-          </div>
-          {warning && (
-            <div className="mt-2 flex items-start gap-2 rounded-md bg-yellow-50 p-2 text-xs">
-              <AlertTriangle className="mt-0.5 h-3 w-3 flex-shrink-0 text-yellow-600" />
-              <span className="text-yellow-800">{warning}</span>
-            </div>
-          )}
-        </div>
-        <ScrollArea className="max-h-72">
-          <div className="space-y-2 p-3">
-            {records.map((record, index) => (
-              <div
-                key={index}
-                className="border-border rounded-md border p-2 text-xs"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="bg-muted text-foreground rounded px-1.5 py-0.5 font-mono font-medium">
-                    {record.type}
-                  </span>
-                  <span className="text-muted-foreground">
-                    TTL: {record.ttl}
-                  </span>
-                </div>
-                <div className="mt-1 space-y-1">
-                  <div className="text-foreground font-medium">
-                    {record.name}
-                  </div>
-                  <div className="text-muted-foreground">{record.content}</div>
-                  {record.proxied !== undefined && (
-                    <div className="text-xs">
-                      <span
-                        className={`inline-flex items-center rounded px-1.5 py-0.5 ${
-                          record.proxied
-                            ? "bg-orange-100 text-orange-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {record.proxied ? "Proxied" : "DNS Only"}
-                      </span>
-                    </div>
-                  )}
-                </div>
+      <PopoverContent className="w-[400px] max-w-[90vw] p-0" align="end">
+        <div className="flex h-[400px] max-h-[70vh] flex-col">
+          {/* Fixed Header */}
+          <div className="border-border flex-shrink-0 border-b px-3 py-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-foreground text-sm font-medium">
+                DNS Records ({records.length})
+              </h3>
+              <div className="flex items-center gap-1">
+                {source === "realtime" ? (
+                  <Wifi className="h-3 w-3 text-blue-500" />
+                ) : (
+                  <Database className="h-3 w-3 text-green-500" />
+                )}
+                <span className="text-muted-foreground text-xs capitalize">
+                  {source}
+                </span>
               </div>
-            ))}
+            </div>
+
+            {warning && (
+              <div className="mt-2 flex items-start gap-2 rounded-md bg-yellow-50 p-2 text-xs">
+                <AlertTriangle className="mt-0.5 h-3 w-3 flex-shrink-0 text-yellow-600" />
+                <span className="text-yellow-800">{warning}</span>
+              </div>
+            )}
           </div>
-        </ScrollArea>
+
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-hidden">
+            <ScrollArea className="h-full">
+              <div className="space-y-2 p-3">
+                {records.map((record, index) => (
+                  <div
+                    key={index}
+                    className="border-border hover:bg-muted/50 rounded border p-3 text-xs transition-colors"
+                  >
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="bg-primary/10 text-primary rounded px-1.5 py-0.5 font-mono text-xs font-medium">
+                        {record.type}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {record.proxied !== undefined && (
+                          <span
+                            className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs ${
+                              record.proxied
+                                ? "bg-orange-100 text-orange-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {record.proxied ? "Proxied" : "DNS Only"}
+                          </span>
+                        )}
+                        <span className="text-muted-foreground text-xs">
+                          TTL: {record.ttl}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="text-foreground font-mono text-xs break-all">
+                        {record.name}
+                      </div>
+                      <div className="text-muted-foreground font-mono text-xs break-all">
+                        {record.content}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+        </div>
       </PopoverContent>
     </Popover>
   );
