@@ -9,6 +9,7 @@ import { type Icon } from "@tabler/icons-react";
 import {
   GanttChartSquare,
   Home,
+  Info,
   KeyIcon,
   type LucideIcon,
   Network,
@@ -91,7 +92,12 @@ export function NavMain({
                     </div>
 
                     {/* Label Container */}
-                    <span className={cn("grow text-sm transition-colors")}>
+                    <span
+                      className={cn(
+                        "grow text-sm transition-colors",
+                        isActive && "font-medium"
+                      )}
+                    >
                       {item.title}
                     </span>
                   </Link>
@@ -136,7 +142,7 @@ export const navMain = [
   {
     title: "App Information",
     url: "/admin/app-information",
-    icon: Icons.tracking,
+    icon: Info,
   },
   {
     title: "Teams",
