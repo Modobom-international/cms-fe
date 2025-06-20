@@ -6,6 +6,7 @@ export interface IAppInformation {
     app_version?: string;
     platform?: string;
     country?: string;
+    network?: string;
     os_name: string;
     os_version: string;
     event_name: string;
@@ -26,6 +27,7 @@ export interface IAppInformationFilterMenu {
         event_name: string[];
         platform: string[];
         country: string[];
+        network: string[];
     };
     description: string;
     updated_at: string;

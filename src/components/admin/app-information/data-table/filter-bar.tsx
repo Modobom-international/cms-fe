@@ -17,6 +17,44 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+interface FilterBadgeProps {
+  label: string;
+  filterValue: string;
+  onClear: () => void;
+  t: (key: string, params?: any) => string;
+}
+
+function FilterBadge({ label, filterValue, onClear, t }: FilterBadgeProps) {
+  const values = filterValue.split(",").filter(Boolean);
+  const displayText =
+    values.length > 3
+      ? `${values.length} ${t("filters.selected")}`
+      : values.join(", ");
+
+  return (
+    <Badge
+      variant="secondary"
+      className="gap-1.5 border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 transition-colors hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-950 dark:text-purple-300 dark:hover:bg-purple-900"
+    >
+      <span className="font-medium text-purple-600 dark:text-purple-400">
+        {label}:
+      </span>
+      <span className="max-w-32 truncate">{displayText}</span>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-4 w-4 rounded-full p-0 text-purple-500 transition-colors hover:bg-purple-100 hover:text-purple-700 dark:text-purple-400 dark:hover:bg-purple-800 dark:hover:text-purple-300"
+        onClick={onClear}
+      >
+        <X className="h-2.5 w-2.5" />
+        <span className="sr-only">
+          {t("filters.removeFilter", { filterType: label })}
+        </span>
+      </Button>
+    </Badge>
+  );
+}
+
 interface FilterBarProps {
   appFilter: string;
   osFilter: string;
@@ -26,6 +64,7 @@ interface FilterBarProps {
   platformFilter: string;
   countryFilter: string;
   appVersionFilter: string;
+  networkFilter: string;
   onFiltersApply: (filters: {
     app_name: string[];
     os_name: string[];
@@ -35,6 +74,7 @@ interface FilterBarProps {
     platform: string[];
     country: string[];
     event_name: string[];
+    network: string[];
   }) => void;
   onClearFilter: (filterType: string) => void;
   onClearAllFilters: () => void;
@@ -49,6 +89,7 @@ export function FilterBar({
   platformFilter,
   countryFilter,
   appVersionFilter,
+  networkFilter,
   onFiltersApply,
   onClearFilter,
   onClearAllFilters,
@@ -83,6 +124,9 @@ export function FilterBar({
   const [selectedAppVersions, setSelectedAppVersions] = useState<string[]>(
     appVersionFilter ? appVersionFilter.split(",").filter(Boolean) : []
   );
+  const [selectedNetworks, setSelectedNetworks] = useState<string[]>(
+    networkFilter ? networkFilter.split(",").filter(Boolean) : []
+  );
 
   // Get filter options from API data or fallback to empty arrays
   const filterOptions = filterMenuData?.data?.data || {
@@ -94,6 +138,7 @@ export function FilterBar({
     platform: [],
     country: [],
     app_version: [],
+    network: [],
   };
 
   // Transform API data to options format
@@ -129,6 +174,10 @@ export function FilterBar({
     value: version,
     label: version,
   }));
+  const networkOptions = (filterOptions.network || []).map((network) => ({
+    value: network,
+    label: network,
+  }));
 
   // Check if any filters are applied
   const hasAppliedFilters = !!(
@@ -139,7 +188,8 @@ export function FilterBar({
     eventFilter ||
     platformFilter ||
     countryFilter ||
-    appVersionFilter
+    appVersionFilter ||
+    networkFilter
   );
 
   // Apply filters
@@ -153,6 +203,7 @@ export function FilterBar({
       platform: selectedPlatforms,
       country: selectedCountries,
       event_name: selectedEvents,
+      network: selectedNetworks,
     });
   };
 
@@ -205,6 +256,12 @@ export function FilterBar({
     );
   };
 
+  const handleNetworkChange = (network: string, checked: boolean) => {
+    setSelectedNetworks((prev) =>
+      checked ? [...prev, network] : prev.filter((n) => n !== network)
+    );
+  };
+
   // Clear all local filter states
   const handleClearAllFilters = () => {
     setSelectedApps([]);
@@ -215,6 +272,7 @@ export function FilterBar({
     setSelectedPlatforms([]);
     setSelectedCountries([]);
     setSelectedAppVersions([]);
+    setSelectedNetworks([]);
     onClearAllFilters();
   };
 
@@ -245,6 +303,9 @@ export function FilterBar({
       case "app_version":
         setSelectedAppVersions([]);
         break;
+      case "network":
+        setSelectedNetworks([]);
+        break;
     }
     onClearFilter(filterType);
   };
@@ -267,248 +328,76 @@ export function FilterBar({
         <div className="flex items-center gap-3">
           <div className="flex flex-wrap items-center gap-2">
             {appFilter && (
-              <Badge
-                variant="secondary"
-                className="gap-1.5 border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 transition-colors hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-950 dark:text-purple-300 dark:hover:bg-purple-900"
-              >
-                <span className="font-medium text-purple-600 dark:text-purple-400">
-                  {t("filters.appName")}:
-                </span>
-                <span className="max-w-32 truncate">
-                  {(() => {
-                    const values = appFilter.split(",").filter(Boolean);
-                    return values.length > 3
-                      ? `${values.length} ${t("filters.selected")}`
-                      : values.join(", ");
-                  })()}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-4 w-4 rounded-full p-0 text-purple-500 transition-colors hover:bg-purple-100 hover:text-purple-700 dark:text-purple-400 dark:hover:bg-purple-800 dark:hover:text-purple-300"
-                  onClick={() => handleClearFilter("app_name")}
-                >
-                  <X className="h-2.5 w-2.5" />
-                  <span className="sr-only">
-                    {t("filters.removeFilter", {
-                      filterType: t("filters.appName"),
-                    })}
-                  </span>
-                </Button>
-              </Badge>
+              <FilterBadge
+                label={t("filters.appName")}
+                filterValue={appFilter}
+                onClear={() => handleClearFilter("app_name")}
+                t={t}
+              />
             )}
             {appVersionFilter && (
-              <Badge
-                variant="secondary"
-                className="gap-1.5 border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 transition-colors hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-950 dark:text-purple-300 dark:hover:bg-purple-900"
-              >
-                <span className="font-medium text-purple-600 dark:text-purple-400">
-                  {t("filters.appVersion")}:
-                </span>
-                <span className="max-w-32 truncate">
-                  {(() => {
-                    const values = appVersionFilter.split(",").filter(Boolean);
-                    return values.length > 3
-                      ? `${values.length} ${t("filters.selected")}`
-                      : values.join(", ");
-                  })()}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-4 w-4 rounded-full p-0 text-purple-500 transition-colors hover:bg-purple-100 hover:text-purple-700 dark:text-purple-400 dark:hover:bg-purple-800 dark:hover:text-purple-300"
-                  onClick={() => handleClearFilter("app_version")}
-                >
-                  <X className="h-2.5 w-2.5" />
-                  <span className="sr-only">
-                    {t("filters.removeFilter", {
-                      filterType: t("filters.appVersion"),
-                    })}
-                  </span>
-                </Button>
-              </Badge>
+              <FilterBadge
+                label={t("filters.appVersion")}
+                filterValue={appVersionFilter}
+                onClear={() => handleClearFilter("app_version")}
+                t={t}
+              />
             )}
             {osVersionFilter && (
-              <Badge
-                variant="secondary"
-                className="gap-1.5 border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 transition-colors hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-950 dark:text-purple-300 dark:hover:bg-purple-900"
-              >
-                <span className="font-medium text-purple-600 dark:text-purple-400">
-                  OS Version:
-                </span>
-                <span className="max-w-32 truncate">
-                  {(() => {
-                    const values = osVersionFilter.split(",").filter(Boolean);
-                    return values.length > 3
-                      ? `${values.length} ${t("filters.selected")}`
-                      : values.join(", ");
-                  })()}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-4 w-4 rounded-full p-0 text-purple-500 transition-colors hover:bg-purple-100 hover:text-purple-700 dark:text-purple-400 dark:hover:bg-purple-800 dark:hover:text-purple-300"
-                  onClick={() => handleClearFilter("os_version")}
-                >
-                  <X className="h-2.5 w-2.5" />
-                  <span className="sr-only">Remove OS Version filter</span>
-                </Button>
-              </Badge>
+              <FilterBadge
+                label="OS Version"
+                filterValue={osVersionFilter}
+                onClear={() => handleClearFilter("os_version")}
+                t={t}
+              />
             )}
             {platformFilter && (
-              <Badge
-                variant="secondary"
-                className="gap-1.5 border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 transition-colors hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-950 dark:text-purple-300 dark:hover:bg-purple-900"
-              >
-                <span className="font-medium text-purple-600 dark:text-purple-400">
-                  {t("filters.platform")}:
-                </span>
-                <span className="max-w-32 truncate">
-                  {(() => {
-                    const values = platformFilter.split(",").filter(Boolean);
-                    return values.length > 3
-                      ? `${values.length} ${t("filters.selected")}`
-                      : values.join(", ");
-                  })()}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-4 w-4 rounded-full p-0 text-purple-500 transition-colors hover:bg-purple-100 hover:text-purple-700 dark:text-purple-400 dark:hover:bg-purple-800 dark:hover:text-purple-300"
-                  onClick={() => handleClearFilter("platform")}
-                >
-                  <X className="h-2.5 w-2.5" />
-                  <span className="sr-only">
-                    {t("filters.removeFilter", {
-                      filterType: t("filters.platform"),
-                    })}
-                  </span>
-                </Button>
-              </Badge>
+              <FilterBadge
+                label={t("filters.platform")}
+                filterValue={platformFilter}
+                onClear={() => handleClearFilter("platform")}
+                t={t}
+              />
             )}
             {countryFilter && (
-              <Badge
-                variant="secondary"
-                className="gap-1.5 border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 transition-colors hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-950 dark:text-purple-300 dark:hover:bg-purple-900"
-              >
-                <span className="font-medium text-purple-600 dark:text-purple-400">
-                  {t("filters.nation")}:
-                </span>
-                <span className="max-w-32 truncate">
-                  {(() => {
-                    const values = countryFilter.split(",").filter(Boolean);
-                    return values.length > 3
-                      ? `${values.length} ${t("filters.selected")}`
-                      : values.join(", ");
-                  })()}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-4 w-4 rounded-full p-0 text-purple-500 transition-colors hover:bg-purple-100 hover:text-purple-700 dark:text-purple-400 dark:hover:bg-purple-800 dark:hover:text-purple-300"
-                  onClick={() => handleClearFilter("country")}
-                >
-                  <X className="h-2.5 w-2.5" />
-                  <span className="sr-only">
-                    {t("filters.removeFilter", {
-                      filterType: t("filters.nation"),
-                    })}
-                  </span>
-                </Button>
-              </Badge>
+              <FilterBadge
+                label={t("filters.nation")}
+                filterValue={countryFilter}
+                onClear={() => handleClearFilter("country")}
+                t={t}
+              />
             )}
             {osFilter && (
-              <Badge
-                variant="secondary"
-                className="gap-1.5 border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 transition-colors hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-950 dark:text-purple-300 dark:hover:bg-purple-900"
-              >
-                <span className="font-medium text-purple-600 dark:text-purple-400">
-                  {t("filters.osName")}:
-                </span>
-                <span className="max-w-32 truncate">
-                  {(() => {
-                    const values = osFilter.split(",").filter(Boolean);
-                    return values.length > 3
-                      ? `${values.length} ${t("filters.selected")}`
-                      : values.join(", ");
-                  })()}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-4 w-4 rounded-full p-0 text-purple-500 transition-colors hover:bg-purple-100 hover:text-purple-700 dark:text-purple-400 dark:hover:bg-purple-800 dark:hover:text-purple-300"
-                  onClick={() => handleClearFilter("os_name")}
-                >
-                  <X className="h-2.5 w-2.5" />
-                  <span className="sr-only">
-                    {t("filters.removeFilter", {
-                      filterType: t("filters.osName"),
-                    })}
-                  </span>
-                </Button>
-              </Badge>
+              <FilterBadge
+                label={t("filters.osName")}
+                filterValue={osFilter}
+                onClear={() => handleClearFilter("os_name")}
+                t={t}
+              />
             )}
             {categoryFilter && (
-              <Badge
-                variant="secondary"
-                className="gap-1.5 border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 transition-colors hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-950 dark:text-purple-300 dark:hover:bg-purple-900"
-              >
-                <span className="font-medium text-purple-600 dark:text-purple-400">
-                  {t("filters.category")}:
-                </span>
-                <span className="max-w-32 truncate">
-                  {(() => {
-                    const values = categoryFilter.split(",").filter(Boolean);
-                    return values.length > 3
-                      ? `${values.length} ${t("filters.selected")}`
-                      : values.join(", ");
-                  })()}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-4 w-4 rounded-full p-0 text-purple-500 transition-colors hover:bg-purple-100 hover:text-purple-700 dark:text-purple-400 dark:hover:bg-purple-800 dark:hover:text-purple-300"
-                  onClick={() => handleClearFilter("category")}
-                >
-                  <X className="h-2.5 w-2.5" />
-                  <span className="sr-only">
-                    {t("filters.removeFilter", {
-                      filterType: t("filters.category"),
-                    })}
-                  </span>
-                </Button>
-              </Badge>
+              <FilterBadge
+                label={t("filters.category")}
+                filterValue={categoryFilter}
+                onClear={() => handleClearFilter("category")}
+                t={t}
+              />
             )}
             {eventFilter && (
-              <Badge
-                variant="secondary"
-                className="gap-1.5 border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 transition-colors hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-950 dark:text-purple-300 dark:hover:bg-purple-900"
-              >
-                <span className="font-medium text-purple-600 dark:text-purple-400">
-                  {t("filters.eventType")}:
-                </span>
-                <span className="max-w-32 truncate">
-                  {(() => {
-                    const values = eventFilter.split(",").filter(Boolean);
-                    return values.length > 3
-                      ? `${values.length} ${t("filters.selected")}`
-                      : values.join(", ");
-                  })()}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-4 w-4 rounded-full p-0 text-purple-500 transition-colors hover:bg-purple-100 hover:text-purple-700 dark:text-purple-400 dark:hover:bg-purple-800 dark:hover:text-purple-300"
-                  onClick={() => handleClearFilter("event_name")}
-                >
-                  <X className="h-2.5 w-2.5" />
-                  <span className="sr-only">
-                    {t("filters.removeFilter", {
-                      filterType: t("filters.eventType"),
-                    })}
-                  </span>
-                </Button>
-              </Badge>
+              <FilterBadge
+                label={t("filters.eventType")}
+                filterValue={eventFilter}
+                onClear={() => handleClearFilter("event_name")}
+                t={t}
+              />
+            )}
+            {networkFilter && (
+              <FilterBadge
+                label={t("filters.network")}
+                filterValue={networkFilter}
+                onClear={() => handleClearFilter("network")}
+                t={t}
+              />
             )}
           </div>
           <div>
@@ -603,6 +492,16 @@ export function FilterBar({
           options={eventOptions}
           selectedValues={selectedEvents}
           onChange={handleEventChange}
+          onApply={applyFilters}
+        />
+
+        {/* Network Filter */}
+        <FilterPopover
+          title={t("filters.network")}
+          label={t("filters.filterByNetwork")}
+          options={networkOptions}
+          selectedValues={selectedNetworks}
+          onChange={handleNetworkChange}
           onApply={applyFilters}
         />
       </div>

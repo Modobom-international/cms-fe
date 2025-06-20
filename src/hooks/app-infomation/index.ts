@@ -17,6 +17,7 @@ export const useGetAppInformation = (
         platform?: string | string[]
         country?: string | string[]
         event_name?: string | string[]
+        network?: string | string[]
     }
 ) => {
     const paramsObj = {
@@ -38,7 +39,8 @@ export const useGetAppInformation = (
             filters?.category,
             filters?.platform,
             filters?.country,
-            filters?.event_name
+            filters?.event_name,
+            filters?.network
         ),
         queryFn: async () => {
             try {

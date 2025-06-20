@@ -1670,6 +1670,7 @@
         "filterByOS": "Filter by OS",
         "filterByCategory": "Filter by Category",
         "filterByEvent": "Filter by Event",
+        "filterByNetwork": "Filter by Network",
         "applyFilter": "Apply Filter",
         "clearAllFilters": "Clear All Filters",
         "loadingFilters": "Loading filters...",
