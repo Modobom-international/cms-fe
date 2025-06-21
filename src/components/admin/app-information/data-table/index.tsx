@@ -74,6 +74,10 @@ export default function AppInformationDataTable() {
     "os_version",
     parseAsString.withDefault("")
   );
+  const [networkFilter, setNetworkFilter] = useQueryState(
+    "network",
+    parseAsString.withDefault("")
+  );
 
   const {
     data: appInformationData,
@@ -99,6 +103,9 @@ export default function AppInformationDataTable() {
       : undefined,
     event_name: eventFilter
       ? eventFilter.split(",").filter(Boolean)
+      : undefined,
+    network: networkFilter
+      ? networkFilter.split(",").filter(Boolean)
       : undefined,
   });
 
@@ -135,6 +142,7 @@ export default function AppInformationDataTable() {
     platform: string[];
     country: string[];
     event_name: string[];
+    network: string[];
   }) => {
     setAppFilter(filters.app_name.join(","));
     setOsFilter(filters.os_name.join(","));
@@ -144,6 +152,7 @@ export default function AppInformationDataTable() {
     setPlatformFilter(filters.platform.join(","));
     setCountryFilter(filters.country.join(","));
     setEventFilter(filters.event_name.join(","));
+    setNetworkFilter(filters.network.join(","));
     setCurrentPage(1);
   };
 
@@ -173,6 +182,9 @@ export default function AppInformationDataTable() {
       case "event_name":
         setEventFilter("");
         break;
+      case "network":
+        setNetworkFilter("");
+        break;
     }
     setCurrentPage(1);
   };
@@ -186,6 +198,7 @@ export default function AppInformationDataTable() {
     setPlatformFilter("");
     setCountryFilter("");
     setEventFilter("");
+    setNetworkFilter("");
     setCurrentPage(1);
   };
 
@@ -200,6 +213,7 @@ export default function AppInformationDataTable() {
         platformFilter={platformFilter}
         countryFilter={countryFilter}
         appVersionFilter={appVersionFilter}
+        networkFilter={networkFilter}
         onFiltersApply={handleFiltersApply}
         onClearFilter={handleClearFilter}
         onClearAllFilters={handleClearAllFilters}
@@ -243,6 +257,9 @@ export default function AppInformationDataTable() {
                       {t("columns.country")}
                     </TableHead>
                     <TableHead className="text-foreground w-[100px] py-3 font-medium">
+                      {t("columns.network")}
+                    </TableHead>
+                    <TableHead className="text-foreground w-[100px] py-3 font-medium">
                       {t("columns.osName")}
                     </TableHead>
                     <TableHead className="text-foreground w-[100px] py-3 font-medium">
@@ -284,6 +301,9 @@ export default function AppInformationDataTable() {
                       </TableCell>
                       <TableCell className="text-foreground py-3">
                         {item.country || "—"}
+                      </TableCell>
+                      <TableCell className="text-foreground py-3">
+                        {item.network || "—"}
                       </TableCell>
                       <TableCell className="text-foreground py-3">
                         {item.os_name}

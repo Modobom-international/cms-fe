@@ -194,11 +194,12 @@ export const appInformationQueryKeys = {
     category?: string | string[],
     platform?: string | string[],
     country?: string | string[],
-    event_name?: string | string[]
+    event_name?: string | string[],
+    network?: string | string[]
   ) => [
     ...appInformationQueryKeys.origin,
     "list",
-    { page, pageSize, app_name, os_name, os_version, app_version, category, platform, country, event_name },
+    { page, pageSize, app_name, os_name, os_version, app_version, category, platform, country, event_name, network },
   ] as const,
   filterMenu: () => [...appInformationQueryKeys.origin, "filter-menu"] as const,
 };

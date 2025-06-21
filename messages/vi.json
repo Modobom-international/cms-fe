@@ -1684,6 +1684,7 @@
         "filterByOS": "Lọc theo Hệ điều hành",
         "filterByCategory": "Lọc theo Danh mục",
         "filterByEvent": "Lọc theo Sự kiện",
+        "filterByNetwork": "Lọc theo Mạng",
         "applyFilter": "Áp dụng Bộ lọc",
         "clearAllFilters": "Xóa Tất cả Bộ lọc",
         "loadingFilters": "Đang tải bộ lọc...",
