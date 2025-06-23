@@ -103,18 +103,20 @@ export function StorageCard({
 
   const getFileIcon = (mimeType: string) => {
     if (mimeType === "folder")
-      return <Folder className="text-primary h-8 w-8" />;
+      return <Folder className="h-8 w-8 text-blue-500 dark:text-blue-400" />;
     if (mimeType.startsWith("image/"))
-      return <Image className="h-8 w-8 text-green-500" />;
+      return (
+        <Image className="h-8 w-8 text-emerald-500 dark:text-emerald-400" />
+      );
     if (mimeType.startsWith("video/"))
-      return <Video className="h-8 w-8 text-red-500" />;
+      return <Video className="h-8 w-8 text-rose-500 dark:text-rose-400" />;
     if (mimeType.startsWith("audio/"))
-      return <Music className="h-8 w-8 text-purple-500" />;
+      return <Music className="h-8 w-8 text-violet-500 dark:text-violet-400" />;
     if (mimeType.includes("pdf"))
-      return <FileText className="h-8 w-8 text-red-600" />;
+      return <FileText className="h-8 w-8 text-red-500 dark:text-red-400" />;
     if (mimeType.includes("zip") || mimeType.includes("rar"))
-      return <Archive className="h-8 w-8 text-orange-500" />;
-    return <File className="h-8 w-8 text-gray-500" />;
+      return <Archive className="h-8 w-8 text-amber-500 dark:text-amber-400" />;
+    return <File className="h-8 w-8 text-slate-500 dark:text-slate-400" />;
   };
 
   return (
@@ -122,8 +124,10 @@ export function StorageCard({
       <ContextMenuTrigger asChild>
         <div
           className={cn(
-            "group relative cursor-pointer rounded-lg p-3 transition-all duration-200 hover:bg-gray-50 hover:shadow-sm",
-            isSelected && "ring-primary ring-2"
+            "group relative cursor-pointer rounded-xl border border-transparent p-4 transition-all duration-200",
+            "hover:border-border/50 hover:bg-accent/30 dark:hover:bg-accent/20 hover:shadow-sm",
+            isSelected &&
+              "border-primary/50 bg-primary/5 dark:bg-primary/10 ring-primary/20 shadow-sm ring-1"
           )}
           onClick={handleCardClick}
           onMouseEnter={() => setIsHovered(true)}
@@ -132,8 +136,10 @@ export function StorageCard({
           {/* Selection Checkbox */}
           <div
             className={cn(
-              "absolute top-2 left-2 z-10 transition-opacity",
-              isSelected || isHovered ? "opacity-100" : "opacity-0"
+              "absolute top-3 left-3 z-10 transition-all duration-200",
+              isSelected || isHovered
+                ? "scale-100 opacity-100"
+                : "scale-95 opacity-0"
             )}
             data-checkbox
             onClick={(e) => {
@@ -141,17 +147,24 @@ export function StorageCard({
               onSelectionToggle?.(item.id, e);
             }}
           >
-            <div className="hover:border-primary flex h-5 w-5 items-center justify-center rounded-sm border border-gray-300 bg-white shadow-sm">
+            <div
+              className={cn(
+                "flex h-5 w-5 items-center justify-center rounded border-2 shadow-sm transition-all duration-200",
+                isSelected
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-background hover:border-primary/50"
+              )}
+            >
               {isSelected ? (
-                <CheckSquare className="text-primary h-4 w-4" />
+                <CheckSquare className="h-3 w-3" />
               ) : (
-                <Square className="h-4 w-4 text-gray-400" />
+                <Square className="text-muted-foreground h-3 w-3" />
               )}
             </div>
           </div>
 
-          {/* Thumbnail/Icon */}
-          <div className="mb-3 flex aspect-square items-center justify-center overflow-hidden rounded-lg bg-gray-100">
+          {/* Thumbnail/Icon Container */}
+          <div className="bg-muted/60 dark:bg-muted/40 group-hover:bg-muted/40 dark:group-hover:bg-muted/30 mb-4 flex aspect-square items-center justify-center overflow-hidden rounded-lg transition-colors duration-200">
             {item.type === "file" && item.thumbnail ? (
               <img
                 src={item.thumbnail}
@@ -165,8 +178,8 @@ export function StorageCard({
             )}
           </div>
 
-          {/* Name */}
-          <div className="space-y-1">
+          {/* File Name */}
+          <div className="space-y-2">
             {isEditing ? (
               <Input
                 type="text"
@@ -174,33 +187,45 @@ export function StorageCard({
                 onChange={(e) => onEditNameChange?.(e.target.value)}
                 onBlur={() => onEditSubmit?.(item.id, editingName)}
                 onKeyDown={handleEditKeyDown}
-                className="border-primary h-6 px-1 py-0 text-xs"
+                className="border-primary bg-background h-7 px-2 py-1 text-sm font-medium"
                 autoFocus
                 onClick={(e) => e.stopPropagation()}
               />
             ) : (
               <p
-                className="truncate text-xs leading-tight font-medium text-gray-900"
+                className="text-foreground truncate text-sm leading-tight font-medium"
                 title={item.name}
               >
                 {item.name}
               </p>
             )}
 
-            {/* Metadata */}
-            <div className="space-y-0.5 text-xs text-gray-500">
-              <p>{item.modifiedDate}</p>
-              {item.type === "file" && <p>{formatFileSize(item.size)}</p>}
-              {item.type === "folder" && <p>{item.itemCount} items</p>}
+            {/* File Metadata */}
+            <div className="text-muted-foreground space-y-1 text-xs">
+              <p className="truncate">{item.modifiedDate}</p>
+              <div className="flex items-center justify-between">
+                {item.type === "file" && (
+                  <span className="font-medium">
+                    {formatFileSize(item.size)}
+                  </span>
+                )}
+                {item.type === "folder" && (
+                  <span className="font-medium">{item.itemCount} items</span>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Shared indicator */}
+          {/* Shared Indicator */}
           {item.shared && (
-            <div className="absolute top-2 right-2">
+            <div className="absolute top-3 right-3">
               <Badge
                 variant="secondary"
-                className="flex h-5 w-5 items-center justify-center p-0"
+                className={cn(
+                  "flex h-6 w-6 items-center justify-center p-0 transition-all duration-200",
+                  "bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400",
+                  "hover:bg-violet-200 dark:hover:bg-violet-900/50"
+                )}
               >
                 <Share2 className="h-3 w-3" />
               </Badge>
@@ -209,31 +234,40 @@ export function StorageCard({
         </div>
       </ContextMenuTrigger>
 
-      <ContextMenuContent className="w-64">
-        <ContextMenuItem onClick={() => onEditStart?.(item)}>
-          <Edit2 className="mr-2 h-4 w-4" />
+      <ContextMenuContent className="border-border bg-background w-48 p-1">
+        <ContextMenuItem
+          onClick={() => onEditStart?.(item)}
+          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer rounded-md px-2 py-2 text-sm transition-colors"
+        >
+          <Edit2 className="mr-3 h-4 w-4" />
           Rename
         </ContextMenuItem>
 
         {item.type === "file" && (
-          <ContextMenuItem onClick={() => onDownload?.(item.id)}>
-            <Download className="mr-2 h-4 w-4" />
+          <ContextMenuItem
+            onClick={() => onDownload?.(item.id)}
+            className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer rounded-md px-2 py-2 text-sm transition-colors"
+          >
+            <Download className="mr-3 h-4 w-4" />
             Download
           </ContextMenuItem>
         )}
 
-        <ContextMenuItem onClick={() => onShare?.(item.id)}>
-          <Share2 className="mr-2 h-4 w-4" />
+        <ContextMenuItem
+          onClick={() => onShare?.(item.id)}
+          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer rounded-md px-2 py-2 text-sm transition-colors"
+        >
+          <Share2 className="mr-3 h-4 w-4" />
           Share
         </ContextMenuItem>
 
-        <ContextMenuSeparator />
+        <ContextMenuSeparator className="bg-border my-1" />
 
         <ContextMenuItem
           onClick={() => onDelete?.(item.id)}
-          variant="destructive"
+          className="text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive dark:hover:bg-destructive/20 dark:focus:bg-destructive/20 cursor-pointer rounded-md px-2 py-2 text-sm transition-colors"
         >
-          <Trash2 className="mr-2 h-4 w-4" />
+          <Trash2 className="mr-3 h-4 w-4" />
           Delete
         </ContextMenuItem>
       </ContextMenuContent>

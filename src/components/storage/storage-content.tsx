@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { IBreadcrumbItem, IFileItem, IFolderItem } from "@/types/storage.type";
 
+import { FileDetailsPanel } from "@/components/storage/file-details-panel";
 import { FloatingToolbar } from "@/components/storage/floating-toolbar";
 import { GridView } from "@/components/storage/grid-view";
 import { ListView } from "@/components/storage/list-view";
@@ -35,6 +36,7 @@ export function StorageContent() {
     clearSelection,
     setSortBy,
     setSortOrder,
+    showDetailsPanel,
   } = useStorageStore();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -112,55 +114,62 @@ export function StorageContent() {
   };
 
   return (
-    <div className="h-full">
-      {/* Toolbar */}
-      <StorageToolbar
-        itemCount={
-          filteredAndSortedItems.folders.length +
-          filteredAndSortedItems.files.length
-        }
-      />
+    <div className="bg-background dark:bg-background flex h-full gap-x-4">
+      {/* Main Content Area */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        {/* Toolbar */}
+        <StorageToolbar
+          itemCount={
+            filteredAndSortedItems.folders.length +
+            filteredAndSortedItems.files.length
+          }
+        />
 
-      {/* Breadcrumb */}
-      <StorageBreadcrumb breadcrumbs={mockBreadcrumbs} />
+        {/* Breadcrumb */}
+        <StorageBreadcrumb breadcrumbs={mockBreadcrumbs} />
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-center">
-              <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-              <p className="text-sm text-gray-600">Processing...</p>
+        {/* Main Content */}
+        <div className="bg-background dark:bg-background flex-1 overflow-auto">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center">
+                <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
+                <p className="text-muted-foreground text-sm">Processing...</p>
+              </div>
             </div>
-          </div>
-        ) : viewMode === "grid" ? (
-          <GridView
-            files={filteredAndSortedItems.files}
-            folders={filteredAndSortedItems.folders}
-            onFolderClick={handleFolderClick}
-            onFileClick={handleFileClick}
-            onRename={handleRename}
-            onDownload={handleDownload}
-            onDelete={handleDelete}
-            onShare={handleShare}
-          />
-        ) : (
-          <ListView
-            files={filteredAndSortedItems.files}
-            folders={filteredAndSortedItems.folders}
-            onFolderClick={handleFolderClick}
-            onFileClick={handleFileClick}
-            onRename={handleRename}
-            onDownload={handleDownload}
-            onDelete={handleDelete}
-            onShare={handleShare}
-            onSort={handleSort}
-          />
-        )}
+          ) : viewMode === "grid" ? (
+            <GridView
+              files={filteredAndSortedItems.files}
+              folders={filteredAndSortedItems.folders}
+              onFolderClick={handleFolderClick}
+              onFileClick={handleFileClick}
+              onRename={handleRename}
+              onDownload={handleDownload}
+              onDelete={handleDelete}
+              onShare={handleShare}
+            />
+          ) : (
+            <ListView
+              files={filteredAndSortedItems.files}
+              folders={filteredAndSortedItems.folders}
+              onFolderClick={handleFolderClick}
+              onFileClick={handleFileClick}
+              onRename={handleRename}
+              onDownload={handleDownload}
+              onDelete={handleDelete}
+              onShare={handleShare}
+              onSort={handleSort}
+            />
+          )}
+        </div>
+
+        {/* Floating Toolbar */}
+        <FloatingToolbar />
       </div>
 
-      {/* Floating Toolbar */}
-      <FloatingToolbar />
+      {/* File Details Panel Sidebar */}
+      {showDetailsPanel && <FileDetailsPanel />}
     </div>
   );
 }
+

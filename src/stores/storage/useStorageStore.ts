@@ -14,6 +14,8 @@ interface StorageStoreProps {
     clearSelection: () => void;
     currentPath: string;
     setCurrentPath: (path: string) => void;
+    showDetailsPanel: boolean;
+    setShowDetailsPanel: (show: boolean) => void;
 }
 
 export const useStorageStore = create<StorageStoreProps>((set, get) => ({
@@ -40,5 +42,7 @@ export const useStorageStore = create<StorageStoreProps>((set, get) => ({
     clearSelection: () => set({ selectedItems: [] }),
     currentPath: '/',
     setCurrentPath: (path: string) => set({ currentPath: path }),
+    showDetailsPanel: false,
+    setShowDetailsPanel: (show: boolean) => set({ showDetailsPanel: show }),
 }));
 
