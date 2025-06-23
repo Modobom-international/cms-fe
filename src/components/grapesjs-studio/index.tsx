@@ -320,7 +320,7 @@ export default function WebBuilderStudio({
         return toast.promise(
           deployPageMutation.mutateAsync({
             site_id: Number(siteId),
-            page_slug: slug,
+            page_slugs: [slug],
           }),
           {
             loading: t("DeployPage"),
@@ -355,7 +355,7 @@ export default function WebBuilderStudio({
           return toast.promise(
             deployPageMutation.mutateAsync({
               site_id: Number(siteId),
-              page_slug: slug,
+              page_slugs: [slug],
             }),
             {
               loading: t("DeployPage"),
