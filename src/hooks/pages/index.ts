@@ -150,7 +150,7 @@ export const useDeployPage = () => {
   return useMutation<
     IUpdatePageResponse,
     Error,
-    { site_id: number; page_slug: string }
+    { site_id: number; page_slugs: string[] }
   >({
     mutationFn: async (data) => {
       const response = await apiClient.post(
