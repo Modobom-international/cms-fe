@@ -73,11 +73,7 @@ export function StorageToolbar({ itemCount = 0 }: StorageToolbarProps) {
         {/* Sort Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-foreground dark:text-muted-foreground dark:hover:text-foreground gap-1"
-            >
+            <Button variant="ghost" size="sm" className="gap-1">
               <Filter className="h-4 w-4" />
               Sort
               <ChevronDown className="h-4 w-4" />

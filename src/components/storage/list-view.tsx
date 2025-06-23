@@ -6,6 +6,7 @@ import { useStorageStore } from "@/stores/storage/useStorageStore";
 import {
   Archive,
   ArrowUpDown,
+  CheckSquare,
   Download,
   Edit2,
   File,
@@ -15,6 +16,7 @@ import {
   MoreHorizontal,
   Music,
   Share2,
+  Square,
   Trash2,
   Video,
 } from "lucide-react";
@@ -67,6 +69,7 @@ export function ListView({
 }: ListViewProps) {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
+  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const { selectedItems, toggleSelection, sortBy, sortOrder } =
     useStorageStore();
 
@@ -85,6 +88,11 @@ export function ListView({
         onFileClick?.(item);
       }
     }
+  };
+
+  const handleCheckboxClick = (itemId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleSelection(itemId, true);
   };
 
   const handleRenameClick = (
@@ -122,21 +130,41 @@ export function ListView({
   };
 
   const getFileIcon = (mimeType: string, size: "sm" | "md" = "sm") => {
-    const iconSize = size === "sm" ? "h-4 w-4" : "h-6 w-6";
+    const iconSize = size === "sm" ? "h-4 w-4" : "h-5 w-5";
 
     if (mimeType === "folder")
-      return <Folder className={cn(iconSize, "text-blue-500")} />;
+      return (
+        <Folder className={cn(iconSize, "text-blue-500 dark:text-blue-400")} />
+      );
     if (mimeType.startsWith("image/"))
-      return <Image className={cn(iconSize, "text-green-500")} />;
+      return (
+        <Image
+          className={cn(iconSize, "text-emerald-500 dark:text-emerald-400")}
+        />
+      );
     if (mimeType.startsWith("video/"))
-      return <Video className={cn(iconSize, "text-red-500")} />;
+      return (
+        <Video className={cn(iconSize, "text-rose-500 dark:text-rose-400")} />
+      );
     if (mimeType.startsWith("audio/"))
-      return <Music className={cn(iconSize, "text-purple-500")} />;
+      return (
+        <Music
+          className={cn(iconSize, "text-violet-500 dark:text-violet-400")}
+        />
+      );
     if (mimeType.includes("pdf"))
-      return <FileText className={cn(iconSize, "text-red-600")} />;
+      return (
+        <FileText className={cn(iconSize, "text-red-500 dark:text-red-400")} />
+      );
     if (mimeType.includes("zip") || mimeType.includes("rar"))
-      return <Archive className={cn(iconSize, "text-orange-500")} />;
-    return <File className={cn(iconSize, "text-gray-500")} />;
+      return (
+        <Archive
+          className={cn(iconSize, "text-amber-500 dark:text-amber-400")}
+        />
+      );
+    return (
+      <File className={cn(iconSize, "text-slate-500 dark:text-slate-400")} />
+    );
   };
 
   const getSortIcon = (column: string) => {
@@ -144,14 +172,14 @@ export function ListView({
       return (
         <ArrowUpDown
           className={cn(
-            "ml-1 h-4 w-4",
+            "ml-1 h-4 w-4 transition-transform",
             sortOrder === "asc" ? "rotate-0" : "rotate-180"
           )}
         />
       );
     }
     return (
-      <ArrowUpDown className="ml-1 h-4 w-4 opacity-0 group-hover:opacity-50" />
+      <ArrowUpDown className="ml-1 h-4 w-4 opacity-0 transition-opacity group-hover:opacity-50" />
     );
   };
 
@@ -160,11 +188,13 @@ export function ListView({
   if (allItems.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <Folder className="mb-4 h-20 w-20 text-gray-300" />
-        <h3 className="mb-2 text-lg font-medium text-gray-900">
+        <div className="bg-muted/30 dark:bg-muted/20 mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+          <Folder className="text-muted-foreground h-8 w-8" />
+        </div>
+        <h3 className="text-foreground mb-2 text-lg font-semibold">
           This folder is empty
         </h3>
-        <p className="text-sm text-gray-500">
+        <p className="text-muted-foreground text-sm">
           Drag and drop files here to upload them
         </p>
       </div>
@@ -172,159 +202,270 @@ export function ListView({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg bg-white">
+    <div className="border-border bg-background mt-2 overflow-hidden rounded-lg border">
       <Table>
         <TableHeader>
-          <TableRow className="hover:bg-transparent">
+          <TableRow className="border-border border-b hover:bg-transparent">
+            {/* Checkbox Column */}
+            <TableHead className="w-[40px] pl-4">
+              <div className="flex items-center justify-center">
+                <div className="h-4 w-4" />
+              </div>
+            </TableHead>
+
+            {/* Name Column */}
             <TableHead className="w-[300px]">
               <Button
                 variant="ghost"
-                className="group h-auto p-0 font-medium text-gray-700 hover:text-gray-900"
+                className="group text-foreground hover:text-foreground/80 h-auto p-0 font-medium transition-colors"
                 onClick={() => onSort?.("name")}
               >
                 Name
                 {getSortIcon("name")}
               </Button>
             </TableHead>
-            <TableHead className="w-[120px]">
+
+            {/* Modified Column */}
+            <TableHead className="w-[140px]">
               <Button
                 variant="ghost"
-                className="group h-auto p-0 font-medium text-gray-700 hover:text-gray-900"
+                className="group text-foreground hover:text-foreground/80 h-auto p-0 font-medium transition-colors"
                 onClick={() => onSort?.("modified")}
               >
                 Modified
                 {getSortIcon("modified")}
               </Button>
             </TableHead>
+
+            {/* File Size Column */}
             <TableHead className="w-[100px]">
               <Button
                 variant="ghost"
-                className="group h-auto p-0 font-medium text-gray-700 hover:text-gray-900"
+                className="group text-foreground hover:text-foreground/80 h-auto p-0 font-medium transition-colors"
                 onClick={() => onSort?.("size")}
               >
-                Size
+                File size
                 {getSortIcon("size")}
               </Button>
             </TableHead>
+
+            {/* Sharing Column */}
             <TableHead className="w-[80px]">Sharing</TableHead>
-            <TableHead className="w-[50px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {allItems.map((item) => (
-            <TableRow
-              key={item.id}
-              className={cn(
-                "cursor-pointer transition-colors hover:bg-gray-50",
-                selectedItems.includes(item.id) && "bg-blue-50"
-              )}
-              onClick={(e) => handleItemClick(item, e)}
-            >
-              <TableCell className="py-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center">
-                    {item.type === "file" && item.thumbnail ? (
-                      <img
-                        src={item.thumbnail}
-                        alt={item.name}
-                        className="h-8 w-8 rounded object-cover"
-                      />
-                    ) : (
-                      getFileIcon(item.mimeType, "md")
-                    )}
-                  </div>
+          {allItems.map((item) => {
+            const isSelected = selectedItems.includes(item.id);
+            const isHovered = hoveredRow === item.id;
 
-                  <div className="min-w-0 flex-1">
-                    {editingItem === item.id ? (
-                      <Input
-                        type="text"
-                        value={editingName}
-                        onChange={(e) => setEditingName(e.target.value)}
-                        onBlur={() => handleRenameSubmit(item.id)}
-                        onKeyDown={(e) => handleRenameKeyDown(e, item.id)}
-                        className="h-8 border-blue-500 text-sm"
-                        autoFocus
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    ) : (
-                      <div>
-                        <p className="truncate text-sm font-medium text-gray-900">
-                          {item.name}
-                        </p>
-                        <p className="truncate text-xs text-gray-500">
-                          {item.owner}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </TableCell>
-
-              <TableCell className="text-sm text-gray-600">
-                {item.modifiedDate}
-              </TableCell>
-
-              <TableCell className="text-sm text-gray-600">
-                {item.type === "folder"
-                  ? `${(item as IFolderItem).itemCount} items`
-                  : formatFileSize(item.size)}
-              </TableCell>
-
-              <TableCell>
-                {item.shared && (
-                  <Badge
-                    variant="secondary"
-                    className="flex h-6 w-6 items-center justify-center p-0"
-                  >
-                    <Share2 className="h-3 w-3" />
-                  </Badge>
+            return (
+              <TableRow
+                key={item.id}
+                className={cn(
+                  "border-border/50 cursor-pointer border-b transition-all duration-200",
+                  "hover:bg-accent/30 dark:hover:bg-accent/20",
+                  isSelected &&
+                    "bg-primary/5 dark:bg-primary/10 border-primary/20"
                 )}
-              </TableCell>
+                onClick={(e) => handleItemClick(item, e)}
+                onMouseEnter={() => setHoveredRow(item.id)}
+                onMouseLeave={() => setHoveredRow(null)}
+              >
+                {/* Checkbox Column */}
+                <TableCell className="pl-4">
+                  <div
+                    className="flex items-center justify-center"
+                    onClick={(e) => handleCheckboxClick(item.id, e)}
+                  >
+                    <div
+                      className={cn(
+                        "flex h-4 w-4 items-center justify-center rounded border transition-all duration-200",
+                        isSelected
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-background hover:border-primary/50",
+                        isHovered || isSelected ? "opacity-100" : "opacity-0"
+                      )}
+                    >
+                      {isSelected ? (
+                        <CheckSquare className="h-3 w-3" />
+                      ) : (
+                        <Square className="text-muted-foreground h-3 w-3" />
+                      )}
+                    </div>
+                  </div>
+                </TableCell>
 
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 hover:bg-gray-100"
-                      onClick={(e) => e.stopPropagation()}
+                {/* Name Column */}
+                <TableCell className="py-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center">
+                      {item.type === "file" && item.thumbnail ? (
+                        <img
+                          src={item.thumbnail}
+                          alt={item.name}
+                          className="h-8 w-8 rounded object-cover"
+                        />
+                      ) : (
+                        getFileIcon(item.mimeType, "md")
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      {editingItem === item.id ? (
+                        <Input
+                          type="text"
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          onBlur={() => handleRenameSubmit(item.id)}
+                          onKeyDown={(e) => handleRenameKeyDown(e, item.id)}
+                          className="border-primary bg-background h-7 px-2 py-1 text-sm font-medium"
+                          autoFocus
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      ) : (
+                        <div className="space-y-0.5">
+                          <div className="flex min-h-[20px] items-center gap-2">
+                            <p className="text-foreground truncate text-sm font-medium">
+                              {item.name}
+                            </p>
+                            {/* Quick Action Buttons - Always reserve space */}
+                            <div className="ml-auto flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className={cn(
+                                  "hover:bg-accent/50 h-6 w-6 p-0 transition-opacity duration-200",
+                                  isHovered || isSelected
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onShare?.(item.id);
+                                }}
+                                title="Share"
+                              >
+                                <Share2 className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className={cn(
+                                  "hover:bg-accent/50 h-6 w-6 p-0 transition-opacity duration-200",
+                                  isHovered || isSelected
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                                onClick={(e) => handleRenameClick(item, e)}
+                                title="Rename"
+                              >
+                                <Edit2 className="h-3 w-3" />
+                              </Button>
+                              {/* More Actions Dropdown */}
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={cn(
+                                      "hover:bg-accent/50 h-6 w-6 p-0 transition-opacity duration-200",
+                                      isHovered || isSelected
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                    onClick={(e) => e.stopPropagation()}
+                                    title="More actions"
+                                  >
+                                    <MoreHorizontal className="h-3 w-3" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent
+                                  align="end"
+                                  className="border-border bg-background w-48 p-1"
+                                >
+                                  {/* Rename (duplicate but accessible) */}
+                                  <DropdownMenuItem
+                                    onClick={(e) => handleRenameClick(item, e)}
+                                    className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer rounded-md px-2 py-2 text-sm transition-colors"
+                                  >
+                                    <Edit2 className="mr-3 h-4 w-4" />
+                                    Rename
+                                  </DropdownMenuItem>
+                                  {item.type === "file" && (
+                                    <DropdownMenuItem
+                                      onClick={() => onDownload?.(item.id)}
+                                      className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer rounded-md px-2 py-2 text-sm transition-colors"
+                                    >
+                                      <Download className="mr-3 h-4 w-4" />
+                                      Download
+                                    </DropdownMenuItem>
+                                  )}
+                                  <DropdownMenuItem
+                                    onClick={() => onShare?.(item.id)}
+                                    className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer rounded-md px-2 py-2 text-sm transition-colors"
+                                  >
+                                    <Share2 className="mr-3 h-4 w-4" />
+                                    Share
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator className="bg-border my-1" />
+                                  <DropdownMenuItem
+                                    onClick={() => onDelete?.(item.id)}
+                                    className="text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive dark:hover:bg-destructive/20 dark:focus:bg-destructive/20 cursor-pointer rounded-md px-2 py-2 text-sm transition-colors"
+                                  >
+                                    <Trash2 className="mr-3 h-4 w-4" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </div>
+                          <div className="min-h-[16px]">
+                            <p className="text-muted-foreground truncate text-xs">
+                              {item.owner}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </TableCell>
+
+                {/* Modified Column */}
+                <TableCell className="text-muted-foreground text-sm">
+                  {item.modifiedDate}
+                </TableCell>
+
+                {/* File Size Column */}
+                <TableCell className="text-muted-foreground text-sm">
+                  {item.type === "folder"
+                    ? `${(item as IFolderItem).itemCount} items`
+                    : formatFileSize(item.size)}
+                </TableCell>
+
+                {/* Sharing Column */}
+                <TableCell>
+                  {item.shared ? (
+                    <Badge
+                      variant="secondary"
+                      className={cn(
+                        "flex h-6 w-6 items-center justify-center p-0 transition-all duration-200",
+                        "bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400"
+                      )}
                     >
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={(e) => handleRenameClick(item, e)}
-                    >
-                      <Edit2 className="mr-2 h-4 w-4" />
-                      Rename
-                    </DropdownMenuItem>
-                    {item.type === "file" && (
-                      <DropdownMenuItem onClick={() => onDownload?.(item.id)}>
-                        <Download className="mr-2 h-4 w-4" />
-                        Download
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem onClick={() => onShare?.(item.id)}>
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => onDelete?.(item.id)}
-                      className="text-red-600 focus:text-red-600"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
+                      <Share2 className="h-3 w-3" />
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground text-xs">
+                      Private
+                    </span>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>
   );
 }
+

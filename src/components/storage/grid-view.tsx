@@ -71,7 +71,7 @@ export function GridView({
 
   if (allItems.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center py-20 text-center">
         <Folder className="mb-4 h-20 w-20 text-gray-300" />
         <h3 className="mb-2 text-lg font-medium text-gray-900">
           This folder is empty

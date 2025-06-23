@@ -135,8 +135,8 @@ export function FileDetailsPanel() {
   // No items selected
   if (selectedItems.length === 0) {
     return (
-      <div className="border-border bg-background dark:bg-background flex h-full w-80 flex-col border-l">
-        <div className="flex flex-1 items-center justify-center p-6">
+      <div className="border-border bg-background flex h-full w-80 flex-col border-l">
+        <div className="flex flex-1 flex-col items-center justify-center p-6">
           <div className="space-y-4 text-center">
             <div className="bg-muted/30 dark:bg-muted/20 mx-auto flex h-16 w-16 items-center justify-center rounded-2xl">
               <MousePointer className="text-muted-foreground h-8 w-8" />
@@ -156,9 +156,9 @@ export function FileDetailsPanel() {
   // Multiple items selected
   if (selectedItems.length > 1) {
     return (
-      <div className="border-border bg-background dark:bg-background flex h-full w-80 flex-col border-l">
-        <div className="p-6 pb-4">
-          <div className="flex flex-col items-center space-y-3 text-center">
+      <div className="border-border bg-background flex h-full w-80 flex-col border-l">
+        <div className="flex flex-1 flex-col px-6 py-8">
+          <div className="mb-6 flex flex-col items-center space-y-3 text-center">
             <div className="bg-muted/30 dark:bg-muted/20 flex h-16 w-16 items-center justify-center rounded-2xl">
               <Files className="text-primary h-10 w-10" />
             </div>
@@ -171,9 +171,7 @@ export function FileDetailsPanel() {
               </p>
             </div>
           </div>
-        </div>
 
-        <div className="flex-1 px-6">
           <div className="space-y-6 pb-6">
             {/* Basic Information for Multiple Items */}
             <div className="space-y-4">
@@ -231,7 +229,7 @@ export function FileDetailsPanel() {
   }
 
   return (
-    <div className="border-border bg-background dark:bg-background flex h-full w-80 flex-col border-l">
+    <div className="border-border bg-background flex h-full w-80 flex-col border-l">
       {/* File Preview Header */}
       <div className="p-6 pb-4">
         <div className="flex flex-col items-center space-y-3 text-center">
@@ -453,3 +451,4 @@ export function FileDetailsPanel() {
     </div>
   );
 }
+

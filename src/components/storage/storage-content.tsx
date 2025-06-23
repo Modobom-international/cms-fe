@@ -114,7 +114,7 @@ export function StorageContent() {
   };
 
   return (
-    <div className="bg-background dark:bg-background flex h-full gap-x-4">
+    <div className="bg-background flex h-full gap-x-4">
       {/* Main Content Area */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Toolbar */}
@@ -129,7 +129,7 @@ export function StorageContent() {
         <StorageBreadcrumb breadcrumbs={mockBreadcrumbs} />
 
         {/* Main Content */}
-        <div className="bg-background dark:bg-background flex-1 overflow-auto">
+        <div className="bg-background flex-1 overflow-auto">
           {isLoading ? (
             <div className="flex items-center justify-center py-20">
               <div className="text-center">
@@ -168,7 +168,7 @@ export function StorageContent() {
       </div>
 
       {/* File Details Panel Sidebar */}
-      {showDetailsPanel && <FileDetailsPanel />}
+      <section>{showDetailsPanel && <FileDetailsPanel />}</section>
     </div>
   );
 }
