@@ -626,7 +626,6 @@
         "Description": "Description",
         "Cloudflare": "Cloudflare",
         "Branch": "Branch",
-        "Status": "Status",
         "Owner": "Owner",
         "CreatedAt": "Created At",
         "UpdatedAt": "Updated At",
@@ -656,7 +655,24 @@
         "RemoveSearchFilter": "Remove search filter",
         "RemoveOwnerFilter": "Remove owner filter",
         "Of": "of",
-        "Results": "results"
+        "Results": "results",
+        "FilterByStatus": "Status",
+        "FilterByStatusTitle": "Filter by Status",
+        "AllStatuses": "All statuses",
+        "RemoveStatusFilter": "Remove status filter",
+        "Status": {
+          "Header": "Status",
+          "Active": "Active",
+          "Inactive": "Inactive"
+        },
+        "Activate": "Activate",
+        "Deactivate": "Deactivate",
+        "Activating": "Activating...",
+        "Deactivating": "Deactivating...",
+        "ActivateSuccess": "Site activated successfully!",
+        "DeactivateSuccess": "Site deactivated successfully!",
+        "ActivateError": "Failed to activate site",
+        "DeactivateError": "Failed to deactivate site"
       },
       "Pages": {
         "Title": "Pages - {siteName}",
@@ -1688,7 +1704,7 @@
       "columns": {
         "uid": "UID",
         "app": "Application",
-        "country": "Country", 
+        "country": "Country",
         "platform": "Platform",
         "network": "Network",
         "behaviors": "Behaviors",
