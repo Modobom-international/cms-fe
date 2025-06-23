@@ -8,6 +8,8 @@ import { toast } from "sonner";
 
 import { IBreadcrumbItem, IFileItem, IFolderItem } from "@/types/storage.type";
 
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { FileDetailsPanel } from "@/components/storage/file-details-panel";
 import { FloatingToolbar } from "@/components/storage/floating-toolbar";
 import { GridView } from "@/components/storage/grid-view";
@@ -129,39 +131,79 @@ export function StorageContent() {
         <StorageBreadcrumb breadcrumbs={mockBreadcrumbs} />
 
         {/* Main Content */}
-        <div className="bg-background flex-1 overflow-auto">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="text-center">
-                <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
-                <p className="text-muted-foreground text-sm">Processing...</p>
-              </div>
+        {showDetailsPanel ? (
+          <ScrollArea className="bg-background h-[calc(100vh-20rem)] pr-1 [&>[data-slot=scroll-area-scrollbar]]:w-1.5">
+            <div className="p-0">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-20">
+                  <div className="text-center">
+                    <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
+                    <p className="text-muted-foreground text-sm">
+                      Processing...
+                    </p>
+                  </div>
+                </div>
+              ) : viewMode === "grid" ? (
+                <GridView
+                  files={filteredAndSortedItems.files}
+                  folders={filteredAndSortedItems.folders}
+                  onFolderClick={handleFolderClick}
+                  onFileClick={handleFileClick}
+                  onRename={handleRename}
+                  onDownload={handleDownload}
+                  onDelete={handleDelete}
+                  onShare={handleShare}
+                />
+              ) : (
+                <ListView
+                  files={filteredAndSortedItems.files}
+                  folders={filteredAndSortedItems.folders}
+                  onFolderClick={handleFolderClick}
+                  onFileClick={handleFileClick}
+                  onRename={handleRename}
+                  onDownload={handleDownload}
+                  onDelete={handleDelete}
+                  onShare={handleShare}
+                  onSort={handleSort}
+                />
+              )}
             </div>
-          ) : viewMode === "grid" ? (
-            <GridView
-              files={filteredAndSortedItems.files}
-              folders={filteredAndSortedItems.folders}
-              onFolderClick={handleFolderClick}
-              onFileClick={handleFileClick}
-              onRename={handleRename}
-              onDownload={handleDownload}
-              onDelete={handleDelete}
-              onShare={handleShare}
-            />
-          ) : (
-            <ListView
-              files={filteredAndSortedItems.files}
-              folders={filteredAndSortedItems.folders}
-              onFolderClick={handleFolderClick}
-              onFileClick={handleFileClick}
-              onRename={handleRename}
-              onDownload={handleDownload}
-              onDelete={handleDelete}
-              onShare={handleShare}
-              onSort={handleSort}
-            />
-          )}
-        </div>
+          </ScrollArea>
+        ) : (
+          <div className="bg-background min-h-[calc(100vh-20rem)] flex-1 overflow-auto">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="text-center">
+                  <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
+                  <p className="text-muted-foreground text-sm">Processing...</p>
+                </div>
+              </div>
+            ) : viewMode === "grid" ? (
+              <GridView
+                files={filteredAndSortedItems.files}
+                folders={filteredAndSortedItems.folders}
+                onFolderClick={handleFolderClick}
+                onFileClick={handleFileClick}
+                onRename={handleRename}
+                onDownload={handleDownload}
+                onDelete={handleDelete}
+                onShare={handleShare}
+              />
+            ) : (
+              <ListView
+                files={filteredAndSortedItems.files}
+                folders={filteredAndSortedItems.folders}
+                onFolderClick={handleFolderClick}
+                onFileClick={handleFileClick}
+                onRename={handleRename}
+                onDownload={handleDownload}
+                onDelete={handleDelete}
+                onShare={handleShare}
+                onSort={handleSort}
+              />
+            )}
+          </div>
+        )}
 
         {/* Floating Toolbar */}
         <FloatingToolbar />

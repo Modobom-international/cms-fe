@@ -2,7 +2,7 @@ import { StorageContent } from "@/components/storage/storage-content";
 
 export default function StoragePage() {
   return (
-    <div className="flex flex-col py-6">
+    <div className="flex flex-col">
       {/* Page Header */}
       <div className="flex flex-col gap-4">
         <div className="flex items-start justify-between">
@@ -24,4 +24,3 @@ export default function StoragePage() {
     </div>
   );
 }
-

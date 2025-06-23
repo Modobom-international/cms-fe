@@ -202,7 +202,7 @@ export function ListView({
   }
 
   return (
-    <div className="border-border bg-background mt-2 overflow-hidden rounded-lg border">
+    <div className="bg-background overflow-hidden rounded-lg">
       <Table>
         <TableHeader>
           <TableRow className="border-border border-b hover:bg-transparent">

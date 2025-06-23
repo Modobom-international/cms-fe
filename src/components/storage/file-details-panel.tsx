@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { sampleFiles, sampleFolders } from "@/data/storage";
 import { useStorageStore } from "@/stores/storage/useStorageStore";
@@ -9,10 +9,8 @@ import {
   Clock,
   Edit,
   Eye,
-  File,
   Files,
   FileText,
-  Folder,
   HardDrive,
   MapPin,
   MousePointer,
@@ -24,7 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -110,26 +108,6 @@ export function FileDetailsPanel() {
       default:
         return "text-muted-foreground";
     }
-  };
-
-  const getFileIcon = (item: any) => {
-    if (item.type === "folder") {
-      return <Folder className="h-10 w-10 text-blue-500 dark:text-blue-400" />;
-    }
-
-    // Different icons based on file type
-    const mimeType = item.mimeType?.toLowerCase() || "";
-    if (mimeType.includes("image")) {
-      return <File className="h-10 w-10 text-green-500 dark:text-green-400" />;
-    } else if (mimeType.includes("pdf")) {
-      return <File className="h-10 w-10 text-red-500 dark:text-red-400" />;
-    } else if (mimeType.includes("document") || mimeType.includes("text")) {
-      return (
-        <FileText className="h-10 w-10 text-blue-600 dark:text-blue-400" />
-      );
-    }
-
-    return <File className="h-10 w-10 text-gray-500 dark:text-gray-400" />;
   };
 
   // No items selected
@@ -233,9 +211,9 @@ export function FileDetailsPanel() {
       {/* File Preview Header */}
       <div className="p-6 pb-4">
         <div className="flex flex-col items-center space-y-3 text-center">
-          <div className="bg-muted/30 dark:bg-muted/20 flex h-16 w-16 items-center justify-center rounded-2xl">
+          {/* <div className="bg-muted/30 dark:bg-muted/20 flex h-16 w-16 items-center justify-center rounded-2xl">
             {getFileIcon(selectedItem)}
-          </div>
+          </div> */}
           <div className="space-y-1">
             <h3 className="text-foreground text-base leading-tight font-semibold">
               {selectedItem.name}
@@ -264,20 +242,23 @@ export function FileDetailsPanel() {
           className="flex flex-1 flex-col"
         >
           <div className="px-6 pb-4">
-            <TabsList className="bg-muted/20 dark:bg-muted/10 grid h-9 w-full grid-cols-2 p-1">
-              <TabsTrigger
-                value="details"
-                className="data-[state=active]:bg-background dark:data-[state=active]:bg-background text-sm font-medium data-[state=active]:shadow-sm"
-              >
-                Details
-              </TabsTrigger>
-              <TabsTrigger
-                value="activity"
-                className="data-[state=active]:bg-background dark:data-[state=active]:bg-background text-sm font-medium data-[state=active]:shadow-sm"
-              >
-                Activity
-              </TabsTrigger>
-            </TabsList>
+            <ScrollArea>
+              <TabsList className="before:bg-border relative mb-3 h-auto w-full gap-0.5 bg-transparent p-0 before:absolute before:inset-x-0 before:bottom-0 before:h-px">
+                <TabsTrigger
+                  value="details"
+                  className="bg-muted overflow-hidden rounded-b-none border-x border-t py-2 data-[state=active]:z-10 data-[state=active]:shadow-none"
+                >
+                  Details
+                </TabsTrigger>
+                <TabsTrigger
+                  value="activity"
+                  className="bg-muted overflow-hidden rounded-b-none border-x border-t py-2 data-[state=active]:z-10 data-[state=active]:shadow-none"
+                >
+                  Activity
+                </TabsTrigger>
+              </TabsList>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
           </div>
 
           <TabsContent value="details" className="mt-0 flex-1 px-6">
@@ -405,7 +386,7 @@ export function FileDetailsPanel() {
             <ScrollArea className="h-full">
               <div className="pb-6">
                 <div className="space-y-4">
-                  {mockActivity.map((activity, index) => {
+                  {mockActivity.map((activity) => {
                     const IconComponent = activity.icon;
                     return (
                       <div
