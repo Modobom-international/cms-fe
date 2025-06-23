@@ -103,7 +103,7 @@ export function StorageCard({
 
   const getFileIcon = (mimeType: string) => {
     if (mimeType === "folder")
-      return <Folder className="h-8 w-8 text-blue-500" />;
+      return <Folder className="text-primary h-8 w-8" />;
     if (mimeType.startsWith("image/"))
       return <Image className="h-8 w-8 text-green-500" />;
     if (mimeType.startsWith("video/"))
@@ -123,7 +123,7 @@ export function StorageCard({
         <div
           className={cn(
             "group relative cursor-pointer rounded-lg p-3 transition-all duration-200 hover:bg-gray-50 hover:shadow-sm",
-            isSelected && "bg-blue-50 ring-2 ring-blue-500"
+            isSelected && "ring-primary ring-2"
           )}
           onClick={handleCardClick}
           onMouseEnter={() => setIsHovered(true)}
@@ -141,9 +141,9 @@ export function StorageCard({
               onSelectionToggle?.(item.id, e);
             }}
           >
-            <div className="flex h-5 w-5 items-center justify-center rounded-sm border border-gray-300 bg-white shadow-sm hover:border-blue-500">
+            <div className="hover:border-primary flex h-5 w-5 items-center justify-center rounded-sm border border-gray-300 bg-white shadow-sm">
               {isSelected ? (
-                <CheckSquare className="h-4 w-4 text-blue-600" />
+                <CheckSquare className="text-primary h-4 w-4" />
               ) : (
                 <Square className="h-4 w-4 text-gray-400" />
               )}
@@ -174,7 +174,7 @@ export function StorageCard({
                 onChange={(e) => onEditNameChange?.(e.target.value)}
                 onBlur={() => onEditSubmit?.(item.id, editingName)}
                 onKeyDown={handleEditKeyDown}
-                className="h-6 border-blue-500 px-1 py-0 text-xs"
+                className="border-primary h-6 px-1 py-0 text-xs"
                 autoFocus
                 onClick={(e) => e.stopPropagation()}
               />

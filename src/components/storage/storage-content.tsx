@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 import { IBreadcrumbItem, IFileItem, IFolderItem } from "@/types/storage.type";
 
-import { FloatingSidebar } from "@/components/storage/floating-sidebar";
+import { FloatingToolbar } from "@/components/storage/floating-toolbar";
 import { GridView } from "@/components/storage/grid-view";
 import { ListView } from "@/components/storage/list-view";
 import { StorageBreadcrumb } from "@/components/storage/storage-breadcrumb";
@@ -129,7 +129,7 @@ export function StorageContent() {
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
-              <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
+              <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2"></div>
               <p className="text-sm text-gray-600">Processing...</p>
             </div>
           </div>
@@ -159,8 +159,8 @@ export function StorageContent() {
         )}
       </div>
 
-      {/* Floating Sidebar */}
-      <FloatingSidebar />
+      {/* Floating Toolbar */}
+      <FloatingToolbar />
     </div>
   );
 }
