@@ -33,6 +33,7 @@ import { ErrorTable } from "@/components/data-table/error-table";
 import { Spinner } from "@/components/global/spinner";
 
 import { FilterBar } from "./filter-bar";
+import { UserSearchDialog } from "./user-search-dialog";
 
 export default function AppInformationDataTable() {
   const t = useTranslations("AppInformationPage.table");
@@ -285,6 +286,11 @@ export default function AppInformationDataTable() {
 
   return (
     <div className="flex flex-col gap-y-6">
+      {/* User Search */}
+      <div className="flex items-center justify-between">
+        <UserSearchDialog />
+      </div>
+
       <FilterBar
         appFilter={appFilter}
         osFilter={osFilter}
@@ -482,3 +488,4 @@ export default function AppInformationDataTable() {
     </div>
   );
 }
+

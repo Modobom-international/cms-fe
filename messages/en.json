@@ -1760,6 +1760,38 @@
         "otp": "OTP",
         "confirm": "Confirm"
       }
+    },
+    "userSearch": {
+      "sectionTitle": "User Analysis",
+      "sectionDescription": "Search and analyze user activity by User ID",
+      "button": "Search User",
+      "title": "User Activity Search",
+      "description": "Enter a User ID to view their app usage and events",
+      "form": {
+        "userId": {
+          "label": "User ID",
+          "placeholder": "Enter User ID to search..."
+        },
+        "search": "Search",
+        "searching": "Searching...",
+        "clear": "Clear"
+      },
+      "results": {
+        "summary": {
+          "title": "User Activity Summary",
+          "userId": "User ID",
+          "totalApps": "Apps Used",
+          "totalEvents": "Total Events"
+        },
+        "events": {
+          "title": "Events",
+          "value": "Value"
+        },
+        "noData": "No activity data found for this user"
+      },
+      "error": {
+        "searchFailed": "Failed to search user data. Please try again."
+      }
     }
   },
   "ErrorTable": {

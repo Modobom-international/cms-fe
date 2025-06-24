@@ -1774,6 +1774,38 @@
         "otp": "OTP",
         "confirm": "Xác nhận"
       }
+    },
+    "userSearch": {
+      "sectionTitle": "Phân tích người dùng",
+      "sectionDescription": "Tìm kiếm và phân tích hoạt động người dùng theo User ID",
+      "button": "Tìm kiếm người dùng",
+      "title": "Tìm kiếm hoạt động người dùng",
+      "description": "Nhập User ID để xem việc sử dụng ứng dụng và các sự kiện của họ",
+      "form": {
+        "userId": {
+          "label": "User ID",
+          "placeholder": "Nhập User ID để tìm kiếm..."
+        },
+        "search": "Tìm kiếm",
+        "searching": "Đang tìm kiếm...",
+        "clear": "Xóa"
+      },
+      "results": {
+        "summary": {
+          "title": "Tóm tắt hoạt động người dùng",
+          "userId": "User ID", 
+          "totalApps": "Ứng dụng đã sử dụng",
+          "totalEvents": "Tổng sự kiện"
+        },
+        "events": {
+          "title": "Sự kiện",
+          "value": "Giá trị"
+        },
+        "noData": "Không tìm thấy dữ liệu hoạt động cho người dùng này"
+      },
+      "error": {
+        "searchFailed": "Không thể tìm kiếm dữ liệu người dùng. Vui lòng thử lại."
+      }
     }
   },
   "ErrorTable": {
