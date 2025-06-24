@@ -657,7 +657,7 @@ export default function PagesPage() {
                           className="cursor-pointer"
                           onClick={() =>
                             window.open(
-                              `${env.NEXT_PUBLIC_BACKEND_URL}/storage/exports/${site?.domain}/${page.slug}/index.html`,
+                              `${env.NEXT_PUBLIC_BACKEND_URL}/storage/exports/${site?.name}/${page.slug}/index.html`,
                               "_blank"
                             )
                           }
