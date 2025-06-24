@@ -2,13 +2,17 @@
 
 import { useState } from "react";
 
-import { PlusCircle, X } from "lucide-react";
+import { format } from "date-fns";
+import { CalendarIcon, PlusCircle, X } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { cn } from "@/lib/utils";
 
 import { useGetAppInformationFilterMenu } from "@/hooks/app-infomation";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover,
@@ -16,6 +20,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+import { DateRangeFilter } from "./date-range-filter";
 
 interface FilterBadgeProps {
   label: string;
@@ -65,6 +71,7 @@ interface FilterBarProps {
   countryFilter: string;
   appVersionFilter: string;
   networkFilter: string;
+  dateFilter: { from: Date | null; to: Date | null };
   onFiltersApply: (filters: {
     app_name: string[];
     os_name: string[];
@@ -75,6 +82,7 @@ interface FilterBarProps {
     country: string[];
     event_name: string[];
     network: string[];
+    date_range: { from: Date | null; to: Date | null };
   }) => void;
   onClearFilter: (filterType: string) => void;
   onClearAllFilters: () => void;
@@ -90,6 +98,7 @@ export function FilterBar({
   countryFilter,
   appVersionFilter,
   networkFilter,
+  dateFilter,
   onFiltersApply,
   onClearFilter,
   onClearAllFilters,
@@ -127,6 +136,19 @@ export function FilterBar({
   const [selectedNetworks, setSelectedNetworks] = useState<string[]>(
     networkFilter ? networkFilter.split(",").filter(Boolean) : []
   );
+
+  // Date range state - default to yesterday and today
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const [dateRange, setDateRange] = useState<{
+    from: Date | null;
+    to: Date | null;
+  }>({
+    from: dateFilter.from || yesterday,
+    to: dateFilter.to || today,
+  });
 
   // Get filter options from API data or fallback to empty arrays
   const filterOptions = filterMenuData?.data?.data || {
@@ -189,7 +211,9 @@ export function FilterBar({
     platformFilter ||
     countryFilter ||
     appVersionFilter ||
-    networkFilter
+    networkFilter ||
+    dateFilter.from ||
+    dateFilter.to
   );
 
   // Apply filters
@@ -204,6 +228,7 @@ export function FilterBar({
       country: selectedCountries,
       event_name: selectedEvents,
       network: selectedNetworks,
+      date_range: dateRange,
     });
   };
 
@@ -273,6 +298,7 @@ export function FilterBar({
     setSelectedCountries([]);
     setSelectedAppVersions([]);
     setSelectedNetworks([]);
+    setDateRange({ from: yesterday, to: today });
     onClearAllFilters();
   };
 
@@ -306,6 +332,9 @@ export function FilterBar({
       case "network":
         setSelectedNetworks([]);
         break;
+      case "date_range":
+        setDateRange({ from: yesterday, to: today });
+        break;
     }
     onClearFilter(filterType);
   };
@@ -327,6 +356,14 @@ export function FilterBar({
       {hasAppliedFilters && (
         <div className="flex items-center gap-3">
           <div className="flex flex-wrap items-center gap-2">
+            {(dateFilter.from || dateFilter.to) && (
+              <FilterBadge
+                label={t("filters.dateRange")}
+                filterValue={`${dateFilter.from ? format(dateFilter.from, "MMM d") : ""} - ${dateFilter.to ? format(dateFilter.to, "MMM d") : ""}`}
+                onClear={() => handleClearFilter("date_range")}
+                t={t}
+              />
+            )}
             {appFilter && (
               <FilterBadge
                 label={t("filters.appName")}
@@ -415,6 +452,14 @@ export function FilterBar({
 
       {/* Filter Tags Row */}
       <div className="flex flex-wrap items-center gap-2">
+        {/* Date Range Filter */}
+        <DateRangeFilter
+          title={t("filters.dateRange")}
+          dateRange={dateRange}
+          onChange={setDateRange}
+          onApply={applyFilters}
+        />
+
         {/* App Filter */}
         <FilterPopover
           title={t("filters.appName")}
@@ -532,8 +577,8 @@ function FilterPopover({
     <div>
       <Popover>
         <PopoverTrigger asChild>
-          <span className="border-border text-muted-foreground hover:bg-muted inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed px-2.5 py-0.5 text-sm font-medium transition-colors">
-            <PlusCircle className="size-3.5" />
+          <span className="border-border text-muted-foreground hover:bg-muted inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed px-2 py-0.5 text-xs font-medium transition-colors">
+            <PlusCircle className="size-3" />
             {title}
           </span>
         </PopoverTrigger>
@@ -585,3 +630,4 @@ function FilterPopover({
     </div>
   );
 }
+

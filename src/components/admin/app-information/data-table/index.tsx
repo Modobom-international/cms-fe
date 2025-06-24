@@ -79,6 +79,20 @@ export default function AppInformationDataTable() {
     "network",
     parseAsString.withDefault("")
   );
+  const [dateFromFilter, setDateFromFilter] = useQueryState(
+    "date_from",
+    parseAsString.withDefault("")
+  );
+  const [dateToFilter, setDateToFilter] = useQueryState(
+    "date_to",
+    parseAsString.withDefault("")
+  );
+
+  // Create date filter object for FilterBar
+  const dateFilter = {
+    from: dateFromFilter ? new Date(dateFromFilter) : null,
+    to: dateToFilter ? new Date(dateToFilter) : null,
+  };
 
   const {
     data: appInformationData,
@@ -144,6 +158,7 @@ export default function AppInformationDataTable() {
     country: string[];
     event_name: string[];
     network: string[];
+    date_range: { from: Date | null; to: Date | null };
   }) => {
     setAppFilter(filters.app_name.join(","));
     setOsFilter(filters.os_name.join(","));
@@ -154,6 +169,16 @@ export default function AppInformationDataTable() {
     setCountryFilter(filters.country.join(","));
     setEventFilter(filters.event_name.join(","));
     setNetworkFilter(filters.network.join(","));
+    setDateFromFilter(
+      filters.date_range.from
+        ? filters.date_range.from.toISOString().split("T")[0]
+        : ""
+    );
+    setDateToFilter(
+      filters.date_range.to
+        ? filters.date_range.to.toISOString().split("T")[0]
+        : ""
+    );
     setCurrentPage(1);
   };
 
@@ -186,6 +211,10 @@ export default function AppInformationDataTable() {
       case "network":
         setNetworkFilter("");
         break;
+      case "date_range":
+        setDateFromFilter("");
+        setDateToFilter("");
+        break;
     }
     setCurrentPage(1);
   };
@@ -200,6 +229,8 @@ export default function AppInformationDataTable() {
     setCountryFilter("");
     setEventFilter("");
     setNetworkFilter("");
+    setDateFromFilter("");
+    setDateToFilter("");
     setCurrentPage(1);
   };
 
@@ -215,6 +246,7 @@ export default function AppInformationDataTable() {
         countryFilter={countryFilter}
         appVersionFilter={appVersionFilter}
         networkFilter={networkFilter}
+        dateFilter={dateFilter}
         onFiltersApply={handleFiltersApply}
         onClearFilter={handleClearFilter}
         onClearAllFilters={handleClearAllFilters}

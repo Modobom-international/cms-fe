@@ -1693,7 +1693,17 @@
         "loadingFilters": "Loading filters...",
         "noFiltersAvailable": "No filters available yet for this category",
         "removeFilter": "Remove {filterType} filter",
-        "selected": "selected"
+        "selected": "selected",
+        "dateRange": "Date Range",
+        "dateRangeLabel": "Filter by date range",
+        "fromDate": "From",
+        "toDate": "To",
+        "selectDate": "Select date",
+        "quickRanges": "Quick ranges",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "last7Days": "Last 7 days",
+        "last30Days": "Last 30 days"
       },
       "placeholders": {
         "search": "Search by UID or behavior...",
