@@ -7,6 +7,7 @@ import { Folder } from "lucide-react";
 
 import { IFileItem, IFolderItem } from "@/types/storage.type";
 
+import { ShareFileDialog } from "./share-file-dialog";
 import { StorageCard } from "./storage-card";
 
 interface GridViewProps {
@@ -32,6 +33,10 @@ export function GridView({
 }: GridViewProps) {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [selectedItemForShare, setSelectedItemForShare] = useState<
+    IFileItem | IFolderItem | null
+  >(null);
   const { selectedItems, toggleSelection } = useStorageStore();
 
   const handleItemClick = (
@@ -65,6 +70,16 @@ export function GridView({
   const handleEditCancel = () => {
     setEditingItem(null);
     setEditingName("");
+  };
+
+  const handleShare = (itemId: string) => {
+    const allItems = [...folders, ...files];
+    const item = allItems.find((item) => item.id === itemId);
+    if (item) {
+      setSelectedItemForShare(item);
+      setShareDialogOpen(true);
+    }
+    onShare?.(itemId);
   };
 
   const allItems = [...folders, ...files];
@@ -101,9 +116,20 @@ export function GridView({
           onRename={onRename}
           onDownload={onDownload}
           onDelete={onDelete}
-          onShare={onShare}
+          onShare={handleShare}
         />
       ))}
+
+      {/* Share Dialog */}
+      {selectedItemForShare && (
+        <ShareFileDialog
+          open={shareDialogOpen}
+          onOpenChange={setShareDialogOpen}
+          fileName={selectedItemForShare.name}
+          fileType={selectedItemForShare.type}
+        />
+      )}
     </div>
   );
 }
+

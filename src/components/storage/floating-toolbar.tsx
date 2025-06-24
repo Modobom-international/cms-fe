@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import { useState } from "react";
 
 import { useStorageStore } from "@/stores/storage/useStorageStore";
 import {
@@ -22,8 +22,11 @@ import {
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 
+import { ShareFileDialog } from "@/components/storage/share-file-dialog";
+
 export function FloatingToolbar() {
   const { selectedItems } = useStorageStore();
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
 
   if (selectedItems.length === 0) {
     return null;
@@ -36,7 +39,11 @@ export function FloatingToolbar() {
         toast.success(`Downloading ${count} item(s)`);
         break;
       case "share":
-        toast.success(`Shared ${count} item(s)`);
+        if (selectedItems.length === 1) {
+          setShareDialogOpen(true);
+        } else {
+          toast.success(`Shared ${count} item(s)`);
+        }
         break;
       case "delete":
         toast.success(`Deleted ${count} item(s)`);
@@ -55,6 +62,11 @@ export function FloatingToolbar() {
         break;
     }
   };
+
+  // Get the first selected item for the share dialog
+  const selectedItem = selectedItems[0]
+    ? { name: "Document.pdf", type: "file" as const }
+    : { name: "", type: "file" as const };
 
   return (
     <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transform">
@@ -164,6 +176,14 @@ export function FloatingToolbar() {
           </PopoverContent>
         </Popover>
       </div>
+
+      {/* Share Dialog */}
+      <ShareFileDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        fileName={selectedItem.name}
+        fileType={selectedItem.type}
+      />
     </div>
   );
 }

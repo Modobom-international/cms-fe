@@ -1,4 +1,4 @@
-import { IFileItem, IFolderItem, IBreadcrumbItem, IStorageStats } from "@/types/storage.type";
+import { IFileItem, IFolderItem } from "@/types/storage.type";
 
 export const sampleFolders: IFolderItem[] = [
     {

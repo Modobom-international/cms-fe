@@ -4,8 +4,6 @@ import * as React from "react";
 
 import dynamic from "next/dynamic";
 
-import { Files, Home, Image, Trash2, Users } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +12,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import CommandMenu from "@/components/layouts/command-menu";
 import { PlatformModeSwitcher } from "@/components/layouts/platform-mode-switcher";
 import {
   storageMainNav,
