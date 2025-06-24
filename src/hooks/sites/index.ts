@@ -139,3 +139,43 @@ export const useDeleteSite = () => {
     },
   });
 };
+
+export const useActivateSite = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (siteId: string) => {
+      const response = await apiClient.patch(`/api/sites/${siteId}/activate`);
+      return {
+        isSuccess: true,
+        data: response.data,
+        message: "Site activated successfully",
+      };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: siteQueryKeys.all(),
+      });
+    },
+  });
+};
+
+export const useDeactivateSite = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (siteId: string) => {
+      const response = await apiClient.patch(`/api/sites/${siteId}/deactivate`);
+      return {
+        isSuccess: true,
+        data: response.data,
+        message: "Site deactivated successfully",
+      };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: siteQueryKeys.all(),
+      });
+    },
+  });
+};

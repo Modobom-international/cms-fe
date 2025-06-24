@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 
 import { LANGUAGES } from "@/constants/languages";
+import { SiteStatusEnum } from "@/enums/site-status";
 import { PlusCircle, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
@@ -12,10 +13,16 @@ import { toast } from "sonner";
 
 import { Site } from "@/types/site.type";
 
-import { useDeleteSite, useGetSites } from "@/hooks/sites";
+import {
+  useActivateSite,
+  useDeactivateSite,
+  useDeleteSite,
+  useGetSites,
+} from "@/hooks/sites";
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Badge } from "@/components/ui/badge";
+import { SiteStatusBadge } from "@/components/ui/badge/site-status-badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -59,9 +66,10 @@ const paginateData = (
   currentPage: number,
   pageSize: number,
   searchTerm: string,
-  selectedUser: string
+  selectedUser: string,
+  selectedStatus: string
 ) => {
-  // First, filter the data based on search term and selected user
+  // First, filter the data based on search term, selected user and status
   const filteredData = data.filter((item) => {
     const matchesSearch = searchTerm
       ? item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -73,7 +81,12 @@ const paginateData = (
         ? item.user.email === selectedUser
         : true;
 
-    return matchesSearch && matchesUser;
+    const matchesStatus =
+      selectedStatus && selectedStatus !== "all"
+        ? item.status.toLowerCase() === selectedStatus.toLowerCase()
+        : true;
+
+    return matchesSearch && matchesUser && matchesStatus;
   });
 
   // Calculate pagination values
@@ -128,6 +141,8 @@ export default function SitesDataTable() {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [ownerSearchTerm, setOwnerSearchTerm] = useState("");
   const [isOwnerPopoverOpen, setIsOwnerPopoverOpen] = useState(false);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [isStatusPopoverOpen, setIsStatusPopoverOpen] = useState(false);
 
   const debouncedSearch = useDebounce(search, 500);
 
@@ -135,6 +150,10 @@ export default function SitesDataTable() {
 
   const [selectedUser, setSelectedUser] = useQueryState(
     "user",
+    parseAsString.withDefault("all")
+  );
+  const [selectedStatus, setSelectedStatus] = useQueryState(
+    "status",
     parseAsString.withDefault("all")
   );
 
@@ -149,6 +168,12 @@ export default function SitesDataTable() {
       new Map(users.map((user) => [user.email, user])).values()
     ) as UserFilter[];
   }, [sitesResponse?.data]);
+
+  // Status filter options
+  const statusOptions = [
+    { value: SiteStatusEnum.ACTIVE, label: t("Table.Status.Active") },
+    { value: SiteStatusEnum.INACTIVE, label: t("Table.Status.Inactive") },
+  ];
 
   // Filter users based on search term
   const filteredUsers = useMemo(() => {
@@ -170,7 +195,8 @@ export default function SitesDataTable() {
       currentPage,
       pageSize,
       debouncedSearch,
-      selectedUser
+      selectedUser,
+      selectedStatus
     );
   }, [
     sitesResponse?.data,
@@ -178,9 +204,12 @@ export default function SitesDataTable() {
     pageSize,
     debouncedSearch,
     selectedUser,
+    selectedStatus,
   ]);
 
   const deleteSiteMutation = useDeleteSite();
+  const activateSiteMutation = useActivateSite();
+  const deactivateSiteMutation = useDeactivateSite();
 
   const handleDeleteClick = (siteId: string, siteName: string) => {
     setDeleteDialog({
@@ -207,6 +236,30 @@ export default function SitesDataTable() {
     }
   };
 
+  const handleActivateSite = async (siteId: string) => {
+    try {
+      await toast.promise(activateSiteMutation.mutateAsync(siteId), {
+        loading: t("Table.Activating"),
+        success: t("Table.ActivateSuccess"),
+        error: t("Table.ActivateError"),
+      });
+    } catch (err) {
+      console.error("Error activating site:", err);
+    }
+  };
+
+  const handleDeactivateSite = async (siteId: string) => {
+    try {
+      await toast.promise(deactivateSiteMutation.mutateAsync(siteId), {
+        loading: t("Table.Deactivating"),
+        success: t("Table.DeactivateSuccess"),
+        error: t("Table.DeactivateError"),
+      });
+    } catch (err) {
+      console.error("Error deactivating site:", err);
+    }
+  };
+
   // Handle pagination
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(sitesData.meta.last_page, prev + 1));
@@ -228,8 +281,12 @@ export default function SitesDataTable() {
   const applyFilters = () => {
     setSearch(localSearch);
     setSelectedUser(selectedUsers.length > 0 ? selectedUsers[0] : "all");
+    setSelectedStatus(
+      selectedStatuses.length > 0 ? selectedStatuses[0] : "all"
+    );
     setCurrentPage(1);
     setIsOwnerPopoverOpen(false); // Close the popover after applying filters
+    setIsStatusPopoverOpen(false);
   };
 
   // Clear all filters
@@ -238,9 +295,12 @@ export default function SitesDataTable() {
     setSearch("");
     setSelectedUsers([]);
     setSelectedUser("all");
+    setSelectedStatuses([]);
+    setSelectedStatus("all");
     setOwnerSearchTerm("");
     setCurrentPage(1);
     setIsOwnerPopoverOpen(false);
+    setIsStatusPopoverOpen(false);
   };
 
   // Remove specific filter
@@ -250,9 +310,19 @@ export default function SitesDataTable() {
     setCurrentPage(1);
   };
 
+  const removeStatusFilter = () => {
+    setSelectedStatuses([]);
+    setSelectedStatus("all");
+    setCurrentPage(1);
+  };
+
   // Handle user filter changes
   const handleUserChange = (userEmail: string, checked: boolean) => {
     setSelectedUsers(checked ? [userEmail] : []);
+  };
+
+  const handleStatusChange = (statusValue: string, checked: boolean) => {
+    setSelectedStatuses(checked ? [statusValue] : []);
   };
 
   const isDataEmpty = !sitesData?.data || sitesData.data.length === 0;
@@ -283,7 +353,7 @@ export default function SitesDataTable() {
         </div>
 
         {/* Applied Filters Display */}
-        {(selectedUser !== "all" || search) && (
+        {(selectedUser !== "all" || selectedStatus !== "all" || search) && (
           <div className="flex items-center gap-3">
             <div className="flex flex-wrap items-center gap-2">
               {search && (
@@ -333,6 +403,31 @@ export default function SitesDataTable() {
                     <X className="h-2.5 w-2.5" />
                     <span className="sr-only">
                       {t("Table.RemoveOwnerFilter")}
+                    </span>
+                  </Button>
+                </Badge>
+              )}
+              {selectedStatus !== "all" && (
+                <Badge
+                  variant="secondary"
+                  className="gap-1.5 border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-medium text-purple-700 transition-colors hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-950 dark:text-purple-300 dark:hover:bg-purple-900"
+                >
+                  <span className="font-medium text-purple-600 dark:text-purple-400">
+                    {t("Table.FilterByStatus")}:
+                  </span>
+                  <span className="max-w-32 truncate">
+                    {statusOptions.find((s) => s.value === selectedStatus)
+                      ?.label || selectedStatus}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-4 w-4 rounded-full p-0 text-purple-500 transition-colors hover:bg-purple-100 hover:text-purple-700 dark:text-purple-400 dark:hover:bg-purple-800 dark:hover:text-purple-300"
+                    onClick={removeStatusFilter}
+                  >
+                    <X className="h-2.5 w-2.5" />
+                    <span className="sr-only">
+                      {t("Table.RemoveStatusFilter")}
                     </span>
                   </Button>
                 </Badge>
@@ -427,6 +522,67 @@ export default function SitesDataTable() {
               </PopoverContent>
             </Popover>
           </div>
+
+          {/* Status Filter */}
+          <div>
+            <Popover
+              open={isStatusPopoverOpen}
+              onOpenChange={setIsStatusPopoverOpen}
+            >
+              <PopoverTrigger asChild>
+                <span className="border-border text-muted-foreground hover:bg-muted hover:text-foreground inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed px-2.5 py-0.5 text-sm font-medium transition-colors">
+                  <PlusCircle className="size-3.5" />
+                  {t("Table.FilterByStatus")}
+                </span>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-0" align="start" sideOffset={4}>
+                <div className="flex max-h-96 flex-col">
+                  <div className="px-3 pt-3 pb-2">
+                    <h3 className="text-foreground mb-2 text-sm font-medium">
+                      {t("Table.FilterByStatusTitle")}
+                    </h3>
+                  </div>
+                  <ScrollArea className="h-60">
+                    <div className="px-3 pb-2">
+                      <div className="space-y-2">
+                        {statusOptions.map((status) => (
+                          <div
+                            key={status.value}
+                            className="flex items-start space-x-2 py-1"
+                          >
+                            <Checkbox
+                              id={status.value}
+                              checked={selectedStatuses.includes(status.value)}
+                              onCheckedChange={(checked) =>
+                                handleStatusChange(
+                                  status.value,
+                                  checked === true
+                                )
+                              }
+                              className="mt-0.5"
+                            />
+                            <label
+                              htmlFor={status.value}
+                              className="text-foreground min-w-0 flex-1 cursor-pointer text-sm"
+                            >
+                              <span className="truncate font-medium">
+                                {status.label}
+                              </span>
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </ScrollArea>
+                  <div className="border-border mt-auto border-t p-3">
+                    <Button onClick={applyFilters} className="w-full" size="sm">
+                      {t("Table.ApplyFilter")}
+                    </Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </div>
 
@@ -454,7 +610,7 @@ export default function SitesDataTable() {
                       {t("Table.Language")}
                     </TableHead>
                     <TableHead className="text-foreground w-[150px] py-3 font-medium">
-                      {t("Table.Status")}
+                      {t("Table.Status.Header")}
                     </TableHead>
                     <TableHead className="text-foreground w-[200px] py-3 font-medium">
                       {t("Table.Owner")}
@@ -486,8 +642,8 @@ export default function SitesDataTable() {
                           (language) => language.code === site.language
                         )?.name || "-"}
                       </TableCell>
-                      <TableCell className="text-foreground py-3 text-sm">
-                        <span className="capitalize">{site.status}</span>
+                      <TableCell className="py-3">
+                        <SiteStatusBadge status={site.status} />
                       </TableCell>
                       <TableCell className="text-foreground py-3 text-sm">
                         <div className="flex flex-col">
@@ -525,6 +681,32 @@ export default function SitesDataTable() {
                           >
                             {t("Table.Language")}
                           </Button>
+                          {site.status.toLowerCase() ===
+                          SiteStatusEnum.ACTIVE ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDeactivateSite(site.id)}
+                              disabled={deactivateSiteMutation.isPending}
+                              className="h-7 px-2 text-xs"
+                            >
+                              {deactivateSiteMutation.isPending
+                                ? t("Table.Deactivating")
+                                : t("Table.Deactivate")}
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleActivateSite(site.id)}
+                              disabled={activateSiteMutation.isPending}
+                              className="h-7 px-2 text-xs"
+                            >
+                              {activateSiteMutation.isPending
+                                ? t("Table.Activating")
+                                : t("Table.Activate")}
+                            </Button>
+                          )}
                           <Button
                             variant="destructive"
                             size="sm"
@@ -628,4 +810,3 @@ export default function SitesDataTable() {
     </div>
   );
 }
-
