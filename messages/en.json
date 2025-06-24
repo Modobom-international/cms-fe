@@ -679,6 +679,9 @@
         "Breadcrumb": "Manage Sites",
         "Description": "Create and manage pages for your website",
         "BackToSites": "Back to Sites",
+        "Preview": "Preview",
+        "PreviewExported": "Preview Exported",
+        "PreviewExportedDescription": "Make sure the page has been exported to the server",
         "List": {
           "Title": "Pages List",
           "Description": "Manage and view all pages of the website",

@@ -15,6 +15,8 @@ Add a button to preview pages that have been exported to the server, using the U
 [X] Implement preview button in pages table with correct URL construction
 [X] Position button appropriately between Edit and Tracking Script buttons
 [X] Update to use NEXT_PUBLIC_BACKEND_URL environment variable instead of hardcoded URL
+[X] Replace window.open with preview dialog for better UX
+[X] Organize dialogs into separate components for better maintainability
 
 ## Implementation Details
 
@@ -28,13 +30,31 @@ Add a button to preview pages that have been exported to the server, using the U
 1. `messages/en.json` - Added `"PreviewExported": "Preview Exported"`
 2. `messages/vi.json` - Added `"PreviewExported": "Xem trước đã xuất"`
 3. `src/app/(platform)/studio/sites/[siteId]/pages/page.tsx` - Added preview button in table actions
+4. `src/components/admin/pages/dialogs/create-page-dialog.tsx` - Extracted CreatePageDialog component
+5. `src/components/admin/pages/dialogs/delete-page-dialog.tsx` - Extracted DeletePageDialog component
+6. `src/components/admin/pages/dialogs/tracking-script-dialog.tsx` - Extracted TrackingScriptDialog component
+7. `src/components/admin/pages/dialogs/preview-page-dialog.tsx` - Extracted PreviewPageDialog component
+8. `src/components/admin/pages/dialogs/index.ts` - Central export file for all dialog components
 
 ### Button Characteristics
 - Variant: `secondary` (distinguishes from other action buttons)
-- Opens in new tab/window (`_blank`)
-- Uses site domain and page slug to construct URL
+- Opens in modal dialog instead of new tab for better UX
+- Uses site name and page slug to construct URL
 - Positioned logically in action flow (Edit → Preview → Tracking Script → Delete → View)
+
+### Preview Dialog Features
+- Full-screen modal (95% viewport width/height)
+- Iframe for displaying exported page content
+- Error handling for failed preview loads
+- Responsive design with proper padding and borders
+- Close button in header for easy dismissal
+
+### Code Organization
+- **Separated Dialogs**: All dialog components moved to dedicated files for better maintainability
+- **Clean Imports**: Main page file now imports dialog components from centralized location
+- **Reduced Bundle Size**: Individual dialog components can be loaded independently
+- **Improved Reusability**: Dialog components can now be easily reused in other parts of the application
 
 ## Task Status: ✅ COMPLETED
 
-The preview button has been successfully implemented and will be available for all pages in the site management interface. The button constructs the preview URL using the site domain and page slug, opening the exported page in a new tab.
+The preview button has been successfully implemented and will be available for all pages in the site management interface. All dialog components have been properly organized into separate files for better code maintainability and reusability. The architecture now follows best practices with clean separation of concerns.
