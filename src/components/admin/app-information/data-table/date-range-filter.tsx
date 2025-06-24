@@ -117,7 +117,6 @@ export function DateRangeFilter({
                           disabled={(date: Date) =>
                             date > new Date() || date < new Date("1900-01-01")
                           }
-                          initialFocus
                         />
                       </PopoverContent>
                     </Popover>
@@ -157,7 +156,6 @@ export function DateRangeFilter({
                             date < new Date("1900-01-01") ||
                             (dateRange.from ? date < dateRange.from : false)
                           }
-                          initialFocus
                         />
                       </PopoverContent>
                     </Popover>

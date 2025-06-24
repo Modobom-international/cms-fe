@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback, useMemo } from "react";
+
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
@@ -88,11 +90,13 @@ export default function AppInformationDataTable() {
     parseAsString.withDefault("")
   );
 
-  // Create date filter object for FilterBar
-  const dateFilter = {
-    from: dateFromFilter ? new Date(dateFromFilter) : null,
-    to: dateToFilter ? new Date(dateToFilter) : null,
-  };
+  const dateFilter = useMemo(
+    () => ({
+      from: dateFromFilter ? new Date(dateFromFilter) : null,
+      to: dateToFilter ? new Date(dateToFilter) : null,
+    }),
+    [dateFromFilter, dateToFilter]
+  );
 
   const {
     data: appInformationData,
@@ -122,21 +126,21 @@ export default function AppInformationDataTable() {
     network: networkFilter
       ? networkFilter.split(",").filter(Boolean)
       : undefined,
+    from: dateFromFilter || undefined,
+    to: dateToFilter || undefined,
   });
 
   const appInformationList: IAppInformation[] =
-    appInformationData?.data?.data ?? [];
+    (appInformationData?.data as any)?.list?.data ?? [];
 
-  const paginationInfo =
-    appInformationData?.data ??
-    ({
-      from: 0,
-      to: 0,
-      total: 0,
-      last_page: 1,
-      current_page: 1,
-      per_page: pageSize,
-    } as any);
+  const paginationInfo = (appInformationData?.data as any)?.list ?? {
+    from: 0,
+    to: 0,
+    total: 0,
+    last_page: 1,
+    current_page: 1,
+    per_page: pageSize,
+  };
 
   const isDataEmpty = appInformationList.length === 0;
 
@@ -148,78 +152,110 @@ export default function AppInformationDataTable() {
     setCurrentPage((prev) => Math.max(1, prev - 1));
   };
 
-  const handleFiltersApply = (filters: {
-    app_name: string[];
-    os_name: string[];
-    os_version: string[];
-    app_version: string[];
-    category: string[];
-    platform: string[];
-    country: string[];
-    event_name: string[];
-    network: string[];
-    date_range: { from: Date | null; to: Date | null };
-  }) => {
-    setAppFilter(filters.app_name.join(","));
-    setOsFilter(filters.os_name.join(","));
-    setOsVersionFilter(filters.os_version.join(","));
-    setAppVersionFilter(filters.app_version.join(","));
-    setCategoryFilter(filters.category.join(","));
-    setPlatformFilter(filters.platform.join(","));
-    setCountryFilter(filters.country.join(","));
-    setEventFilter(filters.event_name.join(","));
-    setNetworkFilter(filters.network.join(","));
-    setDateFromFilter(
-      filters.date_range.from
-        ? filters.date_range.from.toISOString().split("T")[0]
-        : ""
-    );
-    setDateToFilter(
-      filters.date_range.to
-        ? filters.date_range.to.toISOString().split("T")[0]
-        : ""
-    );
-    setCurrentPage(1);
-  };
+  const handleFiltersApply = useCallback(
+    (filters: {
+      app_name: string[];
+      os_name: string[];
+      os_version: string[];
+      app_version: string[];
+      category: string[];
+      platform: string[];
+      country: string[];
+      event_name: string[];
+      network: string[];
+      date_range: { from: Date | null; to: Date | null };
+    }) => {
+      setAppFilter(filters.app_name.join(","));
+      setOsFilter(filters.os_name.join(","));
+      setOsVersionFilter(filters.os_version.join(","));
+      setAppVersionFilter(filters.app_version.join(","));
+      setCategoryFilter(filters.category.join(","));
+      setPlatformFilter(filters.platform.join(","));
+      setCountryFilter(filters.country.join(","));
+      setEventFilter(filters.event_name.join(","));
+      setNetworkFilter(filters.network.join(","));
+      setDateFromFilter(
+        filters.date_range.from
+          ? filters.date_range.from.toISOString().split("T")[0]
+          : ""
+      );
+      setDateToFilter(
+        filters.date_range.to
+          ? filters.date_range.to.toISOString().split("T")[0]
+          : ""
+      );
+      setCurrentPage(1);
+    },
+    [
+      setAppFilter,
+      setOsFilter,
+      setOsVersionFilter,
+      setAppVersionFilter,
+      setCategoryFilter,
+      setPlatformFilter,
+      setCountryFilter,
+      setEventFilter,
+      setNetworkFilter,
+      setDateFromFilter,
+      setDateToFilter,
+      setCurrentPage,
+    ]
+  );
 
-  const handleClearFilter = (filterType: string) => {
-    switch (filterType) {
-      case "app_name":
-        setAppFilter("");
-        break;
-      case "os_name":
-        setOsFilter("");
-        break;
-      case "os_version":
-        setOsVersionFilter("");
-        break;
-      case "app_version":
-        setAppVersionFilter("");
-        break;
-      case "category":
-        setCategoryFilter("");
-        break;
-      case "platform":
-        setPlatformFilter("");
-        break;
-      case "country":
-        setCountryFilter("");
-        break;
-      case "event_name":
-        setEventFilter("");
-        break;
-      case "network":
-        setNetworkFilter("");
-        break;
-      case "date_range":
-        setDateFromFilter("");
-        setDateToFilter("");
-        break;
-    }
-    setCurrentPage(1);
-  };
+  const handleClearFilter = useCallback(
+    (filterType: string) => {
+      switch (filterType) {
+        case "app_name":
+          setAppFilter("");
+          break;
+        case "os_name":
+          setOsFilter("");
+          break;
+        case "os_version":
+          setOsVersionFilter("");
+          break;
+        case "app_version":
+          setAppVersionFilter("");
+          break;
+        case "category":
+          setCategoryFilter("");
+          break;
+        case "platform":
+          setPlatformFilter("");
+          break;
+        case "country":
+          setCountryFilter("");
+          break;
+        case "event_name":
+          setEventFilter("");
+          break;
+        case "network":
+          setNetworkFilter("");
+          break;
+        case "date_range":
+          setDateFromFilter("");
+          setDateToFilter("");
+          break;
+      }
+      setCurrentPage(1);
+    },
+    [
+      setAppFilter,
+      setOsFilter,
+      setOsVersionFilter,
+      setAppVersionFilter,
+      setCategoryFilter,
+      setPlatformFilter,
+      setCountryFilter,
+      setEventFilter,
+      setNetworkFilter,
+      setDateFromFilter,
+      setDateToFilter,
+      setCurrentPage,
+    ]
+  );
 
-  const handleClearAllFilters = () => {
+  const handleClearAllFilters = useCallback(() => {
     setAppFilter("");
     setOsFilter("");
     setOsVersionFilter("");
@@ -232,7 +268,20 @@ export default function AppInformationDataTable() {
     setDateFromFilter("");
     setDateToFilter("");
     setCurrentPage(1);
-  };
+  }, [
+    setAppFilter,
+    setOsFilter,
+    setOsVersionFilter,
+    setAppVersionFilter,
+    setCategoryFilter,
+    setPlatformFilter,
+    setCountryFilter,
+    setEventFilter,
+    setNetworkFilter,
+    setDateFromFilter,
+    setDateToFilter,
+    setCurrentPage,
+  ]);
 
   return (
     <div className="flex flex-col gap-y-6">

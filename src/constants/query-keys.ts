@@ -42,10 +42,10 @@ export const domainQueryKeys = {
       registrar_created_at?: string;
     }
   ) => [
-      ...domainQueryKeys.origin,
-      "list",
-      { page, pageSize, search, ...filters },
-    ],
+    ...domainQueryKeys.origin,
+    "list",
+    { page, pageSize, search, ...filters },
+  ],
   available: (page: number, pageSize: number, search: string) => [
     ...domainQueryKeys.origin,
     "list",
@@ -195,11 +195,29 @@ export const appInformationQueryKeys = {
     platform?: string | string[],
     country?: string | string[],
     event_name?: string | string[],
-    network?: string | string[]
-  ) => [
-    ...appInformationQueryKeys.origin,
-    "list",
-    { page, pageSize, app_name, os_name, os_version, app_version, category, platform, country, event_name, network },
-  ] as const,
+    network?: string | string[],
+    from?: string,
+    to?: string
+  ) =>
+    [
+      ...appInformationQueryKeys.origin,
+      "list",
+      {
+        page,
+        pageSize,
+        app_name,
+        os_name,
+        os_version,
+        app_version,
+        category,
+        platform,
+        country,
+        event_name,
+        network,
+        from,
+        to,
+      },
+    ] as const,
   filterMenu: () => [...appInformationQueryKeys.origin, "filter-menu"] as const,
 };
+

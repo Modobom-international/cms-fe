@@ -3,16 +3,13 @@
 import { useState } from "react";
 
 import { format } from "date-fns";
-import { CalendarIcon, PlusCircle, X } from "lucide-react";
+import { PlusCircle, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-import { cn } from "@/lib/utils";
 
 import { useGetAppInformationFilterMenu } from "@/hooks/app-infomation";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover,
@@ -21,7 +18,7 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { DateRangeFilter } from "./date-range-filter";
+import { DateRangeFilter } from "@/components/admin/app-information/data-table/date-range-filter";
 
 interface FilterBadgeProps {
   label: string;
@@ -630,4 +627,3 @@ function FilterPopover({
     </div>
   );
 }
-
