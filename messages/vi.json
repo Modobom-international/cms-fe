@@ -680,6 +680,9 @@
         "Breadcrumb": "Quản lý Trang",
         "Description": "Tạo và quản lý các trang cho trang web của bạn",
         "BackToSites": "Quay lại Sites",
+        "Preview": "Xem trước",
+        "PreviewExported": "Xem trước",
+        "PreviewExportedDescription": "Hãy đảm bảo trang đã được xuất ra server",
         "List": {
           "Title": "Danh sách trang",
           "Description": "Quản lý và xem tất cả các trang của trang web",
