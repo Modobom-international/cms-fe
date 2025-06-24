@@ -1674,7 +1674,6 @@
         "nation": "Country",
         "platform": "Platform",
         "network": "Network",
-        "dateRange": "Date Range",
         "appName": "App Name",
         "appVersion": "App Version",
         "osName": "OS Name",
