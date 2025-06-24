@@ -580,7 +580,8 @@
           "Name": {
             "Required": "Site name is required",
             "MinLength": "Site name must be at least 3 characters",
-            "MaxLength": "Site name cannot exceed 64 characters"
+            "MaxLength": "Site name cannot exceed 64 characters",
+            "InvalidCharacters": "Site name can only contain letters, numbers, spaces, hyphens and underscores"
           },
           "Domain": {
             "Required": "Domain is required",

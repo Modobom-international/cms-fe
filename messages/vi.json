@@ -580,7 +580,8 @@
           "Name": {
             "Required": "Tên trang web là bắt buộc",
             "MinLength": "Tên trang web phải có ít nhất 3 ký tự",
-            "MaxLength": "Tên trang web không được vượt quá 64 ký tự"
+            "MaxLength": "Tên trang web không được vượt quá 64 ký tự",
+            "InvalidCharacters": "Tên trang web chỉ được chứa chữ cái, số, khoảng trắng, dấu gạch ngang và dấu gạch dưới"
           },
           "Domain": {
             "Required": "Tên miền là bắt buộc",
