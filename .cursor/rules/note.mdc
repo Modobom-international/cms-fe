@@ -3,3 +3,38 @@ description: Use for AI to write note and task and lesson
 globs: 
 alwaysApply: false
 ---
+# Current Task: Add Preview Button for Exported Pages
+
+## Task Summary
+Add a button to preview pages that have been exported to the server, using the URL pattern:
+`https://api.modobomco.com/storage/exports/{site_domain}/{page_slug}/index.html`
+
+## Progress
+[X] Analyze current page management UI structure
+[X] Add translation keys for preview button in both English and Vietnamese
+[X] Implement preview button in pages table with correct URL construction
+[X] Position button appropriately between Edit and Tracking Script buttons
+[X] Update to use NEXT_PUBLIC_BACKEND_URL environment variable instead of hardcoded URL
+
+## Implementation Details
+
+### URL Pattern
+- Base URL: `${env.NEXT_PUBLIC_BACKEND_URL}/storage/exports/`
+- Format: `{site_domain}/{page_slug}/index.html`
+- Example: `https://api.modobomco.com/storage/exports/apkmotecom/blue-lock/index.html`
+- Uses environment variable for flexibility across different environments
+
+### Files Modified
+1. `messages/en.json` - Added `"PreviewExported": "Preview Exported"`
+2. `messages/vi.json` - Added `"PreviewExported": "Xem trước đã xuất"`
+3. `src/app/(platform)/studio/sites/[siteId]/pages/page.tsx` - Added preview button in table actions
+
+### Button Characteristics
+- Variant: `secondary` (distinguishes from other action buttons)
+- Opens in new tab/window (`_blank`)
+- Uses site domain and page slug to construct URL
+- Positioned logically in action flow (Edit → Preview → Tracking Script → Delete → View)
+
+## Task Status: ✅ COMPLETED
+
+The preview button has been successfully implemented and will be available for all pages in the site management interface. The button constructs the preview URL using the site domain and page slug, opening the exported page in a new tab.

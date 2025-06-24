@@ -644,7 +644,6 @@
         "Description": "Mô tả",
         "Cloudflare": "Cloudflare",
         "Branch": "Nhánh",
-        "Status": "Trạng thái",
         "Owner": "Chủ sở hữu",
         "FilterByOwner": "Chủ sở hữu",
         "AllOwners": "Tất cả chủ sở hữu",
@@ -657,7 +656,24 @@
         "RemoveSearchFilter": "Xóa bộ lọc tìm kiếm",
         "RemoveOwnerFilter": "Xóa bộ lọc chủ sở hữu",
         "Of": "của",
-        "Results": "kết quả"
+        "Results": "kết quả",
+        "FilterByStatus": "Trạng thái",
+        "FilterByStatusTitle": "Lọc theo trạng thái",
+        "AllStatuses": "Tất cả trạng thái",
+        "RemoveStatusFilter": "Xóa bộ lọc trạng thái",
+        "Status": {
+          "Header": "Trạng thái",
+          "Active": "Hoạt động",
+          "Inactive": "Không hoạt động"
+        },
+        "Activate": "Kích hoạt",
+        "Deactivate": "Tắt",
+        "Activating": "Đang kích hoạt...",
+        "Deactivating": "Đang tắt...",
+        "ActivateSuccess": "Kích hoạt trang web thành công!",
+        "DeactivateSuccess": "Tắt trang web thành công!",
+        "ActivateError": "Không thể kích hoạt trang web",
+        "DeactivateError": "Không thể tắt trang web"
       },
       "Pages": {
         "Title": "Trang - {siteName}",
@@ -677,6 +693,7 @@
             "Actions": "Thao tác",
             "Edit": "Sửa",
             "Preview": "Xem trước",
+            "PreviewExported": "Xem trước",
             "Delete": "Xóa",
             "View": "Xem",
             "TrackingScript": "Mã theo dõi"
@@ -1703,12 +1720,13 @@
         "uid": "UID",
         "app": "Ứng dụng",
         "country": "Quốc gia",
-        "platform": "Nền tảng", 
+        "platform": "Nền tảng",
         "network": "Mạng",
         "behaviors": "Hành vi",
         "timestamp": "Thời gian",
         "actions": "Thao tác",
         "requestId": "ID Yêu cầu",
+        "userId": "ID Người dùng",
         "appName": "Tên Ứng dụng",
         "appVersion": "Phiên bản Ứng dụng",
         "osName": "Tên Hệ điều hành",
@@ -1748,5 +1766,10 @@
         "confirm": "Xác nhận"
       }
     }
+  },
+  "ErrorTable": {
+    "title": "Ôi! Đã có lỗi xảy ra",
+    "description": "Hiện không thể hiển thị nội dung. Vui lòng thử lại sau.",
+    "retry": "Thử lại"
   }
 }

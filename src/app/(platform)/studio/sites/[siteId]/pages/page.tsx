@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
+import { env } from "@/env";
 import Editor from "@monaco-editor/react";
 import { ChevronRight, Home, PlusIcon, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -649,6 +650,19 @@ export default function PagesPage() {
                           }
                         >
                           {t("List.Table.Edit")}
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="cursor-pointer"
+                          onClick={() =>
+                            window.open(
+                              `${env.NEXT_PUBLIC_BACKEND_URL}/storage/exports/${site?.name}/${page.slug}/index.html`,
+                              "_blank"
+                            )
+                          }
+                        >
+                          {t("List.Table.PreviewExported")}
                         </Button>
                         <TrackingScriptDialog
                           pageId={page.id}

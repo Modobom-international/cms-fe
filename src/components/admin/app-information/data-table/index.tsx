@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/table";
 
 import { EmptyTable } from "@/components/data-table/empty-table";
+import { ErrorTable } from "@/components/data-table/error-table";
 import { Spinner } from "@/components/global/spinner";
 
 import { FilterBar } from "./filter-bar";
@@ -226,13 +227,7 @@ export default function AppInformationDataTable() {
             <Spinner />
           </div>
         ) : isError ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="text-center">
-              <p className="text-destructive text-sm">
-                {t("loadingStates.error")}
-              </p>
-            </div>
-          </div>
+          <ErrorTable />
         ) : isDataEmpty ? (
           <EmptyTable />
         ) : (
@@ -243,6 +238,9 @@ export default function AppInformationDataTable() {
                   <TableRow className="border-border hover:bg-muted/50 border-b">
                     <TableHead className="text-foreground w-[140px] py-3 font-medium">
                       {t("columns.requestId")}
+                    </TableHead>
+                    <TableHead className="text-foreground w-[140px] py-3 font-medium">
+                      {t("columns.userId")}
                     </TableHead>
                     <TableHead className="text-foreground w-[140px] py-3 font-medium">
                       {t("columns.appName")}
@@ -290,6 +288,9 @@ export default function AppInformationDataTable() {
                           {item.request_id}
                         </span>
                       </TableCell>
+                      <TableCell className="py-3">
+                        <span className="font-medium">{item.user_id}</span>
+                      </TableCell>
                       <TableCell className="text-foreground py-3">
                         {item.app_name}
                       </TableCell>
@@ -312,8 +313,13 @@ export default function AppInformationDataTable() {
                         {item.os_version}
                       </TableCell>
                       <TableCell className="py-3">
-                        <div className="text-foreground font-medium">
-                          {item.event_name}
+                        <div className="flex flex-col gap-1">
+                          <div className="text-foreground font-medium">
+                            {item.event_name}
+                          </div>
+                          <div className="text-muted-foreground w-fit">
+                            {item.event_value}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-foreground py-3">
