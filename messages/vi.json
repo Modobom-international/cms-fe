@@ -1725,6 +1725,7 @@
         "timestamp": "Thời gian",
         "actions": "Thao tác",
         "requestId": "ID Yêu cầu",
+        "userId": "ID Người dùng",
         "appName": "Tên Ứng dụng",
         "appVersion": "Phiên bản Ứng dụng",
         "osName": "Tên Hệ điều hành",

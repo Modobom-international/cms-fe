@@ -10,6 +10,7 @@ export interface IAppInformation {
     os_name: string;
     os_version: string;
     event_name: string;
+    event_value: string;
     category: string;
     created_at: string;
     updated_at: string;

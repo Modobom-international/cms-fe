@@ -1711,6 +1711,7 @@
         "timestamp": "Timestamp",
         "actions": "Actions",
         "requestId": "Request ID",
+        "userId": "User ID",
         "appName": "App Name",
         "appVersion": "App Version",
         "osName": "OS Name",

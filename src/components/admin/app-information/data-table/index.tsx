@@ -245,6 +245,9 @@ export default function AppInformationDataTable() {
                       {t("columns.requestId")}
                     </TableHead>
                     <TableHead className="text-foreground w-[140px] py-3 font-medium">
+                      {t("columns.userId")}
+                    </TableHead>
+                    <TableHead className="text-foreground w-[140px] py-3 font-medium">
                       {t("columns.appName")}
                     </TableHead>
                     <TableHead className="text-foreground w-[100px] py-3 font-medium">
@@ -290,6 +293,9 @@ export default function AppInformationDataTable() {
                           {item.request_id}
                         </span>
                       </TableCell>
+                      <TableCell className="py-3">
+                        <span className="font-medium">{item.user_id}</span>
+                      </TableCell>
                       <TableCell className="text-foreground py-3">
                         {item.app_name}
                       </TableCell>
@@ -312,8 +318,13 @@ export default function AppInformationDataTable() {
                         {item.os_version}
                       </TableCell>
                       <TableCell className="py-3">
-                        <div className="text-foreground font-medium">
-                          {item.event_name}
+                        <div className="flex flex-col gap-1">
+                          <div className="text-foreground font-medium">
+                            {item.event_name}
+                          </div>
+                          <div className="text-muted-foreground w-fit">
+                            {item.event_value}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-foreground py-3">
