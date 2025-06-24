@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/table";
 
 import { EmptyTable } from "@/components/data-table/empty-table";
+import { ErrorTable } from "@/components/data-table/error-table";
 import { Spinner } from "@/components/global/spinner";
 
 import { FilterBar } from "./filter-bar";
@@ -226,13 +227,7 @@ export default function AppInformationDataTable() {
             <Spinner />
           </div>
         ) : isError ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="text-center">
-              <p className="text-destructive text-sm">
-                {t("loadingStates.error")}
-              </p>
-            </div>
-          </div>
+          <ErrorTable />
         ) : isDataEmpty ? (
           <EmptyTable />
         ) : (

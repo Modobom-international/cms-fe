@@ -1751,5 +1751,10 @@
         "confirm": "Confirm"
       }
     }
+  },
+  "ErrorTable": {
+    "title": "Oops! Something Went Wrong",
+    "description": "We couldn't display the content at the moment. Please try again later.",
+    "retry": "Try again"
   }
 }
