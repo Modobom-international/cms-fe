@@ -22,7 +22,6 @@ import {
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Badge } from "@/components/ui/badge";
-import { SiteStatusBadge } from "@/components/ui/badge/site-status-badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -41,6 +40,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -143,6 +143,9 @@ export default function SitesDataTable() {
   const [isOwnerPopoverOpen, setIsOwnerPopoverOpen] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [isStatusPopoverOpen, setIsStatusPopoverOpen] = useState(false);
+  const [processingStatusSiteId, setProcessingStatusSiteId] = useState<
+    string | null
+  >(null);
 
   const debouncedSearch = useDebounce(search, 500);
 
@@ -236,27 +239,42 @@ export default function SitesDataTable() {
     }
   };
 
-  const handleActivateSite = async (siteId: string) => {
-    try {
-      await toast.promise(activateSiteMutation.mutateAsync(siteId), {
-        loading: t("Table.Activating"),
-        success: t("Table.ActivateSuccess"),
-        error: t("Table.ActivateError"),
-      });
-    } catch (err) {
-      console.error("Error activating site:", err);
-    }
+  const handleActivateSite = (siteId: string) => {
+    setProcessingStatusSiteId(siteId);
+    toast.promise(activateSiteMutation.mutateAsync(siteId), {
+      loading: t("Table.Activating"),
+      success: () => {
+        setProcessingStatusSiteId(null);
+        return t("Table.ActivateSuccess");
+      },
+      error: () => {
+        setProcessingStatusSiteId(null);
+        return t("Table.ActivateError");
+      },
+    });
   };
 
-  const handleDeactivateSite = async (siteId: string) => {
-    try {
-      await toast.promise(deactivateSiteMutation.mutateAsync(siteId), {
-        loading: t("Table.Deactivating"),
-        success: t("Table.DeactivateSuccess"),
-        error: t("Table.DeactivateError"),
-      });
-    } catch (err) {
-      console.error("Error deactivating site:", err);
+  const handleDeactivateSite = (siteId: string) => {
+    setProcessingStatusSiteId(siteId);
+    toast.promise(deactivateSiteMutation.mutateAsync(siteId), {
+      loading: t("Table.Deactivating"),
+      success: () => {
+        setProcessingStatusSiteId(null);
+        return t("Table.DeactivateSuccess");
+      },
+      error: () => {
+        setProcessingStatusSiteId(null);
+        return t("Table.DeactivateError");
+      },
+    });
+  };
+
+  const handleToggleStatus = (siteId: string, currentStatus: string) => {
+    const isActive = currentStatus.toLowerCase() === SiteStatusEnum.ACTIVE;
+    if (isActive) {
+      handleDeactivateSite(siteId);
+    } else {
+      handleActivateSite(siteId);
     }
   };
 
@@ -609,16 +627,16 @@ export default function SitesDataTable() {
                     <TableHead className="text-foreground w-[150px] py-3 font-medium">
                       {t("Table.Language")}
                     </TableHead>
-                    <TableHead className="text-foreground w-[150px] py-3 font-medium">
-                      {t("Table.Status.Header")}
-                    </TableHead>
                     <TableHead className="text-foreground w-[200px] py-3 font-medium">
                       {t("Table.Owner")}
                     </TableHead>
                     <TableHead className="text-foreground w-[150px] py-3 font-medium">
                       {t("Table.CreatedAt")}
                     </TableHead>
-                    <TableHead className="text-foreground w-[250px] py-3 font-medium">
+                    <TableHead className="text-foreground w-[100px] py-3 text-center font-medium">
+                      {t("Table.Status.Header")}
+                    </TableHead>
+                    <TableHead className="text-foreground w-[200px] py-3 font-medium">
                       {t("Table.Actions")}
                     </TableHead>
                   </TableRow>
@@ -642,9 +660,6 @@ export default function SitesDataTable() {
                           (language) => language.code === site.language
                         )?.name || "-"}
                       </TableCell>
-                      <TableCell className="py-3">
-                        <SiteStatusBadge status={site.status} />
-                      </TableCell>
                       <TableCell className="text-foreground py-3 text-sm">
                         <div className="flex flex-col">
                           <span>{site.user.name}</span>
@@ -655,6 +670,49 @@ export default function SitesDataTable() {
                       </TableCell>
                       <TableCell className="text-foreground py-3 text-sm">
                         {new Date(site.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <div className="flex items-center justify-center">
+                          <div className="flex flex-col items-center gap-1.5">
+                            <div className="relative flex items-center">
+                              <Switch
+                                checked={
+                                  site.status.toLowerCase() ===
+                                  SiteStatusEnum.ACTIVE
+                                }
+                                onCheckedChange={() =>
+                                  handleToggleStatus(site.id, site.status)
+                                }
+                                disabled={processingStatusSiteId === site.id}
+                                className={`data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-300 ${processingStatusSiteId === site.id ? "opacity-60" : ""} `}
+                              />
+                              {processingStatusSiteId === site.id && (
+                                <div className="absolute -right-6 flex items-center">
+                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-center">
+                              {processingStatusSiteId === site.id ? (
+                                <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                                  {site.status.toLowerCase() ===
+                                  SiteStatusEnum.ACTIVE
+                                    ? t("Table.Deactivating")
+                                    : t("Table.Activating")}
+                                </span>
+                              ) : site.status.toLowerCase() ===
+                                SiteStatusEnum.ACTIVE ? (
+                                <span className="text-xs font-semibold text-green-600 dark:text-green-400">
+                                  {t("Table.Status.Active")}
+                                </span>
+                              ) : (
+                                <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                                  {t("Table.Status.Inactive")}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell className="py-3">
                         <div className="flex items-center gap-2">
@@ -681,32 +739,6 @@ export default function SitesDataTable() {
                           >
                             {t("Table.Language")}
                           </Button>
-                          {site.status.toLowerCase() ===
-                          SiteStatusEnum.ACTIVE ? (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDeactivateSite(site.id)}
-                              disabled={deactivateSiteMutation.isPending}
-                              className="h-7 px-2 text-xs"
-                            >
-                              {deactivateSiteMutation.isPending
-                                ? t("Table.Deactivating")
-                                : t("Table.Deactivate")}
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleActivateSite(site.id)}
-                              disabled={activateSiteMutation.isPending}
-                              className="h-7 px-2 text-xs"
-                            >
-                              {activateSiteMutation.isPending
-                                ? t("Table.Activating")
-                                : t("Table.Activate")}
-                            </Button>
-                          )}
                           <Button
                             variant="destructive"
                             size="sm"
