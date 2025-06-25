@@ -2,13 +2,13 @@
 
 import { useCallback, useMemo } from "react";
 
-import { Activity, Globe, TrendingUp, Users } from "lucide-react";
+import { Activity, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
 import { IAppInformation } from "@/types/app-information.type";
 
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, formatDateToString } from "@/lib/utils";
 
 import { useGetAppInformation } from "@/hooks/app-infomation";
 
@@ -145,16 +145,6 @@ export default function AppInformationDataTable() {
 
   const totalUsers = (appInformationData?.data as any)?.total_user ?? 0;
 
-  // Calculate unique countries for analytics
-  const uniqueCountries = useMemo(() => {
-    const countries = new Set(
-      appInformationList
-        .map((item) => item.country)
-        .filter((country) => country && country.trim() !== "")
-    );
-    return countries.size;
-  }, [appInformationList]);
-
   const isDataEmpty = appInformationList.length === 0;
 
   const handleNextPage = () => {
@@ -189,13 +179,11 @@ export default function AppInformationDataTable() {
       setNetworkFilter(filters.network.join(","));
       setDateFromFilter(
         filters.date_range.from
-          ? filters.date_range.from.toISOString().split("T")[0]
+          ? formatDateToString(filters.date_range.from)
           : ""
       );
       setDateToFilter(
-        filters.date_range.to
-          ? filters.date_range.to.toISOString().split("T")[0]
-          : ""
+        filters.date_range.to ? formatDateToString(filters.date_range.to) : ""
       );
       setCurrentPage(1);
     },
