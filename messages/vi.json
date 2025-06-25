@@ -1711,7 +1711,9 @@
         "loadingFilters": "Đang tải bộ lọc...",
         "noFiltersAvailable": "Chưa có bộ lọc nào cho danh mục này",
         "removeFilter": "Xóa bộ lọc {filterType}",
-        "selected": "đã chọn"
+        "selected": "đã chọn",
+        "searchPlaceholder": "Tìm kiếm...",
+        "noResultsFound": "Không tìm thấy kết quả"
       },
       "placeholders": {
         "search": "Tìm theo UID hoặc hành vi...",

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { PlusCircle, X } from "lucide-react";
+import { PlusCircle, Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useGetAppInformationFilterMenu } from "@/hooks/app-infomation";
@@ -10,6 +10,7 @@ import { useGetAppInformationFilterMenu } from "@/hooks/app-infomation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -527,6 +528,12 @@ function FilterPopover({
   onApply,
 }: FilterPopoverProps) {
   const t = useTranslations("AppInformationPage.table");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Filter options based on search term
+  const filteredOptions = options.filter((option) =>
+    option.label.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div>
@@ -538,10 +545,26 @@ function FilterPopover({
           </span>
         </PopoverTrigger>
         <PopoverContent className="w-72 p-0" align="start">
-          <div className="px-3 pt-3">
+          <div className="px-3 pt-3 pb-2">
             <h3 className="text-foreground text-sm font-medium">{label}</h3>
           </div>
-          <ScrollArea className="max-h-72">
+
+          {/* Search Input */}
+          {options.length > 0 && (
+            <div className="px-3 pb-3">
+              <div className="relative">
+                <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+                <Input
+                  placeholder={t("filters.searchPlaceholder") || "Search..."}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="h-8 pl-8 text-sm"
+                />
+              </div>
+            </div>
+          )}
+
+          <ScrollArea className="h-60">
             <div className="space-y-3 p-3">
               {options.length === 0 ? (
                 <div className="py-4 text-center">
@@ -549,8 +572,14 @@ function FilterPopover({
                     {t("filters.noFiltersAvailable")}
                   </p>
                 </div>
+              ) : filteredOptions.length === 0 ? (
+                <div className="py-4 text-center">
+                  <p className="text-muted-foreground text-sm">
+                    {t("filters.noResultsFound") || "No results found"}
+                  </p>
+                </div>
               ) : (
-                options.map((option) => (
+                filteredOptions.map((option) => (
                   <div
                     key={option.value}
                     className="flex items-center space-x-2"
