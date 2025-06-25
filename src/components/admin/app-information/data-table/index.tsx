@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 
+import { Activity, Globe, TrendingUp, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
@@ -33,7 +34,6 @@ import { ErrorTable } from "@/components/data-table/error-table";
 import { Spinner } from "@/components/global/spinner";
 
 import { FilterBar } from "./filter-bar";
-import { UserSearchDialog } from "./user-search-dialog";
 
 export default function AppInformationDataTable() {
   const t = useTranslations("AppInformationPage.table");
@@ -142,6 +142,18 @@ export default function AppInformationDataTable() {
     current_page: 1,
     per_page: pageSize,
   };
+
+  const totalUsers = (appInformationData?.data as any)?.total_user ?? 0;
+
+  // Calculate unique countries for analytics
+  const uniqueCountries = useMemo(() => {
+    const countries = new Set(
+      appInformationList
+        .map((item) => item.country)
+        .filter((country) => country && country.trim() !== "")
+    );
+    return countries.size;
+  }, [appInformationList]);
 
   const isDataEmpty = appInformationList.length === 0;
 
@@ -286,9 +298,42 @@ export default function AppInformationDataTable() {
 
   return (
     <div className="flex flex-col gap-y-6">
-      {/* User Search */}
-      <div className="flex items-center justify-between">
-        <UserSearchDialog />
+      {/* Stripe-like Header */}
+      <div className="space-y-4">
+        {/* Status Overview Cards */}
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
+          <div className="bg-card rounded-lg border p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  {t("overview.totalEvents")}
+                </p>
+                <p className="text-2xl font-bold">
+                  {paginationInfo.total?.toLocaleString() ?? 0}
+                </p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-card rounded-lg border p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  {t("overview.totalUsers")}
+                </p>
+                <p className="text-2xl font-bold">
+                  {totalUsers.toLocaleString()}
+                </p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 dark:bg-green-900/20">
+                <Users className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <FilterBar
@@ -488,4 +533,3 @@ export default function AppInformationDataTable() {
     </div>
   );
 }
-

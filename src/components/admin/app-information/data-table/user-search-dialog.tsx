@@ -21,9 +21,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-
-import { Spinner } from "@/components/global/spinner";
 
 interface UserAppData {
   app_name: string;
@@ -139,12 +136,12 @@ export function UserSearchDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="gap-2">
-          <User className="h-4 w-4" />
+        <Button variant="default" size="sm" className="gap-2 text-xs">
+          <Search className="size-3.5" />
           {t("button")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[80vh] max-w-4xl">
+      <DialogContent className="max-h-[80vh] lg:min-w-6xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
@@ -171,9 +168,11 @@ export function UserSearchDialog() {
                 onClick={handleSearch}
                 disabled={!userId.trim() || isSearching}
                 className="gap-2"
+                isLoading={isSearching}
+                loadingText={t("form.searching")}
               >
-                {isSearching ? <Spinner /> : <Search className="h-4 w-4" />}
-                {isSearching ? t("form.searching") : t("form.search")}
+                <Search className="h-4 w-4" />
+                {t("form.search")}
               </Button>
               <Button variant="outline" onClick={handleClear}>
                 {t("form.clear")}

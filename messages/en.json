@@ -1710,6 +1710,25 @@
         "last7Days": "Last 7 days",
         "last30Days": "Last 30 days"
       },
+      "overview": {
+        "totalEvents": "Total Events",
+        "totalUsers": "Total Users",
+        "avgPerUser": "Avg per User",
+        "currentPage": "Current Page"
+      },
+      "chart": {
+        "viewAnalytics": "Analyze",
+        "analyticsOverview": "Analytics Overview",
+        "totalUsers": "Total Users",
+        "uniqueUsers": "Unique users tracked",
+        "totalEvents": "Total Events",
+        "totalRecords": "Total records processed",
+        "avgEventsPerUser": "Avg Events/User",
+        "eventsPerUser": "Events per user",
+        "comingSoon": "Advanced Analytics",
+        "chartsComingSoon": "Detailed charts and visualizations coming soon",
+        "inDevelopment": "In Development"
+      },
       "placeholders": {
         "search": "Search by UID or behavior...",
         "selectApplication": "Select application",
