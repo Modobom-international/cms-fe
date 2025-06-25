@@ -33,6 +33,7 @@ export const SiteFormSchema = (t: any) =>
       .min(1, t("Validation.Name.Required"))
       .min(3, t("Validation.Name.MinLength"))
       .max(64, t("Validation.Name.MaxLength"))
+      .regex(/^[a-zA-Z0-9\s\-_]+$/, t("Validation.Name.InvalidCharacters"))
       .transform((value) => value.trim()),
     domain: z
       .string()

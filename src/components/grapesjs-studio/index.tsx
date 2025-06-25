@@ -66,8 +66,18 @@ export default function WebBuilderStudio({
     const doc = parser.parseFromString(editorHTML, "text/html");
     // Extract meta tags, title, and other head content if they exist
     const headContent = doc.head.innerHTML || "";
-    // Get the body content by extracting only the inner content of the body tag
-    const bodyContent = doc.body ? doc.body.innerHTML : editorHTML;
+
+    // Get the body content and preserve body attributes (like ID)
+    let bodyContent = doc.body ? doc.body.innerHTML : editorHTML;
+    let bodyAttributes = "";
+
+    if (doc.body) {
+      // Extract all attributes from the body element
+      const attributes = Array.from(doc.body.attributes);
+      bodyAttributes = attributes
+        .map((attr) => `${attr.name}="${attr.value}"`)
+        .join(" ");
+    }
 
     const loadingOverlayScript = `
     <script>
@@ -250,7 +260,7 @@ export default function WebBuilderStudio({
 
 
 </head>
-<body>
+<body${bodyAttributes ? ` ${bodyAttributes}` : ""}>
   ${bodyContent}
   ${loadingOverlayScript}
 </body>

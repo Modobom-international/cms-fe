@@ -1,39 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
 import { env } from "@/env";
-import Editor from "@monaco-editor/react";
-import { ChevronRight, Home, PlusIcon, Search } from "lucide-react";
+import { ChevronRight, Home, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import {
-  useCreatePage,
-  useDeletePage,
-  useDeleteTrackingScript,
-  useGetPages,
-  useGetTrackingScript,
-  useUpdateTrackingScript,
-} from "@/hooks/pages";
+import { useDeletePage, useGetPages } from "@/hooks/pages";
 import { useGetSiteById } from "@/hooks/sites";
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -43,276 +25,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import {
+  CreatePageDialog,
+  DeletePageDialog,
+  PreviewPageDialog,
+  TrackingScriptDialog,
+} from "@/components/admin/pages/dialogs";
 import { Spinner } from "@/components/global/spinner";
-
-function CreatePageDialog({ site }: { site: string }) {
-  const t = useTranslations("Studio.Sites.Pages");
-  const params = useParams();
-  const [newPage, setNewPage] = useState({ name: "", slug: "" });
-  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
-  const [slugError, setSlugError] = useState<string | null>(null);
-  const createPageMutation = useCreatePage();
-  const [open, setOpen] = useState(false);
-
-  // Function to generate slug from name
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-");
-  };
-
-  // Function to validate slug format
-  const validateSlug = (slug: string) => {
-    const slugRegex = /^[a-z0-9-]+$/;
-    return slugRegex.test(slug);
-  };
-
-  // Function to check slug validation and set error message
-  const checkSlugValidation = (slug: string) => {
-    if (!slug.trim()) {
-      setSlugError(t("Create.Form.Slug.Validation.Required"));
-      return false;
-    }
-    if (!validateSlug(slug)) {
-      setSlugError(t("Create.Form.Slug.Validation.Invalid"));
-      return false;
-    }
-    if (slug.length < 3) {
-      setSlugError(t("Create.Form.Slug.Validation.MinLength"));
-      return false;
-    }
-    if (slug.length > 64) {
-      setSlugError(t("Create.Form.Slug.Validation.MaxLength"));
-      return false;
-    }
-    setSlugError(null);
-    return true;
-  };
-
-  // Handle name change and auto-generate slug if not manually edited
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newName = e.target.value;
-    const newSlug = isSlugManuallyEdited ? newPage.slug : generateSlug(newName);
-    setNewPage(() => ({
-      name: newName,
-      slug: newSlug,
-    }));
-    checkSlugValidation(newSlug);
-  };
-
-  // Handle manual slug change
-  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsSlugManuallyEdited(true);
-    const newSlug = e.target.value.toLowerCase();
-    setNewPage((prev) => ({
-      ...prev,
-      slug: newSlug,
-    }));
-    checkSlugValidation(newSlug);
-  };
-
-  const handleCreatePage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!checkSlugValidation(newPage.slug)) {
-      return;
-    }
-
-    try {
-      await toast.promise(
-        createPageMutation.mutateAsync({
-          name: newPage.name,
-          slug: newPage.slug,
-          site_id: params.siteId?.toString() || "",
-          content: JSON.stringify({}),
-        }),
-        {
-          loading: t("Create.Toast.Loading"),
-          success: t("Create.Toast.Success"),
-          error: t("Create.Toast.Error"),
-        }
-      );
-      setNewPage({ name: "", slug: "" });
-      setIsSlugManuallyEdited(false);
-      setSlugError(null);
-      setOpen(false);
-    } catch (err) {
-      console.error("Error creating page:", err);
-    }
-  };
-
-  // Reset states when dialog closes
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      setNewPage({ name: "", slug: "" });
-      setIsSlugManuallyEdited(false);
-      setSlugError(null);
-    }
-    setOpen(open);
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button className="cursor-pointer gap-2">
-          <PlusIcon className="h-4 w-4" />
-          {t("Create.Button")}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="fixed top-[50%] left-[50%] w-full translate-x-[-50%] translate-y-[-50%] sm:max-w-[475px]">
-        <DialogHeader>
-          <DialogTitle>{t("Create.Dialog.Title")}</DialogTitle>
-          <DialogDescription>
-            {t("Create.Dialog.Description")}
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleCreatePage} className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">
-                {t("Create.Form.Name.Label")}
-                <span className="text-destructive ml-1">*</span>
-              </Label>
-              <Input
-                id="name"
-                value={newPage.name}
-                onChange={handleNameChange}
-                placeholder={t("Create.Form.Name.Placeholder")}
-                className="w-full"
-              />
-              <p className="text-muted-foreground text-xs">
-                {t("Create.Form.Name.Help")}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="slug">
-                {t("Create.Form.Slug.Label")}
-                <span className="text-destructive ml-1">*</span>
-              </Label>
-              <Input
-                id="slug"
-                value={newPage.slug}
-                onChange={handleSlugChange}
-                placeholder={t("Create.Form.Slug.Placeholder")}
-                className="w-full font-mono text-sm"
-              />
-              <p className="text-muted-foreground text-xs">
-                {t("Create.Form.Slug.Help", { site })}
-                <span className="text-foreground font-medium">
-                  {newPage.slug || "page-slug"}
-                </span>
-              </p>
-              {slugError && (
-                <p className="text-destructive text-sm">{slugError}</p>
-              )}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-            >
-              {t("Create.Form.Cancel")}
-            </Button>
-            <Button
-              type="submit"
-              disabled={createPageMutation.isPending || !!slugError}
-            >
-              {createPageMutation.isPending ? (
-                <>
-                  <Spinner />
-                  {t("Create.Form.Submitting")}
-                </>
-              ) : (
-                t("Create.Form.Submit")
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-interface DeleteDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  pageName: string;
-  isDeleting: boolean;
-}
-
-function DeleteConfirmationDialog({
-  isOpen,
-  onClose,
-  onConfirm,
-  pageName,
-  isDeleting,
-}: DeleteDialogProps) {
-  const t = useTranslations("Studio.Sites.Pages");
-  const [confirmationText, setConfirmationText] = useState("");
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="fixed top-[50%] left-[50%] w-full translate-x-[-50%] translate-y-[-50%] sm:max-w-[400px]">
-        <DialogHeader className="space-y-3">
-          <DialogTitle>{t("Delete.Dialog.Title")}</DialogTitle>
-          <DialogDescription>
-            {t("Delete.Dialog.Description")}
-            <span className="font-semibold"> {pageName}</span>.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-3 py-4">
-          <div className="space-y-2">
-            <p className="text-muted-foreground text-sm">
-              {t("Delete.Dialog.ConfirmationText")}{" "}
-              <span className="text-destructive font-mono font-medium">
-                {pageName}
-              </span>{" "}
-              {t("Delete.Dialog.ConfirmationText2")}
-            </p>
-            <Input
-              value={confirmationText}
-              onChange={(e) => setConfirmationText(e.target.value)}
-              placeholder={t("Delete.Dialog.InputPlaceholder")}
-              className="w-full"
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-            />
-          </div>
-        </div>
-        <DialogFooter className="gap-2 space-x-2 sm:gap-0">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            className="w-full sm:w-auto"
-          >
-            {t("Delete.Dialog.Cancel")}
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={onConfirm}
-            disabled={confirmationText !== pageName || isDeleting}
-            className="w-full sm:w-auto"
-          >
-            {isDeleting ? (
-              <>
-                <Spinner />
-                {t("Delete.Dialog.Deleting")}
-              </>
-            ) : (
-              t("Delete.Dialog.Confirm")
-            )}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 interface Page {
   id: string;
@@ -325,155 +44,6 @@ interface Site {
   id: string;
   name: string;
   domain: string;
-}
-
-function TrackingScriptDialog({
-  pageId,
-  pageName,
-}: {
-  pageId: string;
-  pageName: string;
-}) {
-  const t = useTranslations("Studio.Sites.Pages");
-  const [open, setOpen] = useState(false);
-  const [trackingScript, setTrackingScript] = useState("");
-  const { data: trackingScriptData } = useGetTrackingScript(pageId);
-  const updateTrackingScript = useUpdateTrackingScript();
-  const deleteTrackingScript = useDeleteTrackingScript();
-
-  useEffect(() => {
-    if (trackingScriptData?.data?.tracking_script) {
-      setTrackingScript(trackingScriptData.data.tracking_script);
-    }
-  }, [trackingScriptData]);
-
-  const handleSave = async () => {
-    try {
-      await toast.promise(
-        updateTrackingScript.mutateAsync({
-          pageId,
-          data: { tracking_script: trackingScript },
-        }),
-        {
-          loading: t("TrackingScript.Toast.Loading"),
-          success: t("TrackingScript.Toast.Success"),
-          error: t("TrackingScript.Toast.Error"),
-        }
-      );
-      setOpen(false);
-    } catch (err) {
-      console.error("Error updating tracking script:", err);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      await toast.promise(deleteTrackingScript.mutateAsync(pageId), {
-        loading: t("TrackingScript.Delete.Toast.Loading"),
-        success: t("TrackingScript.Delete.Toast.Success"),
-        error: t("TrackingScript.Delete.Toast.Error"),
-      });
-      setTrackingScript("");
-      setOpen(false);
-    } catch (err) {
-      console.error("Error deleting tracking script:", err);
-    }
-  };
-
-  const handleEditorChange = (value: string | undefined) => {
-    setTrackingScript(value || "");
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="cursor-pointer">
-          {t("List.Table.TrackingScript")}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="fixed top-[50%] left-[50%] w-full translate-x-[-50%] translate-y-[-50%] sm:max-w-[800px]">
-        <DialogHeader>
-          <DialogTitle>
-            {t("TrackingScript.Dialog.Title", { pageName })}
-          </DialogTitle>
-          <DialogDescription>
-            {t("TrackingScript.Dialog.Description")}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="tracking-script">
-              {t("TrackingScript.Dialog.Label")}
-            </Label>
-            <div className="overflow-hidden rounded-md border">
-              <Editor
-                height="300px"
-                defaultLanguage="html"
-                value={trackingScript}
-                onChange={handleEditorChange}
-                theme="vs-dark"
-                options={{
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                  lineNumbers: "on",
-                  roundedSelection: false,
-                  scrollBeyondLastLine: false,
-                  automaticLayout: true,
-                  tabSize: 2,
-                  wordWrap: "on",
-                  formatOnPaste: true,
-                  formatOnType: true,
-                }}
-              />
-            </div>
-            <p className="text-muted-foreground mt-2 text-xs">
-              {t("TrackingScript.Dialog.Help")}
-            </p>
-          </div>
-        </div>
-        <DialogFooter className="gap-2 space-x-2 sm:gap-0">
-          {trackingScript && (
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={deleteTrackingScript.isPending}
-              className="w-full sm:w-auto"
-            >
-              {deleteTrackingScript.isPending ? (
-                <>
-                  <Spinner />
-                  {t("TrackingScript.Delete.Dialog.Deleting")}
-                </>
-              ) : (
-                t("TrackingScript.Delete.Dialog.Confirm")
-              )}
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            onClick={() => setOpen(false)}
-            className="w-full sm:w-auto"
-          >
-            {t("TrackingScript.Dialog.Cancel")}
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={updateTrackingScript.isPending}
-            className="w-full sm:w-auto"
-          >
-            {updateTrackingScript.isPending ? (
-              <>
-                <Spinner />
-                {t("TrackingScript.Dialog.Saving")}
-              </>
-            ) : (
-              t("TrackingScript.Dialog.Save")
-            )}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
 }
 
 export default function PagesPage() {
@@ -500,6 +70,16 @@ export default function PagesPage() {
   }>({
     isOpen: false,
     pageId: "",
+    pageName: "",
+  });
+
+  const [previewDialogState, setPreviewDialogState] = useState<{
+    isOpen: boolean;
+    previewUrl: string;
+    pageName: string;
+  }>({
+    isOpen: false,
+    previewUrl: "",
     pageName: "",
   });
 
@@ -656,10 +236,11 @@ export default function PagesPage() {
                           size="sm"
                           className="cursor-pointer"
                           onClick={() =>
-                            window.open(
-                              `${env.NEXT_PUBLIC_BACKEND_URL}/storage/exports/${site?.name}/${page.slug}/index.html`,
-                              "_blank"
-                            )
+                            setPreviewDialogState({
+                              isOpen: true,
+                              previewUrl: `${env.NEXT_PUBLIC_BACKEND_URL}/storage/exports/${site?.name}/${page.slug}/index.html`,
+                              pageName: page.name,
+                            })
                           }
                         >
                           {t("List.Table.PreviewExported")}
@@ -705,7 +286,7 @@ export default function PagesPage() {
         )}
       </div>
 
-      <DeleteConfirmationDialog
+      <DeletePageDialog
         isOpen={deleteDialogState.isOpen}
         onClose={() =>
           setDeleteDialogState({ isOpen: false, pageId: "", pageName: "" })
@@ -713,6 +294,19 @@ export default function PagesPage() {
         onConfirm={handleDeletePage}
         pageName={deleteDialogState.pageName}
         isDeleting={deletePageMutation.isPending}
+      />
+
+      <PreviewPageDialog
+        isOpen={previewDialogState.isOpen}
+        onClose={() =>
+          setPreviewDialogState({
+            isOpen: false,
+            previewUrl: "",
+            pageName: "",
+          })
+        }
+        previewUrl={previewDialogState.previewUrl}
+        pageName={previewDialogState.pageName}
       />
     </div>
   );

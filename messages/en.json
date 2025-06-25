@@ -580,7 +580,8 @@
           "Name": {
             "Required": "Site name is required",
             "MinLength": "Site name must be at least 3 characters",
-            "MaxLength": "Site name cannot exceed 64 characters"
+            "MaxLength": "Site name cannot exceed 64 characters",
+            "InvalidCharacters": "Site name can only contain letters, numbers, spaces, hyphens and underscores"
           },
           "Domain": {
             "Required": "Domain is required",
@@ -679,6 +680,9 @@
         "Breadcrumb": "Manage Sites",
         "Description": "Create and manage pages for your website",
         "BackToSites": "Back to Sites",
+        "Preview": "Preview",
+        "PreviewExported": "Preview Exported",
+        "PreviewExportedDescription": "Make sure the page has been exported to the server",
         "List": {
           "Title": "Pages List",
           "Description": "Manage and view all pages of the website",
@@ -1693,6 +1697,8 @@
         "noFiltersAvailable": "No filters available yet for this category",
         "removeFilter": "Remove {filterType} filter",
         "selected": "selected",
+        "searchPlaceholder": "Search...",
+        "noResultsFound": "No results found",
         "dateRange": "Date Range",
         "dateRangeLabel": "Filter by date range",
         "fromDate": "From",

@@ -580,7 +580,8 @@
           "Name": {
             "Required": "Tên trang web là bắt buộc",
             "MinLength": "Tên trang web phải có ít nhất 3 ký tự",
-            "MaxLength": "Tên trang web không được vượt quá 64 ký tự"
+            "MaxLength": "Tên trang web không được vượt quá 64 ký tự",
+            "InvalidCharacters": "Tên trang web chỉ được chứa chữ cái, số, khoảng trắng, dấu gạch ngang và dấu gạch dưới"
           },
           "Domain": {
             "Required": "Tên miền là bắt buộc",
@@ -680,6 +681,9 @@
         "Breadcrumb": "Quản lý Trang",
         "Description": "Tạo và quản lý các trang cho trang web của bạn",
         "BackToSites": "Quay lại Sites",
+        "Preview": "Xem trước",
+        "PreviewExported": "Xem trước",
+        "PreviewExportedDescription": "Hãy đảm bảo trang đã được xuất ra server",
         "List": {
           "Title": "Danh sách trang",
           "Description": "Quản lý và xem tất cả các trang của trang web",
@@ -1707,6 +1711,8 @@
         "noFiltersAvailable": "Chưa có bộ lọc nào cho danh mục này",
         "removeFilter": "Xóa bộ lọc {filterType}",
         "selected": "đã chọn",
+        "searchPlaceholder": "Tìm kiếm...",
+        "noResultsFound": "Không tìm thấy kết quả",
         "dateRange": "Khoảng thời gian",
         "dateRangeLabel": "Lọc theo khoảng thời gian",
         "fromDate": "Từ ngày",
