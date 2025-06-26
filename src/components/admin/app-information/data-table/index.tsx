@@ -1,11 +1,14 @@
 "use client";
 
+import { useCallback, useMemo } from "react";
+
+import { Activity, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
 import { IAppInformation } from "@/types/app-information.type";
 
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, formatDateToString } from "@/lib/utils";
 
 import { useGetAppInformation } from "@/hooks/app-infomation";
 
@@ -79,6 +82,22 @@ export default function AppInformationDataTable() {
     "network",
     parseAsString.withDefault("")
   );
+  const [dateFromFilter, setDateFromFilter] = useQueryState(
+    "date_from",
+    parseAsString.withDefault("")
+  );
+  const [dateToFilter, setDateToFilter] = useQueryState(
+    "date_to",
+    parseAsString.withDefault("")
+  );
+
+  const dateFilter = useMemo(
+    () => ({
+      from: dateFromFilter ? new Date(dateFromFilter) : null,
+      to: dateToFilter ? new Date(dateToFilter) : null,
+    }),
+    [dateFromFilter, dateToFilter]
+  );
 
   const {
     data: appInformationData,
@@ -108,21 +127,23 @@ export default function AppInformationDataTable() {
     network: networkFilter
       ? networkFilter.split(",").filter(Boolean)
       : undefined,
+    from: dateFromFilter || undefined,
+    to: dateToFilter || undefined,
   });
 
   const appInformationList: IAppInformation[] =
-    appInformationData?.data?.data ?? [];
+    (appInformationData?.data as any)?.list?.data ?? [];
 
-  const paginationInfo =
-    appInformationData?.data ??
-    ({
-      from: 0,
-      to: 0,
-      total: 0,
-      last_page: 1,
-      current_page: 1,
-      per_page: pageSize,
-    } as any);
+  const paginationInfo = (appInformationData?.data as any)?.list ?? {
+    from: 0,
+    to: 0,
+    total: 0,
+    last_page: 1,
+    current_page: 1,
+    per_page: pageSize,
+  };
+
+  const totalUsers = (appInformationData?.data as any)?.total_user ?? 0;
 
   const isDataEmpty = appInformationList.length === 0;
 
@@ -134,63 +155,108 @@ export default function AppInformationDataTable() {
     setCurrentPage((prev) => Math.max(1, prev - 1));
   };
 
-  const handleFiltersApply = (filters: {
-    app_name: string[];
-    os_name: string[];
-    os_version: string[];
-    app_version: string[];
-    category: string[];
-    platform: string[];
-    country: string[];
-    event_name: string[];
-    network: string[];
-  }) => {
-    setAppFilter(filters.app_name.join(","));
-    setOsFilter(filters.os_name.join(","));
-    setOsVersionFilter(filters.os_version.join(","));
-    setAppVersionFilter(filters.app_version.join(","));
-    setCategoryFilter(filters.category.join(","));
-    setPlatformFilter(filters.platform.join(","));
-    setCountryFilter(filters.country.join(","));
-    setEventFilter(filters.event_name.join(","));
-    setNetworkFilter(filters.network.join(","));
-    setCurrentPage(1);
-  };
+  const handleFiltersApply = useCallback(
+    (filters: {
+      app_name: string[];
+      os_name: string[];
+      os_version: string[];
+      app_version: string[];
+      category: string[];
+      platform: string[];
+      country: string[];
+      event_name: string[];
+      network: string[];
+      date_range: { from: Date | null; to: Date | null };
+    }) => {
+      setAppFilter(filters.app_name.join(","));
+      setOsFilter(filters.os_name.join(","));
+      setOsVersionFilter(filters.os_version.join(","));
+      setAppVersionFilter(filters.app_version.join(","));
+      setCategoryFilter(filters.category.join(","));
+      setPlatformFilter(filters.platform.join(","));
+      setCountryFilter(filters.country.join(","));
+      setEventFilter(filters.event_name.join(","));
+      setNetworkFilter(filters.network.join(","));
+      setDateFromFilter(
+        filters.date_range.from
+          ? formatDateToString(filters.date_range.from)
+          : ""
+      );
+      setDateToFilter(
+        filters.date_range.to ? formatDateToString(filters.date_range.to) : ""
+      );
+      setCurrentPage(1);
+    },
+    [
+      setAppFilter,
+      setOsFilter,
+      setOsVersionFilter,
+      setAppVersionFilter,
+      setCategoryFilter,
+      setPlatformFilter,
+      setCountryFilter,
+      setEventFilter,
+      setNetworkFilter,
+      setDateFromFilter,
+      setDateToFilter,
+      setCurrentPage,
+    ]
+  );
 
-  const handleClearFilter = (filterType: string) => {
-    switch (filterType) {
-      case "app_name":
-        setAppFilter("");
-        break;
-      case "os_name":
-        setOsFilter("");
-        break;
-      case "os_version":
-        setOsVersionFilter("");
-        break;
-      case "app_version":
-        setAppVersionFilter("");
-        break;
-      case "category":
-        setCategoryFilter("");
-        break;
-      case "platform":
-        setPlatformFilter("");
-        break;
-      case "country":
-        setCountryFilter("");
-        break;
-      case "event_name":
-        setEventFilter("");
-        break;
-      case "network":
-        setNetworkFilter("");
-        break;
-    }
-    setCurrentPage(1);
-  };
+  const handleClearFilter = useCallback(
+    (filterType: string) => {
+      switch (filterType) {
+        case "app_name":
+          setAppFilter("");
+          break;
+        case "os_name":
+          setOsFilter("");
+          break;
+        case "os_version":
+          setOsVersionFilter("");
+          break;
+        case "app_version":
+          setAppVersionFilter("");
+          break;
+        case "category":
+          setCategoryFilter("");
+          break;
+        case "platform":
+          setPlatformFilter("");
+          break;
+        case "country":
+          setCountryFilter("");
+          break;
+        case "event_name":
+          setEventFilter("");
+          break;
+        case "network":
+          setNetworkFilter("");
+          break;
+        case "date_range":
+          setDateFromFilter("");
+          setDateToFilter("");
+          break;
+      }
+      setCurrentPage(1);
+    },
+    [
+      setAppFilter,
+      setOsFilter,
+      setOsVersionFilter,
+      setAppVersionFilter,
+      setCategoryFilter,
+      setPlatformFilter,
+      setCountryFilter,
+      setEventFilter,
+      setNetworkFilter,
+      setDateFromFilter,
+      setDateToFilter,
+      setCurrentPage,
+    ]
+  );
 
-  const handleClearAllFilters = () => {
+  const handleClearAllFilters = useCallback(() => {
     setAppFilter("");
     setOsFilter("");
     setOsVersionFilter("");
@@ -200,11 +266,64 @@ export default function AppInformationDataTable() {
     setCountryFilter("");
     setEventFilter("");
     setNetworkFilter("");
+    setDateFromFilter("");
+    setDateToFilter("");
     setCurrentPage(1);
-  };
+  }, [
+    setAppFilter,
+    setOsFilter,
+    setOsVersionFilter,
+    setAppVersionFilter,
+    setCategoryFilter,
+    setPlatformFilter,
+    setCountryFilter,
+    setEventFilter,
+    setNetworkFilter,
+    setDateFromFilter,
+    setDateToFilter,
+    setCurrentPage,
+  ]);
 
   return (
     <div className="flex flex-col gap-y-6">
+      {/* Stripe-like Header */}
+      <div className="space-y-4">
+        {/* Status Overview Cards */}
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
+          <div className="bg-card rounded-lg border p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  {t("overview.totalEvents")}
+                </p>
+                <p className="text-2xl font-bold">
+                  {paginationInfo.total?.toLocaleString() ?? 0}
+                </p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-card rounded-lg border p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  {t("overview.totalUsers")}
+                </p>
+                <p className="text-2xl font-bold">
+                  {totalUsers.toLocaleString()}
+                </p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 dark:bg-green-900/20">
+                <Users className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <FilterBar
         appFilter={appFilter}
         osFilter={osFilter}
@@ -215,6 +334,7 @@ export default function AppInformationDataTable() {
         countryFilter={countryFilter}
         appVersionFilter={appVersionFilter}
         networkFilter={networkFilter}
+        dateFilter={dateFilter}
         onFiltersApply={handleFiltersApply}
         onClearFilter={handleClearFilter}
         onClearAllFilters={handleClearAllFilters}

@@ -1692,7 +1692,6 @@
         "nation": "Quốc gia",
         "platform": "Nền tảng",
         "network": "Mạng",
-        "dateRange": "Khoảng thời gian",
         "appName": "Tên Ứng dụng",
         "appVersion": "Phiên bản Ứng dụng",
         "osName": "Tên Hệ điều hành",
@@ -1713,7 +1712,36 @@
         "removeFilter": "Xóa bộ lọc {filterType}",
         "selected": "đã chọn",
         "searchPlaceholder": "Tìm kiếm...",
-        "noResultsFound": "Không tìm thấy kết quả"
+        "noResultsFound": "Không tìm thấy kết quả",
+        "dateRange": "Khoảng thời gian",
+        "dateRangeLabel": "Lọc theo khoảng thời gian",
+        "fromDate": "Từ ngày",
+        "toDate": "Đến ngày",
+        "selectDate": "Chọn ngày",
+        "quickRanges": "Lựa chọn nhanh",
+        "today": "Hôm nay",
+        "yesterday": "Hôm qua",
+        "last7Days": "7 ngày qua",
+        "last30Days": "30 ngày qua"
+      },
+      "overview": {
+        "totalEvents": "Tổng Sự Kiện",
+        "totalUsers": "Tổng Người Dùng",
+        "avgPerUser": "TB mỗi ND",
+        "currentPage": "Trang Hiện Tại"
+      },
+      "chart": {
+        "viewAnalytics": "Phân Tích",
+        "analyticsOverview": "Tổng Quan Phân Tích",
+        "totalUsers": "Tổng Người Dùng",
+        "uniqueUsers": "Người dùng duy nhất được theo dõi",
+        "totalEvents": "Tổng Sự Kiện",
+        "totalRecords": "Tổng bản ghi đã xử lý",
+        "avgEventsPerUser": "TB Sự Kiện/ND",
+        "eventsPerUser": "Sự kiện mỗi người dùng",
+        "comingSoon": "Phân Tích Nâng Cao",
+        "chartsComingSoon": "Biểu đồ và trực quan hóa chi tiết sẽ ra mắt sớm",
+        "inDevelopment": "Đang Phát Triển"
       },
       "placeholders": {
         "search": "Tìm theo UID hoặc hành vi...",
@@ -1770,6 +1798,38 @@
         "sms": "SMS",
         "otp": "OTP",
         "confirm": "Xác nhận"
+      }
+    },
+    "userSearch": {
+      "sectionTitle": "Phân tích người dùng",
+      "sectionDescription": "Tìm kiếm và phân tích hoạt động người dùng theo User ID",
+      "button": "Tìm kiếm người dùng",
+      "title": "Tìm kiếm hoạt động người dùng",
+      "description": "Nhập User ID để xem việc sử dụng ứng dụng và các sự kiện của họ",
+      "form": {
+        "userId": {
+          "label": "User ID",
+          "placeholder": "Nhập User ID để tìm kiếm..."
+        },
+        "search": "Tìm kiếm",
+        "searching": "Đang tìm kiếm...",
+        "clear": "Xóa"
+      },
+      "results": {
+        "summary": {
+          "title": "Tóm tắt hoạt động người dùng",
+          "userId": "User ID", 
+          "totalApps": "Ứng dụng đã sử dụng",
+          "totalEvents": "Tổng sự kiện"
+        },
+        "events": {
+          "title": "Sự kiện",
+          "value": "Giá trị"
+        },
+        "noData": "Không tìm thấy dữ liệu hoạt động cho người dùng này"
+      },
+      "error": {
+        "searchFailed": "Không thể tìm kiếm dữ liệu người dùng. Vui lòng thử lại."
       }
     }
   },

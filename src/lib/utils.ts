@@ -7,6 +7,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+
+export const formatDateToString = (date: Date): string => {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+};
+
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -24,25 +29,6 @@ export const formatDateTime = (
 // Constants for timezone handling
 const VIETNAM_TIMEZONE = "Asia/Ho_Chi_Minh";
 const VIETNAM_LOCALE = "vi-VN";
-
-// Get client's locale and timezone (hydration-safe)
-const getClientLocale = (): string => {
-  if (typeof window !== "undefined") {
-    return VIETNAM_LOCALE; // Force Vietnamese locale
-  }
-  return VIETNAM_LOCALE;
-};
-
-const getClientTimezone = (): string => {
-  if (typeof window !== "undefined") {
-    return VIETNAM_TIMEZONE; // Force Vietnam timezone
-  }
-  return VIETNAM_TIMEZONE;
-};
-
-// ============================================================================
-// API REQUEST UTILITIES - Convert Vietnam time to UTC for sending to API
-// ============================================================================
 
 /**
  * Convert Vietnam time to UTC for API requests

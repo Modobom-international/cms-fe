@@ -1678,7 +1678,6 @@
         "nation": "Country",
         "platform": "Platform",
         "network": "Network",
-        "dateRange": "Date Range",
         "appName": "App Name",
         "appVersion": "App Version",
         "osName": "OS Name",
@@ -1699,7 +1698,36 @@
         "removeFilter": "Remove {filterType} filter",
         "selected": "selected",
         "searchPlaceholder": "Search...",
-        "noResultsFound": "No results found"
+        "noResultsFound": "No results found",
+        "dateRange": "Date Range",
+        "dateRangeLabel": "Filter by date range",
+        "fromDate": "From",
+        "toDate": "To",
+        "selectDate": "Select date",
+        "quickRanges": "Quick ranges",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "last7Days": "Last 7 days",
+        "last30Days": "Last 30 days"
+      },
+      "overview": {
+        "totalEvents": "Total Events",
+        "totalUsers": "Total Users",
+        "avgPerUser": "Avg per User",
+        "currentPage": "Current Page"
+      },
+      "chart": {
+        "viewAnalytics": "Analyze",
+        "analyticsOverview": "Analytics Overview",
+        "totalUsers": "Total Users",
+        "uniqueUsers": "Unique users tracked",
+        "totalEvents": "Total Events",
+        "totalRecords": "Total records processed",
+        "avgEventsPerUser": "Avg Events/User",
+        "eventsPerUser": "Events per user",
+        "comingSoon": "Advanced Analytics",
+        "chartsComingSoon": "Detailed charts and visualizations coming soon",
+        "inDevelopment": "In Development"
       },
       "placeholders": {
         "search": "Search by UID or behavior...",
@@ -1756,6 +1784,38 @@
         "sms": "SMS",
         "otp": "OTP",
         "confirm": "Confirm"
+      }
+    },
+    "userSearch": {
+      "sectionTitle": "User Analysis",
+      "sectionDescription": "Search and analyze user activity by User ID",
+      "button": "Search User",
+      "title": "User Activity Search",
+      "description": "Enter a User ID to view their app usage and events",
+      "form": {
+        "userId": {
+          "label": "User ID",
+          "placeholder": "Enter User ID to search..."
+        },
+        "search": "Search",
+        "searching": "Searching...",
+        "clear": "Clear"
+      },
+      "results": {
+        "summary": {
+          "title": "User Activity Summary",
+          "userId": "User ID",
+          "totalApps": "Apps Used",
+          "totalEvents": "Total Events"
+        },
+        "events": {
+          "title": "Events",
+          "value": "Value"
+        },
+        "noData": "No activity data found for this user"
+      },
+      "error": {
+        "searchFailed": "Failed to search user data. Please try again."
       }
     }
   },
