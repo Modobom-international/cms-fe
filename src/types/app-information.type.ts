@@ -45,4 +45,13 @@ export interface IAppInformationFilterMenuResponse {
 export type IGetAppInformationResponse = IPaginationResponse<{
   list: IAppInformation[];
   total_user: number;
+  count_event: [
+    {
+      event_name: string
+      values: {
+        event_value: string
+        count: number
+      }[]
+    }
+  ]
 }>;

@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 
-import { Activity, Users } from "lucide-react";
+import { Activity, BarChart3, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
@@ -12,7 +12,6 @@ import {
   formatDateForApiEnd,
   formatDateForApiStart,
   formatDateTime,
-  formatDateToString,
 } from "@/lib/utils";
 
 import { useGetAppInformation } from "@/hooks/app-infomation";
@@ -150,6 +149,13 @@ export default function AppInformationDataTable() {
   };
 
   const totalUsers = (appInformationData?.data as any)?.total_user ?? 0;
+  const countEvents: Array<{
+    event_name: string;
+    values: Array<{
+      event_value: string;
+      count: number;
+    }>;
+  }> = (appInformationData?.data as any)?.count_event ?? [];
 
   const isDataEmpty = appInformationList.length === 0;
 
@@ -340,6 +346,95 @@ export default function AppInformationDataTable() {
             </div>
           </div>
         </div>
+
+        {/* Event Count Overview - Show when event filter is applied */}
+        {eventFilter && countEvents.length > 0 && (
+          <div className="bg-card rounded-lg border p-6">
+            {/* Header with Summary */}
+            <div className="mb-6">
+              <div className="mb-3 flex items-center gap-3">
+                <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
+                  <BarChart3 className="text-muted-foreground h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">
+                    {t("overview.eventBreakdown")}
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    {countEvents.length} {t("overview.eventTypes")} •{" "}
+                    {countEvents
+                      .reduce(
+                        (total, group) =>
+                          total +
+                          group.values.reduce((sum, val) => sum + val.count, 0),
+                        0
+                      )
+                      .toLocaleString()}{" "}
+                    {t("overview.totalEventsCount")}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Event Groups */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {countEvents.map((eventGroup) => {
+                const totalEventCount = eventGroup.values.reduce(
+                  (sum, val) => sum + val.count,
+                  0
+                );
+
+                return (
+                  <div
+                    key={eventGroup.event_name}
+                    className="bg-background rounded-lg border p-4"
+                  >
+                    {/* Event Type Header */}
+                    <div className="mb-4">
+                      <h4 className="mb-1 font-semibold">
+                        {eventGroup.event_name}
+                      </h4>
+                      <p className="text-muted-foreground text-sm">
+                        {totalEventCount.toLocaleString()}{" "}
+                        {t("overview.totalEventsCount")} •{" "}
+                        {eventGroup.values.length} {t("overview.moreValues")}
+                      </p>
+                    </div>
+
+                    {/* Event Values */}
+                    <div className="space-y-3">
+                      {eventGroup.values.slice(0, 5).map((value, index) => (
+                        <div
+                          key={`${eventGroup.event_name}-${value.event_value}-${index}`}
+                          className="flex items-center justify-between"
+                        >
+                          <span
+                            className="max-w-[120px] truncate text-sm font-medium"
+                            title={value.event_value}
+                          >
+                            {value.event_value || t("overview.noValue")}
+                          </span>
+                          <span className="text-sm font-bold">
+                            {value.count.toLocaleString()}
+                          </span>
+                        </div>
+                      ))}
+
+                      {eventGroup.values.length > 5 && (
+                        <div className="border-t pt-2">
+                          <p className="text-muted-foreground text-center text-xs">
+                            +{eventGroup.values.length - 5}{" "}
+                            {t("overview.moreValues")}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       <FilterBar
@@ -353,6 +448,7 @@ export default function AppInformationDataTable() {
         appVersionFilter={appVersionFilter}
         networkFilter={networkFilter}
         dateFilter={dateFilter}
+        eventCounts={countEvents}
         onFiltersApply={handleFiltersApply}
         onClearFilter={handleClearFilter}
         onClearAllFilters={handleClearAllFilters}
@@ -539,3 +635,4 @@ export default function AppInformationDataTable() {
     </div>
   );
 }
+

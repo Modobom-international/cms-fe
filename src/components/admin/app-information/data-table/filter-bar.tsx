@@ -72,6 +72,13 @@ interface FilterBarProps {
   appVersionFilter: string;
   networkFilter: string;
   dateFilter: { from: Date | null; to: Date | null };
+  eventCounts?: Array<{
+    event_name: string;
+    values: Array<{
+      event_value: string;
+      count: number;
+    }>;
+  }>;
   onFiltersApply: (filters: {
     app_name: string[];
     os_name: string[];
@@ -99,6 +106,7 @@ export function FilterBar({
   appVersionFilter,
   networkFilter,
   dateFilter,
+  eventCounts,
   onFiltersApply,
   onClearFilter,
   onClearAllFilters,
@@ -430,7 +438,7 @@ export function FilterBar({
             )}
             {eventFilter && (
               <FilterBadge
-                label={t("filters.eventType")}
+                label={t("filters.eventName")}
                 filterValue={eventFilter}
                 onClear={() => handleClearFilter("event_name")}
                 t={t}
@@ -540,12 +548,13 @@ export function FilterBar({
 
         {/* Event Filter */}
         <FilterPopover
-          title={t("filters.eventType")}
+          title={t("filters.eventName")}
           label={t("filters.filterByEvent")}
           options={eventOptions}
           selectedValues={selectedEvents}
           onChange={handleEventChange}
           onApply={applyFilters}
+          eventCounts={eventCounts}
         />
 
         {/* Network Filter */}
@@ -569,6 +578,13 @@ interface FilterPopoverProps {
   selectedValues: string[];
   onChange: (value: string, checked: boolean) => void;
   onApply: () => void;
+  eventCounts?: Array<{
+    event_name: string;
+    values: Array<{
+      event_value: string;
+      count: number;
+    }>;
+  }>;
 }
 
 function FilterPopover({
@@ -578,6 +594,7 @@ function FilterPopover({
   selectedValues,
   onChange,
   onApply,
+  eventCounts,
 }: FilterPopoverProps) {
   const t = useTranslations("AppInformationPage.table");
   const [searchTerm, setSearchTerm] = useState("");
@@ -666,3 +683,4 @@ function FilterPopover({
     </div>
   );
 }
+

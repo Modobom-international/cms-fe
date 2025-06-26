@@ -1682,7 +1682,7 @@
         "appVersion": "App Version",
         "osName": "OS Name",
         "category": "Category",
-        "eventType": "Event Type",
+        "eventName": "Event Name",
         "filterByApp": "Filter by App",
         "filterByAppVersion": "Filter by App Version",
         "filterByPlatform": "Filter by Platform",
@@ -1714,7 +1714,12 @@
         "totalEvents": "Total Events",
         "totalUsers": "Total Users",
         "avgPerUser": "Avg per User",
-        "currentPage": "Current Page"
+        "currentPage": "Current Page",
+        "eventBreakdown": "Event Breakdown",
+        "eventTypes": "event type(s)",
+        "totalEventsCount": "total events",
+        "noValue": "No Value",
+        "moreValues": "more values"
       },
       "chart": {
         "viewAnalytics": "Analyze",

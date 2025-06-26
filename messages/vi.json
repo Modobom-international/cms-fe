@@ -1696,7 +1696,7 @@
         "appVersion": "Phiên bản Ứng dụng",
         "osName": "Tên Hệ điều hành",
         "category": "Danh mục",
-        "eventType": "Loại Sự kiện",
+        "eventName": "Tên Sự kiện",
         "filterByApp": "Lọc theo Ứng dụng",
         "filterByAppVersion": "Lọc theo Phiên bản Ứng dụng",
         "filterByPlatform": "Lọc theo Nền tảng",
@@ -1728,7 +1728,12 @@
         "totalEvents": "Tổng Sự Kiện",
         "totalUsers": "Tổng Người Dùng",
         "avgPerUser": "TB mỗi ND",
-        "currentPage": "Trang Hiện Tại"
+        "currentPage": "Trang Hiện Tại",
+        "eventBreakdown": "Phân Tích Sự Kiện",
+        "eventTypes": "loại sự kiện",
+        "totalEventsCount": "tổng sự kiện",
+        "noValue": "Không có giá trị",
+        "moreValues": "giá trị khác"
       },
       "chart": {
         "viewAnalytics": "Phân Tích",
