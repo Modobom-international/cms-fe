@@ -8,7 +8,12 @@ import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
 import { IAppInformation } from "@/types/app-information.type";
 
-import { formatDateTime, formatDateToString } from "@/lib/utils";
+import {
+  formatDateForApiEnd,
+  formatDateForApiStart,
+  formatDateTime,
+  formatDateToString,
+} from "@/lib/utils";
 
 import { useGetAppInformation } from "@/hooks/app-infomation";
 
@@ -127,6 +132,7 @@ export default function AppInformationDataTable() {
     network: networkFilter
       ? networkFilter.split(",").filter(Boolean)
       : undefined,
+    // Note: from and to will always be present due to default values in the hook
     from: dateFromFilter || undefined,
     to: dateToFilter || undefined,
   });
@@ -177,13 +183,15 @@ export default function AppInformationDataTable() {
       setCountryFilter(filters.country.join(","));
       setEventFilter(filters.event_name.join(","));
       setNetworkFilter(filters.network.join(","));
+
+      // Format dates for backend API (always include time)
       setDateFromFilter(
         filters.date_range.from
-          ? formatDateToString(filters.date_range.from)
+          ? formatDateForApiStart(filters.date_range.from)
           : ""
       );
       setDateToFilter(
-        filters.date_range.to ? formatDateToString(filters.date_range.to) : ""
+        filters.date_range.to ? formatDateForApiEnd(filters.date_range.to) : ""
       );
       setCurrentPage(1);
     },
@@ -234,8 +242,12 @@ export default function AppInformationDataTable() {
           setNetworkFilter("");
           break;
         case "date_range":
-          setDateFromFilter("");
-          setDateToFilter("");
+          // Reset to default date range instead of empty
+          const today = new Date();
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          setDateFromFilter(formatDateForApiStart(yesterday));
+          setDateToFilter(formatDateForApiEnd(today));
           break;
       }
       setCurrentPage(1);
@@ -266,8 +278,14 @@ export default function AppInformationDataTable() {
     setCountryFilter("");
     setEventFilter("");
     setNetworkFilter("");
-    setDateFromFilter("");
-    setDateToFilter("");
+
+    // Reset to default date range instead of empty
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    setDateFromFilter(formatDateForApiStart(yesterday));
+    setDateToFilter(formatDateForApiEnd(today));
+
     setCurrentPage(1);
   }, [
     setAppFilter,

@@ -12,6 +12,43 @@ export const formatDateToString = (date: Date): string => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 };
 
+/**
+ * Format date for backend API with start of day time (00:00:00)
+ * Format: YYYY-MM-DD 00:00:00
+ */
+export const formatDateForApiStart = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day} 00:00:00`;
+};
+
+/**
+ * Format date for backend API with end of day time (23:59:59)
+ * Format: YYYY-MM-DD 23:59:59
+ */
+export const formatDateForApiEnd = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day} 23:59:59`;
+};
+
+/**
+ * Get default date range for app information queries
+ * Returns yesterday as start date and today as end date
+ */
+export const getDefaultDateRange = () => {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  return {
+    from: formatDateForApiStart(yesterday),
+    to: formatDateForApiEnd(today)
+  };
+};
+
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",

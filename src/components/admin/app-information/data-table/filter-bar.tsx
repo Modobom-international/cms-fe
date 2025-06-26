@@ -6,6 +6,8 @@ import { format } from "date-fns";
 import { PlusCircle, Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { formatDateForApiEnd, formatDateForApiStart } from "@/lib/utils";
+
 import { useGetAppInformationFilterMenu } from "@/hooks/app-infomation";
 
 import { Badge } from "@/components/ui/badge";
@@ -296,6 +298,10 @@ export function FilterBar({
     setSelectedCountries([]);
     setSelectedAppVersions([]);
     setSelectedNetworks([]);
+    // Reset to default date range
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
     setDateRange({ from: yesterday, to: today });
     onClearAllFilters();
   };
@@ -331,7 +337,11 @@ export function FilterBar({
         setSelectedNetworks([]);
         break;
       case "date_range":
-        setDateRange({ from: yesterday, to: today });
+        // Reset to default date range
+        const todayClear = new Date();
+        const yesterdayClear = new Date(todayClear);
+        yesterdayClear.setDate(yesterdayClear.getDate() - 1);
+        setDateRange({ from: yesterdayClear, to: todayClear });
         break;
     }
     onClearFilter(filterType);

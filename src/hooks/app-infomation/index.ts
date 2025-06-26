@@ -8,6 +8,7 @@ import {
 } from "@/types/app-information.type";
 
 import apiClient from "@/lib/api/client";
+import { getDefaultDateRange } from "@/lib/utils";
 
 export const useGetAppInformation = (
   page: number = 1,
@@ -26,10 +27,20 @@ export const useGetAppInformation = (
     to?: string;
   }
 ) => {
+  // Get default date range if dates are not provided
+  const defaultDateRange = getDefaultDateRange();
+
+  // Ensure from and to dates are always present and properly formatted
+  const finalFilters = {
+    ...filters,
+    from: filters?.from || defaultDateRange.from,
+    to: filters?.to || defaultDateRange.to,
+  };
+
   const paramsObj = {
     page,
     pageSize,
-    ...filters,
+    ...finalFilters,
   };
 
   const params = qs.stringify(paramsObj, {
@@ -41,17 +52,17 @@ export const useGetAppInformation = (
     queryKey: appInformationQueryKeys.list(
       page,
       pageSize,
-      filters?.app_name,
-      filters?.os_name,
-      filters?.os_version,
-      filters?.app_version,
-      filters?.category,
-      filters?.platform,
-      filters?.country,
-      filters?.event_name,
-      filters?.network,
-      filters?.from,
-      filters?.to
+      finalFilters.app_name,
+      finalFilters.os_name,
+      finalFilters.os_version,
+      finalFilters.app_version,
+      finalFilters.category,
+      finalFilters.platform,
+      finalFilters.country,
+      finalFilters.event_name,
+      finalFilters.network,
+      finalFilters.from,
+      finalFilters.to
     ),
     queryFn: async () => {
       try {
