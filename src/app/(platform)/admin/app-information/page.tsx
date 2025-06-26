@@ -2,7 +2,7 @@ import { ChevronRight, Home } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import AppInformationDataTable from "@/components/admin/app-information/data-table";
-import { ChartDialog } from "@/components/admin/app-information/data-table/chart-dialog";
+import { AppInformationChartDialog } from "@/components/admin/app-information/data-table/app-information-chart-dialog";
 import { UserSearchDialog } from "@/components/admin/app-information/data-table/user-search-dialog";
 
 export default function AppInformationPage() {
@@ -28,7 +28,7 @@ export default function AppInformationPage() {
           </div>
           <div className="flex items-center gap-2">
             <UserSearchDialog />
-            <ChartDialog />
+            <AppInformationChartDialog />
           </div>
         </div>
       </div>
