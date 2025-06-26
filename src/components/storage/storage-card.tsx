@@ -3,19 +3,12 @@
 import React, { useState } from "react";
 
 import {
-  Archive,
   CheckSquare,
   Download,
   Edit2,
-  File,
-  FileText,
-  Folder,
-  Image,
-  Music,
   Share2,
   Square,
   Trash2,
-  Video,
 } from "lucide-react";
 
 import { IFileItem, IFolderItem } from "@/types/storage.type";
@@ -31,6 +24,8 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { Input } from "@/components/ui/input";
+
+import { formatFileSize, getFileTypeIcon } from "./utils";
 
 interface StorageCardProps {
   item: IFileItem | IFolderItem;
@@ -93,32 +88,6 @@ export function StorageCard({
     }
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
-
-  const getFileIcon = (mimeType: string) => {
-    if (mimeType === "folder")
-      return <Folder className="h-8 w-8 text-blue-500 dark:text-blue-400" />;
-    if (mimeType.startsWith("image/"))
-      return (
-        <Image className="h-8 w-8 text-emerald-500 dark:text-emerald-400" />
-      );
-    if (mimeType.startsWith("video/"))
-      return <Video className="h-8 w-8 text-rose-500 dark:text-rose-400" />;
-    if (mimeType.startsWith("audio/"))
-      return <Music className="h-8 w-8 text-violet-500 dark:text-violet-400" />;
-    if (mimeType.includes("pdf"))
-      return <FileText className="h-8 w-8 text-red-500 dark:text-red-400" />;
-    if (mimeType.includes("zip") || mimeType.includes("rar"))
-      return <Archive className="h-8 w-8 text-amber-500 dark:text-amber-400" />;
-    return <File className="h-8 w-8 text-slate-500 dark:text-slate-400" />;
-  };
-
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
@@ -164,7 +133,7 @@ export function StorageCard({
           </div>
 
           {/* Thumbnail/Icon Container */}
-          <div className="bg-muted/60 dark:bg-muted/40 group-hover:bg-muted/40 dark:group-hover:bg-muted/30 mb-4 flex aspect-square items-center justify-center overflow-hidden rounded-lg transition-colors duration-200">
+          <div className="bg-muted/40 dark:bg-muted/30 group-hover:bg-muted/40 dark:group-hover:bg-muted/30 mb-4 flex aspect-square items-center justify-center overflow-hidden rounded-lg transition-colors duration-200">
             {item.type === "file" && item.thumbnail ? (
               <img
                 src={item.thumbnail}
@@ -173,7 +142,7 @@ export function StorageCard({
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
-                {getFileIcon(item.mimeType)}
+                {getFileTypeIcon(item.mimeType, "lg")}
               </div>
             )}
           </div>

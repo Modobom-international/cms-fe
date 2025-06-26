@@ -19,7 +19,7 @@ interface StorageStoreProps {
 }
 
 export const useStorageStore = create<StorageStoreProps>((set, get) => ({
-    viewMode: 'grid',
+    viewMode: 'list',
     setViewMode: (viewMode: IStorageViewMode) => set({ viewMode }),
     sortBy: 'name',
     setSortBy: (sortBy: IStorageSortBy) => set({ sortBy }),

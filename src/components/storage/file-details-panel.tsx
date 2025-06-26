@@ -26,6 +26,8 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import { formatFileSize } from "@/components/storage/utils";
+
 // Mock activity data
 const mockActivity = [
   {
@@ -84,14 +86,6 @@ export function FileDetailsPanel() {
   if (!showDetailsPanel) {
     return null;
   }
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
 
   const getActionColor = (action: string) => {
     switch (action) {
@@ -432,4 +426,3 @@ export function FileDetailsPanel() {
     </div>
   );
 }
-

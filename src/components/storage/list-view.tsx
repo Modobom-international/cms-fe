@@ -4,21 +4,15 @@ import React, { useState } from "react";
 
 import { useStorageStore } from "@/stores/storage/useStorageStore";
 import {
-  Archive,
   ArrowUpDown,
   CheckSquare,
   Download,
   Edit2,
-  File,
-  FileText,
   Folder,
-  Image,
   MoreHorizontal,
-  Music,
   Share2,
   Square,
   Trash2,
-  Video,
 } from "lucide-react";
 
 import { IFileItem, IFolderItem } from "@/types/storage.type";
@@ -43,6 +37,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+import { formatFileSize, getFileTypeIcon } from "./utils";
 
 interface ListViewProps {
   files: IFileItem[];
@@ -119,52 +115,6 @@ export function ListView({
       setEditingItem(null);
       setEditingName("");
     }
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
-
-  const getFileIcon = (mimeType: string, size: "sm" | "md" = "sm") => {
-    const iconSize = size === "sm" ? "h-4 w-4" : "h-5 w-5";
-
-    if (mimeType === "folder")
-      return (
-        <Folder className={cn(iconSize, "text-blue-500 dark:text-blue-400")} />
-      );
-    if (mimeType.startsWith("image/"))
-      return (
-        <Image
-          className={cn(iconSize, "text-emerald-500 dark:text-emerald-400")}
-        />
-      );
-    if (mimeType.startsWith("video/"))
-      return (
-        <Video className={cn(iconSize, "text-rose-500 dark:text-rose-400")} />
-      );
-    if (mimeType.startsWith("audio/"))
-      return (
-        <Music
-          className={cn(iconSize, "text-violet-500 dark:text-violet-400")}
-        />
-      );
-    if (mimeType.includes("pdf"))
-      return (
-        <FileText className={cn(iconSize, "text-red-500 dark:text-red-400")} />
-      );
-    if (mimeType.includes("zip") || mimeType.includes("rar"))
-      return (
-        <Archive
-          className={cn(iconSize, "text-amber-500 dark:text-amber-400")}
-        />
-      );
-    return (
-      <File className={cn(iconSize, "text-slate-500 dark:text-slate-400")} />
-    );
   };
 
   const getSortIcon = (column: string) => {
@@ -299,15 +249,7 @@ export function ListView({
                 <TableCell className="py-3">
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 items-center justify-center">
-                      {item.type === "file" && item.thumbnail ? (
-                        <img
-                          src={item.thumbnail}
-                          alt={item.name}
-                          className="h-8 w-8 rounded object-cover"
-                        />
-                      ) : (
-                        getFileIcon(item.mimeType, "md")
-                      )}
+                      {getFileTypeIcon(item.mimeType)}
                     </div>
 
                     <div className="min-w-0 flex-1">
@@ -468,4 +410,3 @@ export function ListView({
     </div>
   );
 }
-

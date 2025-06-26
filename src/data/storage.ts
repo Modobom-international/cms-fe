@@ -157,9 +157,9 @@ export const sampleFiles: IFileItem[] = [
         owner: "Minh Nhật Vũ",
         shared: false,
         mimeType: "image/jpeg",
-        path: "/file.svg",
+        path: "/img/logo.png",
         downloadUrl: "#",
-        thumbnail: "/api/placeholder/150/150",
+        thumbnail: "/img/logo.png",
     },
     {
         id: "file-4",
@@ -223,9 +223,9 @@ export const sampleFiles: IFileItem[] = [
         owner: "Minh Nhật Vũ",
         shared: true,
         mimeType: "image/png",
-        path: "/Profile_Picture.png",
+        path: "/img/logo.png",
         downloadUrl: "#",
-        thumbnail: "/api/placeholder/150/150",
+        thumbnail: "/img/logo.png",
     },
     {
         id: "file-9",
