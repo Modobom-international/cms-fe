@@ -4,6 +4,7 @@ import qs from "qs";
 
 import {
   IAppInformationFilterMenuResponse,
+  IGetAppInformationByUserIdResponse,
   IGetAppInformationResponse,
 } from "@/types/app-information.type";
 
@@ -91,3 +92,17 @@ export const useGetAppInformationFilterMenu = () => {
   });
 };
 
+export const useGetAppInformationByUserId = (userId: string) => {
+  return useQuery({
+    queryKey: appInformationQueryKeys.byUserId(userId),
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<IGetAppInformationByUserIdResponse>(`/api/app-information/detail-userid?user_id=${userId}`);
+        return data;
+      } catch (error) {
+        throw new Error("Failed to fetch app information by user id");
+      }
+    },
+    enabled: !!userId,
+  });
+};

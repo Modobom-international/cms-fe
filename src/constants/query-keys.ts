@@ -220,5 +220,6 @@ export const appInformationQueryKeys = {
       },
     ] as const,
   filterMenu: () => [...appInformationQueryKeys.origin, "filter-menu"] as const,
+  byUserId: (userId: string) =>
+    [...appInformationQueryKeys.origin, "user", userId] as const,
 };
-

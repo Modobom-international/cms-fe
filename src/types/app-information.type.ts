@@ -55,3 +55,10 @@ export type IGetAppInformationResponse = IPaginationResponse<{
     }
   ]
 }>;
+
+export interface IGetAppInformationByUserIdResponse {
+  success: boolean;
+  data: Record<string, IAppInformation[]>;
+  message: string;
+  type: string;
+}
