@@ -2,7 +2,15 @@
 
 import { useMemo, useState } from "react";
 
-import { Activity, AppWindow, Clock, Search, User } from "lucide-react";
+import {
+  Activity,
+  AppWindow,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  Search,
+  User,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { formatDateTime } from "@/lib/utils";
@@ -11,6 +19,11 @@ import { useGetAppInformationByUserId } from "@/hooks/app-infomation";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +43,7 @@ export function UserSearchDialog() {
   const [open, setOpen] = useState(false);
   const [userId, setUserId] = useState("");
   const [searchedUserId, setSearchedUserId] = useState<string>("");
+  const [expandedApps, setExpandedApps] = useState<Set<number>>(new Set());
 
   // Use the API hook with the searched user ID
   const {
@@ -75,11 +89,25 @@ export function UserSearchDialog() {
   const handleSearch = () => {
     if (!userId.trim()) return;
     setSearchedUserId(userId);
+    setExpandedApps(new Set()); // Reset expanded state on new search
   };
 
   const handleClear = () => {
     setUserId("");
     setSearchedUserId("");
+    setExpandedApps(new Set());
+  };
+
+  const toggleAppExpansion = (appIndex: number) => {
+    setExpandedApps((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(appIndex)) {
+        newSet.delete(appIndex);
+      } else {
+        newSet.add(appIndex);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -247,60 +275,77 @@ export function UserSearchDialog() {
                           </div>
                         </div>
 
-                        {/* Events List */}
-                        <div className="p-6">
-                          <div className="space-y-3">
-                            {app.events.slice(0, 5).map((event, eventIndex) => (
-                              <div
-                                key={eventIndex}
-                                className="group dark:hover:bg-gray-750 rounded-lg border border-gray-100 p-4 transition-colors hover:bg-gray-50 dark:border-gray-700"
-                              >
-                                <div className="flex items-start justify-between">
-                                  <div className="min-w-0 flex-1">
-                                    <div className="mb-1 flex items-center gap-2">
-                                      <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                                        {event.event_name}
-                                      </span>
-                                      <Badge
-                                        variant="outline"
-                                        className="text-xs"
-                                      >
-                                        {event.category}
-                                      </Badge>
-                                    </div>
-                                    {event.event_value && (
-                                      <div className="pl-4 text-sm text-gray-600 dark:text-gray-300">
-                                        <span className="text-gray-500 dark:text-gray-400">
-                                          {t("results.events.value")}:
-                                        </span>{" "}
-                                        <span className="rounded bg-gray-100 px-2 py-1 font-mono text-xs dark:bg-gray-700">
-                                          {event.event_value}
+                        {/* Collapsible Events List */}
+                        <Collapsible
+                          open={expandedApps.has(appIndex)}
+                          onOpenChange={() => toggleAppExpansion(appIndex)}
+                        >
+                          <CollapsibleTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="flex w-full items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            >
+                              <span className="text-sm font-medium">
+                                {expandedApps.has(appIndex)
+                                  ? "Hide Events"
+                                  : `Show ${app.events.length} Events`}
+                              </span>
+                              {expandedApps.has(appIndex) ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </CollapsibleTrigger>
+
+                          <CollapsibleContent>
+                            <div className="p-6 pt-0">
+                              <div className="space-y-3">
+                                {app.events.map((event, eventIndex) => (
+                                  <div
+                                    key={eventIndex}
+                                    className="group dark:hover:bg-gray-750 rounded-lg border border-gray-100 p-4 transition-colors hover:bg-gray-50 dark:border-gray-700"
+                                  >
+                                    <div className="flex items-start justify-between">
+                                      <div className="min-w-0 flex-1">
+                                        <div className="mb-1 flex items-center gap-2">
+                                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                                          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                            {event.event_name}
+                                          </span>
+                                          <Badge
+                                            variant="outline"
+                                            className="text-xs"
+                                          >
+                                            {event.category}
+                                          </Badge>
+                                        </div>
+                                        {event.event_value && (
+                                          <div className="pl-4 text-sm text-gray-600 dark:text-gray-300">
+                                            <span className="text-gray-500 dark:text-gray-400">
+                                              {t("results.events.value")}:
+                                            </span>{" "}
+                                            <span className="rounded bg-gray-100 px-2 py-1 font-mono text-xs dark:bg-gray-700">
+                                              {event.event_value}
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div className="ml-4 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                                        <Clock className="h-3 w-3" />
+                                        <span className="font-mono">
+                                          {formatDateTime(
+                                            new Date(event.created_at)
+                                          )}
                                         </span>
                                       </div>
-                                    )}
+                                    </div>
                                   </div>
-                                  <div className="ml-4 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                                    <Clock className="h-3 w-3" />
-                                    <span className="font-mono">
-                                      {formatDateTime(
-                                        new Date(event.created_at)
-                                      )}
-                                    </span>
-                                  </div>
-                                </div>
+                                ))}
                               </div>
-                            ))}
-
-                            {app.events.length > 5 && (
-                              <div className="py-3 text-center">
-                                <Badge variant="secondary" className="text-xs">
-                                  +{app.events.length - 5} more events
-                                </Badge>
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                            </div>
+                          </CollapsibleContent>
+                        </Collapsible>
                       </div>
                     ))}
                   </div>
@@ -348,3 +393,4 @@ export function UserSearchDialog() {
   );
 }
 
+export default UserSearchDialog;
