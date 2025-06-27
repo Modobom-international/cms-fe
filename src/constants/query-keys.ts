@@ -222,4 +222,19 @@ export const appInformationQueryKeys = {
   filterMenu: () => [...appInformationQueryKeys.origin, "filter-menu"] as const,
   byUserId: (userId: string) =>
     [...appInformationQueryKeys.origin, "user", userId] as const,
+  chart: (app_name?: string | string[],
+    os_name?: string | string[],
+    os_version?: string | string[],
+    app_version?: string | string[],
+    category?: string | string[],
+    platform?: string | string[],
+    country?: string | string[],
+    event_name?: string | string[],
+    network?: string | string[],
+    from?: string,
+    to?: string) => [
+      ...appInformationQueryKeys.origin,
+      "chart",
+      { app_name, os_name, os_version, app_version, category, platform, country, event_name, network, from, to },
+    ] as const,
 };

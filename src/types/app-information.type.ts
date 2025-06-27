@@ -62,3 +62,16 @@ export interface IGetAppInformationByUserIdResponse {
   message: string;
   type: string;
 }
+
+export interface IGetAppInformationChartResponse {
+  success: boolean;
+  data: {
+    date: string
+    total_events: number
+    unique_users: number
+    unique_apps: number
+    total_requests: number
+  }[]
+  message: string;
+  type: string;
+}

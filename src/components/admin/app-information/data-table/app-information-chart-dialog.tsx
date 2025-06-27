@@ -1,20 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-import { BarChart3, Calendar, TrendingUp, Users } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+
 import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  Cell,
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
-  XAxis,
-  YAxis,
-} from "recharts";
+  BarChart3,
+  Calendar,
+  Filter,
+  TrendingUp,
+  Users,
+  X,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+
+import { useGetAppInformationChart } from "@/hooks/app-infomation";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,8 +29,6 @@ import {
 import {
   ChartConfig,
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -41,21 +40,104 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-const dailyUsersData = [
-  { date: "2025-06-20", unique_users: 8 },
-  { date: "2025-06-21", unique_users: 12 },
-  { date: "2025-06-22", unique_users: 15 },
-  { date: "2025-06-23", unique_users: 6 },
-  { date: "2025-06-24", unique_users: 18 },
-];
+import { Spinner } from "@/components/global/spinner";
 
-const dailyEventsData = [
-  { date: "2025-06-20", total_events: 28 },
-  { date: "2025-06-21", total_events: 42 },
-  { date: "2025-06-22", total_events: 36 },
-  { date: "2025-06-23", total_events: 19 },
-  { date: "2025-06-24", total_events: 64 },
-];
+// Component to display applied filters
+function AppliedFilters() {
+  const searchParams = useSearchParams();
+  const t = useTranslations("AppInformationPage.table.chart");
+
+  const filters = [
+    {
+      key: "app_name",
+      label: t("filterLabels.app_name"),
+      value: searchParams.get("app_name"),
+    },
+    {
+      key: "os_name",
+      label: t("filterLabels.os_name"),
+      value: searchParams.get("os_name"),
+    },
+    {
+      key: "os_version",
+      label: t("filterLabels.os_version"),
+      value: searchParams.get("os_version"),
+    },
+    {
+      key: "app_version",
+      label: t("filterLabels.app_version"),
+      value: searchParams.get("app_version"),
+    },
+    {
+      key: "category",
+      label: t("filterLabels.category"),
+      value: searchParams.get("category"),
+    },
+    {
+      key: "platform",
+      label: t("filterLabels.platform"),
+      value: searchParams.get("platform"),
+    },
+    {
+      key: "country",
+      label: t("filterLabels.country"),
+      value: searchParams.get("country"),
+    },
+    {
+      key: "event_name",
+      label: t("filterLabels.event_name"),
+      value: searchParams.get("event_name"),
+    },
+    {
+      key: "network",
+      label: t("filterLabels.network"),
+      value: searchParams.get("network"),
+    },
+    {
+      key: "date_from",
+      label: t("filterLabels.date_from"),
+      value: searchParams.get("date_from"),
+    },
+    {
+      key: "date_to",
+      label: t("filterLabels.date_to"),
+      value: searchParams.get("date_to"),
+    },
+  ].filter((filter) => filter.value && filter.value.trim() !== "");
+
+  if (filters.length === 0) {
+    return (
+      <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+        <Filter className="h-4 w-4 text-gray-500" />
+        <span className="text-sm text-gray-600 dark:text-gray-300">
+          {t("noFiltersApplied")}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1">
+      <div className="flex flex-wrap gap-2">
+        {filters.map((filter) => (
+          <div
+            key={filter.key}
+            className="border-primary/20 bg-primary/10 flex items-center gap-1 rounded-lg border px-3 py-1"
+          >
+            <span className="text-primary/90 text-xs font-medium">
+              {filter.label}:
+            </span>
+            <span className="text-primary text-xs">
+              {filter.key.includes("date")
+                ? new Date(filter.value!).toLocaleDateString()
+                : filter.value!.split(",").join(", ")}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const dailyUsersChartConfig = {
   unique_users: {
@@ -71,50 +153,20 @@ const dailyEventsChartConfig = {
   },
 } satisfies ChartConfig;
 
-const platformData = [
-  { name: "Samsung", value: 42, color: "#3b82f6" },
-  { name: "Xiaomi", value: 38, color: "#10b981" },
-  { name: "Google", value: 25, color: "#f59e0b" },
-];
+function DailyUsersChart({ data }: { data: any[] }) {
+  const t = useTranslations("AppInformationPage.table.chart");
 
-const platformChartConfig = {
-  Samsung: { label: "Samsung", color: "#3b82f6" },
-  Xiaomi: { label: "Xiaomi", color: "#10b981" },
-  Google: { label: "Google", color: "#f59e0b" },
-} satisfies ChartConfig;
-
-const appNameData = [
-  { name: "VALORANT", value: 68, color: "#8b5cf6" },
-  { name: "DeltaForce", value: 45, color: "#ef4444" },
-  { name: "Other Apps", value: 32, color: "#06b6d4" },
-];
-
-const appNameChartConfig = {
-  VALORANT: { label: "VALORANT", color: "#8b5cf6" },
-  DeltaForce: {
-    label: "DeltaForce",
-    color: "#ef4444",
-  },
-  "Other Apps": {
-    label: "Other Apps",
-    color: "#06b6d4",
-  },
-} satisfies ChartConfig;
-
-function DailyUsersChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Daily Unique Users</CardTitle>
-        <CardDescription>
-          Unique users activity from June 20-24, 2025
-        </CardDescription>
+        <CardTitle>{t("charts.dailyUsers.title")}</CardTitle>
+        <CardDescription>{t("charts.dailyUsers.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={dailyUsersChartConfig} className="h-64 w-full">
           <AreaChart
             accessibilityLayer
-            data={dailyUsersData}
+            data={data}
             margin={{
               left: -20,
               right: 12,
@@ -164,20 +216,20 @@ function DailyUsersChart() {
   );
 }
 
-function DailyEventsChart() {
+function DailyEventsChart({ data }: { data: any[] }) {
+  const t = useTranslations("AppInformationPage.table.chart");
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Daily Events</CardTitle>
-        <CardDescription>
-          Total events activity from June 20-24, 2025
-        </CardDescription>
+        <CardTitle>{t("charts.dailyEvents.title")}</CardTitle>
+        <CardDescription>{t("charts.dailyEvents.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={dailyEventsChartConfig} className="h-64 w-full">
           <AreaChart
             accessibilityLayer
-            data={dailyEventsData}
+            data={data}
             margin={{
               left: -20,
               right: 12,
@@ -227,92 +279,52 @@ function DailyEventsChart() {
   );
 }
 
-function PlatformDistributionChart() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Device Distribution</CardTitle>
-        <CardDescription>
-          Event distribution across device manufacturers
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={platformChartConfig} className="h-48 w-full">
-          <PieChart>
-            <ChartTooltip
-              content={<ChartTooltipContent hideLabel nameKey="name" />}
-            />
-            <Pie data={platformData} dataKey="value" nameKey="name">
-              {platformData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <ChartLegend
-              content={<ChartLegendContent nameKey="name" />}
-              verticalAlign="bottom"
-              align="center"
-            />
-          </PieChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
-  );
-}
-
-function AppNameDistributionChart() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Application Usage</CardTitle>
-        <CardDescription>
-          Event distribution by application name
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={appNameChartConfig} className="h-48 w-full">
-          <PieChart>
-            <ChartTooltip
-              content={<ChartTooltipContent hideLabel nameKey="name" />}
-            />
-            <Pie
-              data={appNameData}
-              dataKey="value"
-              nameKey="name"
-              innerRadius={40}
-            >
-              {appNameData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <ChartLegend
-              content={<ChartLegendContent nameKey="name" />}
-              verticalAlign="bottom"
-              align="center"
-            />
-          </PieChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
-  );
-}
-
 export function AppInformationChartDialog() {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: chartData, isLoading, isError } = useGetAppInformationChart();
+  const t = useTranslations("AppInformationPage.table.chart");
 
-  const totals = {
-    total_users: dailyUsersData.reduce(
-      (acc, curr) => acc + curr.unique_users,
-      0
-    ),
-    total_events: dailyEventsData.reduce(
-      (acc, curr) => acc + curr.total_events,
-      0
-    ),
-  };
+  // Memoize the processed data
+  const processedData = useMemo(() => {
+    if (!chartData?.success || !chartData?.data) {
+      return {
+        chartData: [],
+        totals: {
+          total_users: 0,
+          total_events: 0,
+          unique_apps: 0,
+          total_requests: 0,
+        },
+      };
+    }
+
+    const data = chartData.data;
+    const totals = data.reduce(
+      (acc, curr) => ({
+        total_users: acc.total_users + curr.unique_users,
+        total_events: acc.total_events + curr.total_events,
+        unique_apps: Math.max(acc.unique_apps, curr.unique_apps),
+        total_requests: acc.total_requests + curr.total_requests,
+      }),
+      {
+        total_users: 0,
+        total_events: 0,
+        unique_apps: 0,
+        total_requests: 0,
+      }
+    );
+
+    return {
+      chartData: data,
+      totals,
+    };
+  }, [chartData]);
 
   const avgEventsPerUser =
-    totals.total_users > 0
-      ? (totals.total_events / totals.total_users).toFixed(1)
+    processedData.totals.total_users > 0
+      ? (
+          processedData.totals.total_events / processedData.totals.total_users
+        ).toFixed(1)
       : "0";
 
   return (
@@ -320,79 +332,121 @@ export function AppInformationChartDialog() {
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2 text-xs">
           <BarChart3 className="size-3.5" />
-          View Analytics
+          {t("viewAnalytics")}
         </Button>
       </DialogTrigger>
       <DialogContent className="lg:min-w-6xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />
-            Analytics Overview
-            <Badge variant="default" className="text-xs">
-              Sample Data
-            </Badge>
+            {t("analyticsOverview")}
+            {isLoading && (
+              <Badge variant="secondary" className="text-xs">
+                {t("loading")}
+              </Badge>
+            )}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Key Metrics Cards */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total Users
-                </CardTitle>
-                <Users className="text-muted-foreground h-4 w-4" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{totals.total_users}</div>
-                <p className="text-muted-foreground text-xs">
-                  Unique users tracked
-                </p>
-              </CardContent>
-            </Card>
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-8">
+              <Spinner />
+            </div>
+          )}
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total Events
-                </CardTitle>
-                <TrendingUp className="text-muted-foreground h-4 w-4" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{totals.total_events}</div>
-                <p className="text-muted-foreground text-xs">
-                  Total records processed
-                </p>
-              </CardContent>
-            </Card>
+          {/* Error State */}
+          {isError && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+              {t("loadingError")}
+            </div>
+          )}
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Avg Events/User
-                </CardTitle>
-                <Calendar className="text-muted-foreground h-4 w-4" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{avgEventsPerUser}</div>
-                <p className="text-muted-foreground text-xs">Events per user</p>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Content */}
+          {!isLoading && !isError && (
+            <>
+              {/* Applied Filters */}
+              <AppliedFilters />
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <DailyUsersChart />
-            <DailyEventsChart />
-          </div>
+              {/* Key Metrics Cards */}
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      {t("metrics.totalUsers")}
+                    </CardTitle>
+                    <Users className="text-muted-foreground h-4 w-4" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {processedData.totals.total_users.toLocaleString()}
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                      {t("metrics.uniqueUsers")}
+                    </p>
+                  </CardContent>
+                </Card>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <PlatformDistributionChart />
-            <AppNameDistributionChart />
-          </div>
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      {t("metrics.totalEvents")}
+                    </CardTitle>
+                    <TrendingUp className="text-muted-foreground h-4 w-4" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {processedData.totals.total_events.toLocaleString()}
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                      {t("metrics.totalRecords")}
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      {t("metrics.uniqueApps")}
+                    </CardTitle>
+                    <BarChart3 className="text-muted-foreground h-4 w-4" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {processedData.totals.unique_apps.toLocaleString()}
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                      {t("metrics.differentApps")}
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      {t("metrics.avgEventsPerUser")}
+                    </CardTitle>
+                    <Calendar className="text-muted-foreground h-4 w-4" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{avgEventsPerUser}</div>
+                    <p className="text-muted-foreground text-xs">
+                      {t("metrics.eventsPerUser")}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Charts */}
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <DailyUsersChart data={processedData.chartData} />
+                <DailyEventsChart data={processedData.chartData} />
+              </div>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-

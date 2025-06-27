@@ -1,11 +1,13 @@
 import { appInformationQueryKeys } from "@/constants/query-keys";
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import qs from "qs";
 
 import {
   IAppInformationFilterMenuResponse,
   IGetAppInformationByUserIdResponse,
   IGetAppInformationResponse,
+  IGetAppInformationChartResponse,
 } from "@/types/app-information.type";
 
 import apiClient from "@/lib/api/client";
@@ -104,5 +106,89 @@ export const useGetAppInformationByUserId = (userId: string) => {
       }
     },
     enabled: !!userId,
+  });
+};
+
+export const useGetAppInformationChart = () => {
+  const searchParams = useSearchParams();
+
+  // Get all filter parameters from URL search params (same as in index.tsx)
+  const appFilter = searchParams.get("app_name") || "";
+  const osFilter = searchParams.get("os_name") || "";
+  const categoryFilter = searchParams.get("category") || "";
+  const eventFilter = searchParams.get("event_name") || "";
+  const platformFilter = searchParams.get("platform") || "";
+  const countryFilter = searchParams.get("country") || "";
+  const appVersionFilter = searchParams.get("app_version") || "";
+  const osVersionFilter = searchParams.get("os_version") || "";
+  const networkFilter = searchParams.get("network") || "";
+  const dateFromFilter = searchParams.get("date_from") || "";
+  const dateToFilter = searchParams.get("date_to") || "";
+
+  // Get default date range if dates are not provided
+  const defaultDateRange = getDefaultDateRange();
+
+  // Build filters object similar to the main data table
+  const filters = {
+    app_name: appFilter ? appFilter.split(",").filter(Boolean) : undefined,
+    os_name: osFilter ? osFilter.split(",").filter(Boolean) : undefined,
+    os_version: osVersionFilter
+      ? osVersionFilter.split(",").filter(Boolean)
+      : undefined,
+    app_version: appVersionFilter
+      ? appVersionFilter.split(",").filter(Boolean)
+      : undefined,
+    category: categoryFilter
+      ? categoryFilter.split(",").filter(Boolean)
+      : undefined,
+    platform: platformFilter
+      ? platformFilter.split(",").filter(Boolean)
+      : undefined,
+    country: countryFilter
+      ? countryFilter.split(",").filter(Boolean)
+      : undefined,
+    event_name: eventFilter
+      ? eventFilter.split(",").filter(Boolean)
+      : undefined,
+    network: networkFilter
+      ? networkFilter.split(",").filter(Boolean)
+      : undefined,
+    from: dateFromFilter || defaultDateRange.from,
+    to: dateToFilter || defaultDateRange.to,
+  };
+
+  const paramsObj = {
+    ...filters,
+  };
+
+  const params = qs.stringify(paramsObj, {
+    skipNulls: true,
+    arrayFormat: "brackets",
+  });
+
+  return useQuery({
+    queryKey: appInformationQueryKeys.chart(
+      filters.app_name,
+      filters.os_name,
+      filters.os_version,
+      filters.app_version,
+      filters.category,
+      filters.platform,
+      filters.country,
+      filters.event_name,
+      filters.network,
+      filters.from,
+      filters.to
+    ),
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<IGetAppInformationChartResponse>(
+          `/api/app-information/data-chart?${params}`
+        );
+        return data;
+      } catch (error) {
+        throw new Error("Failed to fetch app information chart data");
+      }
+    },
   });
 };

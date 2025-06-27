@@ -1724,12 +1724,43 @@
       "chart": {
         "viewAnalytics": "Analyze",
         "analyticsOverview": "Analytics Overview",
-        "totalUsers": "Total Users",
-        "uniqueUsers": "Unique users tracked",
-        "totalEvents": "Total Events",
-        "totalRecords": "Total records processed",
-        "avgEventsPerUser": "Avg Events/User",
-        "eventsPerUser": "Events per user",
+        "loading": "Loading...",
+        "loadingError": "Failed to load chart data. Please try again.",
+        "appliedFilters": "Applied Filters",
+        "noFiltersApplied": "No filters applied - showing all data",
+        "filterLabels": {
+          "app_name": "App Name",
+          "os_name": "OS Name",
+          "os_version": "OS Version",
+          "app_version": "App Version",
+          "category": "Category",
+          "platform": "Platform",
+          "country": "Country",
+          "event_name": "Event Name",
+          "network": "Network",
+          "date_from": "Date From",
+          "date_to": "Date To"
+        },
+        "metrics": {
+          "totalUsers": "Total Users",
+          "uniqueUsers": "Unique users tracked",
+          "totalEvents": "Total Events",
+          "totalRecords": "Total records processed",
+          "uniqueApps": "Unique Apps",
+          "differentApps": "Different applications",
+          "avgEventsPerUser": "Avg Events/User",
+          "eventsPerUser": "Events per user"
+        },
+        "charts": {
+          "dailyUsers": {
+            "title": "Daily Unique Users",
+            "description": "Unique users activity over time"
+          },
+          "dailyEvents": {
+            "title": "Daily Events",
+            "description": "Total events activity over time"
+          }
+        },
         "comingSoon": "Advanced Analytics",
         "chartsComingSoon": "Detailed charts and visualizations coming soon",
         "inDevelopment": "In Development"

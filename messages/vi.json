@@ -1738,12 +1738,43 @@
       "chart": {
         "viewAnalytics": "Phân Tích",
         "analyticsOverview": "Tổng Quan Phân Tích",
-        "totalUsers": "Tổng Người Dùng",
-        "uniqueUsers": "Người dùng duy nhất được theo dõi",
-        "totalEvents": "Tổng Sự Kiện",
-        "totalRecords": "Tổng bản ghi đã xử lý",
-        "avgEventsPerUser": "TB Sự Kiện/ND",
-        "eventsPerUser": "Sự kiện mỗi người dùng",
+        "loading": "Đang tải...",
+        "loadingError": "Không thể tải dữ liệu biểu đồ. Vui lòng thử lại.",
+        "appliedFilters": "Bộ Lọc Đã Áp Dụng",
+        "noFiltersApplied": "Chưa áp dụng bộ lọc nào - hiển thị tất cả dữ liệu",
+        "filterLabels": {
+          "app_name": "Tên Ứng Dụng",
+          "os_name": "Tên Hệ Điều Hành",
+          "os_version": "Phiên Bản HĐH",
+          "app_version": "Phiên Bản Ứng Dụng",
+          "category": "Danh Mục",
+          "platform": "Nền Tảng",
+          "country": "Quốc Gia",
+          "event_name": "Tên Sự Kiện",
+          "network": "Mạng",
+          "date_from": "Từ Ngày",  
+          "date_to": "Đến Ngày"
+        },
+        "metrics": {
+          "totalUsers": "Tổng Người Dùng",
+          "uniqueUsers": "Người dùng duy nhất được theo dõi",
+          "totalEvents": "Tổng Sự Kiện",
+          "totalRecords": "Tổng bản ghi đã xử lý",
+          "uniqueApps": "Ứng Dụng Duy Nhất",
+          "differentApps": "Ứng dụng khác nhau",
+          "avgEventsPerUser": "TB Sự Kiện/ND",
+          "eventsPerUser": "Sự kiện mỗi người dùng"
+        },
+        "charts": {
+          "dailyUsers": {
+            "title": "Người Dùng Hàng Ngày",
+            "description": "Hoạt động người dùng duy nhất theo thời gian"
+          },
+          "dailyEvents": {
+            "title": "Sự Kiện Hàng Ngày", 
+            "description": "Tổng hoạt động sự kiện theo thời gian"
+          }
+        },
         "comingSoon": "Phân Tích Nâng Cao",
         "chartsComingSoon": "Biểu đồ và trực quan hóa chi tiết sẽ ra mắt sớm",
         "inDevelopment": "Đang Phát Triển"
