@@ -87,6 +87,10 @@ export default function AppInformationDataTable() {
     "network",
     parseAsString.withDefault("")
   );
+  const [eventValueFilter, setEventValueFilter] = useQueryState(
+    "event_value",
+    parseAsString.withDefault("")
+  );
   const [dateFromFilter, setDateFromFilter] = useQueryState(
     "date_from",
     parseAsString.withDefault("")
@@ -131,6 +135,9 @@ export default function AppInformationDataTable() {
       : undefined,
     network: networkFilter
       ? networkFilter.split(",").filter(Boolean)
+      : undefined,
+    event_value: eventValueFilter
+      ? eventValueFilter.split(",").filter(Boolean)
       : undefined,
     // Note: from and to will always be present due to default values in the hook
     from: dateFromFilter || undefined,
@@ -179,6 +186,7 @@ export default function AppInformationDataTable() {
       country: string[];
       event_name: string[];
       network: string[];
+      event_value: string[];
       date_range: { from: Date | null; to: Date | null };
     }) => {
       setAppFilter(filters.app_name.join(","));
@@ -190,6 +198,7 @@ export default function AppInformationDataTable() {
       setCountryFilter(filters.country.join(","));
       setEventFilter(filters.event_name.join(","));
       setNetworkFilter(filters.network.join(","));
+      setEventValueFilter(filters.event_value.join(","));
 
       // Format dates for backend API (always include time)
       setDateFromFilter(
@@ -212,6 +221,7 @@ export default function AppInformationDataTable() {
       setCountryFilter,
       setEventFilter,
       setNetworkFilter,
+      setEventValueFilter,
       setDateFromFilter,
       setDateToFilter,
       setCurrentPage,
@@ -248,6 +258,9 @@ export default function AppInformationDataTable() {
         case "network":
           setNetworkFilter("");
           break;
+        case "event_value":
+          setEventValueFilter("");
+          break;
         case "date_range":
           // Reset to default date range instead of empty
           const today = new Date();
@@ -269,6 +282,7 @@ export default function AppInformationDataTable() {
       setCountryFilter,
       setEventFilter,
       setNetworkFilter,
+      setEventValueFilter,
       setDateFromFilter,
       setDateToFilter,
       setCurrentPage,
@@ -285,6 +299,7 @@ export default function AppInformationDataTable() {
     setCountryFilter("");
     setEventFilter("");
     setNetworkFilter("");
+    setEventValueFilter("");
 
     // Reset to default date range instead of empty
     const today = new Date();
@@ -304,6 +319,7 @@ export default function AppInformationDataTable() {
     setCountryFilter,
     setEventFilter,
     setNetworkFilter,
+    setEventValueFilter,
     setDateFromFilter,
     setDateToFilter,
     setCurrentPage,
@@ -448,6 +464,7 @@ export default function AppInformationDataTable() {
         countryFilter={countryFilter}
         appVersionFilter={appVersionFilter}
         networkFilter={networkFilter}
+        eventValueFilter={eventValueFilter}
         dateFilter={dateFilter}
         eventCounts={countEvents}
         onFiltersApply={handleFiltersApply}

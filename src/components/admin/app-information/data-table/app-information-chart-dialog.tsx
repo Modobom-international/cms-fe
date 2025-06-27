@@ -87,6 +87,11 @@ function AppliedFilters() {
       value: searchParams.get("network"),
     },
     {
+      key: "event_value",
+      label: t("filterLabels.event_value"),
+      value: searchParams.get("event_value"),
+    },
+    {
       key: "date_from",
       label: t("filterLabels.date_from"),
       value: searchParams.get("date_from"),

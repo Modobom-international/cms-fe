@@ -26,6 +26,7 @@ export const useGetAppInformation = (
     country?: string | string[];
     event_name?: string | string[];
     network?: string | string[];
+    event_value?: string | string[];
     from?: string;
     to?: string;
   }
@@ -64,6 +65,7 @@ export const useGetAppInformation = (
       finalFilters.country,
       finalFilters.event_name,
       finalFilters.network,
+      finalFilters.event_value,
       finalFilters.from,
       finalFilters.to
     ),
@@ -122,6 +124,7 @@ export const useGetAppInformationChart = () => {
   const appVersionFilter = searchParams.get("app_version") || "";
   const osVersionFilter = searchParams.get("os_version") || "";
   const networkFilter = searchParams.get("network") || "";
+  const eventValueFilter = searchParams.get("event_value") || "";
   const dateFromFilter = searchParams.get("date_from") || "";
   const dateToFilter = searchParams.get("date_to") || "";
 
@@ -153,6 +156,9 @@ export const useGetAppInformationChart = () => {
     network: networkFilter
       ? networkFilter.split(",").filter(Boolean)
       : undefined,
+    event_value: eventValueFilter
+      ? eventValueFilter.split(",").filter(Boolean)
+      : undefined,
     from: dateFromFilter || defaultDateRange.from,
     to: dateToFilter || defaultDateRange.to,
   };
@@ -177,6 +183,7 @@ export const useGetAppInformationChart = () => {
       filters.country,
       filters.event_name,
       filters.network,
+      filters.event_value,
       filters.from,
       filters.to
     ),
