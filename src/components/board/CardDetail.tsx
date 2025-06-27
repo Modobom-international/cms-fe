@@ -307,13 +307,6 @@ export default function CardDetail({
     return <File size={16} />;
   };
 
-  // Format file size
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
   const handleCreateChecklist = () => {
     if (newChecklistTitle.trim()) {
       createChecklist({

@@ -2,7 +2,14 @@ import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
 export const env = createEnv({
-  server: {},
+  server: {
+    MINIO_ENDPOINT: z.string().min(1).default("localhost"),
+    MINIO_SSL: z.string().default("false"),
+    MINIO_PORT: z.string().default("9000"),
+    MINIO_ACCESS_KEY: z.string().min(1).default("minioadmin"),
+    MINIO_SECRET_KEY: z.string().min(1).default("minioadmin"),
+    MINIO_BUCKET_NAME: z.string().min(1).default("test"),
+  },
   client: {
     NEXT_PUBLIC_BACKEND_URL: z.string().url(),
     NEXT_PUBLIC_GRAPESJS_LICENSE_KEY: z.string(),
@@ -20,6 +27,12 @@ export const env = createEnv({
   },
   // If you're using Next.js < 13.4.4, you'll need to specify the runtimeEnv manually
   runtimeEnv: {
+    MINIO_ENDPOINT: process.env.MINIO_ENDPOINT,
+    MINIO_SSL: process.env.MINIO_SSL,
+    MINIO_PORT: process.env.MINIO_PORT,
+    MINIO_ACCESS_KEY: process.env.MINIO_ACCESS_KEY,
+    MINIO_SECRET_KEY: process.env.MINIO_SECRET_KEY,
+    MINIO_BUCKET_NAME: process.env.MINIO_BUCKET_NAME,
     NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
     NEXT_PUBLIC_GRAPESJS_LICENSE_KEY:
       process.env.NEXT_PUBLIC_GRAPESJS_LICENSE_KEY,

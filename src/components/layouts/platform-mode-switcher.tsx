@@ -4,7 +4,12 @@ import * as React from "react";
 
 import { usePathname } from "next/navigation";
 
-import { IconCalendar, IconSettings, IconWorldWww } from "@tabler/icons-react";
+import {
+  IconCalendar,
+  IconDatabase,
+  IconSettings,
+  IconWorldWww,
+} from "@tabler/icons-react";
 import { ChevronsUpDown, Home } from "lucide-react";
 import { useRouter } from "nextjs-toploader/app";
 
@@ -38,13 +43,13 @@ const platformModes = [
     route: "/admin",
     pathPattern: /^\/admin/,
   },
-  // {
-  //   name: "Manage Storage",
-  //   logo: IconDatabase,
-  //   description: "Database & file storage",
-  //   route: "/storage",
-  //   pathPattern: /^\/storage/,
-  // },
+  {
+    name: "Manage Storage",
+    logo: IconDatabase,
+    description: "Database & file storage",
+    route: "/storage",
+    pathPattern: /^\/storage/,
+  },
   {
     name: "Ads Sites",
     logo: IconWorldWww,
