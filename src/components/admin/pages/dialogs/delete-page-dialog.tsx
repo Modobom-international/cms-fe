@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +15,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 import { Spinner } from "@/components/global/spinner";
 
@@ -41,6 +41,15 @@ export default function DeletePageDialog({
     onClose();
   };
 
+  const handleCopyPageName = async () => {
+    try {
+      await navigator.clipboard.writeText(pageName);
+      toast.success("Page name copied to clipboard");
+    } catch (err) {
+      toast.error("Failed to copy page name");
+    }
+  };
+
   const handleConfirm = () => {
     if (confirmationText === pageName) {
       onConfirm();
@@ -54,17 +63,23 @@ export default function DeletePageDialog({
           <DialogTitle className="text-destructive">
             {t("Delete.Dialog.Title")}
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
+          <DialogDescription className="text-muted-foreground text-sm">
             {t("Delete.Dialog.Description")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="confirmation">
+            <p className="text-muted-foreground text-sm">
               {t("Delete.Dialog.ConfirmationText")}{" "}
-              <span className="text-destructive font-medium">{pageName}</span>{" "}
+              <span
+                className="text-destructive hover:bg-destructive/10 decoration-destructive/40 hover:decoration-destructive/80 cursor-pointer rounded px-1 py-0.5 font-medium underline decoration-dotted transition-colors duration-150 select-none"
+                onClick={handleCopyPageName}
+                title="Click to copy page name"
+              >
+                {pageName}
+              </span>{" "}
               {t("Delete.Dialog.ConfirmationText2")}
-            </Label>
+            </p>
             <Input
               id="confirmation"
               value={confirmationText}
