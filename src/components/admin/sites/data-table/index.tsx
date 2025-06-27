@@ -734,7 +734,6 @@ export default function SitesDataTable() {
                           <Button
                             variant="outline"
                             size="sm"
-                            asChild
                             className="h-7 px-2 text-xs"
                           >
                             <Link href={`/studio/sites/${site.id}/pages`}>
