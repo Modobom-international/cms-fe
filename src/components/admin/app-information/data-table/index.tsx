@@ -15,7 +15,7 @@ import {
   getCurrentTimezoneInfo,
 } from "@/lib/utils";
 
-import { useGetAppInformation } from "@/hooks/app-infomation";
+import { useGetAppInformation } from "@/hooks/app-information";
 
 import { Button } from "@/components/ui/button";
 import {

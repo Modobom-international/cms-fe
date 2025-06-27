@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { PlusCircle, Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { useGetAppInformationFilterMenu } from "@/hooks/app-infomation";
+import { useGetAppInformationFilterMenu } from "@/hooks/app-information";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

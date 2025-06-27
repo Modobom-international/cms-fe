@@ -15,7 +15,7 @@ import { useTranslations } from "next-intl";
 
 import { formatDateTime } from "@/lib/utils";
 
-import { useGetAppInformationByUserId } from "@/hooks/app-infomation";
+import { useGetAppInformationByUserId } from "@/hooks/app-information";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
