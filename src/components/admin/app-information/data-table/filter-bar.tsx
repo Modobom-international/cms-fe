@@ -635,7 +635,6 @@ function FilterPopover({
   selectedValues,
   onChange,
   onApply,
-  eventCounts,
 }: FilterPopoverProps) {
   const t = useTranslations("AppInformationPage.table");
   const [searchTerm, setSearchTerm] = useState("");

@@ -17,7 +17,18 @@ export const getPresignedUrls = async (files: ShortFileProp[]) => {
     },
     body: JSON.stringify(files),
   });
-  return (await response.json()) as PresignedUrlProp[];
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: "Unknown error" }));
+    throw new Error(error.message || "Failed to get presigned URLs");
+  }
+
+  const data = await response.json();
+  if (!Array.isArray(data)) {
+    throw new Error("Presigned URL response is not an array");
+  }
+
+  return data as PresignedUrlProp[];
 };
 
 /**

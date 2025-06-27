@@ -16,7 +16,7 @@ import { DatePicker } from "react-aria-components";
 
 import { IActivityLog } from "@/types/activity-log.type";
 
-import { formatDateTime, getCurrentTimezoneInfo } from "@/lib/utils";
+import { getCurrentTimezoneInfo } from "@/lib/utils";
 
 import { useGetActivityLogs } from "@/hooks/activity-log";
 import { useDebounce } from "@/hooks/use-debounce";

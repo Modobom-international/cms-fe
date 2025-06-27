@@ -59,6 +59,6 @@ export async function POST(req: Request) {
         return NextResponse.json(publicUrls);
     } catch (error) {
         console.error({ error });
-        return new NextResponse("Internal error", { status: 500 });
+        return NextResponse.json({ message: "Internal error" }, { status: 500 });
     }
 }

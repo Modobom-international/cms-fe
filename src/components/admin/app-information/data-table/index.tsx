@@ -11,7 +11,6 @@ import { IAppInformation } from "@/types/app-information.type";
 import {
   formatDateForApiEnd,
   formatDateForApiStart,
-  formatDateTime,
   getCurrentTimezoneInfo,
 } from "@/lib/utils";
 
