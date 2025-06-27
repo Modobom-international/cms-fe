@@ -22,6 +22,8 @@ import {
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Badge } from "@/components/ui/badge";
+import { LanguageBadge } from "@/components/ui/badge/language-badge";
+import { PlatformBadge } from "@/components/ui/badge/platform-badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -55,6 +57,7 @@ import { Spinner } from "@/components/global/spinner";
 
 import DeleteSiteDialog from "./delete-site-dialog";
 import UpdateLanguageDialog from "./update-language-dialog";
+import UpdatePlatformDialog from "./update-platform-dialog";
 
 interface UserFilter {
   email: string;
@@ -288,6 +291,14 @@ export default function SitesDataTable() {
   };
 
   const [updateLanguageDialog, setUpdateLanguageDialog] = useState<{
+    isOpen: boolean;
+    site: Site | null;
+  }>({
+    isOpen: false,
+    site: null,
+  });
+
+  const [updatePlatformDialog, setUpdatePlatformDialog] = useState<{
     isOpen: boolean;
     site: Site | null;
   }>({
@@ -627,6 +638,9 @@ export default function SitesDataTable() {
                     <TableHead className="text-foreground w-[150px] py-3 font-medium">
                       {t("Table.Language")}
                     </TableHead>
+                    <TableHead className="text-foreground w-[150px] py-3 font-medium">
+                      {t("Table.Platform")}
+                    </TableHead>
                     <TableHead className="text-foreground w-[200px] py-3 font-medium">
                       {t("Table.Owner")}
                     </TableHead>
@@ -655,10 +669,11 @@ export default function SitesDataTable() {
                       <TableCell className="text-foreground py-3 text-sm">
                         {site.domain}
                       </TableCell>
-                      <TableCell className="text-foreground py-3 text-sm">
-                        {LANGUAGES.find(
-                          (language) => language.code === site.language
-                        )?.name || "-"}
+                      <TableCell className="py-3">
+                        <LanguageBadge language={site.language} />
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <PlatformBadge platform={site.platform} />
                       </TableCell>
                       <TableCell className="text-foreground py-3 text-sm">
                         <div className="flex flex-col">
@@ -738,6 +753,19 @@ export default function SitesDataTable() {
                             className="h-7 px-2 text-xs"
                           >
                             {t("Table.Language")}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setUpdatePlatformDialog({
+                                isOpen: true,
+                                site,
+                              })
+                            }
+                            className="h-7 px-2 text-xs"
+                          >
+                            {t("Table.Platform")}
                           </Button>
                           <Button
                             variant="destructive"
@@ -837,6 +865,14 @@ export default function SitesDataTable() {
           site={updateLanguageDialog.site}
           isOpen={updateLanguageDialog.isOpen}
           onClose={() => setUpdateLanguageDialog({ isOpen: false, site: null })}
+        />
+      )}
+
+      {updatePlatformDialog.site && (
+        <UpdatePlatformDialog
+          site={updatePlatformDialog.site}
+          isOpen={updatePlatformDialog.isOpen}
+          onClose={() => setUpdatePlatformDialog({ isOpen: false, site: null })}
         />
       )}
     </div>

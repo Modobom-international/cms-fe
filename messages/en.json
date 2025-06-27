@@ -572,6 +572,12 @@
           "Helper": "The language of your site",
           "Placeholder": "Select language"
         },
+        "Platform": {
+          "Label": "Platform",
+          "Required": "*",
+          "Helper": "The platform where your site will be optimized for",
+          "Placeholder": "Select platform"
+        },
         "Submit": "Create Site",
         "Loading": "Creating site...",
         "Success": "Site created successfully!",
@@ -590,13 +596,18 @@
             "Invalid": "Please enter a valid domain name (e.g., example.com)"
           },
           "Language": {
-            "Required": "Language is required"
+            "Required": "Language is required",
+            "Invalid": "Please select a valid language"
+          },
+          "Platform": {
+            "Invalid": "Please select a valid platform"
           }
         }
       },
       "UpdateLanguage": {
         "Title": "Update Language",
         "Description": "Update the language of the site",
+        "CurrentLanguage": "Current Language",
         "Label": "Language",
         "Required": "*",
         "Cancel": "Cancel",
@@ -605,6 +616,22 @@
         "Saving": "Saving...",
         "Success": "Language updated successfully!",
         "Error": "Failed to update language"
+      },
+      "UpdatePlatform": {
+        "Title": "Update Platform",
+        "Description": "Update the platform of the site: {siteName}",
+        "CurrentPlatform": "Current Platform",
+        "NewPlatform": {
+          "Label": "New Platform",
+          "Required": "*",
+          "Placeholder": "Select platform",
+          "Helper": "Choose the platform where your site will be optimized for"
+        },
+        "Cancel": "Cancel",
+        "Submit": "Update Platform",
+        "Loading": "Updating...",
+        "Success": "Platform updated successfully!",
+        "Error": "Failed to update platform"
       },
       "DeleteSite": {
         "Title": "Delete Site",
@@ -648,6 +675,7 @@
         "FilterByOwner": "Owner",
         "AllOwners": "All owners",
         "Language": "Language",
+        "Platform": "Platform",
         "FilterByOwnerTitle": "Filter by Owner",
         "SearchOwners": "Search owners...",
         "NoOwnersFound": "No owners found",

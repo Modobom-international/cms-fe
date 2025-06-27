@@ -1,6 +1,8 @@
 "use client";
 
-import { LANGUAGES } from "@/constants/languages";
+import React, { useState } from "react";
+
+import { PLATFORMS } from "@/constants/platform";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
@@ -8,13 +10,13 @@ import { toast } from "sonner";
 
 import {
   Site,
-  UpdateSiteLanguageSchema,
-  UpdateSiteLanguageValues,
+  UpdateSitePlatformSchema,
+  UpdateSitePlatformValues,
 } from "@/types/site.type";
 
-import { useUpdateSiteLanguage } from "@/hooks/sites";
+import { useUpdateSitePlatform } from "@/hooks/sites";
 
-import { LanguageBadge } from "@/components/ui/badge/language-badge";
+import { PlatformBadge } from "@/components/ui/badge/platform-badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,49 +44,68 @@ import {
 
 import { Spinner } from "@/components/global/spinner";
 
-interface UpdateLanguageDialogProps {
-  site: Site;
+interface UpdatePlatformDialogProps {
+  site: Site | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function UpdateLanguageDialog({
+export default function UpdatePlatformDialog({
   site,
   isOpen,
   onClose,
-}: UpdateLanguageDialogProps) {
-  const t = useTranslations("Studio.Sites");
-  const updateSiteMutation = useUpdateSiteLanguage(site.id);
+}: UpdatePlatformDialogProps) {
+  const t = useTranslations("Studio.Sites.UpdatePlatform");
 
-  const form = useForm<UpdateSiteLanguageValues>({
-    resolver: zodResolver(UpdateSiteLanguageSchema(t)),
+  const form = useForm<UpdateSitePlatformValues>({
+    resolver: zodResolver(UpdateSitePlatformSchema(t)),
     defaultValues: {
-      language: site.language,
+      platform: site?.platform || "google",
     },
   });
 
-  const handleSubmit = async (data: UpdateSiteLanguageValues) => {
+  const updatePlatformMutation = useUpdateSitePlatform(site?.id || "");
+
+  const handleUpdatePlatform = async (data: UpdateSitePlatformValues) => {
+    if (!site) return;
+
     try {
-      await toast.promise(updateSiteMutation.mutateAsync(data), {
-        loading: t("UpdateLanguage.Loading"),
-        success: t("UpdateLanguage.Success"),
-        error: t("UpdateLanguage.Error"),
+      await toast.promise(updatePlatformMutation.mutateAsync(data), {
+        loading: t("Loading"),
+        success: t("Success"),
+        error: t("Error"),
       });
       onClose();
     } catch (err) {
-      console.error("Error updating site language:", err);
+      console.error("Error updating platform:", err);
     }
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      form.reset();
+      onClose();
+    }
+  };
+
+  // Reset form when site changes
+  React.useEffect(() => {
+    if (site) {
+      form.reset({
+        platform: site.platform,
+      });
+    }
+  }, [site, form]);
+
+  if (!site) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="fixed top-[50%] left-[50%] w-full translate-x-[-50%] translate-y-[-50%] sm:max-w-[400px]">
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent className="fixed top-[50%] left-[50%] w-full translate-x-[-50%] translate-y-[-50%] sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-foreground">
-            {t("UpdateLanguage.Title")}
-          </DialogTitle>
+          <DialogTitle className="text-foreground">{t("Title")}</DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            {t("UpdateLanguage.Description", { siteName: site.name })}
+            {t("Description", { siteName: site.name })}
           </DialogDescription>
         </DialogHeader>
 
@@ -92,76 +113,84 @@ export default function UpdateLanguageDialog({
           <div className="bg-muted/50 mb-4 rounded-lg border p-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">
-                {t("UpdateLanguage.CurrentLanguage")}
+                {t("CurrentPlatform")}
               </span>
-              <LanguageBadge language={site.language} />
+              <PlatformBadge platform={site.platform} />
             </div>
           </div>
 
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(handleSubmit)}
+              onSubmit={form.handleSubmit(handleUpdatePlatform)}
               className="space-y-4"
             >
               <FormField
                 control={form.control}
-                name="language"
+                name="platform"
                 render={({ field }) => (
-                  <FormItem className="space-y-1">
+                  <FormItem>
                     <FormLabel className="text-foreground">
-                      {t("UpdateLanguage.Label")}
+                      {t("NewPlatform.Label")}
                       <span className="text-destructive ml-1">
-                        {t("UpdateLanguage.Required")}
+                        {t("NewPlatform.Required")}
                       </span>
                     </FormLabel>
                     <Select
                       value={field.value}
                       onValueChange={field.onChange}
-                      disabled={updateSiteMutation.isPending}
+                      disabled={updatePlatformMutation.isPending}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
                           <SelectValue
-                            placeholder={t("UpdateLanguage.Placeholder")}
+                            placeholder={t("NewPlatform.Placeholder")}
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {LANGUAGES.map((language) => (
-                          <SelectItem key={language.code} value={language.code}>
+                        {PLATFORMS.map((platform) => (
+                          <SelectItem
+                            key={platform.value}
+                            value={platform.value}
+                          >
                             <div className="flex items-center gap-2">
-                              <span>{language.flag}</span>
-                              <span>{language.name}</span>
+                              <span>{platform.icon}</span>
+                              <span>{platform.label}</span>
                             </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                    <p className="text-muted-foreground text-xs">
+                      {t("NewPlatform.Helper")}
+                    </p>
                     <FormMessage className="text-destructive text-sm font-medium" />
                   </FormItem>
                 )}
               />
+
               <DialogFooter className="flex-col gap-2 sm:flex-row">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={onClose}
+                  disabled={updatePlatformMutation.isPending}
                   className="w-full sm:w-auto"
                 >
-                  {t("UpdateLanguage.Cancel")}
+                  {t("Cancel")}
                 </Button>
                 <Button
                   type="submit"
-                  disabled={updateSiteMutation.isPending}
+                  disabled={updatePlatformMutation.isPending}
                   className="w-full sm:w-auto"
                 >
-                  {updateSiteMutation.isPending ? (
+                  {updatePlatformMutation.isPending ? (
                     <>
                       <Spinner />
-                      {t("UpdateLanguage.Saving")}
+                      {t("Loading")}
                     </>
                   ) : (
-                    t("UpdateLanguage.Save")
+                    t("Submit")
                   )}
                 </Button>
               </DialogFooter>
@@ -172,3 +201,4 @@ export default function UpdateLanguageDialog({
     </Dialog>
   );
 }
+

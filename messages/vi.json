@@ -572,6 +572,12 @@
           "Helper": "Ngôn ngữ mặc định của trang web",
           "Placeholder": "Chọn ngôn ngữ"
         },
+        "Platform": {
+          "Label": "Nền tảng",
+          "Required": "*",
+          "Helper": "Nền tảng mà trang web sẽ được tối ưu hóa",
+          "Placeholder": "Chọn nền tảng"
+        },
         "Submit": "Tạo Trang web",
         "Loading": "Đang tạo trang web...",
         "Success": "Tạo trang web thành công!",
@@ -591,13 +597,17 @@
           },
           "Language": {
             "Required": "Ngôn ngữ là bắt buộc",
-            "Invalid": "Ngôn ngữ không hợp lệ"
+            "Invalid": "Vui lòng chọn một ngôn ngữ hợp lệ"
+          },
+          "Platform": {
+            "Invalid": "Vui lòng chọn một nền tảng hợp lệ"
           }
         }
       },
       "UpdateLanguage": {
         "Title": "Cập nhật Ngôn ngữ",
         "Description": "Cập nhật ngôn ngữ của trang web",
+        "CurrentLanguage": "Ngôn ngữ hiện tại",
         "Label": "Ngôn ngữ",
         "Required": "*",
         "Placeholder": "Chọn ngôn ngữ",
@@ -606,6 +616,22 @@
         "Saving": "Đang lưu...",
         "Success": "Ngôn ngữ đã được cập nhật thành công!",
         "Error": "Không thể cập nhật ngôn ngữ"
+      },
+      "UpdatePlatform": {
+        "Title": "Cập nhật Nền tảng",
+        "Description": "Cập nhật nền tảng của trang web: {siteName}",
+        "CurrentPlatform": "Nền tảng hiện tại",
+        "NewPlatform": {
+          "Label": "Nền tảng mới",
+          "Required": "*",
+          "Placeholder": "Chọn nền tảng",
+          "Helper": "Chọn nền tảng mà trang web sẽ được tối ưu hóa"
+        },
+        "Cancel": "Hủy",
+        "Submit": "Cập nhật Nền tảng",
+        "Loading": "Đang cập nhật...",
+        "Success": "Nền tảng đã được cập nhật thành công!",
+        "Error": "Không thể cập nhật nền tảng"
       },
       "DeleteSite": {
         "Title": "Xóa Trang web",
@@ -649,6 +675,7 @@
         "FilterByOwner": "Chủ sở hữu",
         "AllOwners": "Tất cả chủ sở hữu",
         "Language": "Ngôn ngữ",
+        "Platform": "Nền tảng",
         "FilterByOwnerTitle": "Lọc theo chủ sở hữu",
         "SearchOwners": "Tìm kiếm chủ sở hữu...",
         "NoOwnersFound": "Không tìm thấy chủ sở hữu",
@@ -1756,8 +1783,10 @@
           "country": "Quốc Gia",
           "event_name": "Tên Sự Kiện",
           "network": "Mạng",
+
           "event_value": "Giá Trị Sự Kiện",
           "date_from": "Từ Ngày",  
+
           "date_to": "Đến Ngày"
         },
         "metrics": {
@@ -1776,7 +1805,7 @@
             "description": "Hoạt động người dùng duy nhất theo thời gian"
           },
           "dailyEvents": {
-            "title": "Sự Kiện Hàng Ngày", 
+            "title": "Sự Kiện Hàng Ngày",
             "description": "Tổng hoạt động sự kiện theo thời gian"
           }
         },
@@ -1859,7 +1888,7 @@
       "results": {
         "summary": {
           "title": "Tóm tắt hoạt động người dùng",
-          "userId": "User ID", 
+          "userId": "User ID",
           "totalApps": "Ứng dụng đã sử dụng",
           "totalEvents": "Tổng sự kiện"
         },
