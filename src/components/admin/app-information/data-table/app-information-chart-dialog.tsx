@@ -4,14 +4,7 @@ import { useMemo, useState } from "react";
 
 import { useSearchParams } from "next/navigation";
 
-import {
-  BarChart3,
-  Calendar,
-  Filter,
-  TrendingUp,
-  Users,
-  X,
-} from "lucide-react";
+import { BarChart3, Calendar, Filter, TrendingUp, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
