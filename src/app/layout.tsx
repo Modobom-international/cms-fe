@@ -4,6 +4,8 @@ import { constructMetadata } from "@/configs/site.config";
 import AuthProvider from "@/providers/auth-provider";
 import { ReactQueryClientProvider } from "@/providers/react-query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { ReactPlugin } from "@stagewise-plugins/react";
+import { StagewiseToolbar } from "@stagewise/toolbar-next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import NextTopLoader from "nextjs-toploader";
@@ -35,6 +37,11 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={cn(fontSans.variable, "font-sans antialiased")}>
+        <StagewiseToolbar
+          config={{
+            plugins: [ReactPlugin],
+          }}
+        />
         <ReactQueryClientProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
             <AuthProvider>

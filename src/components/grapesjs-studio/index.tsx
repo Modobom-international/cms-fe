@@ -1,5 +1,6 @@
 "use client";
 
+import { PLATFORMS } from "@/constants/platform";
 import { env } from "@/env";
 import StudioEditor from "@grapesjs/studio-sdk/react";
 import "@grapesjs/studio-sdk/style";
@@ -13,6 +14,7 @@ import {
   useLoadFromAPI,
   useUpdatePage,
 } from "@/hooks/pages";
+import { useGetSiteById } from "@/hooks/sites";
 
 import { deleteAssets, loadAssets, uploadAssets } from "./actions/upload";
 import { buttonBlock } from "./blocks/button";
@@ -35,6 +37,7 @@ export default function WebBuilderStudio({
   const exportPageMutation = useExportPage(pageId);
   const deployPageMutation = useDeployPage();
   const { data: pageContent, isLoading, isError } = useLoadFromAPI(pageId);
+  const { data: site } = useGetSiteById(siteId);
   const saveToAPI = async (project: any) => {
     try {
       toast.promise(
@@ -195,10 +198,20 @@ export default function WebBuilderStudio({
   ${headContent}
   <style>
     ${editor.getCss()}
-    ${loadingOverlayStyles}
+    ${
+      site?.data?.platform == PLATFORMS[2].value
+        ? `
+    `
+        : loadingOverlayStyles
+    }
   </style>
   
-  <script>
+  ${
+    site?.data?.platform == PLATFORMS[2].value
+      ? `
+  
+  `
+      : `<script>
     // Hàm kiểm tra query parameter force=1 trên URL hiện tại
     function updateDownloadLink() {
       // Lấy query string hiện tại
@@ -256,13 +269,20 @@ export default function WebBuilderStudio({
        }
      });
   </script>
-
+`
+  }
+  
 
 
 </head>
 <body${bodyAttributes ? ` ${bodyAttributes}` : ""}>
   ${bodyContent}
-  ${loadingOverlayScript}
+  ${
+    site?.data?.platform == PLATFORMS[2].value
+      ? `
+  `
+      : loadingOverlayScript
+  }
 </body>
 </html>`;
 

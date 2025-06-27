@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type {
   CreateSiteData,
+  Site,
   UpdateSiteData,
   UpdateSiteLanguageData,
   UpdateSitePlatformData,
@@ -33,14 +34,18 @@ export const useGetSites = () => {
 };
 
 export const useGetSiteById = (siteId: string) => {
-  return useQuery({
+  return useQuery<{
+    isSuccess: boolean;
+    data: Site | null;
+    message: string;
+  }>({
     queryKey: siteQueryKeys.details(siteId),
     queryFn: async () => {
       try {
         const response = await apiClient.get(`/api/sites/${siteId}`);
         return {
           isSuccess: true,
-          data: response.data.data,
+          data: response.data.data as Site,
           message: "Site fetched successfully",
         };
       } catch (error) {
