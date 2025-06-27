@@ -12,6 +12,7 @@ import {
   formatDateForApiEnd,
   formatDateForApiStart,
   formatDateTime,
+  getCurrentTimezoneInfo,
 } from "@/lib/utils";
 
 import { useGetAppInformation } from "@/hooks/app-infomation";
@@ -560,10 +561,26 @@ export default function AppInformationDataTable() {
                         {item.category}
                       </TableCell>
                       <TableCell className="text-foreground py-3">
-                        {formatDateTime(new Date(item.created_at))}
+                        <div className="flex flex-col gap-1">
+                          <div className="text-xs font-medium">
+                            {getCurrentTimezoneInfo(item.created_at)
+                              .convertedTime || "—"}
+                          </div>
+                          <div className="text-muted-foreground text-xs">
+                            {getCurrentTimezoneInfo().timezoneFormat}
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell className="text-foreground py-3">
-                        {formatDateTime(new Date(item.updated_at))}
+                        <div className="flex flex-col gap-1">
+                          <div className="text-xs font-medium">
+                            {getCurrentTimezoneInfo(item.updated_at)
+                              .convertedTime || "—"}
+                          </div>
+                          <div className="text-muted-foreground text-xs">
+                            {getCurrentTimezoneInfo().timezoneFormat}
+                          </div>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -635,4 +652,3 @@ export default function AppInformationDataTable() {
     </div>
   );
 }
-

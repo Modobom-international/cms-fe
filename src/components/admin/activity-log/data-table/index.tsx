@@ -16,7 +16,7 @@ import { DatePicker } from "react-aria-components";
 
 import { IActivityLog } from "@/types/activity-log.type";
 
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, getCurrentTimezoneInfo } from "@/lib/utils";
 
 import { useGetActivityLogs } from "@/hooks/activity-log";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -483,11 +483,20 @@ export default function ActivityLogDataTable() {
                               </div>
                             </TableCell>
                             <TableCell className="text-foreground py-3 text-sm">
-                              {log.details && log.details.logged_at
-                                ? formatDateTime(
-                                    new Date(log.details.logged_at)
-                                  )
-                                : "—"}
+                              {log.details && log.details.logged_at ? (
+                                <div className="flex flex-col gap-1">
+                                  <div className="text-xs font-medium">
+                                    {getCurrentTimezoneInfo(
+                                      log.details.logged_at
+                                    ).convertedTime || "—"}
+                                  </div>
+                                  <div className="text-muted-foreground text-xs">
+                                    {getCurrentTimezoneInfo().timezoneFormat}
+                                  </div>
+                                </div>
+                              ) : (
+                                "—"
+                              )}
                             </TableCell>
                             <TableCell className="text-foreground py-3 text-sm">
                               {log.description || "—"}
