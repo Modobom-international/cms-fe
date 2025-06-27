@@ -5,13 +5,21 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 
 import { LANGUAGES } from "@/constants/languages";
+import { PLATFORMS } from "@/constants/platform";
 import { SiteStatusEnum } from "@/enums/site-status";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PlusCircle, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { toast } from "sonner";
 
-import { Site } from "@/types/site.type";
+import {
+  Site,
+  UpdateSiteLanguageData,
+  UpdateSitePlatformData,
+} from "@/types/site.type";
+
+import apiClient from "@/lib/api/client";
 
 import {
   useActivateSite,
@@ -21,9 +29,17 @@ import {
 } from "@/hooks/sites";
 import { useDebounce } from "@/hooks/use-debounce";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { LanguageBadge } from "@/components/ui/badge/language-badge";
-import { PlatformBadge } from "@/components/ui/badge/platform-badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -56,8 +72,6 @@ import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 
 import DeleteSiteDialog from "./delete-site-dialog";
-import UpdateLanguageDialog from "./update-language-dialog";
-import UpdatePlatformDialog from "./update-platform-dialog";
 
 interface UserFilter {
   email: string;
@@ -114,6 +128,7 @@ const paginateData = (
 
 export default function SitesDataTable() {
   const t = useTranslations("Studio.Sites");
+  const queryClient = useQueryClient();
 
   const [deleteDialog, setDeleteDialog] = useState<{
     isOpen: boolean;
@@ -217,6 +232,107 @@ export default function SitesDataTable() {
   const activateSiteMutation = useActivateSite();
   const deactivateSiteMutation = useDeactivateSite();
 
+  // Create general mutations for language and platform updates
+  const updateLanguageMutation = useMutation({
+    mutationFn: async ({
+      siteId,
+      data,
+    }: {
+      siteId: string;
+      data: UpdateSiteLanguageData;
+    }) => {
+      try {
+        const response = await apiClient.patch(
+          `/api/sites/${siteId}/language`,
+          data
+        );
+        return {
+          isSuccess: true,
+          data: response.data,
+          message: "Site language updated successfully",
+        };
+      } catch (error) {
+        return {
+          isSuccess: false,
+          data: null,
+          message: "Failed to update site language",
+        };
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sites"] });
+    },
+  });
+
+  const updatePlatformMutation = useMutation({
+    mutationFn: async ({
+      siteId,
+      data,
+    }: {
+      siteId: string;
+      data: UpdateSitePlatformData;
+    }) => {
+      try {
+        const response = await apiClient.patch(
+          `/api/sites/${siteId}/platform`,
+          data
+        );
+        return {
+          isSuccess: true,
+          data: response.data,
+          message: "Site platform updated successfully",
+        };
+      } catch (error) {
+        return {
+          isSuccess: false,
+          data: null,
+          message: "Failed to update site platform",
+        };
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sites"] });
+    },
+  });
+
+  const [updatingLanguageSiteId, setUpdatingLanguageSiteId] = useState<
+    string | null
+  >(null);
+  const [updatingPlatformSiteId, setUpdatingPlatformSiteId] = useState<
+    string | null
+  >(null);
+
+  // Confirmation dialog states
+  const [languageConfirmDialog, setLanguageConfirmDialog] = useState<{
+    isOpen: boolean;
+    siteId: string;
+    siteName: string;
+    currentLanguage: string;
+    newLanguage: string;
+  }>({
+    isOpen: false,
+    siteId: "",
+    siteName: "",
+    currentLanguage: "",
+    newLanguage: "",
+  });
+
+  const [platformConfirmDialog, setPlatformConfirmDialog] = useState<{
+    isOpen: boolean;
+    siteId: string;
+    siteName: string;
+    currentPlatform: string;
+    newPlatform: string;
+  }>({
+    isOpen: false,
+    siteId: "",
+    siteName: "",
+    currentPlatform: "",
+    newPlatform: "",
+  });
+
+  // We'll need to create mutations for each site when needed
+
   const handleDeleteClick = (siteId: string, siteName: string) => {
     setDeleteDialog({
       isOpen: true,
@@ -281,6 +397,114 @@ export default function SitesDataTable() {
     }
   };
 
+  const handleLanguageChange = (siteId: string, newLanguage: string) => {
+    const site = sitesData.data.find((s: Site) => s.id === siteId);
+    if (!site || site.language === newLanguage) return;
+
+    const currentLanguageName =
+      LANGUAGES.find((l) => l.code === site.language)?.name || site.language;
+    const newLanguageName =
+      LANGUAGES.find((l) => l.code === newLanguage)?.name || newLanguage;
+
+    setLanguageConfirmDialog({
+      isOpen: true,
+      siteId,
+      siteName: site.name,
+      currentLanguage: currentLanguageName,
+      newLanguage: newLanguageName,
+    });
+  };
+
+  const handlePlatformChange = (siteId: string, newPlatform: string) => {
+    const site = sitesData.data.find((s: Site) => s.id === siteId);
+    if (!site || site.platform === newPlatform) return;
+
+    const currentPlatformName =
+      PLATFORMS.find((p) => p.value === site.platform)?.label || site.platform;
+    const newPlatformName =
+      PLATFORMS.find((p) => p.value === newPlatform)?.label || newPlatform;
+
+    setPlatformConfirmDialog({
+      isOpen: true,
+      siteId,
+      siteName: site.name,
+      currentPlatform: currentPlatformName,
+      newPlatform: newPlatformName,
+    });
+  };
+
+  const confirmLanguageUpdate = async () => {
+    const { siteId } = languageConfirmDialog;
+    const newLanguage = LANGUAGES.find(
+      (l) => l.name === languageConfirmDialog.newLanguage
+    )?.code;
+
+    if (!newLanguage) return;
+
+    setUpdatingLanguageSiteId(siteId);
+    setLanguageConfirmDialog({
+      isOpen: false,
+      siteId: "",
+      siteName: "",
+      currentLanguage: "",
+      newLanguage: "",
+    });
+
+    try {
+      await toast.promise(
+        updateLanguageMutation.mutateAsync({
+          siteId,
+          data: { language: newLanguage },
+        }),
+        {
+          loading: t("UpdateLanguage.Saving"),
+          success: t("UpdateLanguage.Success"),
+          error: t("UpdateLanguage.Error"),
+        }
+      );
+    } catch (error) {
+      console.error("Error updating language:", error);
+    } finally {
+      setUpdatingLanguageSiteId(null);
+    }
+  };
+
+  const confirmPlatformUpdate = async () => {
+    const { siteId } = platformConfirmDialog;
+    const newPlatform = PLATFORMS.find(
+      (p) => p.label === platformConfirmDialog.newPlatform
+    )?.value;
+
+    if (!newPlatform) return;
+
+    setUpdatingPlatformSiteId(siteId);
+    setPlatformConfirmDialog({
+      isOpen: false,
+      siteId: "",
+      siteName: "",
+      currentPlatform: "",
+      newPlatform: "",
+    });
+
+    try {
+      await toast.promise(
+        updatePlatformMutation.mutateAsync({
+          siteId,
+          data: { platform: newPlatform },
+        }),
+        {
+          loading: t("UpdatePlatform.Loading"),
+          success: t("UpdatePlatform.Success"),
+          error: t("UpdatePlatform.Error"),
+        }
+      );
+    } catch (error) {
+      console.error("Error updating platform:", error);
+    } finally {
+      setUpdatingPlatformSiteId(null);
+    }
+  };
+
   // Handle pagination
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(sitesData.meta.last_page, prev + 1));
@@ -289,22 +513,6 @@ export default function SitesDataTable() {
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
   };
-
-  const [updateLanguageDialog, setUpdateLanguageDialog] = useState<{
-    isOpen: boolean;
-    site: Site | null;
-  }>({
-    isOpen: false,
-    site: null,
-  });
-
-  const [updatePlatformDialog, setUpdatePlatformDialog] = useState<{
-    isOpen: boolean;
-    site: Site | null;
-  }>({
-    isOpen: false,
-    site: null,
-  });
 
   // Apply filters
   const applyFilters = () => {
@@ -355,6 +563,15 @@ export default function SitesDataTable() {
   };
 
   const isDataEmpty = !sitesData?.data || sitesData.data.length === 0;
+
+  // Helper function to check if a site is in any loading state
+  const isSiteUpdating = (siteId: string) => {
+    return (
+      updatingLanguageSiteId === siteId ||
+      updatingPlatformSiteId === siteId ||
+      processingStatusSiteId === siteId
+    );
+  };
 
   return (
     <div className="flex flex-col">
@@ -659,7 +876,11 @@ export default function SitesDataTable() {
                   {sitesData.data.map((site: Site) => (
                     <TableRow
                       key={site.id}
-                      className="border-border hover:bg-muted/50 group border-b transition-colors"
+                      className={`border-border group border-b transition-colors ${
+                        isSiteUpdating(site.id)
+                          ? "bg-muted/30 opacity-75"
+                          : "hover:bg-muted/50"
+                      }`}
                     >
                       <TableCell className="py-3">
                         <span className="text-foreground font-medium">
@@ -670,10 +891,104 @@ export default function SitesDataTable() {
                         {site.domain}
                       </TableCell>
                       <TableCell className="py-3">
-                        <LanguageBadge language={site.language} />
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={site.language}
+                            onValueChange={(value) =>
+                              handleLanguageChange(site.id, value)
+                            }
+                            disabled={isSiteUpdating(site.id)}
+                          >
+                            <SelectTrigger
+                              className={`h-8 w-auto border-0 bg-transparent p-1 focus:ring-0 ${
+                                isSiteUpdating(site.id)
+                                  ? "cursor-not-allowed opacity-50"
+                                  : "hover:bg-muted cursor-pointer"
+                              }`}
+                            >
+                              <SelectValue>
+                                <div className="flex items-center gap-1">
+                                  <span>
+                                    {LANGUAGES.find(
+                                      (l) => l.code === site.language
+                                    )?.flag || "🏳️"}
+                                  </span>
+                                  {/* <span className="text-xs">
+                                    {LANGUAGES.find(
+                                      (l) => l.code === site.language
+                                    )?.name || site.language}
+                                  </span> */}
+                                </div>
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {LANGUAGES.map((language) => (
+                                <SelectItem
+                                  key={language.code}
+                                  value={language.code}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <span>{language.flag}</span>
+                                    <span>{language.name}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {updatingLanguageSiteId === site.id && (
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="py-3">
-                        <PlatformBadge platform={site.platform} />
+                        <div className="flex items-center gap-2">
+                          <Select
+                            value={site.platform}
+                            onValueChange={(value) =>
+                              handlePlatformChange(site.id, value)
+                            }
+                            disabled={isSiteUpdating(site.id)}
+                          >
+                            <SelectTrigger
+                              className={`h-8 w-auto border-0 bg-transparent p-1 focus:ring-0 ${
+                                isSiteUpdating(site.id)
+                                  ? "cursor-not-allowed opacity-50"
+                                  : "hover:bg-muted cursor-pointer"
+                              }`}
+                            >
+                              <SelectValue>
+                                <div className="flex items-center gap-1">
+                                  <span>
+                                    {PLATFORMS.find(
+                                      (p) => p.value === site.platform
+                                    )?.icon || "🔍"}
+                                  </span>
+                                  <span className="text-xs">
+                                    {PLATFORMS.find(
+                                      (p) => p.value === site.platform
+                                    )?.label || site.platform}
+                                  </span>
+                                </div>
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {PLATFORMS.map((platform) => (
+                                <SelectItem
+                                  key={platform.value}
+                                  value={platform.value}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <span>{platform.icon}</span>
+                                    <span>{platform.label}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {updatingPlatformSiteId === site.id && (
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-foreground py-3 text-sm">
                         <div className="flex flex-col">
@@ -735,36 +1050,11 @@ export default function SitesDataTable() {
                             variant="outline"
                             size="sm"
                             className="h-7 px-2 text-xs"
+                            disabled={isSiteUpdating(site.id)}
                           >
                             <Link href={`/studio/sites/${site.id}/pages`}>
                               {t("Table.Pages")}
                             </Link>
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              setUpdateLanguageDialog({
-                                isOpen: true,
-                                site,
-                              })
-                            }
-                            className="h-7 px-2 text-xs"
-                          >
-                            {t("Table.Language")}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              setUpdatePlatformDialog({
-                                isOpen: true,
-                                site,
-                              })
-                            }
-                            className="h-7 px-2 text-xs"
-                          >
-                            {t("Table.Platform")}
                           </Button>
                           <Button
                             variant="destructive"
@@ -773,6 +1063,10 @@ export default function SitesDataTable() {
                               handleDeleteClick(site.id, site.name)
                             }
                             className="h-7 px-2 text-xs"
+                            disabled={
+                              isSiteUpdating(site.id) ||
+                              deleteSiteMutation.isPending
+                            }
                           >
                             {t("Table.Delete")}
                           </Button>
@@ -859,21 +1153,82 @@ export default function SitesDataTable() {
         isDeleting={deleteSiteMutation.isPending}
       />
 
-      {updateLanguageDialog.site && (
-        <UpdateLanguageDialog
-          site={updateLanguageDialog.site}
-          isOpen={updateLanguageDialog.isOpen}
-          onClose={() => setUpdateLanguageDialog({ isOpen: false, site: null })}
-        />
-      )}
+      {/* Language Confirmation Dialog */}
+      <AlertDialog
+        open={languageConfirmDialog.isOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setLanguageConfirmDialog({
+              isOpen: false,
+              siteId: "",
+              siteName: "",
+              currentLanguage: "",
+              newLanguage: "",
+            });
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("UpdateLanguage.Title")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("UpdateLanguage.Description")} &quot;
+              {languageConfirmDialog.siteName}&quot;?
+              <br />
+              <br />
+              <span className="font-medium">
+                {languageConfirmDialog.currentLanguage} →{" "}
+                {languageConfirmDialog.newLanguage}
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("UpdateLanguage.Cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmLanguageUpdate}>
+              {t("UpdateLanguage.Save")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      {updatePlatformDialog.site && (
-        <UpdatePlatformDialog
-          site={updatePlatformDialog.site}
-          isOpen={updatePlatformDialog.isOpen}
-          onClose={() => setUpdatePlatformDialog({ isOpen: false, site: null })}
-        />
-      )}
+      {/* Platform Confirmation Dialog */}
+      <AlertDialog
+        open={platformConfirmDialog.isOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPlatformConfirmDialog({
+              isOpen: false,
+              siteId: "",
+              siteName: "",
+              currentPlatform: "",
+              newPlatform: "",
+            });
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("UpdatePlatform.Title")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("UpdatePlatform.Description", {
+                siteName: platformConfirmDialog.siteName,
+              })}
+              <br />
+              <br />
+              <span className="font-medium">
+                {platformConfirmDialog.currentPlatform} →{" "}
+                {platformConfirmDialog.newPlatform}
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("UpdatePlatform.Cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmPlatformUpdate}>
+              {t("UpdatePlatform.Submit")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
