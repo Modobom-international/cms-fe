@@ -12,9 +12,10 @@ import {
   formatDateForApiEnd,
   formatDateForApiStart,
   formatDateTime,
+  getCurrentTimezoneInfo,
 } from "@/lib/utils";
 
-import { useGetAppInformation } from "@/hooks/app-infomation";
+import { useGetAppInformation } from "@/hooks/app-information";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -86,6 +87,10 @@ export default function AppInformationDataTable() {
     "network",
     parseAsString.withDefault("")
   );
+  const [eventValueFilter, setEventValueFilter] = useQueryState(
+    "event_value",
+    parseAsString.withDefault("")
+  );
   const [dateFromFilter, setDateFromFilter] = useQueryState(
     "date_from",
     parseAsString.withDefault("")
@@ -130,6 +135,9 @@ export default function AppInformationDataTable() {
       : undefined,
     network: networkFilter
       ? networkFilter.split(",").filter(Boolean)
+      : undefined,
+    event_value: eventValueFilter
+      ? eventValueFilter.split(",").filter(Boolean)
       : undefined,
     // Note: from and to will always be present due to default values in the hook
     from: dateFromFilter || undefined,
@@ -178,6 +186,7 @@ export default function AppInformationDataTable() {
       country: string[];
       event_name: string[];
       network: string[];
+      event_value: string[];
       date_range: { from: Date | null; to: Date | null };
     }) => {
       setAppFilter(filters.app_name.join(","));
@@ -189,6 +198,7 @@ export default function AppInformationDataTable() {
       setCountryFilter(filters.country.join(","));
       setEventFilter(filters.event_name.join(","));
       setNetworkFilter(filters.network.join(","));
+      setEventValueFilter(filters.event_value.join(","));
 
       // Format dates for backend API (always include time)
       setDateFromFilter(
@@ -211,6 +221,7 @@ export default function AppInformationDataTable() {
       setCountryFilter,
       setEventFilter,
       setNetworkFilter,
+      setEventValueFilter,
       setDateFromFilter,
       setDateToFilter,
       setCurrentPage,
@@ -247,6 +258,9 @@ export default function AppInformationDataTable() {
         case "network":
           setNetworkFilter("");
           break;
+        case "event_value":
+          setEventValueFilter("");
+          break;
         case "date_range":
           // Reset to default date range instead of empty
           const today = new Date();
@@ -268,6 +282,7 @@ export default function AppInformationDataTable() {
       setCountryFilter,
       setEventFilter,
       setNetworkFilter,
+      setEventValueFilter,
       setDateFromFilter,
       setDateToFilter,
       setCurrentPage,
@@ -284,6 +299,7 @@ export default function AppInformationDataTable() {
     setCountryFilter("");
     setEventFilter("");
     setNetworkFilter("");
+    setEventValueFilter("");
 
     // Reset to default date range instead of empty
     const today = new Date();
@@ -303,6 +319,7 @@ export default function AppInformationDataTable() {
     setCountryFilter,
     setEventFilter,
     setNetworkFilter,
+    setEventValueFilter,
     setDateFromFilter,
     setDateToFilter,
     setCurrentPage,
@@ -447,6 +464,7 @@ export default function AppInformationDataTable() {
         countryFilter={countryFilter}
         appVersionFilter={appVersionFilter}
         networkFilter={networkFilter}
+        eventValueFilter={eventValueFilter}
         dateFilter={dateFilter}
         eventCounts={countEvents}
         onFiltersApply={handleFiltersApply}
@@ -560,10 +578,26 @@ export default function AppInformationDataTable() {
                         {item.category}
                       </TableCell>
                       <TableCell className="text-foreground py-3">
-                        {formatDateTime(new Date(item.created_at))}
+                        <div className="flex flex-col gap-1">
+                          <div className="text-xs font-medium">
+                            {getCurrentTimezoneInfo(item.created_at)
+                              .convertedTime || "—"}
+                          </div>
+                          <div className="text-muted-foreground text-xs">
+                            {getCurrentTimezoneInfo().timezoneFormat}
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell className="text-foreground py-3">
-                        {formatDateTime(new Date(item.updated_at))}
+                        <div className="flex flex-col gap-1">
+                          <div className="text-xs font-medium">
+                            {getCurrentTimezoneInfo(item.updated_at)
+                              .convertedTime || "—"}
+                          </div>
+                          <div className="text-muted-foreground text-xs">
+                            {getCurrentTimezoneInfo().timezoneFormat}
+                          </div>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -635,4 +669,3 @@ export default function AppInformationDataTable() {
     </div>
   );
 }
-

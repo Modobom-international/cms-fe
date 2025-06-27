@@ -354,3 +354,44 @@ export const processTimeFromApi = (
 
   return processed;
 };
+
+/**
+ * Get current timezone info and convert UTC time to Vietnam timezone
+ * Returns timezone format (e.g., "UTC +7") and converted time
+ */
+export const getCurrentTimezoneInfo = (utcTime?: string | Date) => {
+  // Vietnam is always UTC+7
+  const timezoneFormat = "UTC +7";
+
+  // Convert UTC time to Vietnam timezone if provided
+  let convertedTime: string | null = null;
+  if (utcTime) {
+    try {
+      let utcDate: Date;
+
+      if (typeof utcTime === 'string') {
+        // Handle different date formats
+        if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(utcTime)) {
+          // Format: "2025-06-27 04:43:57" - treat as UTC
+          utcDate = new Date(utcTime + 'Z'); // Add 'Z' to indicate UTC
+        } else {
+          utcDate = parseISO(utcTime);
+        }
+      } else {
+        utcDate = utcTime;
+      }
+
+      if (!isNaN(utcDate.getTime())) {
+        const vietnamTime = toZonedTime(utcDate, VIETNAM_TIMEZONE);
+        convertedTime = format(vietnamTime, "yyyy-MM-dd HH:mm:ss");
+      }
+    } catch (error) {
+      console.warn('Failed to convert UTC time to Vietnam time:', error);
+    }
+  }
+
+  return {
+    timezoneFormat,
+    convertedTime
+  };
+};

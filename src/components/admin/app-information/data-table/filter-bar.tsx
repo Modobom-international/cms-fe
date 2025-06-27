@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { PlusCircle, Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { useGetAppInformationFilterMenu } from "@/hooks/app-infomation";
+import { useGetAppInformationFilterMenu } from "@/hooks/app-information";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -69,6 +69,7 @@ interface FilterBarProps {
   countryFilter: string;
   appVersionFilter: string;
   networkFilter: string;
+  eventValueFilter: string;
   dateFilter: { from: Date | null; to: Date | null };
   eventCounts?: Array<{
     event_name: string;
@@ -87,6 +88,7 @@ interface FilterBarProps {
     country: string[];
     event_name: string[];
     network: string[];
+    event_value: string[];
     date_range: { from: Date | null; to: Date | null };
   }) => void;
   onClearFilter: (filterType: string) => void;
@@ -103,6 +105,7 @@ export function FilterBar({
   countryFilter,
   appVersionFilter,
   networkFilter,
+  eventValueFilter,
   dateFilter,
   eventCounts,
   onFiltersApply,
@@ -142,6 +145,9 @@ export function FilterBar({
   const [selectedNetworks, setSelectedNetworks] = useState<string[]>(
     networkFilter ? networkFilter.split(",").filter(Boolean) : []
   );
+  const [selectedEventValues, setSelectedEventValues] = useState<string[]>(
+    eventValueFilter ? eventValueFilter.split(",").filter(Boolean) : []
+  );
 
   // Date range state - default to yesterday and today
   const today = new Date();
@@ -167,6 +173,7 @@ export function FilterBar({
     country: [],
     app_version: [],
     network: [],
+    event_value: [],
   };
 
   // Transform API data to options format
@@ -206,6 +213,12 @@ export function FilterBar({
     value: network,
     label: network,
   }));
+  const eventValueOptions = ((filterOptions as any).event_value || []).map(
+    (value: string) => ({
+      value: value,
+      label: value,
+    })
+  );
 
   // Check if any filters are applied
   const hasAppliedFilters = !!(
@@ -218,6 +231,7 @@ export function FilterBar({
     countryFilter ||
     appVersionFilter ||
     networkFilter ||
+    eventValueFilter ||
     dateFilter.from ||
     dateFilter.to
   );
@@ -234,6 +248,7 @@ export function FilterBar({
       country: selectedCountries,
       event_name: selectedEvents,
       network: selectedNetworks,
+      event_value: selectedEventValues,
       date_range: dateRange,
     });
   };
@@ -293,6 +308,12 @@ export function FilterBar({
     );
   };
 
+  const handleEventValueChange = (eventValue: string, checked: boolean) => {
+    setSelectedEventValues((prev) =>
+      checked ? [...prev, eventValue] : prev.filter((ev) => ev !== eventValue)
+    );
+  };
+
   // Clear all local filter states
   const handleClearAllFilters = () => {
     setSelectedApps([]);
@@ -304,6 +325,7 @@ export function FilterBar({
     setSelectedCountries([]);
     setSelectedAppVersions([]);
     setSelectedNetworks([]);
+    setSelectedEventValues([]);
     // Reset to default date range
     const today = new Date();
     const yesterday = new Date(today);
@@ -341,6 +363,9 @@ export function FilterBar({
         break;
       case "network":
         setSelectedNetworks([]);
+        break;
+      case "event_value":
+        setSelectedEventValues([]);
         break;
       case "date_range":
         // Reset to default date range
@@ -450,6 +475,14 @@ export function FilterBar({
                 t={t}
               />
             )}
+            {eventValueFilter && (
+              <FilterBadge
+                label={t("filters.eventValue")}
+                filterValue={eventValueFilter}
+                onClear={() => handleClearFilter("event_value")}
+                t={t}
+              />
+            )}
           </div>
           <div>
             <Button
@@ -526,8 +559,8 @@ export function FilterBar({
 
         {/* OS Version Filter */}
         <FilterPopover
-          title="OS Version"
-          label="Filter by OS Version"
+          title={t("filters.osVersion")}
+          label={t("filters.filterByOSVersion")}
           options={osVersionOptions}
           selectedValues={selectedOSVersions}
           onChange={handleOSVersionChange}
@@ -553,6 +586,16 @@ export function FilterBar({
           onChange={handleEventChange}
           onApply={applyFilters}
           eventCounts={eventCounts}
+        />
+
+        {/* Event Value Filter */}
+        <FilterPopover
+          title={t("filters.eventValue")}
+          label={t("filters.filterByEventValue")}
+          options={eventValueOptions}
+          selectedValues={selectedEventValues}
+          onChange={handleEventValueChange}
+          onApply={applyFilters}
         />
 
         {/* Network Filter */}
@@ -681,4 +724,3 @@ function FilterPopover({
     </div>
   );
 }
-

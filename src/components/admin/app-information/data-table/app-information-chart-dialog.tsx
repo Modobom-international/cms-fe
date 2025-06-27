@@ -8,7 +8,7 @@ import { BarChart3, Calendar, Filter, TrendingUp, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
-import { useGetAppInformationChart } from "@/hooks/app-infomation";
+import { useGetAppInformationChart } from "@/hooks/app-information";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -85,6 +85,11 @@ function AppliedFilters() {
       key: "network",
       label: t("filterLabels.network"),
       value: searchParams.get("network"),
+    },
+    {
+      key: "event_value",
+      label: t("filterLabels.event_value"),
+      value: searchParams.get("event_value"),
     },
     {
       key: "date_from",

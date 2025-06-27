@@ -196,6 +196,7 @@ export const appInformationQueryKeys = {
     country?: string | string[],
     event_name?: string | string[],
     network?: string | string[],
+    event_value?: string | string[],
     from?: string,
     to?: string
   ) =>
@@ -214,6 +215,7 @@ export const appInformationQueryKeys = {
         country,
         event_name,
         network,
+        event_value,
         // Ensure dates are always included in query key for proper caching
         from: from || "",
         to: to || "",
@@ -231,10 +233,11 @@ export const appInformationQueryKeys = {
     country?: string | string[],
     event_name?: string | string[],
     network?: string | string[],
+    event_value?: string | string[],
     from?: string,
     to?: string) => [
       ...appInformationQueryKeys.origin,
       "chart",
-      { app_name, os_name, os_version, app_version, category, platform, country, event_name, network, from, to },
+      { app_name, os_name, os_version, app_version, category, platform, country, event_name, network, event_value, from, to },
     ] as const,
 };
