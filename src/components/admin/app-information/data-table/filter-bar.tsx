@@ -588,16 +588,6 @@ export function FilterBar({
           eventCounts={eventCounts}
         />
 
-        {/* Network Filter */}
-        <FilterPopover
-          title={t("filters.network")}
-          label={t("filters.filterByNetwork")}
-          options={networkOptions}
-          selectedValues={selectedNetworks}
-          onChange={handleNetworkChange}
-          onApply={applyFilters}
-        />
-
         {/* Event Value Filter */}
         <FilterPopover
           title={t("filters.eventValue")}
@@ -605,6 +595,16 @@ export function FilterBar({
           options={eventValueOptions}
           selectedValues={selectedEventValues}
           onChange={handleEventValueChange}
+          onApply={applyFilters}
+        />
+
+        {/* Network Filter */}
+        <FilterPopover
+          title={t("filters.network")}
+          label={t("filters.filterByNetwork")}
+          options={networkOptions}
+          selectedValues={selectedNetworks}
+          onChange={handleNetworkChange}
           onApply={applyFilters}
         />
       </div>
