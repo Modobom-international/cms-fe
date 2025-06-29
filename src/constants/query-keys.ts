@@ -195,7 +195,10 @@ export const appInformationQueryKeys = {
     platform?: string | string[],
     country?: string | string[],
     event_name?: string | string[],
-    network?: string | string[]
+    network?: string | string[],
+    event_value?: string | string[],
+    from?: string,
+    to?: string
   ) =>
     [
       ...appInformationQueryKeys.origin,
@@ -212,23 +215,45 @@ export const appInformationQueryKeys = {
         country,
         event_name,
         network,
+        event_value,
+        // Ensure dates are always included in query key for proper caching
+        from: from || "",
+        to: to || "",
       },
     ] as const,
   filterMenu: () => [...appInformationQueryKeys.origin, "filter-menu"] as const,
-};
-
-export const storageQueryKeys = {
-  origin: ["storage"] as const,
-  all: () => [...storageQueryKeys.origin, "all"] as const,
-  fileStructure: (prefix: string = "") =>
-    [...storageQueryKeys.origin, "file-structure", prefix] as const,
-  files: (prefix: string = "") =>
-    [...storageQueryKeys.origin, "files", prefix] as const,
-  upload: () => [...storageQueryKeys.origin, "upload"] as const,
-  presignedUrls: () => [...storageQueryKeys.origin, "presigned-urls"] as const,
-  createFolder: () => [...storageQueryKeys.origin, "create-folder"] as const,
-  delete: (itemId: string) =>
-    [...storageQueryKeys.origin, "delete", itemId] as const,
-  download: (itemId: string) =>
-    [...storageQueryKeys.origin, "download", itemId] as const,
+  byUserId: (userId: string) =>
+    [...appInformationQueryKeys.origin, "user", userId] as const,
+  chart: (
+    app_name?: string | string[],
+    os_name?: string | string[],
+    os_version?: string | string[],
+    app_version?: string | string[],
+    category?: string | string[],
+    platform?: string | string[],
+    country?: string | string[],
+    event_name?: string | string[],
+    network?: string | string[],
+    event_value?: string | string[],
+    from?: string,
+    to?: string
+  ) =>
+    [
+      ...appInformationQueryKeys.origin,
+      "chart",
+      {
+        app_name,
+        os_name,
+        os_version,
+        app_version,
+        category,
+        platform,
+        country,
+        event_name,
+        network,
+        event_value,
+        from,
+        to,
+      },
+    ] as const,
 };

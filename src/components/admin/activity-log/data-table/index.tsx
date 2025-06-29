@@ -1,8 +1,10 @@
 "use client";
 
+import React, { useState } from "react";
+
 import { CalendarDate, parseDate } from "@internationalized/date";
 import { format } from "date-fns";
-import { PlusCircle } from "lucide-react";
+import { ChevronDown, ChevronRight, PlusCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   parseAsArrayOf,
@@ -14,7 +16,7 @@ import { DatePicker } from "react-aria-components";
 
 import { IActivityLog } from "@/types/activity-log.type";
 
-import { formatDateTime } from "@/lib/utils";
+import { getCurrentTimezoneInfo } from "@/lib/utils";
 
 import { useGetActivityLogs } from "@/hooks/activity-log";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -59,8 +61,58 @@ const ACTION_TYPES = {
   DELETE_RECORD: "delete_record",
 } as const;
 
+// Helper function to render object in key-value format
+const renderObjectDetails = (obj: any, indent = 0): React.ReactNode => {
+  if (obj === null || obj === undefined) {
+    return <span className="text-muted-foreground">—</span>;
+  }
+
+  if (typeof obj !== "object") {
+    return <span className="text-sm">{String(obj)}</span>;
+  }
+
+  if (Array.isArray(obj)) {
+    if (obj.length === 0) {
+      return <span className="text-muted-foreground">[]</span>;
+    }
+    return (
+      <div className="space-y-1">
+        {obj.map((item, index) => (
+          <div key={index} style={{ marginLeft: `${indent * 12}px` }}>
+            <span className="text-muted-foreground text-xs">[{index}]:</span>{" "}
+            {renderObjectDetails(item, indent + 1)}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const entries = Object.entries(obj);
+  if (entries.length === 0) {
+    return <span className="text-muted-foreground">{}</span>;
+  }
+
+  return (
+    <div className="space-y-1">
+      {entries.map(([key, value]) => (
+        <div key={key} style={{ marginLeft: `${indent * 12}px` }}>
+          <span className="text-muted-foreground text-xs font-medium">
+            {key}:
+          </span>{" "}
+          {typeof value === "object" && value !== null ? (
+            <div className="mt-1">{renderObjectDetails(value, indent + 1)}</div>
+          ) : (
+            <span className="text-sm">{String(value)}</span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export default function ActivityLogDataTable() {
   const t = useTranslations("ActivityLogPage.table");
+  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -130,6 +182,19 @@ export default function ActivityLogDataTable() {
       } else {
         return prev.filter((a) => a !== action);
       }
+    });
+  };
+
+  // Handle row expansion
+  const toggleRowExpansion = (id: number) => {
+    setExpandedRows((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
     });
   };
 
@@ -366,6 +431,9 @@ export default function ActivityLogDataTable() {
                 <Table className="w-full">
                   <TableHeader className="bg-background dark:bg-card sticky top-0 z-10">
                     <TableRow className="border-border hover:bg-muted/50 border-b">
+                      <TableHead className="text-foreground w-[40px] py-3 font-medium">
+                        {/* Expand/Collapse column */}
+                      </TableHead>
                       <TableHead className="text-foreground w-[60px] py-3 font-medium">
                         {t("columns.id")}
                       </TableHead>
@@ -384,32 +452,77 @@ export default function ActivityLogDataTable() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {activityLogData.map((log: IActivityLog, index: number) => {
+                    {activityLogData.map((log: IActivityLog) => {
+                      const isExpanded = expandedRows.has(log.id);
                       return (
-                        <TableRow
-                          key={index}
-                          className="border-border hover:bg-muted/50 group border-b transition-colors"
-                        >
-                          <TableCell className="text-foreground py-3 text-sm font-medium">
-                            {log.id}
-                          </TableCell>
-                          <TableCell className="py-3">
-                            <ActivityLogBadge action={log.action} />
-                          </TableCell>
-                          <TableCell className="text-foreground py-3 text-sm">
-                            <div className="flex items-center">
-                              <span>{log.user_email || "—"}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-foreground py-3 text-sm">
-                            {log.details && log.details.logged_at
-                              ? formatDateTime(new Date(log.details.logged_at))
-                              : "—"}
-                          </TableCell>
-                          <TableCell className="text-foreground py-3 text-sm">
-                            {log.description || "—"}
-                          </TableCell>
-                        </TableRow>
+                        <React.Fragment key={log.id}>
+                          <TableRow className="border-border hover:bg-muted/50 group border-b transition-colors">
+                            <TableCell className="py-3">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                                onClick={() => toggleRowExpansion(log.id)}
+                              >
+                                {isExpanded ? (
+                                  <ChevronDown className="h-4 w-4" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </TableCell>
+                            <TableCell className="text-foreground py-3 text-sm font-medium">
+                              {log.id}
+                            </TableCell>
+                            <TableCell className="py-3">
+                              <ActivityLogBadge action={log.action} />
+                            </TableCell>
+                            <TableCell className="text-foreground py-3 text-sm">
+                              <div className="flex items-center">
+                                <span>{log.user_email || "—"}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-foreground py-3 text-sm">
+                              {log.details && log.details.logged_at ? (
+                                <div className="flex flex-col gap-1">
+                                  <div className="text-xs font-medium">
+                                    {getCurrentTimezoneInfo(
+                                      log.details.logged_at
+                                    ).convertedTime || "—"}
+                                  </div>
+                                  <div className="text-muted-foreground text-xs">
+                                    {getCurrentTimezoneInfo().timezoneFormat}
+                                  </div>
+                                </div>
+                              ) : (
+                                "—"
+                              )}
+                            </TableCell>
+                            <TableCell className="text-foreground py-3 text-sm">
+                              {log.description || "—"}
+                            </TableCell>
+                          </TableRow>
+                          {isExpanded && (
+                            <TableRow key={`${log.id}-details`}>
+                              <TableCell colSpan={6} className="py-4">
+                                <div className="bg-muted/50 border-border rounded-lg border p-4">
+                                  <h4 className="text-foreground mb-3 text-sm font-semibold">
+                                    Activity Details
+                                  </h4>
+                                  <div className="text-sm">
+                                    {log.details ? (
+                                      renderObjectDetails(log.details)
+                                    ) : (
+                                      <span className="text-muted-foreground">
+                                        No details available
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </React.Fragment>
                       );
                     })}
                   </TableBody>

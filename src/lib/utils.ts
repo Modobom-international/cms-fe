@@ -7,6 +7,48 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+
+export const formatDateToString = (date: Date): string => {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+};
+
+/**
+ * Format date for backend API with start of day time (00:00:00)
+ * Format: YYYY-MM-DD 00:00:00
+ */
+export const formatDateForApiStart = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day} 00:00:00`;
+};
+
+/**
+ * Format date for backend API with end of day time (23:59:59)
+ * Format: YYYY-MM-DD 23:59:59
+ */
+export const formatDateForApiEnd = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day} 23:59:59`;
+};
+
+/**
+ * Get default date range for app information queries
+ * Returns yesterday as start date and today as end date
+ */
+export const getDefaultDateRange = () => {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  return {
+    from: formatDateForApiStart(yesterday),
+    to: formatDateForApiEnd(today)
+  };
+};
+
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
@@ -24,25 +66,6 @@ export const formatDateTime = (
 // Constants for timezone handling
 const VIETNAM_TIMEZONE = "Asia/Ho_Chi_Minh";
 const VIETNAM_LOCALE = "vi-VN";
-
-// Get client's locale and timezone (hydration-safe)
-const getClientLocale = (): string => {
-  if (typeof window !== "undefined") {
-    return VIETNAM_LOCALE; // Force Vietnamese locale
-  }
-  return VIETNAM_LOCALE;
-};
-
-const getClientTimezone = (): string => {
-  if (typeof window !== "undefined") {
-    return VIETNAM_TIMEZONE; // Force Vietnam timezone
-  }
-  return VIETNAM_TIMEZONE;
-};
-
-// ============================================================================
-// API REQUEST UTILITIES - Convert Vietnam time to UTC for sending to API
-// ============================================================================
 
 /**
  * Convert Vietnam time to UTC for API requests
@@ -330,4 +353,45 @@ export const processTimeFromApi = (
   });
 
   return processed;
+};
+
+/**
+ * Get current timezone info and convert UTC time to Vietnam timezone
+ * Returns timezone format (e.g., "UTC +7") and converted time
+ */
+export const getCurrentTimezoneInfo = (utcTime?: string | Date) => {
+  // Vietnam is always UTC+7
+  const timezoneFormat = "UTC +7";
+
+  // Convert UTC time to Vietnam timezone if provided
+  let convertedTime: string | null = null;
+  if (utcTime) {
+    try {
+      let utcDate: Date;
+
+      if (typeof utcTime === 'string') {
+        // Handle different date formats
+        if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(utcTime)) {
+          // Format: "2025-06-27 04:43:57" - treat as UTC
+          utcDate = new Date(utcTime + 'Z'); // Add 'Z' to indicate UTC
+        } else {
+          utcDate = parseISO(utcTime);
+        }
+      } else {
+        utcDate = utcTime;
+      }
+
+      if (!isNaN(utcDate.getTime())) {
+        const vietnamTime = toZonedTime(utcDate, VIETNAM_TIMEZONE);
+        convertedTime = format(vietnamTime, "yyyy-MM-dd HH:mm:ss");
+      }
+    } catch (error) {
+      console.warn('Failed to convert UTC time to Vietnam time:', error);
+    }
+  }
+
+  return {
+    timezoneFormat,
+    convertedTime
+  };
 };

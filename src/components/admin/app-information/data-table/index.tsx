@@ -1,13 +1,20 @@
 "use client";
 
+import { useCallback, useMemo } from "react";
+
+import { Activity, BarChart3, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 
 import { IAppInformation } from "@/types/app-information.type";
 
-import { formatDateTime } from "@/lib/utils";
+import {
+  formatDateForApiEnd,
+  formatDateForApiStart,
+  getCurrentTimezoneInfo,
+} from "@/lib/utils";
 
-import { useGetAppInformation } from "@/hooks/app-infomation";
+import { useGetAppInformation } from "@/hooks/app-information";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -79,6 +86,26 @@ export default function AppInformationDataTable() {
     "network",
     parseAsString.withDefault("")
   );
+  const [eventValueFilter, setEventValueFilter] = useQueryState(
+    "event_value",
+    parseAsString.withDefault("")
+  );
+  const [dateFromFilter, setDateFromFilter] = useQueryState(
+    "date_from",
+    parseAsString.withDefault("")
+  );
+  const [dateToFilter, setDateToFilter] = useQueryState(
+    "date_to",
+    parseAsString.withDefault("")
+  );
+
+  const dateFilter = useMemo(
+    () => ({
+      from: dateFromFilter ? new Date(dateFromFilter) : null,
+      to: dateToFilter ? new Date(dateToFilter) : null,
+    }),
+    [dateFromFilter, dateToFilter]
+  );
 
   const {
     data: appInformationData,
@@ -108,21 +135,34 @@ export default function AppInformationDataTable() {
     network: networkFilter
       ? networkFilter.split(",").filter(Boolean)
       : undefined,
+    event_value: eventValueFilter
+      ? eventValueFilter.split(",").filter(Boolean)
+      : undefined,
+    // Note: from and to will always be present due to default values in the hook
+    from: dateFromFilter || undefined,
+    to: dateToFilter || undefined,
   });
 
   const appInformationList: IAppInformation[] =
-    appInformationData?.data?.data ?? [];
+    (appInformationData?.data as any)?.list?.data ?? [];
 
-  const paginationInfo =
-    appInformationData?.data ??
-    ({
-      from: 0,
-      to: 0,
-      total: 0,
-      last_page: 1,
-      current_page: 1,
-      per_page: pageSize,
-    } as any);
+  const paginationInfo = (appInformationData?.data as any)?.list ?? {
+    from: 0,
+    to: 0,
+    total: 0,
+    last_page: 1,
+    current_page: 1,
+    per_page: pageSize,
+  };
+
+  const totalUsers = (appInformationData?.data as any)?.total_user ?? 0;
+  const countEvents: Array<{
+    event_name: string;
+    values: Array<{
+      event_value: string;
+      count: number;
+    }>;
+  }> = (appInformationData?.data as any)?.count_event ?? [];
 
   const isDataEmpty = appInformationList.length === 0;
 
@@ -134,63 +174,121 @@ export default function AppInformationDataTable() {
     setCurrentPage((prev) => Math.max(1, prev - 1));
   };
 
-  const handleFiltersApply = (filters: {
-    app_name: string[];
-    os_name: string[];
-    os_version: string[];
-    app_version: string[];
-    category: string[];
-    platform: string[];
-    country: string[];
-    event_name: string[];
-    network: string[];
-  }) => {
-    setAppFilter(filters.app_name.join(","));
-    setOsFilter(filters.os_name.join(","));
-    setOsVersionFilter(filters.os_version.join(","));
-    setAppVersionFilter(filters.app_version.join(","));
-    setCategoryFilter(filters.category.join(","));
-    setPlatformFilter(filters.platform.join(","));
-    setCountryFilter(filters.country.join(","));
-    setEventFilter(filters.event_name.join(","));
-    setNetworkFilter(filters.network.join(","));
-    setCurrentPage(1);
-  };
+  const handleFiltersApply = useCallback(
+    (filters: {
+      app_name: string[];
+      os_name: string[];
+      os_version: string[];
+      app_version: string[];
+      category: string[];
+      platform: string[];
+      country: string[];
+      event_name: string[];
+      network: string[];
+      event_value: string[];
+      date_range: { from: Date | null; to: Date | null };
+    }) => {
+      setAppFilter(filters.app_name.join(","));
+      setOsFilter(filters.os_name.join(","));
+      setOsVersionFilter(filters.os_version.join(","));
+      setAppVersionFilter(filters.app_version.join(","));
+      setCategoryFilter(filters.category.join(","));
+      setPlatformFilter(filters.platform.join(","));
+      setCountryFilter(filters.country.join(","));
+      setEventFilter(filters.event_name.join(","));
+      setNetworkFilter(filters.network.join(","));
+      setEventValueFilter(filters.event_value.join(","));
 
-  const handleClearFilter = (filterType: string) => {
-    switch (filterType) {
-      case "app_name":
-        setAppFilter("");
-        break;
-      case "os_name":
-        setOsFilter("");
-        break;
-      case "os_version":
-        setOsVersionFilter("");
-        break;
-      case "app_version":
-        setAppVersionFilter("");
-        break;
-      case "category":
-        setCategoryFilter("");
-        break;
-      case "platform":
-        setPlatformFilter("");
-        break;
-      case "country":
-        setCountryFilter("");
-        break;
-      case "event_name":
-        setEventFilter("");
-        break;
-      case "network":
-        setNetworkFilter("");
-        break;
-    }
-    setCurrentPage(1);
-  };
+      // Format dates for backend API (always include time)
+      setDateFromFilter(
+        filters.date_range.from
+          ? formatDateForApiStart(filters.date_range.from)
+          : ""
+      );
+      setDateToFilter(
+        filters.date_range.to ? formatDateForApiEnd(filters.date_range.to) : ""
+      );
+      setCurrentPage(1);
+    },
+    [
+      setAppFilter,
+      setOsFilter,
+      setOsVersionFilter,
+      setAppVersionFilter,
+      setCategoryFilter,
+      setPlatformFilter,
+      setCountryFilter,
+      setEventFilter,
+      setNetworkFilter,
+      setEventValueFilter,
+      setDateFromFilter,
+      setDateToFilter,
+      setCurrentPage,
+    ]
+  );
 
-  const handleClearAllFilters = () => {
+  const handleClearFilter = useCallback(
+    (filterType: string) => {
+      switch (filterType) {
+        case "app_name":
+          setAppFilter("");
+          break;
+        case "os_name":
+          setOsFilter("");
+          break;
+        case "os_version":
+          setOsVersionFilter("");
+          break;
+        case "app_version":
+          setAppVersionFilter("");
+          break;
+        case "category":
+          setCategoryFilter("");
+          break;
+        case "platform":
+          setPlatformFilter("");
+          break;
+        case "country":
+          setCountryFilter("");
+          break;
+        case "event_name":
+          setEventFilter("");
+          break;
+        case "network":
+          setNetworkFilter("");
+          break;
+        case "event_value":
+          setEventValueFilter("");
+          break;
+        case "date_range":
+          // Reset to default date range instead of empty
+          const today = new Date();
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          setDateFromFilter(formatDateForApiStart(yesterday));
+          setDateToFilter(formatDateForApiEnd(today));
+          break;
+      }
+      setCurrentPage(1);
+    },
+    [
+      setAppFilter,
+      setOsFilter,
+      setOsVersionFilter,
+      setAppVersionFilter,
+      setCategoryFilter,
+      setPlatformFilter,
+      setCountryFilter,
+      setEventFilter,
+      setNetworkFilter,
+      setEventValueFilter,
+      setDateFromFilter,
+      setDateToFilter,
+      setCurrentPage,
+    ]
+  );
+
+  const handleClearAllFilters = useCallback(() => {
     setAppFilter("");
     setOsFilter("");
     setOsVersionFilter("");
@@ -200,11 +298,161 @@ export default function AppInformationDataTable() {
     setCountryFilter("");
     setEventFilter("");
     setNetworkFilter("");
+    setEventValueFilter("");
+
+    // Reset to default date range instead of empty
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    setDateFromFilter(formatDateForApiStart(yesterday));
+    setDateToFilter(formatDateForApiEnd(today));
+
     setCurrentPage(1);
-  };
+  }, [
+    setAppFilter,
+    setOsFilter,
+    setOsVersionFilter,
+    setAppVersionFilter,
+    setCategoryFilter,
+    setPlatformFilter,
+    setCountryFilter,
+    setEventFilter,
+    setNetworkFilter,
+    setEventValueFilter,
+    setDateFromFilter,
+    setDateToFilter,
+    setCurrentPage,
+  ]);
 
   return (
     <div className="flex flex-col gap-y-6">
+      {/* Stripe-like Header */}
+      <div className="space-y-4">
+        {/* Status Overview Cards */}
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-2">
+          <div className="bg-card rounded-lg border p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  {t("overview.totalEvents")}
+                </p>
+                <p className="text-2xl font-bold">
+                  {paginationInfo.total?.toLocaleString() ?? 0}
+                </p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-card rounded-lg border p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  {t("overview.totalUsers")}
+                </p>
+                <p className="text-2xl font-bold">
+                  {totalUsers.toLocaleString()}
+                </p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 dark:bg-green-900/20">
+                <Users className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Event Count Overview - Show when event filter is applied */}
+        {eventFilter && countEvents.length > 0 && (
+          <div className="bg-card rounded-lg border p-6">
+            {/* Header with Summary */}
+            <div className="mb-6">
+              <div className="mb-3 flex items-center gap-3">
+                <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
+                  <BarChart3 className="text-muted-foreground h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">
+                    {t("overview.eventBreakdown")}
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    {countEvents.length} {t("overview.eventTypes")} •{" "}
+                    {countEvents
+                      .reduce(
+                        (total, group) =>
+                          total +
+                          group.values.reduce((sum, val) => sum + val.count, 0),
+                        0
+                      )
+                      .toLocaleString()}{" "}
+                    {t("overview.totalEventsCount")}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Event Groups */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {countEvents.map((eventGroup) => {
+                const totalEventCount = eventGroup.values.reduce(
+                  (sum, val) => sum + val.count,
+                  0
+                );
+
+                return (
+                  <div
+                    key={eventGroup.event_name}
+                    className="bg-background rounded-lg border p-4"
+                  >
+                    {/* Event Type Header */}
+                    <div className="mb-4">
+                      <h4 className="mb-1 font-semibold">
+                        {eventGroup.event_name}
+                      </h4>
+                      <p className="text-muted-foreground text-sm">
+                        {totalEventCount.toLocaleString()}{" "}
+                        {t("overview.totalEventsCount")} •{" "}
+                        {eventGroup.values.length} {t("overview.moreValues")}
+                      </p>
+                    </div>
+
+                    {/* Event Values */}
+                    <div className="space-y-3">
+                      {eventGroup.values.slice(0, 5).map((value, index) => (
+                        <div
+                          key={`${eventGroup.event_name}-${value.event_value}-${index}`}
+                          className="flex items-center justify-between"
+                        >
+                          <span
+                            className="max-w-[120px] truncate text-sm font-medium"
+                            title={value.event_value}
+                          >
+                            {value.event_value || t("overview.noValue")}
+                          </span>
+                          <span className="text-sm font-bold">
+                            {value.count.toLocaleString()}
+                          </span>
+                        </div>
+                      ))}
+
+                      {eventGroup.values.length > 5 && (
+                        <div className="border-t pt-2">
+                          <p className="text-muted-foreground text-center text-xs">
+                            +{eventGroup.values.length - 5}{" "}
+                            {t("overview.moreValues")}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
       <FilterBar
         appFilter={appFilter}
         osFilter={osFilter}
@@ -215,6 +463,9 @@ export default function AppInformationDataTable() {
         countryFilter={countryFilter}
         appVersionFilter={appVersionFilter}
         networkFilter={networkFilter}
+        eventValueFilter={eventValueFilter}
+        dateFilter={dateFilter}
+        eventCounts={countEvents}
         onFiltersApply={handleFiltersApply}
         onClearFilter={handleClearFilter}
         onClearAllFilters={handleClearAllFilters}
@@ -326,10 +577,26 @@ export default function AppInformationDataTable() {
                         {item.category}
                       </TableCell>
                       <TableCell className="text-foreground py-3">
-                        {formatDateTime(new Date(item.created_at))}
+                        <div className="flex flex-col gap-1">
+                          <div className="text-xs font-medium">
+                            {getCurrentTimezoneInfo(item.created_at)
+                              .convertedTime || "—"}
+                          </div>
+                          <div className="text-muted-foreground text-xs">
+                            {getCurrentTimezoneInfo().timezoneFormat}
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell className="text-foreground py-3">
-                        {formatDateTime(new Date(item.updated_at))}
+                        <div className="flex flex-col gap-1">
+                          <div className="text-xs font-medium">
+                            {getCurrentTimezoneInfo(item.updated_at)
+                              .convertedTime || "—"}
+                          </div>
+                          <div className="text-muted-foreground text-xs">
+                            {getCurrentTimezoneInfo().timezoneFormat}
+                          </div>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

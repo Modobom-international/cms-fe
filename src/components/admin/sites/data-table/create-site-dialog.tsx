@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 
-import { LANGUAGES } from "@/constants/languages";
+import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
+import { DEFAULT_PLATFORM, PLATFORMS } from "@/constants/platform";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, ChevronsUpDown, PlusIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -70,7 +71,8 @@ export default function CreateSiteDialog() {
     defaultValues: {
       name: "",
       domain: "",
-      language: "en",
+      language: DEFAULT_LANGUAGE,
+      platform: DEFAULT_PLATFORM,
     },
     mode: "onChange",
   });
@@ -296,13 +298,61 @@ export default function CreateSiteDialog() {
                       <SelectContent>
                         {LANGUAGES.map((language) => (
                           <SelectItem key={language.code} value={language.code}>
-                            {language.name}
+                            <div className="flex items-center gap-2">
+                              <span>{language.flag}</span>
+                              <span>{language.name}</span>
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     <p className="text-muted-foreground text-xs">
                       {t("Language.Helper")}
+                    </p>
+                    <FormMessage className="text-destructive text-sm font-medium" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="platform"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-foreground">
+                      {t("Platform.Label")}
+                      <span className="text-destructive ml-1">
+                        {t("Platform.Required")}
+                      </span>
+                    </FormLabel>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={createSiteMutation.isPending}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue
+                            placeholder={t("Platform.Placeholder")}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {PLATFORMS.map((platform) => (
+                          <SelectItem
+                            key={platform.value}
+                            value={platform.value}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span>{platform.icon}</span>
+                              <span>{platform.label}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-muted-foreground text-xs">
+                      {t("Platform.Helper")}
                     </p>
                     <FormMessage className="text-destructive text-sm font-medium" />
                   </FormItem>

@@ -2,20 +2,24 @@
 
 import { useState } from "react";
 
-import { PlusCircle, X } from "lucide-react";
+import { format } from "date-fns";
+import { PlusCircle, Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { useGetAppInformationFilterMenu } from "@/hooks/app-infomation";
+import { useGetAppInformationFilterMenu } from "@/hooks/app-information";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+import { DateRangeFilter } from "@/components/admin/app-information/data-table/date-range-filter";
 
 interface FilterBadgeProps {
   label: string;
@@ -65,6 +69,15 @@ interface FilterBarProps {
   countryFilter: string;
   appVersionFilter: string;
   networkFilter: string;
+  eventValueFilter: string;
+  dateFilter: { from: Date | null; to: Date | null };
+  eventCounts?: Array<{
+    event_name: string;
+    values: Array<{
+      event_value: string;
+      count: number;
+    }>;
+  }>;
   onFiltersApply: (filters: {
     app_name: string[];
     os_name: string[];
@@ -75,6 +88,8 @@ interface FilterBarProps {
     country: string[];
     event_name: string[];
     network: string[];
+    event_value: string[];
+    date_range: { from: Date | null; to: Date | null };
   }) => void;
   onClearFilter: (filterType: string) => void;
   onClearAllFilters: () => void;
@@ -90,6 +105,9 @@ export function FilterBar({
   countryFilter,
   appVersionFilter,
   networkFilter,
+  eventValueFilter,
+  dateFilter,
+  eventCounts,
   onFiltersApply,
   onClearFilter,
   onClearAllFilters,
@@ -127,6 +145,22 @@ export function FilterBar({
   const [selectedNetworks, setSelectedNetworks] = useState<string[]>(
     networkFilter ? networkFilter.split(",").filter(Boolean) : []
   );
+  const [selectedEventValues, setSelectedEventValues] = useState<string[]>(
+    eventValueFilter ? eventValueFilter.split(",").filter(Boolean) : []
+  );
+
+  // Date range state - default to yesterday and today
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const [dateRange, setDateRange] = useState<{
+    from: Date | null;
+    to: Date | null;
+  }>({
+    from: dateFilter.from || yesterday,
+    to: dateFilter.to || today,
+  });
 
   // Get filter options from API data or fallback to empty arrays
   const filterOptions = filterMenuData?.data?.data || {
@@ -139,6 +173,7 @@ export function FilterBar({
     country: [],
     app_version: [],
     network: [],
+    event_value: [],
   };
 
   // Transform API data to options format
@@ -178,6 +213,12 @@ export function FilterBar({
     value: network,
     label: network,
   }));
+  const eventValueOptions = ((filterOptions as any).event_value || []).map(
+    (value: string) => ({
+      value: value,
+      label: value,
+    })
+  );
 
   // Check if any filters are applied
   const hasAppliedFilters = !!(
@@ -189,7 +230,10 @@ export function FilterBar({
     platformFilter ||
     countryFilter ||
     appVersionFilter ||
-    networkFilter
+    networkFilter ||
+    eventValueFilter ||
+    dateFilter.from ||
+    dateFilter.to
   );
 
   // Apply filters
@@ -204,6 +248,8 @@ export function FilterBar({
       country: selectedCountries,
       event_name: selectedEvents,
       network: selectedNetworks,
+      event_value: selectedEventValues,
+      date_range: dateRange,
     });
   };
 
@@ -262,6 +308,12 @@ export function FilterBar({
     );
   };
 
+  const handleEventValueChange = (eventValue: string, checked: boolean) => {
+    setSelectedEventValues((prev) =>
+      checked ? [...prev, eventValue] : prev.filter((ev) => ev !== eventValue)
+    );
+  };
+
   // Clear all local filter states
   const handleClearAllFilters = () => {
     setSelectedApps([]);
@@ -273,6 +325,12 @@ export function FilterBar({
     setSelectedCountries([]);
     setSelectedAppVersions([]);
     setSelectedNetworks([]);
+    setSelectedEventValues([]);
+    // Reset to default date range
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    setDateRange({ from: yesterday, to: today });
     onClearAllFilters();
   };
 
@@ -306,6 +364,16 @@ export function FilterBar({
       case "network":
         setSelectedNetworks([]);
         break;
+      case "event_value":
+        setSelectedEventValues([]);
+        break;
+      case "date_range":
+        // Reset to default date range
+        const todayClear = new Date();
+        const yesterdayClear = new Date(todayClear);
+        yesterdayClear.setDate(yesterdayClear.getDate() - 1);
+        setDateRange({ from: yesterdayClear, to: todayClear });
+        break;
     }
     onClearFilter(filterType);
   };
@@ -327,6 +395,14 @@ export function FilterBar({
       {hasAppliedFilters && (
         <div className="flex items-center gap-3">
           <div className="flex flex-wrap items-center gap-2">
+            {(dateFilter.from || dateFilter.to) && (
+              <FilterBadge
+                label={t("filters.dateRange")}
+                filterValue={`${dateFilter.from ? format(dateFilter.from, "MMM d") : ""} - ${dateFilter.to ? format(dateFilter.to, "MMM d") : ""}`}
+                onClear={() => handleClearFilter("date_range")}
+                t={t}
+              />
+            )}
             {appFilter && (
               <FilterBadge
                 label={t("filters.appName")}
@@ -385,7 +461,7 @@ export function FilterBar({
             )}
             {eventFilter && (
               <FilterBadge
-                label={t("filters.eventType")}
+                label={t("filters.eventName")}
                 filterValue={eventFilter}
                 onClear={() => handleClearFilter("event_name")}
                 t={t}
@@ -396,6 +472,14 @@ export function FilterBar({
                 label={t("filters.network")}
                 filterValue={networkFilter}
                 onClear={() => handleClearFilter("network")}
+                t={t}
+              />
+            )}
+            {eventValueFilter && (
+              <FilterBadge
+                label={t("filters.eventValue")}
+                filterValue={eventValueFilter}
+                onClear={() => handleClearFilter("event_value")}
                 t={t}
               />
             )}
@@ -415,6 +499,14 @@ export function FilterBar({
 
       {/* Filter Tags Row */}
       <div className="flex flex-wrap items-center gap-2">
+        {/* Date Range Filter */}
+        <DateRangeFilter
+          title={t("filters.dateRange")}
+          dateRange={dateRange}
+          onChange={setDateRange}
+          onApply={applyFilters}
+        />
+
         {/* App Filter */}
         <FilterPopover
           title={t("filters.appName")}
@@ -467,8 +559,8 @@ export function FilterBar({
 
         {/* OS Version Filter */}
         <FilterPopover
-          title="OS Version"
-          label="Filter by OS Version"
+          title={t("filters.osVersion")}
+          label={t("filters.filterByOSVersion")}
           options={osVersionOptions}
           selectedValues={selectedOSVersions}
           onChange={handleOSVersionChange}
@@ -487,11 +579,22 @@ export function FilterBar({
 
         {/* Event Filter */}
         <FilterPopover
-          title={t("filters.eventType")}
+          title={t("filters.eventName")}
           label={t("filters.filterByEvent")}
           options={eventOptions}
           selectedValues={selectedEvents}
           onChange={handleEventChange}
+          onApply={applyFilters}
+          eventCounts={eventCounts}
+        />
+
+        {/* Event Value Filter */}
+        <FilterPopover
+          title={t("filters.eventValue")}
+          label={t("filters.filterByEventValue")}
+          options={eventValueOptions}
+          selectedValues={selectedEventValues}
+          onChange={handleEventValueChange}
           onApply={applyFilters}
         />
 
@@ -516,6 +619,13 @@ interface FilterPopoverProps {
   selectedValues: string[];
   onChange: (value: string, checked: boolean) => void;
   onApply: () => void;
+  eventCounts?: Array<{
+    event_name: string;
+    values: Array<{
+      event_value: string;
+      count: number;
+    }>;
+  }>;
 }
 
 function FilterPopover({
@@ -527,21 +637,43 @@ function FilterPopover({
   onApply,
 }: FilterPopoverProps) {
   const t = useTranslations("AppInformationPage.table");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Filter options based on search term
+  const filteredOptions = options.filter((option) =>
+    option.label.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div>
       <Popover>
         <PopoverTrigger asChild>
-          <span className="border-border text-muted-foreground hover:bg-muted inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed px-2.5 py-0.5 text-sm font-medium transition-colors">
-            <PlusCircle className="size-3.5" />
+          <span className="border-border text-muted-foreground hover:bg-muted inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed px-2 py-0.5 text-xs font-medium transition-colors">
+            <PlusCircle className="size-3" />
             {title}
           </span>
         </PopoverTrigger>
         <PopoverContent className="w-72 p-0" align="start">
-          <div className="px-3 pt-3">
+          <div className="px-3 pt-3 pb-2">
             <h3 className="text-foreground text-sm font-medium">{label}</h3>
           </div>
-          <ScrollArea className="max-h-72">
+
+          {/* Search Input */}
+          {options.length > 0 && (
+            <div className="px-3 pb-3">
+              <div className="relative">
+                <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+                <Input
+                  placeholder={t("filters.searchPlaceholder") || "Search..."}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="h-8 pl-8 text-sm"
+                />
+              </div>
+            </div>
+          )}
+
+          <ScrollArea className="h-60">
             <div className="space-y-3 p-3">
               {options.length === 0 ? (
                 <div className="py-4 text-center">
@@ -549,8 +681,14 @@ function FilterPopover({
                     {t("filters.noFiltersAvailable")}
                   </p>
                 </div>
+              ) : filteredOptions.length === 0 ? (
+                <div className="py-4 text-center">
+                  <p className="text-muted-foreground text-sm">
+                    {t("filters.noResultsFound") || "No results found"}
+                  </p>
+                </div>
               ) : (
-                options.map((option) => (
+                filteredOptions.map((option) => (
                   <div
                     key={option.value}
                     className="flex items-center space-x-2"

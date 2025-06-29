@@ -1,7 +1,13 @@
 import { siteQueryKeys } from "@/constants/query-keys";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import type { CreateSiteData, UpdateSiteData } from "@/types/site.type";
+import type {
+  CreateSiteData,
+  Site,
+  UpdateSiteData,
+  UpdateSiteLanguageData,
+  UpdateSitePlatformData,
+} from "@/types/site.type";
 
 import apiClient from "@/lib/api/client";
 
@@ -28,14 +34,18 @@ export const useGetSites = () => {
 };
 
 export const useGetSiteById = (siteId: string) => {
-  return useQuery({
+  return useQuery<{
+    isSuccess: boolean;
+    data: Site | null;
+    message: string;
+  }>({
     queryKey: siteQueryKeys.details(siteId),
     queryFn: async () => {
       try {
         const response = await apiClient.get(`/api/sites/${siteId}`);
         return {
           isSuccess: true,
-          data: response.data.data,
+          data: response.data.data as Site,
           message: "Site fetched successfully",
         };
       } catch (error) {
@@ -84,10 +94,7 @@ export const useUpdateSite = (siteId: string) => {
   return useMutation({
     mutationFn: async (data: UpdateSiteData) => {
       try {
-        const response = await apiClient.patch(
-          `/api/sites/${siteId}/language`,
-          data
-        );
+        const response = await apiClient.patch(`/api/sites/${siteId}`, data);
         return {
           isSuccess: true,
           data: response.data,
@@ -98,6 +105,74 @@ export const useUpdateSite = (siteId: string) => {
           isSuccess: false,
           data: null,
           message: "Failed to update site",
+        };
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: siteQueryKeys.details(siteId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: siteQueryKeys.all(),
+      });
+    },
+  });
+};
+
+export const useUpdateSiteLanguage = (siteId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: UpdateSiteLanguageData) => {
+      try {
+        const response = await apiClient.patch(
+          `/api/sites/${siteId}/language`,
+          data
+        );
+        return {
+          isSuccess: true,
+          data: response.data,
+          message: "Site language updated successfully",
+        };
+      } catch (error) {
+        return {
+          isSuccess: false,
+          data: null,
+          message: "Failed to update site language",
+        };
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: siteQueryKeys.details(siteId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: siteQueryKeys.all(),
+      });
+    },
+  });
+};
+
+export const useUpdateSitePlatform = (siteId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: UpdateSitePlatformData) => {
+      try {
+        const response = await apiClient.patch(
+          `/api/sites/${siteId}/platform`,
+          data
+        );
+        return {
+          isSuccess: true,
+          data: response.data,
+          message: "Site platform updated successfully",
+        };
+      } catch (error) {
+        return {
+          isSuccess: false,
+          data: null,
+          message: "Failed to update site platform",
         };
       }
     },

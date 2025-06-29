@@ -1,5 +1,6 @@
 "use client";
 
+import { PLATFORMS } from "@/constants/platform";
 import { env } from "@/env";
 import StudioEditor from "@grapesjs/studio-sdk/react";
 import "@grapesjs/studio-sdk/style";
@@ -13,6 +14,7 @@ import {
   useLoadFromAPI,
   useUpdatePage,
 } from "@/hooks/pages";
+import { useGetSiteById } from "@/hooks/sites";
 
 import { deleteAssets, loadAssets, uploadAssets } from "./actions/upload";
 import { buttonBlock } from "./blocks/button";
@@ -34,7 +36,17 @@ export default function WebBuilderStudio({
   const updatePageMutation = useUpdatePage();
   const exportPageMutation = useExportPage(pageId);
   const deployPageMutation = useDeployPage();
-  const { data: pageContent, isLoading, isError } = useLoadFromAPI(pageId);
+  const {
+    data: pageContent,
+    isLoading: isPageLoading,
+    isError: isPageError,
+  } = useLoadFromAPI(pageId);
+  const {
+    data: site,
+    isLoading: isSiteLoading,
+    isError: isSiteError,
+  } = useGetSiteById(siteId);
+  console.log(site?.data?.platform == PLATFORMS[2].value ? "true" : "false");
   const saveToAPI = async (project: any) => {
     try {
       toast.promise(
@@ -58,6 +70,12 @@ export default function WebBuilderStudio({
   };
 
   const exportHTMLWithCSS = async (editor: Editor) => {
+    // Ensure site data is loaded before proceeding
+    if (!site?.data) {
+      toast.error(t("SiteDataNotLoaded"));
+      throw new Error("Site data not loaded");
+    }
+
     // Get the HTML content from editor
     const editorHTML = editor.getHtml({ cleanId: true });
 
@@ -66,8 +84,18 @@ export default function WebBuilderStudio({
     const doc = parser.parseFromString(editorHTML, "text/html");
     // Extract meta tags, title, and other head content if they exist
     const headContent = doc.head.innerHTML || "";
-    // Get the body content by extracting only the inner content of the body tag
-    const bodyContent = doc.body ? doc.body.innerHTML : editorHTML;
+
+    // Get the body content and preserve body attributes (like ID)
+    let bodyContent = doc.body ? doc.body.innerHTML : editorHTML;
+    let bodyAttributes = "";
+
+    if (doc.body) {
+      // Extract all attributes from the body element
+      const attributes = Array.from(doc.body.attributes);
+      bodyAttributes = attributes
+        .map((attr) => `${attr.name}="${attr.value}"`)
+        .join(" ");
+    }
 
     const loadingOverlayScript = `
     <script>
@@ -185,10 +213,19 @@ export default function WebBuilderStudio({
   ${headContent}
   <style>
     ${editor.getCss()}
-    ${loadingOverlayStyles}
+    ${
+      site?.data?.platform == PLATFORMS[2].value
+        ? `
+    `
+        : loadingOverlayStyles
+    }
   </style>
+  ${
+    site?.data?.platform == PLATFORMS[2].value
+      ? `
   
-  <script>
+  `
+      : `<script>
     // Hàm kiểm tra query parameter force=1 trên URL hiện tại
     function updateDownloadLink() {
       // Lấy query string hiện tại
@@ -246,13 +283,17 @@ export default function WebBuilderStudio({
        }
      });
   </script>
-
-
-
+`
+  }
 </head>
-<body>
+<body${bodyAttributes ? ` ${bodyAttributes}` : ""}>
   ${bodyContent}
-  ${loadingOverlayScript}
+  ${
+    site?.data?.platform == PLATFORMS[2].value
+      ? `
+  `
+      : loadingOverlayScript
+  }
 </body>
 </html>`;
 
@@ -311,12 +352,22 @@ export default function WebBuilderStudio({
 
     // Register export command
     editor.Commands.add("export-html", {
-      run: () => exportHTMLWithCSS(editor),
+      run: () => {
+        if (!site?.data) {
+          toast.error(t("SiteDataNotLoaded"));
+          return Promise.reject(new Error("Site data not loaded"));
+        }
+        return exportHTMLWithCSS(editor);
+      },
     });
 
     // Register deploy command
     editor.Commands.add("deploy-page", {
       run: () => {
+        if (!site?.data) {
+          toast.error(t("SiteDataNotLoaded"));
+          return Promise.reject(new Error("Site data not loaded"));
+        }
         return toast.promise(
           deployPageMutation.mutateAsync({
             site_id: Number(siteId),
@@ -337,6 +388,11 @@ export default function WebBuilderStudio({
     // Combined export and deploy command
     editor.Commands.add("export-and-deploy", {
       run: async () => {
+        if (!site?.data) {
+          toast.error(t("SiteDataNotLoaded"));
+          throw new Error("Site data not loaded");
+        }
+
         try {
           // First export - making sure it completes fully
           const exportResult = await toast.promise(exportHTMLWithCSS(editor), {
@@ -384,17 +440,20 @@ export default function WebBuilderStudio({
       buttons: [
         {
           id: "export-deploy-btn",
-          label:
-            exportPageMutation.isPending || deployPageMutation.isPending
+          label: !site?.data
+            ? t("LoadingSiteData")
+            : exportPageMutation.isPending || deployPageMutation.isPending
               ? exportPageMutation.isPending
                 ? t("Exporting")
                 : t("Deploying")
               : t("ExportAndDeployButton"),
           command: "export-and-deploy",
-          className: `custom-btn export-deploy-btn ${exportPageMutation.isPending || deployPageMutation.isPending ? "loading" : ""}`,
+          className: `custom-btn export-deploy-btn ${!site?.data || exportPageMutation.isPending || deployPageMutation.isPending ? "loading" : ""}`,
           attributes: {
             disabled:
-              exportPageMutation.isPending || deployPageMutation.isPending,
+              !site?.data ||
+              exportPageMutation.isPending ||
+              deployPageMutation.isPending,
           },
         },
       ],
@@ -402,11 +461,13 @@ export default function WebBuilderStudio({
   };
 
   // If loading, show loading state
-  if (isLoading) {
+  if (isPageLoading || isSiteLoading) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <div className="text-center">
-          <div className="text-lg font-semibold">{t("LoadingPage")}</div>
+          <div className="text-lg font-semibold">
+            {isPageLoading ? t("LoadingPage") : t("LoadingSiteData")}
+          </div>
           <div className="text-muted-foreground text-sm">{t("PleaseWait")}</div>
         </div>
       </div>
@@ -414,7 +475,7 @@ export default function WebBuilderStudio({
   }
 
   // If error, show error state
-  if (isError) {
+  if (isPageError || isSiteError) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <div className="text-center">

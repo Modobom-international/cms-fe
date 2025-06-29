@@ -2,6 +2,7 @@ import * as React from "react";
 
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Loader } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -41,10 +42,15 @@ function Button({
   variant,
   size,
   asChild = false,
+  isLoading = false,
+  loadingText,
+  children,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
+    isLoading?: boolean;
+    loadingText?: string;
   }) {
   const Comp = asChild ? Slot : "button";
 
@@ -53,7 +59,16 @@ function Button({
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-    />
+    >
+      <>
+        {isLoading ? (
+          <span className="ml-1.5 flex items-center gap-1">
+            <Loader className="size-4 animate-spin" />
+          </span>
+        ) : null}
+        {isLoading && loadingText ? loadingText : children}
+      </>
+    </Comp>
   );
 }
 

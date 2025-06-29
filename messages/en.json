@@ -572,6 +572,12 @@
           "Helper": "The language of your site",
           "Placeholder": "Select language"
         },
+        "Platform": {
+          "Label": "Platform",
+          "Required": "*",
+          "Helper": "The platform where your site will be optimized for",
+          "Placeholder": "Select platform"
+        },
         "Submit": "Create Site",
         "Loading": "Creating site...",
         "Success": "Site created successfully!",
@@ -580,7 +586,8 @@
           "Name": {
             "Required": "Site name is required",
             "MinLength": "Site name must be at least 3 characters",
-            "MaxLength": "Site name cannot exceed 64 characters"
+            "MaxLength": "Site name cannot exceed 64 characters",
+            "InvalidCharacters": "Site name can only contain letters, numbers, spaces, hyphens and underscores"
           },
           "Domain": {
             "Required": "Domain is required",
@@ -589,13 +596,18 @@
             "Invalid": "Please enter a valid domain name (e.g., example.com)"
           },
           "Language": {
-            "Required": "Language is required"
+            "Required": "Language is required",
+            "Invalid": "Please select a valid language"
+          },
+          "Platform": {
+            "Invalid": "Please select a valid platform"
           }
         }
       },
       "UpdateLanguage": {
         "Title": "Update Language",
         "Description": "Update the language of the site",
+        "CurrentLanguage": "Current Language",
         "Label": "Language",
         "Required": "*",
         "Cancel": "Cancel",
@@ -604,6 +616,22 @@
         "Saving": "Saving...",
         "Success": "Language updated successfully!",
         "Error": "Failed to update language"
+      },
+      "UpdatePlatform": {
+        "Title": "Update Platform",
+        "Description": "Update the platform of the site: {siteName}",
+        "CurrentPlatform": "Current Platform",
+        "NewPlatform": {
+          "Label": "New Platform",
+          "Required": "*",
+          "Placeholder": "Select platform",
+          "Helper": "Choose the platform where your site will be optimized for"
+        },
+        "Cancel": "Cancel",
+        "Submit": "Update Platform",
+        "Loading": "Updating...",
+        "Success": "Platform updated successfully!",
+        "Error": "Failed to update platform"
       },
       "DeleteSite": {
         "Title": "Delete Site",
@@ -647,6 +675,7 @@
         "FilterByOwner": "Owner",
         "AllOwners": "All owners",
         "Language": "Language",
+        "Platform": "Platform",
         "FilterByOwnerTitle": "Filter by Owner",
         "SearchOwners": "Search owners...",
         "NoOwnersFound": "No owners found",
@@ -679,6 +708,9 @@
         "Breadcrumb": "Manage Sites",
         "Description": "Create and manage pages for your website",
         "BackToSites": "Back to Sites",
+        "Preview": "Preview",
+        "PreviewExported": "Preview Exported",
+        "PreviewExportedDescription": "Make sure the page has been exported to the server",
         "List": {
           "Title": "Pages List",
           "Description": "Manage and view all pages of the website",
@@ -1674,26 +1706,97 @@
         "nation": "Country",
         "platform": "Platform",
         "network": "Network",
-        "dateRange": "Date Range",
         "appName": "App Name",
         "appVersion": "App Version",
         "osName": "OS Name",
         "category": "Category",
-        "eventType": "Event Type",
+        "eventName": "Event Name",
+        "osVersion": "OS Version",
         "filterByApp": "Filter by App",
         "filterByAppVersion": "Filter by App Version",
         "filterByPlatform": "Filter by Platform",
         "filterByCountry": "Filter by Country",
         "filterByOS": "Filter by OS",
+        "filterByOSVersion": "Filter by OS Version",
         "filterByCategory": "Filter by Category",
         "filterByEvent": "Filter by Event",
         "filterByNetwork": "Filter by Network",
+        "eventValue": "Event Value",
+        "filterByEventValue": "Filter by Event Value",
         "applyFilter": "Apply Filter",
         "clearAllFilters": "Clear All Filters",
         "loadingFilters": "Loading filters...",
         "noFiltersAvailable": "No filters available yet for this category",
         "removeFilter": "Remove {filterType} filter",
-        "selected": "selected"
+        "selected": "selected",
+        "searchPlaceholder": "Search...",
+        "noResultsFound": "No results found",
+        "dateRange": "Date Range",
+        "dateRangeLabel": "Filter by date range",
+        "fromDate": "From",
+        "toDate": "To",
+        "selectDate": "Select date",
+        "quickRanges": "Quick ranges",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "last7Days": "Last 7 days",
+        "last30Days": "Last 30 days"
+      },
+      "overview": {
+        "totalEvents": "Total Events",
+        "totalUsers": "Total Users",
+        "avgPerUser": "Avg per User",
+        "currentPage": "Current Page",
+        "eventBreakdown": "Event Breakdown",
+        "eventTypes": "event type(s)",
+        "totalEventsCount": "total events",
+        "noValue": "No Value",
+        "moreValues": "more values"
+      },
+      "chart": {
+        "viewAnalytics": "Analyze",
+        "analyticsOverview": "Analytics Overview",
+        "loading": "Loading...",
+        "loadingError": "Failed to load chart data. Please try again.",
+        "appliedFilters": "Applied Filters",
+        "noFiltersApplied": "No filters applied - showing all data",
+        "filterLabels": {
+          "app_name": "App Name",
+          "os_name": "OS Name",
+          "os_version": "OS Version",
+          "app_version": "App Version",
+          "category": "Category",
+          "platform": "Platform",
+          "country": "Country",
+          "event_name": "Event Name",
+          "network": "Network",
+          "event_value": "Event Value",
+          "date_from": "Date From",
+          "date_to": "Date To"
+        },
+        "metrics": {
+          "totalUsers": "Total Users",
+          "uniqueUsers": "Unique users tracked",
+          "totalEvents": "Total Events",
+          "totalRecords": "Total records processed",
+          "uniqueApps": "Unique Apps",
+          "differentApps": "Different applications",
+          "avgEventsPerUser": "Avg Events/User",
+          "eventsPerUser": "Events per user"
+        },
+        "charts": {
+          "dailyUsers": {
+            "title": "Daily Unique Users",
+            "description": "Unique users activity over time"
+          },
+          "dailyEvents": {
+            "title": "Daily Events",
+            "description": "Total events activity over time"
+          }
+        },
+        "comingSoon": "Advanced Analytics",
+        "chartsComingSoon": "Detailed charts and visualizations coming soon",
+        "inDevelopment": "In Development"
       },
       "placeholders": {
         "search": "Search by UID or behavior...",
@@ -1750,6 +1853,38 @@
         "sms": "SMS",
         "otp": "OTP",
         "confirm": "Confirm"
+      }
+    },
+    "userSearch": {
+      "sectionTitle": "User Analysis",
+      "sectionDescription": "Search and analyze user activity by User ID",
+      "button": "Search User",
+      "title": "User Activity Search",
+      "description": "Enter a User ID to view their app usage and events",
+      "form": {
+        "userId": {
+          "label": "User ID",
+          "placeholder": "Enter User ID to search..."
+        },
+        "search": "Search",
+        "searching": "Searching...",
+        "clear": "Clear"
+      },
+      "results": {
+        "summary": {
+          "title": "User Activity Summary",
+          "userId": "User ID",
+          "totalApps": "Apps Used",
+          "totalEvents": "Total Events"
+        },
+        "events": {
+          "title": "Events",
+          "value": "Value"
+        },
+        "noData": "No activity data found for this user"
+      },
+      "error": {
+        "searchFailed": "Failed to search user data. Please try again."
       }
     }
   },

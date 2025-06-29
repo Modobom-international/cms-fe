@@ -34,10 +34,7 @@ export default function NotFoundPage() {
 
             {/* Action buttons */}
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button
-                asChild
-                className="h-11 rounded-full bg-purple-600 px-6 text-sm font-medium text-white transition-all hover:-translate-y-0.5 hover:bg-purple-700 hover:shadow-md hover:shadow-purple-200"
-              >
+              <Button className="h-11 rounded-full bg-purple-600 px-6 text-sm font-medium text-white transition-all hover:-translate-y-0.5 hover:bg-purple-700 hover:shadow-md hover:shadow-purple-200">
                 <Link href="/" className="inline-flex items-center gap-2">
                   <Home className="h-4 w-4" />
                   Back to home

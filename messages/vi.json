@@ -572,6 +572,12 @@
           "Helper": "Ngôn ngữ mặc định của trang web",
           "Placeholder": "Chọn ngôn ngữ"
         },
+        "Platform": {
+          "Label": "Nền tảng",
+          "Required": "*",
+          "Helper": "Nền tảng mà trang web sẽ được tối ưu hóa",
+          "Placeholder": "Chọn nền tảng"
+        },
         "Submit": "Tạo Trang web",
         "Loading": "Đang tạo trang web...",
         "Success": "Tạo trang web thành công!",
@@ -580,7 +586,8 @@
           "Name": {
             "Required": "Tên trang web là bắt buộc",
             "MinLength": "Tên trang web phải có ít nhất 3 ký tự",
-            "MaxLength": "Tên trang web không được vượt quá 64 ký tự"
+            "MaxLength": "Tên trang web không được vượt quá 64 ký tự",
+            "InvalidCharacters": "Tên trang web chỉ được chứa chữ cái, số, khoảng trắng, dấu gạch ngang và dấu gạch dưới"
           },
           "Domain": {
             "Required": "Tên miền là bắt buộc",
@@ -590,13 +597,17 @@
           },
           "Language": {
             "Required": "Ngôn ngữ là bắt buộc",
-            "Invalid": "Ngôn ngữ không hợp lệ"
+            "Invalid": "Vui lòng chọn một ngôn ngữ hợp lệ"
+          },
+          "Platform": {
+            "Invalid": "Vui lòng chọn một nền tảng hợp lệ"
           }
         }
       },
       "UpdateLanguage": {
         "Title": "Cập nhật Ngôn ngữ",
         "Description": "Cập nhật ngôn ngữ của trang web",
+        "CurrentLanguage": "Ngôn ngữ hiện tại",
         "Label": "Ngôn ngữ",
         "Required": "*",
         "Placeholder": "Chọn ngôn ngữ",
@@ -605,6 +616,22 @@
         "Saving": "Đang lưu...",
         "Success": "Ngôn ngữ đã được cập nhật thành công!",
         "Error": "Không thể cập nhật ngôn ngữ"
+      },
+      "UpdatePlatform": {
+        "Title": "Cập nhật Nền tảng",
+        "Description": "Cập nhật nền tảng của trang web: {siteName}",
+        "CurrentPlatform": "Nền tảng hiện tại",
+        "NewPlatform": {
+          "Label": "Nền tảng mới",
+          "Required": "*",
+          "Placeholder": "Chọn nền tảng",
+          "Helper": "Chọn nền tảng mà trang web sẽ được tối ưu hóa"
+        },
+        "Cancel": "Hủy",
+        "Submit": "Cập nhật Nền tảng",
+        "Loading": "Đang cập nhật...",
+        "Success": "Nền tảng đã được cập nhật thành công!",
+        "Error": "Không thể cập nhật nền tảng"
       },
       "DeleteSite": {
         "Title": "Xóa Trang web",
@@ -648,6 +675,7 @@
         "FilterByOwner": "Chủ sở hữu",
         "AllOwners": "Tất cả chủ sở hữu",
         "Language": "Ngôn ngữ",
+        "Platform": "Nền tảng",
         "FilterByOwnerTitle": "Lọc theo chủ sở hữu",
         "SearchOwners": "Tìm kiếm chủ sở hữu...",
         "NoOwnersFound": "Không tìm thấy chủ sở hữu",
@@ -680,6 +708,9 @@
         "Breadcrumb": "Quản lý Trang",
         "Description": "Tạo và quản lý các trang cho trang web của bạn",
         "BackToSites": "Quay lại Sites",
+        "Preview": "Xem trước",
+        "PreviewExported": "Xem trước",
+        "PreviewExportedDescription": "Hãy đảm bảo trang đã được xuất ra server",
         "List": {
           "Title": "Danh sách trang",
           "Description": "Quản lý và xem tất cả các trang của trang web",
@@ -1688,26 +1719,99 @@
         "nation": "Quốc gia",
         "platform": "Nền tảng",
         "network": "Mạng",
-        "dateRange": "Khoảng thời gian",
         "appName": "Tên Ứng dụng",
         "appVersion": "Phiên bản Ứng dụng",
         "osName": "Tên Hệ điều hành",
         "category": "Danh mục",
-        "eventType": "Loại Sự kiện",
+        "eventName": "Tên Sự kiện",
+        "osVersion": "Phiên bản Hệ điều hành",
         "filterByApp": "Lọc theo Ứng dụng",
         "filterByAppVersion": "Lọc theo Phiên bản Ứng dụng",
         "filterByPlatform": "Lọc theo Nền tảng",
         "filterByCountry": "Lọc theo Quốc gia",
         "filterByOS": "Lọc theo Hệ điều hành",
+        "filterByOSVersion": "Lọc theo Phiên bản Hệ điều hành",
         "filterByCategory": "Lọc theo Danh mục",
         "filterByEvent": "Lọc theo Sự kiện",
         "filterByNetwork": "Lọc theo Mạng",
+        "eventValue": "Giá trị Sự kiện",
+        "filterByEventValue": "Lọc theo Giá trị Sự kiện",
         "applyFilter": "Áp dụng Bộ lọc",
         "clearAllFilters": "Xóa Tất cả Bộ lọc",
         "loadingFilters": "Đang tải bộ lọc...",
         "noFiltersAvailable": "Chưa có bộ lọc nào cho danh mục này",
         "removeFilter": "Xóa bộ lọc {filterType}",
-        "selected": "đã chọn"
+        "selected": "đã chọn",
+        "searchPlaceholder": "Tìm kiếm...",
+        "noResultsFound": "Không tìm thấy kết quả",
+        "dateRange": "Khoảng thời gian",
+        "dateRangeLabel": "Lọc theo khoảng thời gian",
+        "fromDate": "Từ ngày",
+        "toDate": "Đến ngày",
+        "selectDate": "Chọn ngày",
+        "quickRanges": "Lựa chọn nhanh",
+        "today": "Hôm nay",
+        "yesterday": "Hôm qua",
+        "last7Days": "7 ngày qua",
+        "last30Days": "30 ngày qua"
+      },
+      "overview": {
+        "totalEvents": "Tổng Sự Kiện",
+        "totalUsers": "Tổng Người Dùng",
+        "avgPerUser": "TB mỗi ND",
+        "currentPage": "Trang Hiện Tại",
+        "eventBreakdown": "Phân Tích Sự Kiện",
+        "eventTypes": "loại sự kiện",
+        "totalEventsCount": "tổng sự kiện",
+        "noValue": "Không có giá trị",
+        "moreValues": "giá trị khác"
+      },
+      "chart": {
+        "viewAnalytics": "Phân Tích",
+        "analyticsOverview": "Tổng Quan Phân Tích",
+        "loading": "Đang tải...",
+        "loadingError": "Không thể tải dữ liệu biểu đồ. Vui lòng thử lại.",
+        "appliedFilters": "Bộ Lọc Đã Áp Dụng",
+        "noFiltersApplied": "Chưa áp dụng bộ lọc nào - hiển thị tất cả dữ liệu",
+        "filterLabels": {
+          "app_name": "Tên Ứng Dụng",
+          "os_name": "Tên Hệ Điều Hành",
+          "os_version": "Phiên Bản HĐH",
+          "app_version": "Phiên Bản Ứng Dụng",
+          "category": "Danh Mục",
+          "platform": "Nền Tảng",
+          "country": "Quốc Gia",
+          "event_name": "Tên Sự Kiện",
+          "network": "Mạng",
+
+          "event_value": "Giá Trị Sự Kiện",
+          "date_from": "Từ Ngày",  
+
+          "date_to": "Đến Ngày"
+        },
+        "metrics": {
+          "totalUsers": "Tổng Người Dùng",
+          "uniqueUsers": "Người dùng duy nhất được theo dõi",
+          "totalEvents": "Tổng Sự Kiện",
+          "totalRecords": "Tổng bản ghi đã xử lý",
+          "uniqueApps": "Ứng Dụng Duy Nhất",
+          "differentApps": "Ứng dụng khác nhau",
+          "avgEventsPerUser": "TB Sự Kiện/ND",
+          "eventsPerUser": "Sự kiện mỗi người dùng"
+        },
+        "charts": {
+          "dailyUsers": {
+            "title": "Người Dùng Hàng Ngày",
+            "description": "Hoạt động người dùng duy nhất theo thời gian"
+          },
+          "dailyEvents": {
+            "title": "Sự Kiện Hàng Ngày",
+            "description": "Tổng hoạt động sự kiện theo thời gian"
+          }
+        },
+        "comingSoon": "Phân Tích Nâng Cao",
+        "chartsComingSoon": "Biểu đồ và trực quan hóa chi tiết sẽ ra mắt sớm",
+        "inDevelopment": "Đang Phát Triển"
       },
       "placeholders": {
         "search": "Tìm theo UID hoặc hành vi...",
@@ -1764,6 +1868,38 @@
         "sms": "SMS",
         "otp": "OTP",
         "confirm": "Xác nhận"
+      }
+    },
+    "userSearch": {
+      "sectionTitle": "Phân tích người dùng",
+      "sectionDescription": "Tìm kiếm và phân tích hoạt động người dùng theo User ID",
+      "button": "Tìm kiếm người dùng",
+      "title": "Tìm kiếm hoạt động người dùng",
+      "description": "Nhập User ID để xem việc sử dụng ứng dụng và các sự kiện của họ",
+      "form": {
+        "userId": {
+          "label": "User ID",
+          "placeholder": "Nhập User ID để tìm kiếm..."
+        },
+        "search": "Tìm kiếm",
+        "searching": "Đang tìm kiếm...",
+        "clear": "Xóa"
+      },
+      "results": {
+        "summary": {
+          "title": "Tóm tắt hoạt động người dùng",
+          "userId": "User ID",
+          "totalApps": "Ứng dụng đã sử dụng",
+          "totalEvents": "Tổng sự kiện"
+        },
+        "events": {
+          "title": "Sự kiện",
+          "value": "Giá trị"
+        },
+        "noData": "Không tìm thấy dữ liệu hoạt động cho người dùng này"
+      },
+      "error": {
+        "searchFailed": "Không thể tìm kiếm dữ liệu người dùng. Vui lòng thử lại."
       }
     }
   },
