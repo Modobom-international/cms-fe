@@ -1,40 +1,198 @@
 ---
-description: Use for AI to write note and task and lesson
+description: 
 globs: 
 alwaysApply: false
 ---
-# Current Task: Add Preview Button for Exported Pages
+# Current Task: Image Preview Functionality for Storage System
 
 ## Task Summary
-Add a button to preview pages that have been exported to the server, using the URL pattern:
-`https://api.modobomco.com/storage/exports/{site_domain}/{page_slug}/index.html`
+Implement image preview functionality in the storage system where:
+1. In grid mode, image files show actual image previews instead of file type icons
+2. When clicking on image files, users can preview the full image in a dialog modal
+3. Support common image formats (JPEG, PNG, GIF, WebP, SVG, etc.)
 
 ## Progress
-[X] Analyze current page management UI structure
-[X] Add translation keys for preview button in both English and Vietnamese
-[X] Implement preview button in pages table with correct URL construction
-[X] Position button appropriately between Edit and Tracking Script buttons
-[X] Update to use NEXT_PUBLIC_BACKEND_URL environment variable instead of hardcoded URL
+[X] Create `isImageFile()` helper function to detect image MIME types
+[X] Create `ImagePreviewDialog` component for full-size image preview
+[X] Update `StorageCard` component to show image previews in grid mode
+[X] Add image preview overlay with "Click to preview" hint
+[X] Update `GridView` component to handle image click events
+[X] Update `ListView` component to handle image click events  
+[X] Update `StorageContent` component to manage image preview dialog state
+[X] Implement proper error handling for failed image loads
+[X] Add download and share functionality in preview dialog
+[X] Test build compilation - ✅ Success
 
 ## Implementation Details
 
-### URL Pattern
-- Base URL: `${env.NEXT_PUBLIC_BACKEND_URL}/storage/exports/`
-- Format: `{site_domain}/{page_slug}/index.html`
-- Example: `https://api.modobomco.com/storage/exports/apkmotecom/blue-lock/index.html`
-- Uses environment variable for flexibility across different environments
+### Image Detection
+- Helper function `isImageFile(mimeType: string)` checks for supported image types
+- Supported formats: JPEG, JPG, PNG, GIF, WebP, SVG, BMP, TIFF, ICO, HEIC, HEIF
+
+### Storage Card Enhancements
+- Shows actual image preview for image files using `downloadUrl`
+- Falls back to file type icon if image fails to load
+- Hover overlay displays "Click to preview" hint
+- Image scales slightly on hover for visual feedback
+
+### Image Preview Dialog
+- Full-screen modal with responsive design (max 4xl width, 90vh height)
+- Header shows file name, size, and modification date
+- Download and Share buttons available in header
+- Image contained within dialog bounds with proper aspect ratio
+- Error handling displays fallback message if image can't load
+
+### Click Handling Logic
+- In both Grid and List views, image file clicks open preview dialog
+- Non-image files use default click behavior
+- Multi-select (Ctrl/Cmd+click) still works for selection
+- Folder clicks navigate as usual
 
 ### Files Modified
-1. `messages/en.json` - Added `"PreviewExported": "Preview Exported"`
-2. `messages/vi.json` - Added `"PreviewExported": "Xem trước đã xuất"`
-3. `src/app/(platform)/studio/sites/[siteId]/pages/page.tsx` - Added preview button in table actions
+1. `src/components/storage/utils.tsx` - Added `isImageFile()` helper
+2. `src/components/storage/image-preview-dialog.tsx` - New dialog component  
+3. `src/components/storage/storage-card.tsx` - Enhanced image preview display
+4. `src/components/storage/grid-view.tsx` - Added image click handling
+5. `src/components/storage/list-view.tsx` - Added image click handling
+6. `src/components/storage/storage-content.tsx` - Dialog state management
 
-### Button Characteristics
-- Variant: `secondary` (distinguishes from other action buttons)
-- Opens in new tab/window (`_blank`)
-- Uses site domain and page slug to construct URL
-- Positioned logically in action flow (Edit → Preview → Tracking Script → Delete → View)
+### User Experience Improvements
+- Visual preview of images in grid reduces need to download/open files
+- One-click full preview for detailed inspection
+- Consistent behavior across grid and list views
+- Proper fallbacks ensure system works even if images fail to load
+- Maintains all existing functionality (selection, context menus, etc.)
 
 ## Task Status: ✅ COMPLETED
 
-The preview button has been successfully implemented and will be available for all pages in the site management interface. The button constructs the preview URL using the site domain and page slug, opening the exported page in a new tab.
+The image preview functionality has been successfully implemented across the storage system. Users can now:
+- See image thumbnails in grid mode for quick identification
+- Click any image file to open full-size preview in a modal dialog
+- Download or share images directly from the preview dialog
+- Experience consistent behavior in both grid and list views
+
+Build completed successfully with no errors, only minor warnings about `<img>` vs `<Image />` usage which is acceptable for this implementation.
+
+# Lessons
+
+## Next.js Dynamic APIs
+
+- Always handle dynamic APIs (searchParams, cookies, headers) asynchronously in Next.js 15+
+- Use React.use() in Client Components to unwrap dynamic API Promises
+- Use await in Server Components to unwrap dynamic API Promises
+- Never access dynamic API properties directly without awaiting
+
+Example for Server Components:
+
+```typescript
+interface PageProps {
+  searchParams: Promise<{
+    id?: string;
+  }>;
+}
+
+export default async function Page({ searchParams }: PageProps) {
+  const params = await searchParams;
+  // Now you can safely use params.id
+}
+```
+
+Example for Client Components:
+
+```typescript
+"use client";
+
+import { use } from "react";
+
+interface PageProps {
+  searchParams: Promise<{
+    id?: string;
+  }>;
+}
+
+export default function Page({ searchParams }: PageProps) {
+  const params = use(searchParams);
+  // Now you can safely use params.id
+}
+```
+
+## Cursor learned
+
+- follows Next.js's server-first pattern throughout the application
+- Next.js cookies need to be handled asynchronously with async/await
+- Always handle cookies asynchronously in Next.js 15+
+- Always use the updated cookieStore method in Next.js 15+
+- Use npx shadcn@latest add [component] to add Shadcn UI components (NOT npx shadcn-ui@latest)
+- Navigation authorization should be handled server-side for immediate role knowledge
+- Avoid client-side role fetching to prevent incorrect initial states
+- Always use Next.js Image component (<Image />) from 'next/image' instead of HTML <img> tag for better performance and optimization
+- TypeScript interfaces for handbook components are located in src/types/handbook.ts
+- Always add null checks for optional props in React components and provide fallback UI to prevent runtime errors
+- The project is already running on port 3000 - don't try to start it again
+
+## Chart Components & Dashboard Development
+
+- Use `type ChartConfig` instead of `ChartConfig` when importing from chart UI components to avoid linter errors
+- Always cast `any` values to proper types in chart tooltip formatters to prevent unsafe assignment errors
+- Use `String(value)` to safely convert unknown values to strings in chart components
+- Prefer nullish coalescing operator (`??`) over logical or (`||`) for safer default value assignment
+- Use proper TypeScript assertions with specific types instead of generic `as any`
+- Chart components should include proper loading states with Skeleton components
+- Format currency values consistently using `Intl.NumberFormat` for VND display
+- Administrative dashboard should include: revenue analytics, booking statistics, staff performance, service popularity, and recent activity tables
+
+## Advanced Chart Improvements
+
+- **Complete Timeline Display**: Always show full date ranges in charts, even for dates without data
+- Use `date-fns` functions like `eachDayOfInterval`, `subDays`, and `format` for comprehensive date handling
+- Create data mapping with `Map` to efficiently merge backend data with complete date ranges
+- **Dual Y-Axis Charts**: Use separate Y-axes for different data types (revenue vs bookings) with proper scaling
+- **Enhanced UI Design**: Implement gradient backgrounds, custom icons, and improved spacing for professional appearance
+- **Smart Tick Intervals**: Adjust X-axis tick intervals based on time range (every day for 7d, every 2nd day for 30d, weekly for 90d)
+- **Interactive Elements**: Add hover states, active dots, and improved tooltips for better user experience
+- **Currency Formatting**: Implement short-form currency display (K, M, B) for Y-axis labels to save space
+- **Responsive Chart Height**: Use larger chart containers (350px vs 250px) for better data visualization
+
+## Storage System & Image Preview
+
+- **Image Detection**: Use MIME type checking to identify image files (`isImageFile()` helper)
+- **Error Handling**: Always implement fallback UI for failed image loads in preview components
+- **User Experience**: Provide visual hints like hover overlays to indicate interactive elements
+- **Consistent Behavior**: Ensure image preview works consistently across both grid and list views
+- **State Management**: Use centralized state (Zustand) for dialog management across storage components
+- **Performance**: Use HTML `<img>` for preview functionality when Next.js `<Image />` optimization isn't critical
+- **URL Construction**: Use `downloadUrl` from MinIO file objects for direct image preview
+- **Component Props**: Always add optional callback props (`onImageClick?`) to maintain backwards compatibility
+
+# Project Structure
+
+## Types
+
+### Handbook Types (src/types/handbook.ts)
+
+Contains all TypeScript interfaces for the handbook feature:
+
+- HandbookProps: Main props interface for the Handbook component
+- Service: Service information interface
+- Criteria: Eligibility criteria interface
+- Procedures: Service procedures interface
+- RequiredDocuments: Required documents interface
+- Fee: Service fees interface
+- ServiceChannels: Service locations interface
+- ComplaintChannels: Complaint channels interface
+- ApplicationForms: Application forms interface
+- BottomRemarks: Additional information interface
+- Source: Source information interface
+
+**🔒 Security & Validation**:
+- All endpoints use `protectedProcedure` requiring authentication
+- Proper user ID filtering (only own data accessible)
+- Input validation with Zod schemas
+- Error handling with tRPC error responses
+
+# General
+
+- Use always use npx shadcn@latest init to install shadcn/ui. Avoid using shadcn-ui as it's deprecated.
+- Use always use npx shadcn@latest add [component] to add a component to the project.
+- Always use NPM as the package manager.
+

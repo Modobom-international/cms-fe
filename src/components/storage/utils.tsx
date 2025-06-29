@@ -69,3 +69,22 @@ export const getFileTypeIcon = (
     <File className={cn(iconSize, "text-slate-500 dark:text-slate-400")} />
   );
 };
+
+export function isImageFile(mimeType: string): boolean {
+  const imageTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/svg+xml",
+    "image/bmp",
+    "image/tiff",
+    "image/ico",
+    "image/heic",
+    "image/heif",
+  ];
+
+  return imageTypes.includes(mimeType.toLowerCase());
+}
+

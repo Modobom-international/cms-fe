@@ -12,6 +12,7 @@ import { useFileStructure } from "@/hooks/storage";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { FileDetailsPanel } from "@/components/storage/file-details-panel";
+import { FilePreviewDialog } from "@/components/storage/file-preview-dialog";
 import { FloatingToolbar } from "@/components/storage/floating-toolbar";
 import { GridView } from "@/components/storage/grid-view";
 import { ListView } from "@/components/storage/list-view";
@@ -32,7 +33,10 @@ export function StorageContent() {
     setCurrentPath,
   } = useStorageStore();
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [imagePreviewFile, setImagePreviewFile] = useState<IFileItem | null>(
+    null
+  );
+  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
 
   // Fetch file structure from MinIO
   const {
@@ -123,6 +127,11 @@ export function StorageContent() {
     toast.info(`Opening ${file.name}...`);
   };
 
+  const handleImageClick = (file: IFileItem) => {
+    setImagePreviewFile(file);
+    setIsImagePreviewOpen(true);
+  };
+
   const handleRename = (itemId: string, newName: string) => {
     toast.success(`Renamed to "${newName}"`);
   };
@@ -142,7 +151,7 @@ export function StorageContent() {
     }
   };
 
-  const handleDelete = (itemId: string) => {
+  const handleDelete = () => {
     toast.success("Item deleted");
   };
 
@@ -176,7 +185,7 @@ export function StorageContent() {
     );
   }
 
-  const isLoadingState = isLoadingFiles || isLoading;
+  const isLoadingState = isLoadingFiles;
 
   return (
     <div className="bg-background flex h-full gap-x-4">
@@ -222,6 +231,7 @@ export function StorageContent() {
                   onDownload={handleDownload}
                   onDelete={handleDelete}
                   onShare={handleShare}
+                  onImageClick={handleImageClick}
                 />
               ) : (
                 <ListView
@@ -234,6 +244,7 @@ export function StorageContent() {
                   onDelete={handleDelete}
                   onShare={handleShare}
                   onSort={handleSort}
+                  onImageClick={handleImageClick}
                 />
               )}
             </div>
@@ -259,6 +270,7 @@ export function StorageContent() {
                 onDownload={handleDownload}
                 onDelete={handleDelete}
                 onShare={handleShare}
+                onImageClick={handleImageClick}
               />
             ) : (
               <ListView
@@ -271,6 +283,7 @@ export function StorageContent() {
                 onDelete={handleDelete}
                 onShare={handleShare}
                 onSort={handleSort}
+                onImageClick={handleImageClick}
               />
             )}
           </div>
@@ -282,6 +295,16 @@ export function StorageContent() {
 
       {/* File Details Panel Sidebar */}
       <section>{showDetailsPanel && <FileDetailsPanel />}</section>
+
+      {/* Image Preview Dialog */}
+      <FilePreviewDialog
+        isOpen={isImagePreviewOpen}
+        onOpenChange={setIsImagePreviewOpen}
+        file={imagePreviewFile}
+        onDownload={handleDownload}
+        onShare={handleShare}
+      />
     </div>
   );
 }
+

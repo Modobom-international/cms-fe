@@ -44,7 +44,7 @@ export async function checkFileExistsInBucket({
 }) {
   try {
     await MinioClient.statObject(bucketName, fileName);
-  } catch (error) {
+  } catch {
     return false;
   }
   return true;
@@ -199,6 +199,8 @@ export async function getFileStructure({
     });
 
     // Then process the non-recursive objects for current level items
+    const filePromises: Promise<any>[] = [];
+
     objects.forEach((obj) => {
       const objectName = obj.name;
       if (objectName === prefix) return;
@@ -239,9 +241,12 @@ export async function getFileStructure({
         const fileName = pathParts[0];
         if (fileName.endsWith("/")) return;
 
-        const publicUrl = `http${process.env.MINIO_SSL === "true" ? "s" : ""}://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}/${bucketName}/${objectName}`;
-
-        files.push({
+        // Create promise for generating presigned URL
+        const filePromise = createPresignedUrlToDownload({
+          bucketName,
+          fileName: objectName,
+          expiry: 60 * 60, // 1 hour
+        }).then((presignedUrl) => ({
           id: `file-${objectName}-${Date.now()}-${Math.random()}`,
           name: fileName,
           type: "file",
@@ -253,11 +258,17 @@ export async function getFileStructure({
           mimeType: getMimeType(fileName),
           path: prefix + fileName,
           parentId: prefix || "root",
-          downloadUrl: publicUrl,
-          previewUrl: isImageFile(fileName) ? publicUrl : undefined,
-        });
+          downloadUrl: presignedUrl,
+          previewUrl: isImageFile(fileName) ? presignedUrl : undefined,
+        }));
+
+        filePromises.push(filePromise);
       }
     });
+
+    // Wait for all presigned URLs to be generated
+    const resolvedFiles = await Promise.all(filePromises);
+    files.push(...resolvedFiles);
 
     // Count items in folders from recursive listing
     recursiveObjects.forEach((obj) => {

@@ -38,7 +38,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { formatFileSize, getFileTypeIcon } from "./utils";
+import { formatFileSize, getFileTypeIcon, isImageFile } from "./utils";
 
 interface ListViewProps {
   files: IFileItem[];
@@ -50,6 +50,7 @@ interface ListViewProps {
   onDelete?: (itemId: string) => void;
   onShare?: (itemId: string) => void;
   onSort?: (column: string) => void;
+  onImageClick?: (file: IFileItem) => void;
 }
 
 export function ListView({
@@ -62,6 +63,7 @@ export function ListView({
   onDelete,
   onShare,
   onSort,
+  onImageClick,
 }: ListViewProps) {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
@@ -81,7 +83,12 @@ export function ListView({
       if (item.type === "folder") {
         onFolderClick?.(item.id, item.name);
       } else {
-        onFileClick?.(item);
+        // Check if it's an image file and handle image preview
+        if (isImageFile(item.mimeType) && onImageClick) {
+          onImageClick(item as IFileItem);
+        } else {
+          onFileClick?.(item);
+        }
       }
     }
   };
@@ -410,3 +417,4 @@ export function ListView({
     </div>
   );
 }
+

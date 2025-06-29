@@ -8,8 +8,16 @@ const nextConfig: NextConfig = {
     "*.local-origin.dev",
     "cms.modobom.test",
   ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "9000",
+      },
+    ],
+  },
 };
 
 const withNextIntl = createNextIntlPlugin();
 export default withNextIntl(nextConfig);
-

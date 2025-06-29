@@ -19,6 +19,7 @@ interface GridViewProps {
   onDownload?: (itemId: string) => void;
   onDelete?: (itemId: string) => void;
   onShare?: (itemId: string) => void;
+  onImageClick?: (file: IFileItem) => void;
 }
 
 export function GridView({
@@ -30,6 +31,7 @@ export function GridView({
   onDownload,
   onDelete,
   onShare,
+  onImageClick,
 }: GridViewProps) {
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
@@ -117,6 +119,7 @@ export function GridView({
           onDownload={onDownload}
           onDelete={onDelete}
           onShare={handleShare}
+          onImageClick={onImageClick}
         />
       ))}
 
