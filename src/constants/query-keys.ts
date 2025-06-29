@@ -216,7 +216,6 @@ export const appInformationQueryKeys = {
         event_name,
         network,
         event_value,
-        // Ensure dates are always included in query key for proper caching
         from: from || "",
         to: to || "",
       },
@@ -256,4 +255,20 @@ export const appInformationQueryKeys = {
         to,
       },
     ] as const,
+};
+
+export const storageQueryKeys = {
+  origin: ["storage"] as const,
+  all: () => [...storageQueryKeys.origin, "all"] as const,
+  fileStructure: (prefix: string = "") =>
+    [...storageQueryKeys.origin, "file-structure", prefix] as const,
+  files: (prefix: string = "") =>
+    [...storageQueryKeys.origin, "files", prefix] as const,
+  upload: () => [...storageQueryKeys.origin, "upload"] as const,
+  presignedUrls: () => [...storageQueryKeys.origin, "presigned-urls"] as const,
+  createFolder: () => [...storageQueryKeys.origin, "create-folder"] as const,
+  delete: (itemId: string) =>
+    [...storageQueryKeys.origin, "delete", itemId] as const,
+  download: (itemId: string) =>
+    [...storageQueryKeys.origin, "download", itemId] as const,
 };
