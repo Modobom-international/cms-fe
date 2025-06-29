@@ -1,18 +1,19 @@
-import {
-  createBucketIfNotExists,
-  saveFileInBucket,
-  checkFileExistsInBucket,
-  getFileFromBucket,
-  deleteFileFromBucket,
-  createPresignedUrlToUpload,
-  createPresignedUrlToDownload,
-} from "./helpers";
-
 import type {
-  ShortFileProp,
-  PresignedUrlProp,
   FileInDBProp,
+  PresignedUrlProp,
+  ShortFileProp,
 } from "@/lib/server/minio/types";
+
+import {
+  checkFileExistsInBucket,
+  createPresignedUrlToDownload,
+  createPresignedUrlToUpload,
+  deleteFileFromBucket,
+  getFileFromBucket,
+  getFileStructure,
+  listObjectsInBucket,
+  saveFileInBucket,
+} from "./helpers";
 
 export type { ShortFileProp, PresignedUrlProp, FileInDBProp };
 
@@ -23,4 +24,6 @@ export {
   deleteFileFromBucket,
   createPresignedUrlToUpload,
   createPresignedUrlToDownload,
+  listObjectsInBucket,
+  getFileStructure,
 };

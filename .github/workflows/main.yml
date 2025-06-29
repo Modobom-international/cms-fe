@@ -10,41 +10,46 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 23.8.0
-      
+
       - name: Install pnpm
         uses: pnpm/action-setup@v2
-      
+
       - name: Install dependencies
-        run: pnpm install 
-      
+        run: pnpm install
+
       - name: Build
         run: pnpm build
         env:
-          NEXT_PUBLIC_BACKEND_URL: 'http://localhost:8000'
-          NEXT_PUBLIC_GRAPESJS_LICENSE_KEY: '3be8d9a1f4db47c3b6b26c90232323233fe33ea74ed9ada86c04d1bc7c43'
-          NEXT_PUBLIC_REVERB_APP_KEY: 'local_key'
-          NEXT_PUBLIC_REVERB_APP_ID: 'local'
-          NEXT_PUBLIC_REVERB_HOST: 'localhost'
-          NEXT_PUBLIC_REVERB_PORT: '8080'
-          NEXT_PUBLIC_REVERB_SCHEME: 'http'
-          NEXT_PUBLIC_BUCKET_PUBLIC_URL: 'https://bucket.modobom.net'
-          NEXT_PUBLIC_BUCKET_NAME: 'modobom-bucket'
-          NEXT_PUBLIC_R2_ACCOUNT_ID: '1234567890'
-          NEXT_PUBLIC_R2_ACCESS_KEY_ID: '1234567890'
-          NEXT_PUBLIC_R2_SECRET_ACCESS_KEY: '1234567890'
-          NEXT_PUBLIC_R2_ENDPOINT: 'https://bucket.modobom.net'
-        
-      
+          NEXT_PUBLIC_BACKEND_URL: "http://localhost:8000"
+          NEXT_PUBLIC_GRAPESJS_LICENSE_KEY: "3be8d9a1f4db47c3b6b26c90232323233fe33ea74ed9ada86c04d1bc7c43"
+          NEXT_PUBLIC_REVERB_APP_KEY: "local_key"
+          NEXT_PUBLIC_REVERB_APP_ID: "local"
+          NEXT_PUBLIC_REVERB_HOST: "localhost"
+          NEXT_PUBLIC_REVERB_PORT: "8080"
+          NEXT_PUBLIC_REVERB_SCHEME: "http"
+          NEXT_PUBLIC_BUCKET_PUBLIC_URL: "https://bucket.modobom.net"
+          NEXT_PUBLIC_BUCKET_NAME: "modobom-bucket"
+          NEXT_PUBLIC_R2_ACCOUNT_ID: "1234567890"
+          NEXT_PUBLIC_R2_ACCESS_KEY_ID: "1234567890"
+          NEXT_PUBLIC_R2_SECRET_ACCESS_KEY: "1234567890"
+          NEXT_PUBLIC_R2_ENDPOINT: "https://bucket.modobom.net"
+          MINIO_ENDPOINT: "localhost"
+          MINIO_SSL: "false"
+          MINIO_PORT: "9000"
+          MINIO_ACCESS_KEY: "minioadmin"
+          MINIO_SECRET_KEY: "minioadmin"
+          MINIO_BUCKET_NAME: "modobom-bucket"
+
       # - name: Test
       #   run: pnpm test
       #   env:
       #     MONGODB_URI: mongodb://localhost:27017/testdb
-  
+
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
@@ -65,4 +70,3 @@ jobs:
             pnpm install
             pnpm build
             pm2 restart cms-fe
-           

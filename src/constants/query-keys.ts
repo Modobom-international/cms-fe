@@ -42,10 +42,10 @@ export const domainQueryKeys = {
       registrar_created_at?: string;
     }
   ) => [
-      ...domainQueryKeys.origin,
-      "list",
-      { page, pageSize, search, ...filters },
-    ],
+    ...domainQueryKeys.origin,
+    "list",
+    { page, pageSize, search, ...filters },
+  ],
   available: (page: number, pageSize: number, search: string) => [
     ...domainQueryKeys.origin,
     "list",
@@ -216,7 +216,6 @@ export const appInformationQueryKeys = {
         event_name,
         network,
         event_value,
-        // Ensure dates are always included in query key for proper caching
         from: from || "",
         to: to || "",
       },
@@ -224,7 +223,8 @@ export const appInformationQueryKeys = {
   filterMenu: () => [...appInformationQueryKeys.origin, "filter-menu"] as const,
   byUserId: (userId: string) =>
     [...appInformationQueryKeys.origin, "user", userId] as const,
-  chart: (app_name?: string | string[],
+  chart: (
+    app_name?: string | string[],
     os_name?: string | string[],
     os_version?: string | string[],
     app_version?: string | string[],
@@ -235,9 +235,40 @@ export const appInformationQueryKeys = {
     network?: string | string[],
     event_value?: string | string[],
     from?: string,
-    to?: string) => [
+    to?: string
+  ) =>
+    [
       ...appInformationQueryKeys.origin,
       "chart",
-      { app_name, os_name, os_version, app_version, category, platform, country, event_name, network, event_value, from, to },
+      {
+        app_name,
+        os_name,
+        os_version,
+        app_version,
+        category,
+        platform,
+        country,
+        event_name,
+        network,
+        event_value,
+        from,
+        to,
+      },
     ] as const,
+};
+
+export const storageQueryKeys = {
+  origin: ["storage"] as const,
+  all: () => [...storageQueryKeys.origin, "all"] as const,
+  fileStructure: (prefix: string = "") =>
+    [...storageQueryKeys.origin, "file-structure", prefix] as const,
+  files: (prefix: string = "") =>
+    [...storageQueryKeys.origin, "files", prefix] as const,
+  upload: () => [...storageQueryKeys.origin, "upload"] as const,
+  presignedUrls: () => [...storageQueryKeys.origin, "presigned-urls"] as const,
+  createFolder: () => [...storageQueryKeys.origin, "create-folder"] as const,
+  delete: (itemId: string) =>
+    [...storageQueryKeys.origin, "delete", itemId] as const,
+  download: (itemId: string) =>
+    [...storageQueryKeys.origin, "download", itemId] as const,
 };

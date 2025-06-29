@@ -39,10 +39,7 @@ export function GridView({
   >(null);
   const { selectedItems, toggleSelection } = useStorageStore();
 
-  const handleItemClick = (
-    item: IFileItem | IFolderItem,
-    e: React.MouseEvent
-  ) => {
+  const handleItemClick = (item: IFileItem | IFolderItem) => {
     if (item.type === "folder") {
       onFolderClick?.(item.id, item.name);
     } else {
@@ -50,7 +47,7 @@ export function GridView({
     }
   };
 
-  const handleSelectionToggle = (itemId: string, e: React.MouseEvent) => {
+  const handleSelectionToggle = (itemId: string) => {
     toggleSelection(itemId, true);
   };
 

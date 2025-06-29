@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 
+import Image from "next/image";
+
 import {
   CheckSquare,
   Download,
@@ -25,7 +27,7 @@ import {
 } from "@/components/ui/context-menu";
 import { Input } from "@/components/ui/input";
 
-import { formatFileSize, getFileTypeIcon } from "./utils";
+import { formatFileSize, getFileTypeIcon, isImageFile } from "./utils";
 
 interface StorageCardProps {
   item: IFileItem | IFolderItem;
@@ -133,12 +135,45 @@ export function StorageCard({
           </div>
 
           {/* Thumbnail/Icon Container */}
-          <div className="bg-muted/40 dark:bg-muted/30 group-hover:bg-muted/40 dark:group-hover:bg-muted/30 mb-4 flex aspect-square items-center justify-center overflow-hidden rounded-lg transition-colors duration-200">
-            {item.type === "file" && item.thumbnail ? (
-              <img
+          <div className="bg-muted/40 dark:bg-muted/30 group-hover:bg-muted/40 dark:group-hover:bg-muted/30 relative mb-4 flex aspect-square items-center justify-center overflow-hidden rounded-lg transition-colors duration-200">
+            {item.type === "file" &&
+            isImageFile(item.mimeType) &&
+            "downloadUrl" in item ? (
+              <>
+                <Image
+                  src={item.downloadUrl}
+                  alt={item.name}
+                  fill
+                  className="object-cover transition-transform duration-200 group-hover:scale-105"
+                  onError={(e) => {
+                    // Fallback to file type icon if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = "none";
+                    const iconContainer =
+                      target.parentElement?.querySelector(".fallback-icon");
+                    if (iconContainer) {
+                      (iconContainer as HTMLElement).style.display = "flex";
+                    }
+                  }}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+                <div className="fallback-icon hidden h-full w-full items-center justify-center">
+                  {getFileTypeIcon(item.mimeType, "lg")}
+                </div>
+                {/* Image preview overlay */}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-200 group-hover:bg-black/10">
+                  <div className="rounded bg-black/50 px-2 py-1 text-xs font-medium text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                    Click to preview
+                  </div>
+                </div>
+              </>
+            ) : item.type === "file" && item.thumbnail ? (
+              <Image
                 src={item.thumbnail}
                 alt={item.name}
-                className="h-full w-full object-cover"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
@@ -243,3 +278,4 @@ export function StorageCard({
     </ContextMenu>
   );
 }
+

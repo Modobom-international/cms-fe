@@ -1,5 +1,6 @@
-import { MinioClient } from "./client";
 import type internal from "stream";
+
+import { MinioClient } from "./client";
 
 export async function createBucketIfNotExists(bucketName: string) {
   const bucketExists = await MinioClient.bucketExists(bucketName);
@@ -43,7 +44,7 @@ export async function checkFileExistsInBucket({
 }) {
   try {
     await MinioClient.statObject(bucketName, fileName);
-  } catch (error) {
+  } catch {
     return false;
   }
   return true;
@@ -107,3 +108,159 @@ export async function createPresignedUrlToDownload({
 }) {
   return await MinioClient.presignedGetObject(bucketName, fileName, expiry);
 }
+
+export async function listObjectsInBucket({
+  bucketName,
+  prefix = "",
+  recursive = false,
+}: {
+  bucketName: string;
+  prefix?: string;
+  recursive?: boolean;
+}) {
+  try {
+    // Create bucket if it doesn't exist
+    await createBucketIfNotExists(bucketName);
+
+    const objects: any[] = [];
+    const stream = MinioClient.listObjectsV2(bucketName, prefix, recursive);
+
+    return new Promise((resolve, reject) => {
+      stream.on("data", (obj) => {
+        objects.push(obj);
+      });
+      stream.on("error", reject);
+      stream.on("end", () => {
+        resolve(objects);
+      });
+    });
+  } catch (error) {
+    console.error("Error listing objects:", error);
+    throw error;
+  }
+}
+
+export async function getFileStructure({
+  bucketName,
+  prefix = "",
+}: {
+  bucketName: string;
+  prefix?: string;
+}) {
+  try {
+    const stream = MinioClient.listObjectsV2(bucketName, prefix, false);
+    const files: any[] = [];
+    const foldersMap = new Map();
+    const folderPromises: Promise<void>[] = [];
+
+    for await (const obj of stream) {
+      if (obj.prefix) {
+        // This is a folder
+        const folderName = obj.prefix.replace(prefix, "").replace(/\/$/, "");
+        if (!foldersMap.has(folderName)) {
+          const folderObject = {
+            id: `folder-${obj.prefix}`,
+            name: folderName,
+            type: "folder",
+            size: 0,
+            modifiedDate: new Date().toISOString(), // Folders don't have a mod date
+            owner: "System",
+            path: obj.prefix,
+            itemCount: 0, // Placeholder, will be updated by promise
+            mimeType: "folder",
+          };
+          foldersMap.set(folderName, folderObject);
+
+          // Create a promise to count items in this folder
+          const countPromise = (async () => {
+            const countStream = MinioClient.listObjectsV2(
+              bucketName,
+              obj.prefix,
+              false
+            );
+            let count = 0;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            for await (const _ of countStream) {
+              count++;
+            }
+            folderObject.itemCount = count;
+          })();
+          folderPromises.push(countPromise);
+        }
+      } else if (obj.name) {
+        // This is a file
+        const fileName = obj.name.replace(prefix, "");
+        if (fileName) {
+          // Check if it's not the folder itself placeholder
+          const presignedUrl = await createPresignedUrlToDownload({
+            bucketName,
+            fileName: obj.name,
+          });
+          files.push({
+            id: `file-${obj.name}`,
+            name: fileName,
+            type: "file",
+            size: obj.size,
+            modifiedDate: obj.lastModified,
+            owner: "System",
+            path: obj.name,
+            downloadUrl: presignedUrl,
+            mimeType: getMimeType(fileName),
+          });
+        }
+      }
+    }
+
+    await Promise.all(folderPromises);
+    const folders = Array.from(foldersMap.values());
+
+    return { files, folders };
+  } catch (error) {
+    console.error("Error fetching file structure:", error);
+    throw new Error("Failed to retrieve file structure from storage.");
+  }
+}
+
+function getMimeType(filename: string): string {
+  const ext = filename.split(".").pop()?.toLowerCase();
+  const mimeTypes: Record<string, string> = {
+    // Images
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    gif: "image/gif",
+    webp: "image/webp",
+    svg: "image/svg+xml",
+    // Documents
+    pdf: "application/pdf",
+    doc: "application/msword",
+    docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    xls: "application/vnd.ms-excel",
+    xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ppt: "application/vnd.ms-powerpoint",
+    pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    // Text
+    txt: "text/plain",
+    json: "application/json",
+    xml: "application/xml",
+    html: "text/html",
+    css: "text/css",
+    js: "application/javascript",
+    ts: "application/typescript",
+    // Archives
+    zip: "application/zip",
+    rar: "application/vnd.rar",
+    "7z": "application/x-7z-compressed",
+    // Video
+    mp4: "video/mp4",
+    avi: "video/x-msvideo",
+    mov: "video/quicktime",
+    // Audio
+    mp3: "audio/mpeg",
+    wav: "audio/wav",
+    flac: "audio/flac",
+  };
+
+  return mimeTypes[ext || ""] || "application/octet-stream";
+}
+

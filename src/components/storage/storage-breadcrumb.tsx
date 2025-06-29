@@ -17,12 +17,20 @@ import {
 
 interface StorageBreadcrumbProps {
   breadcrumbs: IBreadcrumbItem[];
+  onNavigate?: (path: string) => void;
 }
 
-export function StorageBreadcrumb({ breadcrumbs }: StorageBreadcrumbProps) {
+export function StorageBreadcrumb({
+  breadcrumbs,
+  onNavigate,
+}: StorageBreadcrumbProps) {
   const handleBreadcrumbClick = (index: number) => {
     const breadcrumb = breadcrumbs[index];
-    toast.info(`Navigating to ${breadcrumb.name}...`);
+    if (onNavigate) {
+      onNavigate(breadcrumb.path);
+    } else {
+      toast.info(`Navigating to ${breadcrumb.name}...`);
+    }
   };
 
   return (
@@ -53,4 +61,3 @@ export function StorageBreadcrumb({ breadcrumbs }: StorageBreadcrumbProps) {
     </div>
   );
 }
-
