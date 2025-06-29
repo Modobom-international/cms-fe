@@ -1,11 +1,11 @@
 import * as Minio from "minio";
+import { env } from "@/env";
 
-const MINIO_ENDPOINT = process.env.MINIO_ENDPOINT;
-const MINIO_SSL = process.env.MINIO_SSL;
-const MINIO_PORT = parseInt(process.env.MINIO_PORT!);
-const MINIO_ACCESS_KEY = process.env.MINIO_ACCESS_KEY;
-const MINIO_SECRET_KEY = process.env.MINIO_SECRET_KEY;
-const MINIO_BUCKET_NAME = process.env.MINIO_BUCKET_NAME;
+const MINIO_ENDPOINT = env.MINIO_ENDPOINT;
+const MINIO_SSL = env.MINIO_SSL;
+const MINIO_PORT = parseInt(env.MINIO_PORT!);
+const MINIO_ACCESS_KEY = env.MINIO_ACCESS_KEY;
+const MINIO_SECRET_KEY = env.MINIO_SECRET_KEY;
 
 export const MinioClient = new Minio.Client({
   endPoint: MINIO_ENDPOINT!,

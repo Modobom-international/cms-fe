@@ -6,7 +6,6 @@ import type {
 
 import {
   checkFileExistsInBucket,
-  createBucketIfNotExists,
   createPresignedUrlToDownload,
   createPresignedUrlToUpload,
   deleteFileFromBucket,

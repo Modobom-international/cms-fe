@@ -180,7 +180,7 @@ export async function getFileStructure({
             );
             let count = 0;
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            for await (const item of countStream) {
+            for await (const _ of countStream) {
               count++;
             }
             folderObject.itemCount = count;
@@ -262,20 +262,5 @@ function getMimeType(filename: string): string {
   };
 
   return mimeTypes[ext || ""] || "application/octet-stream";
-}
-
-function isImageFile(filename: string): boolean {
-  const ext = filename.split(".").pop()?.toLowerCase();
-  const imageExtensions = [
-    "jpg",
-    "jpeg",
-    "png",
-    "gif",
-    "webp",
-    "svg",
-    "bmp",
-    "ico",
-  ];
-  return imageExtensions.includes(ext || "");
 }
 

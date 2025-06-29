@@ -1,4 +1,4 @@
-import { Archive, File, FileText, Image, Music, Video } from "lucide-react";
+import { Archive, File, Music, Video } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 

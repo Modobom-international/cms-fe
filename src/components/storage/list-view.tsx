@@ -38,7 +38,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { formatFileSize, getFileTypeIcon, isImageFile } from "./utils";
+import { formatFileSize, getFileTypeIcon } from "./utils";
 
 interface ListViewProps {
   files: IFileItem[];

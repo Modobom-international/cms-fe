@@ -8,7 +8,6 @@ import {
   Link,
   Lock,
   MoreVertical,
-  Settings,
   Trash2,
   User,
   X,
