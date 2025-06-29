@@ -1,4 +1,4 @@
-import type { ShortFileProp, PresignedUrlProp } from "@/lib/server/minio";
+import type { PresignedUrlProp, ShortFileProp } from "@/lib/server/minio";
 
 export const MAX_FILE_SIZE_NEXTJS_ROUTE = 4;
 export const MAX_FILE_SIZE_S3_ENDPOINT = 100;
@@ -6,11 +6,15 @@ export const FILE_NUMBER_LIMIT = 10;
 
 /**
  * Gets presigned urls for uploading files to S3
- * @param formData form data with files to upload
+ * @param files files to upload
+ * @param endpoint optional endpoint to use, defaults to /api/s3/presigned
  * @returns
  */
-export const getPresignedUrls = async (files: ShortFileProp[]) => {
-  const response = await fetch("/api/s3/presigned", {
+export const getPresignedUrls = async (
+  files: ShortFileProp[],
+  endpoint: string = "/api/s3/presigned"
+) => {
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

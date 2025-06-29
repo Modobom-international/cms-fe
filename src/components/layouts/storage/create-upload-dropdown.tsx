@@ -3,15 +3,10 @@
 import { useRef, useState } from "react";
 
 import { Files, FolderPlus, Plus, Upload } from "lucide-react";
-import { toast } from "sonner";
 
-import {
-  getPresignedUrls,
-  handleUpload,
-  MAX_FILE_SIZE_S3_ENDPOINT,
-  validateFiles,
-} from "@/lib/client/minio";
 import { cn } from "@/lib/utils";
+
+import { useCreateFolder, useUploadFiles } from "@/hooks/storage";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -47,55 +42,33 @@ export function CreateUploadDropdown({
 }: CreateUploadDropdownProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const folderInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [showCreateFolderDialog, setShowCreateFolderDialog] = useState(false);
   const [folderName, setFolderName] = useState("");
+
+  // Use the new hooks
+  const uploadFilesMutation = useUploadFiles();
+  const createFolderMutation = useCreateFolder();
 
   const handleFileUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    setIsUploading(true);
+    const fileArray = Array.from(files);
 
     try {
-      const fileArray = Array.from(files);
+      await uploadFilesMutation.mutateAsync({ files: fileArray });
+      onUploadFile?.();
+      onRefresh?.();
 
-      // Prepare file information for presigned URL generation
-      const fileInfos = fileArray.map((file) => ({
-        originalFileName: file.name,
-        fileSize: file.size,
-      }));
-
-      // Validate files
-      const validationError = validateFiles(
-        fileInfos,
-        MAX_FILE_SIZE_S3_ENDPOINT
-      );
-      if (validationError) {
-        toast.error(validationError);
-        return;
-      }
-
-      // Get presigned URLs
-      const presignedUrls = await getPresignedUrls(fileInfos);
-
-      // Upload files using presigned URLs
-      await handleUpload(fileArray, presignedUrls, () => {
-        toast.success(`Successfully uploaded ${fileArray.length} file(s)`);
-        onUploadFile?.();
-        onRefresh?.();
-      });
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("Failed to upload files");
-    } finally {
-      setIsUploading(false);
-      // Reset file input
+      // Reset file inputs
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
       if (folderInputRef.current) {
         folderInputRef.current.value = "";
       }
+    } catch (error) {
+      // Error handling is done in the hook
+      console.error("Upload failed:", error);
     }
   };
 
@@ -113,37 +86,23 @@ export function CreateUploadDropdown({
 
   const handleCreateFolderSubmit = async () => {
     if (!folderName.trim()) {
-      toast.error("Folder name cannot be empty");
       return;
     }
 
     try {
-      // In S3, folders are created by uploading an empty object with the folder prefix
-      // Create a placeholder file to represent the folder
-      const placeholderFile = new File([""], ".gitkeep", {
-        type: "text/plain",
-      });
-      const fileInfo = {
-        originalFileName: `${folderName}/.gitkeep`,
-        fileSize: placeholderFile.size,
-      };
-
-      // Get presigned URL for the placeholder file
-      const presignedUrls = await getPresignedUrls([fileInfo]);
-
-      // Upload the placeholder file
-      await handleUpload([placeholderFile], presignedUrls, () => {
-        toast.success(`Folder "${folderName}" created successfully`);
-        onCreateFolder?.();
-        onRefresh?.();
-        setShowCreateFolderDialog(false);
-        setFolderName("");
-      });
+      await createFolderMutation.mutateAsync({ folderName });
+      onCreateFolder?.();
+      onRefresh?.();
+      setShowCreateFolderDialog(false);
+      setFolderName("");
     } catch (error) {
-      console.error("Create folder error:", error);
-      toast.error("Failed to create folder");
+      // Error handling is done in the hook
+      console.error("Create folder failed:", error);
     }
   };
+
+  const isLoading =
+    uploadFilesMutation.isPending || createFolderMutation.isPending;
 
   return (
     <>
@@ -152,7 +111,7 @@ export function CreateUploadDropdown({
           <DropdownMenuTrigger asChild>
             <Button
               variant="default"
-              disabled={isUploading}
+              disabled={isLoading}
               className="from-primary via-primary/95 to-primary/90 text-primary-foreground shadow-primary/25 hover:shadow-primary/30 relative h-10 w-32 justify-start gap-4 overflow-hidden rounded-full border-0 bg-gradient-to-br px-5 font-semibold shadow-lg disabled:opacity-50"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/5 opacity-0 transition-opacity duration-300" />
@@ -160,7 +119,7 @@ export function CreateUploadDropdown({
                 <Plus className="h-4 w-4 transition-transform duration-300" />
               </div>
               <span className="relative text-sm font-medium tracking-wide">
-                {isUploading ? "Uploading..." : "New"}
+                {isLoading ? "Loading..." : "New"}
               </span>
             </Button>
           </DropdownMenuTrigger>
@@ -171,7 +130,8 @@ export function CreateUploadDropdown({
           >
             <DropdownMenuItem
               onClick={handleCreateFolder}
-              className="group hover:bg-primary/10 h-12 cursor-pointer rounded-lg px-4 transition-colors duration-150"
+              disabled={isLoading}
+              className="group hover:bg-primary/10 h-12 cursor-pointer rounded-lg px-4 transition-colors duration-150 disabled:opacity-50"
             >
               <div className="bg-primary/20 group-hover:bg-primary/30 mr-3 flex h-8 w-8 items-center justify-center rounded-lg transition-colors">
                 <FolderPlus className="text-primary size-4" />
@@ -187,7 +147,7 @@ export function CreateUploadDropdown({
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={handleUploadFileClick}
-              disabled={isUploading}
+              disabled={isLoading}
               className="group hover:bg-primary/10 h-12 cursor-pointer rounded-lg px-4 transition-colors duration-150 disabled:opacity-50"
             >
               <div className="bg-primary/20 group-hover:bg-primary/30 mr-3 flex h-8 w-8 items-center justify-center rounded-lg transition-colors">
@@ -204,7 +164,7 @@ export function CreateUploadDropdown({
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={handleUploadFolderClick}
-              disabled={isUploading}
+              disabled={isLoading}
               className="group hover:bg-primary/10 h-12 cursor-pointer rounded-lg px-4 transition-colors duration-150 disabled:opacity-50"
             >
               <div className="bg-primary/20 group-hover:bg-primary/30 mr-3 flex h-8 w-8 items-center justify-center rounded-lg transition-colors">
@@ -262,6 +222,7 @@ export function CreateUploadDropdown({
                     handleCreateFolderSubmit();
                   }
                 }}
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -272,14 +233,19 @@ export function CreateUploadDropdown({
                 setShowCreateFolderDialog(false);
                 setFolderName("");
               }}
+              disabled={isLoading}
             >
               Cancel
             </Button>
-            <Button onClick={handleCreateFolderSubmit}>Create Folder</Button>
+            <Button
+              onClick={handleCreateFolderSubmit}
+              disabled={isLoading || !folderName.trim()}
+            >
+              {createFolderMutation.isPending ? "Creating..." : "Create Folder"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
   );
 }
-

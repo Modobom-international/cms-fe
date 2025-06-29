@@ -25,10 +25,14 @@ export const getFileTypeIcon = (
 
   const iconSize = sizeClasses[size];
 
-  if (mimeType === "folder") {
+  if (mimeType === "folder" || mimeType === "application/x-directory") {
     return (
       <Icons.folder
-        className={cn(iconSize, iconSize === "lg" ? "size-32" : "")}
+        className={cn(
+          iconSize,
+          iconSize === "lg" ? "size-32" : "",
+          "text-blue-500 dark:text-blue-400"
+        )}
       />
     );
   }
