@@ -18,6 +18,11 @@ import { GridView } from "@/components/storage/grid-view";
 import { ListView } from "@/components/storage/list-view";
 import { StorageBreadcrumb } from "@/components/storage/storage-breadcrumb";
 import { StorageToolbar } from "@/components/storage/storage-toolbar";
+import {
+  isImageFile,
+  isOfficeDocument,
+  isPreviewableDocument,
+} from "@/components/storage/utils";
 
 export function StorageContent() {
   const {
@@ -124,12 +129,16 @@ export function StorageContent() {
   };
 
   const handleFileClick = (file: IFileItem) => {
-    toast.info(`Opening ${file.name}...`);
-  };
-
-  const handleImageClick = (file: IFileItem) => {
-    setImagePreviewFile(file);
-    setIsImagePreviewOpen(true);
+    if (
+      isImageFile(file.mimeType) ||
+      isPreviewableDocument(file.mimeType) ||
+      isOfficeDocument(file.mimeType)
+    ) {
+      setImagePreviewFile(file);
+      setIsImagePreviewOpen(true);
+    } else {
+      toast.info(`No preview available for ${file.name}`);
+    }
   };
 
   const handleRename = (itemId: string, newName: string) => {
@@ -231,7 +240,6 @@ export function StorageContent() {
                   onDownload={handleDownload}
                   onDelete={handleDelete}
                   onShare={handleShare}
-                  onImageClick={handleImageClick}
                 />
               ) : (
                 <ListView
@@ -244,7 +252,6 @@ export function StorageContent() {
                   onDelete={handleDelete}
                   onShare={handleShare}
                   onSort={handleSort}
-                  onImageClick={handleImageClick}
                 />
               )}
             </div>
@@ -270,7 +277,6 @@ export function StorageContent() {
                 onDownload={handleDownload}
                 onDelete={handleDelete}
                 onShare={handleShare}
-                onImageClick={handleImageClick}
               />
             ) : (
               <ListView
@@ -283,7 +289,6 @@ export function StorageContent() {
                 onDelete={handleDelete}
                 onShare={handleShare}
                 onSort={handleSort}
-                onImageClick={handleImageClick}
               />
             )}
           </div>

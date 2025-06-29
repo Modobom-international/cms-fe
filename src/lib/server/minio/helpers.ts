@@ -148,156 +148,76 @@ export async function getFileStructure({
   prefix?: string;
 }) {
   try {
-    // Get objects with both recursive and non-recursive to catch everything
-    const [objects, recursiveObjects] = await Promise.all([
-      listObjectsInBucket({ bucketName, prefix, recursive: false }) as Promise<
-        any[]
-      >,
-      listObjectsInBucket({ bucketName, prefix, recursive: true }) as Promise<
-        any[]
-      >,
-    ]);
-
-    const folders = new Map<string, any>();
+    const stream = MinioClient.listObjectsV2(bucketName, prefix, false);
     const files: any[] = [];
-    const processedPaths = new Set<string>();
+    const foldersMap = new Map();
+    const folderPromises: Promise<void>[] = [];
 
-    // First, identify all unique folder paths from recursive listing
-    recursiveObjects.forEach((obj) => {
-      const objectName = obj.name;
-      if (objectName === prefix) return;
-
-      const relativePath = prefix ? objectName.replace(prefix, "") : objectName;
-      if (!relativePath) return;
-
-      const pathParts = relativePath.split("/").filter(Boolean);
-
-      // If this object is nested, create folder entries for all parent directories
-      for (let i = 0; i < pathParts.length - 1; i++) {
-        const folderPath = pathParts.slice(0, i + 1).join("/");
-        const folderName = pathParts[i];
-        const fullFolderPath = prefix + folderPath + "/";
-
-        if (!processedPaths.has(fullFolderPath) && !folders.has(folderName)) {
-          processedPaths.add(fullFolderPath);
-          folders.set(folderName, {
-            id: `folder-${folderName}-${Date.now()}-${Math.random()}`,
+    for await (const obj of stream) {
+      if (obj.prefix) {
+        // This is a folder
+        const folderName = obj.prefix.replace(prefix, "").replace(/\/$/, "");
+        if (!foldersMap.has(folderName)) {
+          const folderObject = {
+            id: `folder-${obj.prefix}`,
             name: folderName,
             type: "folder",
             size: 0,
-            modifiedDate: obj.lastModified || new Date().toISOString(),
-            createdDate: obj.lastModified || new Date().toISOString(),
+            modifiedDate: new Date().toISOString(), // Folders don't have a mod date
             owner: "System",
-            shared: false,
+            path: obj.prefix,
+            itemCount: 0, // Placeholder, will be updated by promise
             mimeType: "folder",
-            path: fullFolderPath,
-            parentId: prefix || "root",
-            itemCount: 0,
+          };
+          foldersMap.set(folderName, folderObject);
+
+          // Create a promise to count items in this folder
+          const countPromise = (async () => {
+            const countStream = MinioClient.listObjectsV2(
+              bucketName,
+              obj.prefix,
+              false
+            );
+            let count = 0;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            for await (const item of countStream) {
+              count++;
+            }
+            folderObject.itemCount = count;
+          })();
+          folderPromises.push(countPromise);
+        }
+      } else if (obj.name) {
+        // This is a file
+        const fileName = obj.name.replace(prefix, "");
+        if (fileName) {
+          // Check if it's not the folder itself placeholder
+          const presignedUrl = await createPresignedUrlToDownload({
+            bucketName,
+            fileName: obj.name,
+          });
+          files.push({
+            id: `file-${obj.name}`,
+            name: fileName,
+            type: "file",
+            size: obj.size,
+            modifiedDate: obj.lastModified,
+            owner: "System",
+            path: obj.name,
+            downloadUrl: presignedUrl,
+            mimeType: getMimeType(fileName),
           });
         }
       }
-    });
+    }
 
-    // Then process the non-recursive objects for current level items
-    const filePromises: Promise<any>[] = [];
+    await Promise.all(folderPromises);
+    const folders = Array.from(foldersMap.values());
 
-    objects.forEach((obj) => {
-      const objectName = obj.name;
-      if (objectName === prefix) return;
-
-      const relativePath = prefix ? objectName.replace(prefix, "") : objectName;
-      if (!relativePath) return;
-
-      // Handle explicit folder markers (objects ending with /)
-      if (relativePath.endsWith("/")) {
-        const folderName = relativePath.slice(0, -1);
-        const folderParts = folderName.split("/");
-        const immediateFolder = folderParts[0];
-
-        if (immediateFolder && !folders.has(immediateFolder)) {
-          folders.set(immediateFolder, {
-            id: `folder-${immediateFolder}-${Date.now()}-${Math.random()}`,
-            name: immediateFolder,
-            type: "folder",
-            size: 0,
-            modifiedDate: obj.lastModified || new Date().toISOString(),
-            createdDate: obj.lastModified || new Date().toISOString(),
-            owner: "System",
-            shared: false,
-            mimeType: "folder",
-            path: prefix + immediateFolder + "/",
-            parentId: prefix || "root",
-            itemCount: 0,
-          });
-        }
-        return;
-      }
-
-      const pathParts = relativePath.split("/").filter(Boolean);
-      if (pathParts.length === 0) return;
-
-      if (pathParts.length === 1) {
-        // This is a file in the current directory
-        const fileName = pathParts[0];
-        if (fileName.endsWith("/")) return;
-
-        // Create promise for generating presigned URL
-        const filePromise = createPresignedUrlToDownload({
-          bucketName,
-          fileName: objectName,
-          expiry: 60 * 60, // 1 hour
-        }).then((presignedUrl) => ({
-          id: `file-${objectName}-${Date.now()}-${Math.random()}`,
-          name: fileName,
-          type: "file",
-          size: obj.size || 0,
-          modifiedDate: obj.lastModified || new Date().toISOString(),
-          createdDate: obj.lastModified || new Date().toISOString(),
-          owner: "System",
-          shared: false,
-          mimeType: getMimeType(fileName),
-          path: prefix + fileName,
-          parentId: prefix || "root",
-          downloadUrl: presignedUrl,
-          previewUrl: isImageFile(fileName) ? presignedUrl : undefined,
-        }));
-
-        filePromises.push(filePromise);
-      }
-    });
-
-    // Wait for all presigned URLs to be generated
-    const resolvedFiles = await Promise.all(filePromises);
-    files.push(...resolvedFiles);
-
-    // Count items in folders from recursive listing
-    recursiveObjects.forEach((obj) => {
-      const objectName = obj.name;
-      if (objectName === prefix || objectName.endsWith("/")) return;
-
-      const relativePath = prefix ? objectName.replace(prefix, "") : objectName;
-      if (!relativePath) return;
-
-      const pathParts = relativePath.split("/").filter(Boolean);
-      if (pathParts.length > 1) {
-        const folderName = pathParts[0];
-        if (folders.has(folderName)) {
-          const folder = folders.get(folderName);
-          folder.itemCount += 1;
-          folder.size += obj.size || 0;
-        }
-      }
-    });
-
-    const result = {
-      folders: Array.from(folders.values()),
-      files,
-    };
-
-    return result;
+    return { files, folders };
   } catch (error) {
-    console.error("Error getting file structure:", error);
-    throw error;
+    console.error("Error fetching file structure:", error);
+    throw new Error("Failed to retrieve file structure from storage.");
   }
 }
 
@@ -358,3 +278,4 @@ function isImageFile(filename: string): boolean {
   ];
   return imageExtensions.includes(ext || "");
 }
+

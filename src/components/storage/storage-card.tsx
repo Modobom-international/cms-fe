@@ -44,7 +44,6 @@ interface StorageCardProps {
   onDownload?: (itemId: string) => void;
   onDelete?: (itemId: string) => void;
   onShare?: (itemId: string) => void;
-  onImageClick?: (file: IFileItem) => void;
 }
 
 export function StorageCard({
@@ -62,7 +61,6 @@ export function StorageCard({
   onDownload,
   onDelete,
   onShare,
-  onImageClick,
 }: StorageCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -80,12 +78,7 @@ export function StorageCard({
     if (isMultiSelect) {
       onSelectionToggle?.(item.id, e);
     } else {
-      // Check if it's an image file and handle image preview
-      if (item.type === "file" && isImageFile(item.mimeType) && onImageClick) {
-        onImageClick(item as IFileItem);
-      } else {
-        onItemClick?.(item, e);
-      }
+      onItemClick?.(item, e);
     }
   };
 

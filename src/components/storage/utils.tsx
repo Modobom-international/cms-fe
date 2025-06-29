@@ -4,12 +4,14 @@ import { cn } from "@/lib/utils";
 
 import { Icons } from "@/components/ui/icons";
 
-export const formatFileSize = (bytes: number) => {
+export const formatFileSize = (bytes: number, decimals = 2): string => {
   if (bytes === 0) return "0 Bytes";
   const k = 1024;
   const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  return (
+    parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + " " + sizes[i]
+  );
 };
 
 export const getFileTypeIcon = (
@@ -86,5 +88,38 @@ export function isImageFile(mimeType: string): boolean {
   ];
 
   return imageTypes.includes(mimeType.toLowerCase());
+}
+
+export function isOfficeDocument(mimeType: string): boolean {
+  const officeTypes = [
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+  ];
+  return officeTypes.includes(mimeType.toLowerCase());
+}
+
+export function isPreviewableDocument(mimeType: string): boolean {
+  const documentTypes = [
+    "application/pdf",
+    "text/plain",
+    "text/csv",
+    "text/html",
+    "application/json",
+  ];
+
+  // Exclude office documents since they require special handling
+  if (isOfficeDocument(mimeType)) {
+    return false;
+  }
+
+  return documentTypes.includes(mimeType.toLowerCase());
+}
+
+export function getFileExtension(filename: string): string {
+  return filename.split(".").pop() || "";
 }
 
