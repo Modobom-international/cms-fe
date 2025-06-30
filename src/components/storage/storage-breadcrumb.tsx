@@ -2,8 +2,6 @@
 
 import React from "react";
 
-import { toast } from "sonner";
-
 import { IBreadcrumbItem } from "@/types/storage.type";
 
 import {
@@ -28,8 +26,6 @@ export function StorageBreadcrumb({
     const breadcrumb = breadcrumbs[index];
     if (onNavigate) {
       onNavigate(breadcrumb.path);
-    } else {
-      toast.info(`Navigating to ${breadcrumb.name}...`);
     }
   };
 

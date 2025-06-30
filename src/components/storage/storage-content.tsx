@@ -18,11 +18,6 @@ import { GridView } from "@/components/storage/grid-view";
 import { ListView } from "@/components/storage/list-view";
 import { StorageBreadcrumb } from "@/components/storage/storage-breadcrumb";
 import { StorageToolbar } from "@/components/storage/storage-toolbar";
-import {
-  isImageFile,
-  isOfficeDocument,
-  isPreviewableDocument,
-} from "@/components/storage/utils";
 
 export function StorageContent() {
   const {
@@ -116,7 +111,7 @@ export function StorageContent() {
     };
   }, [fileStructureData, sortBy, sortOrder]);
 
-  const handleFolderClick = (folderId: string, folderName: string) => {
+  const handleFolderClick = (folderId: string) => {
     // Find the folder to get its path
     const folder = filteredAndSortedItems.folders.find(
       (f) => f.id === folderId
@@ -124,21 +119,12 @@ export function StorageContent() {
     if (folder) {
       setCurrentPath(folder.path);
       clearSelection();
-      toast.info(`Navigating to ${folderName}...`);
     }
   };
 
   const handleFileClick = (file: IFileItem) => {
-    if (
-      isImageFile(file.mimeType) ||
-      isPreviewableDocument(file.mimeType) ||
-      isOfficeDocument(file.mimeType)
-    ) {
-      setImagePreviewFile(file);
-      setIsImagePreviewOpen(true);
-    } else {
-      toast.info(`No preview available for ${file.name}`);
-    }
+    setImagePreviewFile(file);
+    setIsImagePreviewOpen(true);
   };
 
   const handleRename = (itemId: string, newName: string) => {
