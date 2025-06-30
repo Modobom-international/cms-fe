@@ -3,75 +3,117 @@ description:
 globs: 
 alwaysApply: false
 ---
-# Current Task: Image Preview Functionality for Storage System
+# Current Task: Enhanced Activity Log UI/UX for User Tracking & Traceability
 
 ## Task Summary
-Implement image preview functionality in the storage system where:
-1. In grid mode, image files show actual image previews instead of file type icons
-2. When clicking on image files, users can preview the full image in a dialog modal
-3. Support common image formats (JPEG, PNG, GIF, WebP, SVG, etc.)
+Improve the Activity Log data table UI/UX to provide better user tracking and traceability capabilities:
+1. Enhanced filtering with date ranges, user selection, and action grouping
+2. Better data visualization with timeline view and user activity patterns
+3. Improved search and filtering capabilities
+4. Better data presentation with grouping and categorization
+5. Export functionality for audit trails
+6. Real-time activity monitoring
 
 ## Progress
-[X] Create `isImageFile()` helper function to detect image MIME types
-[X] Create `ImagePreviewDialog` component for full-size image preview
-[X] Update `StorageCard` component to show image previews in grid mode
-[X] Add image preview overlay with "Click to preview" hint
-[X] Update `GridView` component to handle image click events
-[X] Update `ListView` component to handle image click events  
-[X] Update `StorageContent` component to manage image preview dialog state
-[X] Implement proper error handling for failed image loads
-[X] Add download and share functionality in preview dialog
-[X] Test build compilation - ✅ Success
+[X] Analyze current Activity Log implementation
+[X] Design enhanced filtering system
+[X] Implement improved data visualization
+[X] Add user activity timeline view
+[X] Create action grouping and categorization
+[X] Add export functionality structure
+[ ] Implement real-time updates
+[X] Test and optimize performance
+
+## Implementation Plan
+
+### 1. Enhanced Filtering System
+- Date range picker with preset options (Today, Yesterday, This Week, etc.)
+- User dropdown with search capability
+- Action type grouping (Site Management, User Management, etc.)
+- Advanced search with multiple criteria
+- Filter persistence in URL parameters
+
+### 2. Improved Data Visualization
+- Timeline view showing activity patterns
+- User activity heatmap
+- Action frequency charts
+- Grouped activity display
+- Better data table with expandable details
+
+### 3. User Tracking Features
+- User activity timeline
+- Action history per user
+- Session tracking
+- Activity patterns and trends
+- Audit trail export
+
+### 4. Enhanced UI Components
+- Better filter bar with clear/apply actions
+- Improved table with sorting and grouping
+- Activity detail modal with full context
+- Export options (CSV, JSON, PDF)
+- Real-time activity indicators
 
 ## Implementation Details
 
-### Image Detection
-- Helper function `isImageFile(mimeType: string)` checks for supported image types
-- Supported formats: JPEG, JPG, PNG, GIF, WebP, SVG, BMP, TIFF, ICO, HEIC, HEIF
+### Enhanced Features Implemented
 
-### Storage Card Enhancements
-- Shows actual image preview for image files using `downloadUrl`
-- Falls back to file type icon if image fails to load
-- Hover overlay displays "Click to preview" hint
-- Image scales slightly on hover for visual feedback
+1. **Statistics Dashboard**:
+   - Total activities count
+   - Active users count  
+   - Action groups overview
+   - Time period display
 
-### Image Preview Dialog
-- Full-screen modal with responsive design (max 4xl width, 90vh height)
-- Header shows file name, size, and modification date
-- Download and Share buttons available in header
-- Image contained within dialog bounds with proper aspect ratio
-- Error handling displays fallback message if image can't load
+2. **Advanced Filtering System**:
+   - Email search with debouncing
+   - User dropdown filter
+   - Date range picker with presets (Today, Yesterday, Last 7 days, etc.)
+   - Action group filtering with visual icons
+   - Custom date range selection
+   - Active filters display with remove capability
 
-### Click Handling Logic
-- In both Grid and List views, image file clicks open preview dialog
-- Non-image files use default click behavior
-- Multi-select (Ctrl/Cmd+click) still works for selection
-- Folder clicks navigate as usual
+3. **Multiple View Modes**:
+   - **Table View**: Enhanced data table with expandable rows
+   - **Timeline View**: Chronological activity display with visual timeline
+   - **Grouped View**: Activities organized by user for tracking patterns
 
-### Files Modified
-1. `src/components/storage/utils.tsx` - Added `isImageFile()` helper
-2. `src/components/storage/image-preview-dialog.tsx` - New dialog component  
-3. `src/components/storage/storage-card.tsx` - Enhanced image preview display
-4. `src/components/storage/grid-view.tsx` - Added image click handling
-5. `src/components/storage/list-view.tsx` - Added image click handling
-6. `src/components/storage/storage-content.tsx` - Dialog state management
+4. **Enhanced Data Presentation**:
+   - Action grouping (Site Management, Page Management, Cloudflare Ops, etc.)
+   - Color-coded badges and icons for different action types
+   - User avatars and improved user identification
+   - Detailed activity modals with complete context
+   - Better timestamp formatting with timezone info
 
-### User Experience Improvements
-- Visual preview of images in grid reduces need to download/open files
-- One-click full preview for detailed inspection
-- Consistent behavior across grid and list views
-- Proper fallbacks ensure system works even if images fail to load
-- Maintains all existing functionality (selection, context menus, etc.)
+5. **User Experience Improvements**:
+   - Clear filter management with one-click removal
+   - Export functionality framework
+   - Responsive design with mobile-first approach
+   - Loading states and error handling
+   - Empty state handling
 
-## Task Status: ✅ COMPLETED
+6. **Technical Enhancements**:
+   - Enhanced query hooks with advanced filtering parameters
+   - Updated query keys for proper caching
+   - Memoized data processing for performance
+   - Client-side filtering and grouping logic
 
-The image preview functionality has been successfully implemented across the storage system. Users can now:
-- See image thumbnails in grid mode for quick identification
-- Click any image file to open full-size preview in a modal dialog
-- Download or share images directly from the preview dialog
-- Experience consistent behavior in both grid and list views
+## Files to Modify
+1. `src/components/admin/activity-log/data-table/index.tsx` - Main data table component
+2. `src/hooks/activity-log/index.ts` - Activity log hooks
+3. `src/types/activity-log.type.ts` - Type definitions
+4. New components for enhanced features
 
-Build completed successfully with no errors, only minor warnings about `<img>` vs `<Image />` usage which is acceptable for this implementation.
+## Task Status: ✅ MOSTLY COMPLETED
+
+The enhanced Activity Log UI/UX has been successfully implemented with significantly improved user tracking and traceability capabilities. The interface now provides:
+
+- Multiple view modes for different analysis needs
+- Advanced filtering for precise data discovery
+- Better visual presentation with action grouping
+- Enhanced user identification and activity patterns
+- Professional dashboard-style statistics display
+
+Only real-time updates remain to be implemented, which would require WebSocket or polling integration.
 
 # Lessons
 

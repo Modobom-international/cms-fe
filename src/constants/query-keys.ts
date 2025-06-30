@@ -70,12 +70,39 @@ export const domainQueryKeys = {
 
 export const activityLogQueryKeys = {
   origin: ["activity-logs"] as const,
-  list: (page: number, pageSize: number, search: string = "") =>
+  list: (
+    page: number,
+    pageSize: number,
+    search?: string,
+    dateFrom?: string,
+    dateTo?: string,
+    userId?: string,
+    actionGroups?: string[],
+    sortBy?: string
+  ) =>
     [
       ...activityLogQueryKeys.origin,
       "list",
-      { page, pageSize, search },
+      {
+        page,
+        pageSize,
+        search: search || "",
+        dateFrom,
+        dateTo,
+        userId,
+        actionGroups,
+        sortBy,
+      },
     ] as const,
+  stats: (dateFrom?: string, dateTo?: string, userId?: string) =>
+    [
+      ...activityLogQueryKeys.origin,
+      "stats",
+      { dateFrom, dateTo, userId },
+    ] as const,
+  filters: () => [...activityLogQueryKeys.origin, "filters"] as const,
+  export: (params?: any) =>
+    [...activityLogQueryKeys.origin, "export", params] as const,
 };
 
 export const notificationQueryKeys = {
