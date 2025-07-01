@@ -2,7 +2,6 @@
 
 import React, { useMemo, useState } from "react";
 
-import { CalendarDate, parseDate } from "@internationalized/date";
 import {
   endOfMonth,
   endOfWeek,
@@ -15,18 +14,12 @@ import {
   Activity,
   AlertCircle,
   BarChart3,
-  Calendar,
   ChevronDown,
   ChevronRight,
   Clock,
-  Download,
   Eye,
   FileText,
-  Filter,
-  PlusCircle,
-  Search,
   User,
-  X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
@@ -47,13 +40,10 @@ import { Badge } from "@/components/ui/badge";
 import { ActivityLogBadge } from "@/components/ui/badge/activity-log-badge";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Dialog,
   DialogContent,
@@ -62,14 +52,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -77,7 +60,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -87,11 +69,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Timeline,
+  TimelineContent,
+  TimelineDate,
+  TimelineHeader,
+  TimelineIndicator,
+  TimelineItem,
+  TimelineSeparator,
+  TimelineTitle,
+} from "@/components/ui/timeline";
 
 import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 
-// Enhanced action type constants with grouping
+import { ActivityLogFilters } from "./activity-log-filters";
+import { ActivityLogOverview } from "./activity-log-overview";
+
+// Enhanced action type constants with grouping (for use in table display)
 const ACTION_GROUPS = {
   SITE_MANAGEMENT: {
     label: "Site Management",
@@ -136,49 +131,6 @@ const ACTION_GROUPS = {
     icon: AlertCircle,
   },
 } as const;
-
-// Date range presets
-const DATE_PRESETS = [
-  {
-    label: "Today",
-    value: "today",
-    getDates: () => ({ from: new Date(), to: new Date() }),
-  },
-  {
-    label: "Yesterday",
-    value: "yesterday",
-    getDates: () => ({
-      from: subDays(new Date(), 1),
-      to: subDays(new Date(), 1),
-    }),
-  },
-  {
-    label: "Last 7 days",
-    value: "week",
-    getDates: () => ({ from: subDays(new Date(), 7), to: new Date() }),
-  },
-  {
-    label: "This week",
-    value: "this_week",
-    getDates: () => ({
-      from: startOfWeek(new Date()),
-      to: endOfWeek(new Date()),
-    }),
-  },
-  {
-    label: "Last 30 days",
-    value: "month",
-    getDates: () => ({ from: subDays(new Date(), 30), to: new Date() }),
-  },
-  {
-    label: "This month",
-    value: "this_month",
-    getDates: () => ({
-      from: startOfMonth(new Date()),
-      to: endOfMonth(new Date()),
-    }),
-  },
-];
 
 // Helper function to render object in key-value format
 const renderObjectDetails = (obj: any, indent = 0): React.ReactNode => {
@@ -283,11 +235,11 @@ const groupActivitiesByUser = (activities: IActivityLog[]) => {
 export default function ActivityLogDataTable() {
   const t = useTranslations("ActivityLogPage.table");
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
-  const [selectedActivityDetail, setSelectedActivityDetail] =
-    useState<IActivityLog | null>(null);
+
   const [viewMode, setViewMode] = useState<"table" | "timeline" | "grouped">(
     "table"
   );
+  const [expandedUsers, setExpandedUsers] = useState<Set<number>>(new Set());
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -337,8 +289,10 @@ export default function ActivityLogDataTable() {
   );
 
   // Extract data from the response
-  const activityLogData =
-    activityLogResponse?.data?.activities || ([] as IActivityLog[]);
+  const activityLogData = useMemo(() => {
+    return activityLogResponse?.data?.activities || ([] as IActivityLog[]);
+  }, [activityLogResponse?.data?.activities]);
+
   const paginationInfo = activityLogResponse?.data?.pagination || {
     current_page: 1,
     from: 0,
@@ -411,23 +365,55 @@ export default function ActivityLogDataTable() {
 
   // Handle date preset selection
   const handleDatePreset = (preset: string) => {
+    // Date range presets with getDates function
+    const DATE_PRESETS = [
+      {
+        label: "Today",
+        value: "today",
+        getDates: () => ({ from: new Date(), to: new Date() }),
+      },
+      {
+        label: "Yesterday",
+        value: "yesterday",
+        getDates: () => ({
+          from: subDays(new Date(), 1),
+          to: subDays(new Date(), 1),
+        }),
+      },
+      {
+        label: "Last 7 days",
+        value: "week",
+        getDates: () => ({ from: subDays(new Date(), 7), to: new Date() }),
+      },
+      {
+        label: "This week",
+        value: "this_week",
+        getDates: () => ({
+          from: startOfWeek(new Date()),
+          to: endOfWeek(new Date()),
+        }),
+      },
+      {
+        label: "Last 30 days",
+        value: "month",
+        getDates: () => ({ from: subDays(new Date(), 30), to: new Date() }),
+      },
+      {
+        label: "This month",
+        value: "this_month",
+        getDates: () => ({
+          from: startOfMonth(new Date()),
+          to: endOfMonth(new Date()),
+        }),
+      },
+    ];
+
     const selectedPreset = DATE_PRESETS.find((p) => p.value === preset);
     if (selectedPreset) {
       const { from, to } = selectedPreset.getDates();
       setDateFrom(format(from, "yyyy-MM-dd"));
       setDateTo(format(to, "yyyy-MM-dd"));
     }
-  };
-
-  // Handle action group filter
-  const handleActionGroupChange = (groupKey: string, checked: boolean) => {
-    setSelectedActionGroups((prev) => {
-      if (checked) {
-        return [...prev, groupKey];
-      } else {
-        return prev.filter((g) => g !== groupKey);
-      }
-    });
   };
 
   // Handle row expansion
@@ -462,315 +448,60 @@ export default function ActivityLogDataTable() {
   return (
     <div className="space-y-6">
       {/* Header Section with Stats */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Activities
-            </CardTitle>
-            <Activity className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {processedData.stats.totalActivities}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <User className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {processedData.stats.uniqueUsers}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Action Groups</CardTitle>
-            <BarChart3 className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {processedData.stats.actionGroups.length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Time Period</CardTitle>
-            <Clock className="text-muted-foreground h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-muted-foreground text-sm">
-              {dateFrom && dateTo ? `${dateFrom} to ${dateTo}` : "All time"}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <ActivityLogOverview
+        totalActivities={processedData.stats.totalActivities}
+        uniqueUsers={processedData.stats.uniqueUsers}
+        actionGroupsCount={processedData.stats.actionGroups.length}
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+      />
 
       {/* Enhanced Filters Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-lg">Activity Filters</CardTitle>
-              <CardDescription>
-                Filter and search activity logs to track user actions
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={clearFilters}>
-                <X className="mr-2 h-4 w-4" />
-                Clear Filters
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleExport}>
-                <Download className="mr-2 h-4 w-4" />
-                Export
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Search and User Filter */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="search">Search by Email</Label>
-              <div className="relative">
-                <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
-                <Input
-                  id="search"
-                  placeholder="Search user emails..."
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Filter by User</Label>
-              <Select value={selectedUser} onValueChange={setSelectedUser}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select user..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All users</SelectItem>
-                  {uniqueUsers.map((user) => (
-                    <SelectItem key={user.id} value={user.id.toString()}>
-                      {user.email}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Date Range and Action Group Filters */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Date Range Filter */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Date Range
-                  {(dateFrom || dateTo) && (
-                    <Badge variant="secondary" className="ml-2">
-                      {dateFrom && dateTo
-                        ? `${dateFrom} - ${dateTo}`
-                        : dateFrom || dateTo}
-                    </Badge>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80" align="start">
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="mb-2 font-medium">Quick Presets</h4>
-                    <div className="grid grid-cols-2 gap-2">
-                      {DATE_PRESETS.map((preset) => (
-                        <Button
-                          key={preset.value}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDatePreset(preset.value)}
-                        >
-                          {preset.label}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-2">
-                    <Label>Custom Date Range</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <Label className="text-xs">From</Label>
-                        <Input
-                          type="date"
-                          value={dateFrom}
-                          onChange={(e) => setDateFrom(e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-xs">To</Label>
-                        <Input
-                          type="date"
-                          value={dateTo}
-                          onChange={(e) => setDateTo(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-
-            {/* Action Group Filter */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Filter className="mr-2 h-4 w-4" />
-                  Action Groups
-                  {selectedActionGroups.length > 0 && (
-                    <Badge variant="secondary" className="ml-2">
-                      {selectedActionGroups.length}
-                    </Badge>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-72" align="start">
-                <div className="space-y-3">
-                  <h4 className="font-medium">Filter by Action Groups</h4>
-                  <ScrollArea className="max-h-60">
-                    <div className="space-y-3">
-                      {Object.entries(ACTION_GROUPS).map(([key, group]) => {
-                        const Icon = group.icon;
-                        return (
-                          <div
-                            key={key}
-                            className="flex items-center space-x-2"
-                          >
-                            <Checkbox
-                              id={key}
-                              checked={selectedActionGroups.includes(key)}
-                              onCheckedChange={(checked) =>
-                                handleActionGroupChange(key, checked === true)
-                              }
-                            />
-                            <label
-                              htmlFor={key}
-                              className="flex cursor-pointer items-center gap-2 text-sm"
-                            >
-                              <Icon className="h-4 w-4" />
-                              {group.label}
-                              <Badge variant="outline" className="text-xs">
-                                {group.actions.length} actions
-                              </Badge>
-                            </label>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </ScrollArea>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          {/* Active Filters Display */}
-          {(selectedActionGroups.length > 0 ||
-            selectedUser ||
-            dateFrom ||
-            dateTo ||
-            email) && (
-            <div className="flex flex-wrap items-center gap-2 border-t pt-2">
-              <span className="text-muted-foreground text-sm">
-                Active filters:
-              </span>
-
-              {selectedActionGroups.map((groupKey) => {
-                const group =
-                  ACTION_GROUPS[groupKey as keyof typeof ACTION_GROUPS];
-                return (
-                  <Badge
-                    key={groupKey}
-                    variant="secondary"
-                    className="flex items-center gap-1"
-                  >
-                    {group?.label || groupKey}
-                    <X
-                      className="h-3 w-3 cursor-pointer"
-                      onClick={() => handleActionGroupChange(groupKey, false)}
-                    />
-                  </Badge>
-                );
-              })}
-
-              {selectedUser && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  User:{" "}
-                  {
-                    uniqueUsers.find((u) => u.id.toString() === selectedUser)
-                      ?.email
-                  }
-                  <X
-                    className="h-3 w-3 cursor-pointer"
-                    onClick={() => setSelectedUser("all")}
-                  />
-                </Badge>
-              )}
-
-              {(dateFrom || dateTo) && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  Date:{" "}
-                  {dateFrom && dateTo
-                    ? `${dateFrom} - ${dateTo}`
-                    : dateFrom || dateTo}
-                  <X
-                    className="h-3 w-3 cursor-pointer"
-                    onClick={() => {
-                      setDateFrom("");
-                      setDateTo("");
-                    }}
-                  />
-                </Badge>
-              )}
-
-              {email && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  Search: {email}
-                  <X
-                    className="h-3 w-3 cursor-pointer"
-                    onClick={() => setEmail("")}
-                  />
-                </Badge>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <ActivityLogFilters
+        email={email}
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        selectedActionGroups={selectedActionGroups}
+        selectedUser={selectedUser}
+        uniqueUsers={uniqueUsers}
+        onEmailChange={setEmail}
+        onDateFromChange={setDateFrom}
+        onDateToChange={setDateTo}
+        onSelectedActionGroupsChange={setSelectedActionGroups}
+        onSelectedUserChange={setSelectedUser}
+        onDatePresetSelect={handleDatePreset}
+        onClearFilters={clearFilters}
+        onExport={handleExport}
+      />
 
       {/* View Mode Tabs */}
       <Tabs
         value={viewMode}
         onValueChange={(value) => setViewMode(value as typeof viewMode)}
       >
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="table">Table View</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline View</TabsTrigger>
-          <TabsTrigger value="grouped">Grouped by User</TabsTrigger>
+        <TabsList className="text-foreground h-auto w-full justify-start gap-2 rounded-none border-b bg-transparent px-0 py-1">
+          <TabsTrigger
+            value="table"
+            className="hover:bg-accent hover:text-foreground data-[state=active]:after:bg-primary data-[state=active]:hover:bg-accent data-[state=active]:text-primary relative after:absolute after:inset-x-0 after:bottom-0 after:-mb-1 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+          >
+            Table View
+          </TabsTrigger>
+          <TabsTrigger
+            value="timeline"
+            className="hover:bg-accent hover:text-foreground data-[state=active]:after:bg-primary data-[state=active]:hover:bg-accent data-[state=active]:text-primary relative after:absolute after:inset-x-0 after:bottom-0 after:-mb-1 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+          >
+            Timeline View
+          </TabsTrigger>
+          <TabsTrigger
+            value="grouped"
+            className="hover:bg-accent hover:text-foreground data-[state=active]:after:bg-primary data-[state=active]:hover:bg-accent data-[state=active]:text-primary relative after:absolute after:inset-x-0 after:bottom-0 after:-mb-1 after:h-0.5 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+          >
+            Grouped by User
+          </TabsTrigger>
         </TabsList>
 
         {/* Table View */}
-        <TabsContent value="table" className="space-y-4">
+        <TabsContent value="table">
           {isFetching ? (
             <div className="flex items-center justify-center py-8">
               <Spinner />
@@ -793,19 +524,30 @@ export default function ActivityLogDataTable() {
           ) : isDataEmpty ? (
             <EmptyTable />
           ) : (
-            <Card>
+            <div className="flex flex-col">
               <div className="relative w-full overflow-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[40px]"></TableHead>
-                      <TableHead className="w-[60px]">ID</TableHead>
-                      <TableHead className="w-[140px]">Action</TableHead>
-                      <TableHead className="w-[120px]">Group</TableHead>
-                      <TableHead className="w-[180px]">User</TableHead>
-                      <TableHead className="w-[180px]">Timestamp</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead className="w-[100px]">Details</TableHead>
+                <Table className="w-full">
+                  <TableHeader className="bg-background dark:bg-card sticky top-0 z-10">
+                    <TableRow className="border-border hover:bg-muted/50 border-b">
+                      <TableHead className="text-foreground w-[40px] py-3 font-medium"></TableHead>
+                      <TableHead className="text-foreground w-[60px] py-3 font-medium">
+                        ID
+                      </TableHead>
+                      <TableHead className="text-foreground w-[140px] py-3 font-medium">
+                        Action
+                      </TableHead>
+                      <TableHead className="text-foreground w-[120px] py-3 font-medium">
+                        Group
+                      </TableHead>
+                      <TableHead className="text-foreground w-[180px] py-3 font-medium">
+                        User
+                      </TableHead>
+                      <TableHead className="text-foreground w-[180px] py-3 font-medium">
+                        Timestamp
+                      </TableHead>
+                      <TableHead className="text-foreground py-3 font-medium">
+                        Description
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -816,8 +558,8 @@ export default function ActivityLogDataTable() {
 
                       return (
                         <React.Fragment key={log.id}>
-                          <TableRow className="hover:bg-muted/50">
-                            <TableCell>
+                          <TableRow className="border-border hover:bg-muted/50 group border-b text-xs transition-colors">
+                            <TableCell className="py-3">
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -831,13 +573,13 @@ export default function ActivityLogDataTable() {
                                 )}
                               </Button>
                             </TableCell>
-                            <TableCell className="font-medium">
+                            <TableCell className="text-primary py-3 font-medium">
                               {log.id}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="py-3">
                               <ActivityLogBadge action={log.action} />
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="py-3">
                               <Badge
                                 variant="outline"
                                 className={actionGroup.color}
@@ -846,20 +588,20 @@ export default function ActivityLogDataTable() {
                                 {actionGroup.label}
                               </Badge>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="py-3">
                               <div className="flex items-center gap-2">
                                 <div className="bg-muted flex h-6 w-6 items-center justify-center rounded-full">
                                   <User className="h-3 w-3" />
                                 </div>
-                                <span className="text-sm">
+                                <span className="text-foreground text-sm font-medium">
                                   {log.user_email || "—"}
                                 </span>
                               </div>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="py-3">
                               {log.details && log.details.logged_at ? (
                                 <div className="flex flex-col gap-1">
-                                  <div className="text-xs font-medium">
+                                  <div className="text-foreground text-xs font-medium">
                                     {getCurrentTimezoneInfo(
                                       log.details.logged_at
                                     ).convertedTime || "—"}
@@ -872,104 +614,13 @@ export default function ActivityLogDataTable() {
                                 "—"
                               )}
                             </TableCell>
-                            <TableCell className="max-w-[200px] truncate">
+                            <TableCell className="text-foreground max-w-[200px] truncate py-3">
                               {log.description || "—"}
-                            </TableCell>
-                            <TableCell>
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button variant="ghost" size="sm">
-                                    <Eye className="h-4 w-4" />
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent className="max-w-2xl">
-                                  <DialogHeader>
-                                    <DialogTitle>
-                                      Activity Details - #{log.id}
-                                    </DialogTitle>
-                                    <DialogDescription>
-                                      Complete information about this activity
-                                      log entry
-                                    </DialogDescription>
-                                  </DialogHeader>
-                                  <div className="space-y-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <div>
-                                        <Label className="text-sm font-medium">
-                                          Action
-                                        </Label>
-                                        <div className="mt-1">
-                                          <ActivityLogBadge
-                                            action={log.action}
-                                          />
-                                        </div>
-                                      </div>
-                                      <div>
-                                        <Label className="text-sm font-medium">
-                                          Group
-                                        </Label>
-                                        <div className="mt-1">
-                                          <Badge
-                                            variant="outline"
-                                            className={actionGroup.color}
-                                          >
-                                            <ActionGroupIcon className="mr-1 h-3 w-3" />
-                                            {actionGroup.label}
-                                          </Badge>
-                                        </div>
-                                      </div>
-                                      <div>
-                                        <Label className="text-sm font-medium">
-                                          User
-                                        </Label>
-                                        <p className="mt-1 text-sm">
-                                          {log.user_email}
-                                        </p>
-                                      </div>
-                                      <div>
-                                        <Label className="text-sm font-medium">
-                                          Timestamp
-                                        </Label>
-                                        <p className="mt-1 text-sm">
-                                          {log.details?.logged_at
-                                            ? getCurrentTimezoneInfo(
-                                                log.details.logged_at
-                                              ).convertedTime
-                                            : "—"}
-                                        </p>
-                                      </div>
-                                    </div>
-                                    <div>
-                                      <Label className="text-sm font-medium">
-                                        Description
-                                      </Label>
-                                      <p className="mt-1 text-sm">
-                                        {log.description ||
-                                          "No description available"}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <Label className="text-sm font-medium">
-                                        Full Details
-                                      </Label>
-                                      <div className="bg-muted mt-1 rounded-lg p-3">
-                                        {log.details ? (
-                                          renderObjectDetails(log.details)
-                                        ) : (
-                                          <span className="text-muted-foreground text-sm">
-                                            No additional details available
-                                          </span>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </DialogContent>
-                              </Dialog>
                             </TableCell>
                           </TableRow>
                           {isExpanded && (
                             <TableRow>
-                              <TableCell colSpan={8} className="py-4">
+                              <TableCell colSpan={7} className="py-4">
                                 <div className="bg-muted/50 rounded-lg border p-4">
                                   <h4 className="mb-3 text-sm font-semibold">
                                     Extended Activity Details
@@ -995,7 +646,7 @@ export default function ActivityLogDataTable() {
               </div>
 
               {/* Pagination */}
-              <div className="border-t">
+              <div className="border-border bg-background dark:bg-card sticky bottom-0 mt-auto border-t">
                 <div className="flex items-center justify-between px-4 py-2">
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground text-sm">
@@ -1005,10 +656,10 @@ export default function ActivityLogDataTable() {
                       value={pageSize.toString()}
                       onValueChange={(value) => setPageSize(Number(value))}
                     >
-                      <SelectTrigger className="h-8 w-auto text-sm">
+                      <SelectTrigger className="border-border h-8 w-auto text-sm">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="text-sm">
                         <SelectItem value="10">10</SelectItem>
                         <SelectItem value="25">25</SelectItem>
                         <SelectItem value="50">50</SelectItem>
@@ -1021,6 +672,7 @@ export default function ActivityLogDataTable() {
                     <Button
                       variant="outline"
                       size="sm"
+                      className="h-8 px-4 text-sm font-medium"
                       onClick={handlePreviousPage}
                       disabled={currentPage === 1}
                     >
@@ -1029,6 +681,7 @@ export default function ActivityLogDataTable() {
                     <Button
                       variant="outline"
                       size="sm"
+                      className="h-8 px-4 text-sm font-medium"
                       onClick={handleNextPage}
                       disabled={currentPage === paginationInfo.last_page}
                     >
@@ -1037,7 +690,7 @@ export default function ActivityLogDataTable() {
                   </div>
                 </div>
 
-                <div className="bg-muted text-muted-foreground flex items-center justify-between border-t px-4 py-2 text-xs">
+                <div className="border-border bg-muted text-muted-foreground flex items-center justify-between border-t px-4 py-2 text-xs">
                   <div>
                     Viewing {paginationInfo.from || 1}-
                     {paginationInfo.to ||
@@ -1049,222 +702,305 @@ export default function ActivityLogDataTable() {
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
           )}
         </TabsContent>
 
         {/* Timeline View */}
-        <TabsContent value="timeline" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Activity Timeline
-              </CardTitle>
-              <CardDescription>
-                Chronological view of user activities
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {processedData.activities.length === 0 ? (
-                <EmptyTable />
-              ) : (
-                <div className="space-y-4">
-                  {processedData.activities.map(
-                    (log: IActivityLog, index: number) => {
-                      const actionGroup = getActionGroup(log.action);
-                      const ActionGroupIcon = actionGroup.icon;
+        <TabsContent value="timeline" className="my-2">
+          {processedData.activities.length === 0 ? (
+            <EmptyTable />
+          ) : (
+            <Timeline>
+              {processedData.activities.map((log: IActivityLog) => {
+                const actionGroup = getActionGroup(log.action);
 
-                      return (
-                        <div
-                          key={log.id}
-                          className="flex items-start gap-4 border-b pb-4 last:border-b-0"
-                        >
-                          <div className="flex flex-col items-center">
-                            <div
-                              className={`rounded-full p-2 ${actionGroup.color}`}
-                            >
-                              <ActionGroupIcon className="h-4 w-4" />
-                            </div>
-                            {index !== processedData.activities.length - 1 && (
-                              <div className="bg-border mt-2 h-8 w-px" />
-                            )}
-                          </div>
-
-                          <div className="flex-1 space-y-2">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <ActivityLogBadge action={log.action} />
-                                <Badge
-                                  variant="outline"
-                                  className={actionGroup.color}
-                                >
-                                  {actionGroup.label}
-                                </Badge>
-                              </div>
-                              <div className="text-muted-foreground text-xs">
-                                {log.details?.logged_at
-                                  ? getCurrentTimezoneInfo(
-                                      log.details.logged_at
-                                    ).convertedTime
-                                  : "—"}
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              <div className="bg-muted flex h-6 w-6 items-center justify-center rounded-full">
-                                <User className="h-3 w-3" />
-                              </div>
-                              <span className="text-sm font-medium">
-                                {log.user_email}
-                              </span>
-                            </div>
-
-                            <p className="text-muted-foreground text-sm">
-                              {log.description || "No description available"}
-                            </p>
-
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-xs"
-                                >
-                                  View Details
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-2xl">
-                                <DialogHeader>
-                                  <DialogTitle>
-                                    Activity Details - #{log.id}
-                                  </DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                  {log.details ? (
-                                    renderObjectDetails(log.details)
-                                  ) : (
-                                    <span className="text-muted-foreground">
-                                      No additional details available
-                                    </span>
-                                  )}
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                          </div>
-                        </div>
-                      );
-                    }
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                return (
+                  <TimelineItem key={log.id} step={log.id}>
+                    <TimelineHeader>
+                      <TimelineSeparator />
+                      <TimelineDate>
+                        {log.details?.logged_at
+                          ? format(
+                              new Date(log.details.logged_at),
+                              "MMM d, yyyy, h:mm:ss a"
+                            )
+                          : "Unknown Time"}
+                      </TimelineDate>
+                      <TimelineTitle>{actionGroup.label}</TimelineTitle>
+                      <TimelineIndicator />
+                    </TimelineHeader>
+                    <TimelineContent>
+                      <p className="text-muted-foreground">
+                        {log.description || "No description provided."}
+                      </p>
+                      <div className="text-muted-foreground mt-2 text-xs">
+                        <span className="text-foreground font-semibold">
+                          {log.user_email}
+                        </span>{" "}
+                        performed action:{" "}
+                        <span className="bg-muted rounded px-1.5 py-1 font-mono text-xs">
+                          {log.action}
+                        </span>
+                      </div>
+                    </TimelineContent>
+                  </TimelineItem>
+                );
+              })}
+            </Timeline>
+          )}
         </TabsContent>
 
         {/* Grouped View */}
-        <TabsContent value="grouped" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Activities Grouped by User
-              </CardTitle>
-              <CardDescription>
-                View all activities organized by user for better tracking
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {processedData.groupedByUser.length === 0 ? (
-                <EmptyTable />
-              ) : (
-                <div className="space-y-6">
-                  {processedData.groupedByUser.map((userGroup) => (
-                    <Card key={userGroup.user_id} className="border">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-full">
-                              <User className="h-5 w-5" />
-                            </div>
-                            <div>
-                              <CardTitle className="text-base">
-                                {userGroup.user_email}
-                              </CardTitle>
-                              <CardDescription>
-                                {userGroup.totalActions} activities across{" "}
-                                {userGroup.actionGroups.size} groups
-                              </CardDescription>
-                            </div>
+        <TabsContent value="grouped" className="my-2">
+          {processedData.groupedByUser.length === 0 ? (
+            <EmptyTable />
+          ) : (
+            <div className="space-y-5">
+              {processedData.groupedByUser.map((userGroup) => {
+                const isExpanded = expandedUsers.has(userGroup.user_id);
+                const toggleExpanded = () => {
+                  setExpandedUsers((prev) => {
+                    const newSet = new Set(prev);
+                    if (newSet.has(userGroup.user_id)) {
+                      newSet.delete(userGroup.user_id);
+                    } else {
+                      newSet.add(userGroup.user_id);
+                    }
+                    return newSet;
+                  });
+                };
+
+                return (
+                  <div
+                    key={userGroup.user_id}
+                    className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                  >
+                    {/* User Header */}
+                    <div className="dark:bg-gray-750 border-b border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                            <User className="text-primary h-5 w-5" />
                           </div>
-                          <div className="flex items-center gap-2">
-                            {Array.from(userGroup.actionGroups).map(
-                              (groupKey) => {
-                                const group =
-                                  ACTION_GROUPS[
-                                    groupKey as keyof typeof ACTION_GROUPS
-                                  ];
-                                if (!group) return null;
-                                const Icon = group.icon;
-                                return (
-                                  <Badge
-                                    key={groupKey}
-                                    variant="outline"
-                                    className={group.color}
-                                  >
-                                    <Icon className="mr-1 h-3 w-3" />
-                                    {group.label}
-                                  </Badge>
-                                );
-                              }
-                            )}
+                          <div>
+                            <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                              {userGroup.user_email}
+                            </h4>
+                            <div className="mt-1 flex items-center gap-2">
+                              {Array.from(userGroup.actionGroups).map(
+                                (groupKey) => {
+                                  const group =
+                                    ACTION_GROUPS[
+                                      groupKey as keyof typeof ACTION_GROUPS
+                                    ];
+                                  if (!group) return null;
+                                  const Icon = group.icon;
+                                  return (
+                                    <Badge
+                                      key={groupKey}
+                                      variant="outline"
+                                      className={group.color}
+                                    >
+                                      <Icon className="mr-1 h-3 w-3" />
+                                      {group.label}
+                                    </Badge>
+                                  );
+                                }
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          {userGroup.activities.slice(0, 5).map((activity) => (
-                            <div
-                              key={activity.id}
-                              className="flex items-center justify-between border-b py-2 last:border-b-0"
-                            >
-                              <div className="flex items-center gap-2">
-                                <ActivityLogBadge action={activity.action} />
-                                <span className="text-muted-foreground text-sm">
-                                  {activity.description || "No description"}
-                                </span>
-                              </div>
-                              <div className="text-muted-foreground text-xs">
-                                {activity.details?.logged_at
-                                  ? getCurrentTimezoneInfo(
-                                      activity.details.logged_at
-                                    ).convertedTime
-                                  : "—"}
-                              </div>
-                            </div>
-                          ))}
-                          {userGroup.activities.length > 5 && (
-                            <div className="pt-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-xs"
-                              >
-                                View all {userGroup.activities.length}{" "}
-                                activities
-                              </Button>
-                            </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            {userGroup.totalActions}
+                          </div>
+                          <div className="text-xs tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                            Activities
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Collapsible Activities List */}
+                    <Collapsible
+                      open={isExpanded}
+                      onOpenChange={toggleExpanded}
+                    >
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="flex w-full items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        >
+                          <span className="text-sm font-medium">
+                            {isExpanded
+                              ? "Hide Activities"
+                              : `Show ${userGroup.activities.length} Activities`}
+                          </span>
+                          {isExpanded ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
                           )}
+                        </Button>
+                      </CollapsibleTrigger>
+
+                      <CollapsibleContent>
+                        <div className="p-6 pt-0">
+                          <div className="space-y-3">
+                            {userGroup.activities.map((activity) => {
+                              const actionGroup = getActionGroup(
+                                activity.action
+                              );
+                              const ActionGroupIcon = actionGroup.icon;
+
+                              return (
+                                <div
+                                  key={activity.id}
+                                  className="group dark:hover:bg-gray-750 rounded-lg border border-gray-100 p-4 transition-colors hover:bg-gray-50 dark:border-gray-700"
+                                >
+                                  <div className="flex items-start justify-between">
+                                    <div className="min-w-0 flex-1">
+                                      <div className="mb-1 flex items-center gap-2">
+                                        <ActivityLogBadge
+                                          action={activity.action}
+                                        />
+                                        <Badge
+                                          variant="outline"
+                                          className={actionGroup.color}
+                                        >
+                                          <ActionGroupIcon className="mr-1 h-3 w-3" />
+                                          {actionGroup.label}
+                                        </Badge>
+                                      </div>
+                                      <div className="pl-4 text-sm text-gray-600 dark:text-gray-300">
+                                        {activity.description ||
+                                          "No description available"}
+                                      </div>
+                                    </div>
+                                    <div className="ml-4 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                                      <Clock className="h-3 w-3" />
+                                      <span className="font-mono">
+                                        {activity.details?.logged_at
+                                          ? getCurrentTimezoneInfo(
+                                              activity.details.logged_at
+                                            ).convertedTime
+                                          : "—"}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Activity Details Dialog */}
+                                  <Dialog>
+                                    <DialogTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="mt-2 text-xs"
+                                      >
+                                        View Full Details
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-2xl">
+                                      <DialogHeader>
+                                        <DialogTitle>
+                                          Activity Details - #{activity.id}
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                          Complete information about this
+                                          activity log entry
+                                        </DialogDescription>
+                                      </DialogHeader>
+                                      <div className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                          <div>
+                                            <Label className="text-sm font-medium">
+                                              Action
+                                            </Label>
+                                            <div className="mt-1">
+                                              <ActivityLogBadge
+                                                action={activity.action}
+                                              />
+                                            </div>
+                                          </div>
+                                          <div>
+                                            <Label className="text-sm font-medium">
+                                              Group
+                                            </Label>
+                                            <div className="mt-1">
+                                              <Badge
+                                                variant="outline"
+                                                className={actionGroup.color}
+                                              >
+                                                <ActionGroupIcon className="mr-1 h-3 w-3" />
+                                                {actionGroup.label}
+                                              </Badge>
+                                            </div>
+                                          </div>
+                                          <div>
+                                            <Label className="text-sm font-medium">
+                                              User
+                                            </Label>
+                                            <p className="mt-1 text-sm">
+                                              {activity.user_email}
+                                            </p>
+                                          </div>
+                                          <div>
+                                            <Label className="text-sm font-medium">
+                                              Timestamp
+                                            </Label>
+                                            <p className="mt-1 text-sm">
+                                              {activity.details?.logged_at
+                                                ? getCurrentTimezoneInfo(
+                                                    activity.details.logged_at
+                                                  ).convertedTime
+                                                : "—"}
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <Label className="text-sm font-medium">
+                                            Description
+                                          </Label>
+                                          <p className="mt-1 text-sm">
+                                            {activity.description ||
+                                              "No description available"}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-sm font-medium">
+                                            Full Details
+                                          </Label>
+                                          <div className="bg-muted mt-1 rounded-lg p-3">
+                                            {activity.details ? (
+                                              renderObjectDetails(
+                                                activity.details
+                                              )
+                                            ) : (
+                                              <span className="text-muted-foreground text-sm">
+                                                No additional details available
+                                              </span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </DialogContent>
+                                  </Dialog>
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>
   );
 }
+
