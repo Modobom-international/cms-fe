@@ -1,0 +1,25 @@
+{
+  "AddTeamPage": {
+    "title": "Quản lý phòng ban",
+    "description": "Quản lý phòng ban và phân quyền truy cập trong hệ thống",
+    "breadcrumb": "Quản lý phòng ban",
+    "create": {
+      "title": "Thêm phòng ban",
+      "description": "Thêm phòng ban mới vào hệ thống và phân quyền truy cập",
+      "breadcrumb": "Thêm phòng ban",
+      "form": {
+        "name": "Tên phòng ban",
+        "namePlaceholder": "Nhập tên phòng ban",
+        "permissions": "Phân quyền truy cập",
+        "permissionsDescription": "Thiết lập quyền truy cập cho phòng ban",
+        "saveButton": "Tạo phòng ban",
+        "processing": "Đang xử lý...",
+        "validation": {
+          "nameRequired": "Tên phòng ban không được để trống"
+        }
+      },
+      "success": "Tạo phòng ban thành công",
+      "error": "Tạo phòng ban không thành công"
+    }
+  }
+}

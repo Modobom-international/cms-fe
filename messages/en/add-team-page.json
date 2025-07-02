@@ -1,0 +1,25 @@
+{
+  "AddTeamPage": {
+    "title": "Team Management",
+    "description": "Manage teams and access permissions within the system",
+    "breadcrumb": "Team Management",
+    "create": {
+      "title": "Add Team",
+      "description": "Add a new team to the system and assign access permissions",
+      "breadcrumb": "Add Team",
+      "form": {
+        "name": "Team Name",
+        "namePlaceholder": "Enter team name",
+        "permissions": "Access Permissions",
+        "permissionsDescription": "Set up access permissions for the team",
+        "saveButton": "Create Team",
+        "processing": "Processing...",
+        "validation": {
+          "nameRequired": "Team name is required"
+        }
+      },
+      "success": "Team created successfully",
+      "error": "Failed to create team"
+    }
+  }
+}

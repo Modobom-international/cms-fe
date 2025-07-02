@@ -1,0 +1,271 @@
+{
+  "Studio": {
+    "Sites": {
+      "Title": "Sites Management",
+      "Description": "Manage your sites and their pages",
+      "Required": "*",
+      "CreateSite": {
+        "Button": "Create Site",
+        "Title": "Create New Site",
+        "Required": "*",
+        "Description": "Add a new site to your portfolio. Fill in the details below.",
+        "SiteName": {
+          "Label": "Site Name",
+          "Required": "*",
+          "Placeholder": "My Awesome Site",
+          "Helper": "This is the display name for your site"
+        },
+        "Domain": {
+          "Label": "Domain",
+          "Required": "*",
+          "Placeholder": "example.com",
+          "SearchPlaceholder": "Search domain...",
+          "Helper": "The domain where your site will be hosted",
+          "NoDomains": "No domains found"
+        },
+        "Language": {
+          "Label": "Language",
+          "Required": "*",
+          "Helper": "The language of your site",
+          "Placeholder": "Select language"
+        },
+        "Platform": {
+          "Label": "Platform",
+          "Required": "*",
+          "Helper": "The platform where your site will be optimized for",
+          "Placeholder": "Select platform"
+        },
+        "Submit": "Create Site",
+        "Loading": "Creating site...",
+        "Success": "Site created successfully!",
+        "Error": "Failed to create site",
+        "Validation": {
+          "Name": {
+            "Required": "Site name is required",
+            "MinLength": "Site name must be at least 3 characters",
+            "MaxLength": "Site name cannot exceed 64 characters",
+            "InvalidCharacters": "Site name can only contain letters, numbers, spaces, hyphens and underscores"
+          },
+          "Domain": {
+            "Required": "Domain is required",
+            "MinLength": "Domain must be at least 3 characters",
+            "MaxLength": "Domain cannot exceed 253 characters",
+            "Invalid": "Please enter a valid domain name (e.g., example.com)"
+          },
+          "Language": {
+            "Required": "Language is required",
+            "Invalid": "Please select a valid language"
+          },
+          "Platform": {
+            "Invalid": "Please select a valid platform"
+          }
+        }
+      },
+      "UpdateLanguage": {
+        "Title": "Update Language",
+        "Description": "Update the language of the site",
+        "CurrentLanguage": "Current Language",
+        "Label": "Language",
+        "Required": "*",
+        "Cancel": "Cancel",
+        "Placeholder": "Select language",
+        "Save": "Save",
+        "Saving": "Saving...",
+        "Success": "Language updated successfully!",
+        "Error": "Failed to update language"
+      },
+      "UpdatePlatform": {
+        "Title": "Update Platform",
+        "Description": "Update the platform of the site: {siteName}",
+        "CurrentPlatform": "Current Platform",
+        "NewPlatform": {
+          "Label": "New Platform",
+          "Required": "*",
+          "Placeholder": "Select platform",
+          "Helper": "Choose the platform where your site will be optimized for"
+        },
+        "Cancel": "Cancel",
+        "Submit": "Update Platform",
+        "Loading": "Updating...",
+        "Success": "Platform updated successfully!",
+        "Error": "Failed to update platform"
+      },
+      "DeleteSite": {
+        "Title": "Delete Site",
+        "Description": "This action cannot be undone. This will permanently delete the site ",
+        "Description2": "and all its pages.",
+        "Confirmation": {
+          "Text": "To confirm, type",
+          "Text2": "below:",
+          "Placeholder": "Type site name to confirm"
+        },
+        "Cancel": "Cancel",
+        "Delete": "Delete Site",
+        "Deleting": "Deleting...",
+        "Success": "Site deleted successfully!",
+        "Error": "Failed to delete site"
+      },
+      "Table": {
+        "Name": "Name",
+        "Domain": "Domain",
+        "Description": "Description",
+        "Cloudflare": "Cloudflare",
+        "Branch": "Branch",
+        "Owner": "Owner",
+        "CreatedAt": "Created At",
+        "UpdatedAt": "Updated At",
+        "Actions": "Actions",
+        "Pages": "Pages",
+        "Edit": "Edit",
+        "Delete": "Delete",
+        "Save": "Save",
+        "Cancel": "Cancel",
+        "Saving": "Saving...",
+        "Loading": "Loading...",
+        "NoSites": "No sites found",
+        "Search": "Search",
+        "SearchPlaceholder": "Search sites...",
+        "Showing": "Showing",
+        "Previous": "Previous",
+        "Next": "Next",
+        "Page": "Page {current} of {total}",
+        "FilterByOwner": "Owner",
+        "AllOwners": "All owners",
+        "Language": "Language",
+        "Platform": "Platform",
+        "FilterByOwnerTitle": "Filter by Owner",
+        "SearchOwners": "Search owners...",
+        "NoOwnersFound": "No owners found",
+        "ApplyFilter": "Apply Filter",
+        "ClearAllFilters": "Clear all filters",
+        "RemoveSearchFilter": "Remove search filter",
+        "RemoveOwnerFilter": "Remove owner filter",
+        "Of": "of",
+        "Results": "results",
+        "FilterByStatus": "Status",
+        "FilterByStatusTitle": "Filter by Status",
+        "AllStatuses": "All statuses",
+        "RemoveStatusFilter": "Remove status filter",
+        "Status": {
+          "Header": "Status",
+          "Active": "Active",
+          "Inactive": "Inactive"
+        },
+        "Activate": "Activate",
+        "Deactivate": "Deactivate",
+        "Activating": "Activating...",
+        "Deactivating": "Deactivating...",
+        "ActivateSuccess": "Site activated successfully!",
+        "DeactivateSuccess": "Site deactivated successfully!",
+        "ActivateError": "Failed to activate site",
+        "DeactivateError": "Failed to deactivate site"
+      },
+      "Pages": {
+        "Title": "Pages - {siteName}",
+        "Breadcrumb": "Manage Sites",
+        "Description": "Create and manage pages for your website",
+        "BackToSites": "Back to Sites",
+        "Preview": "Preview",
+        "PreviewExported": "Preview Exported",
+        "PreviewExportedDescription": "Make sure the page has been exported to the server",
+        "List": {
+          "Title": "Pages List",
+          "Description": "Manage and view all pages of the website",
+          "Search": "Search pages by name or slug...",
+          "NoSearchResults": "No pages found matching your search",
+          "NoPages": "No pages found",
+          "Table": {
+            "Name": "Name",
+            "Slug": "Slug",
+            "LastUpdated": "Last Updated",
+            "Actions": "Actions",
+            "Edit": "Edit",
+            "Preview": "Preview",
+            "PreviewExported": "Preview Exported",
+            "Delete": "Delete",
+            "View": "View",
+            "TrackingScript": "Tracking Script"
+          }
+        },
+        "Create": {
+          "Button": "Create Page",
+          "Dialog": {
+            "Title": "Create New Page",
+            "Description": "Add a new page to your site. Fill in the details below."
+          },
+          "Form": {
+            "Name": {
+              "Label": "Page Name",
+              "Placeholder": "e.g. Home Page, About Us, Contact",
+              "Help": "This is the display name for your page"
+            },
+            "Slug": {
+              "Label": "URL Slug",
+              "Placeholder": "e.g. home, about, contact",
+              "Help": "This will be used in the URL: https://{site}/",
+              "Validation": {
+                "Required": "URL Slug is required",
+                "Invalid": "URL Slug must contain only lowercase letters, numbers, and hyphens",
+                "MinLength": "URL Slug must be at least 3 characters",
+                "MaxLength": "URL Slug cannot exceed 64 characters"
+              }
+            },
+            "Cancel": "Cancel",
+            "Submit": "Create Page",
+            "Submitting": "Creating..."
+          },
+          "Toast": {
+            "Loading": "Creating page...",
+            "Success": "Page created successfully!",
+            "Error": "Failed to create page"
+          }
+        },
+        "Delete": {
+          "Dialog": {
+            "Title": "Delete Page",
+            "Description": "This action cannot be undone. You will permanently delete the page.",
+            "ConfirmationText": "To confirm, type the page name",
+            "ConfirmationText2": "below:",
+            "InputPlaceholder": "Type page name to confirm",
+            "Cancel": "Cancel",
+            "Confirm": "Delete Page",
+            "Deleting": "Deleting..."
+          },
+          "Toast": {
+            "Loading": "Deleting page...",
+            "Success": "Page deleted successfully",
+            "Error": "Failed to delete page"
+          }
+        },
+        "TrackingScript": {
+          "Dialog": {
+            "Title": "Manage Tracking Script - {pageName}",
+            "Description": "Add or update the tracking script for this page. The script will be automatically injected into the page during export.",
+            "Label": "Tracking Script",
+            "Placeholder": "Enter your tracking script here...",
+            "Cancel": "Cancel",
+            "Save": "Save",
+            "Saving": "Saving...",
+            "Help": "Copy Facebook Pixel Code or Google Analytics Code here"
+          },
+          "Toast": {
+            "Loading": "Updating tracking script...",
+            "Success": "Tracking script updated successfully",
+            "Error": "Failed to update tracking script"
+          },
+          "Delete": {
+            "Dialog": {
+              "Deleting": "Deleting...",
+              "Confirm": "Delete Script"
+            },
+            "Toast": {
+              "Loading": "Deleting tracking script...",
+              "Success": "Tracking script deleted successfully",
+              "Error": "Failed to delete tracking script"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "Editor": {
+    "BackToPages": "Back to Pages",
+    "Editing": "Editing: {slug}",
+    "SavePage": "Saving page...",
+    "SaveSuccess": "Page saved successfully!",
+    "SaveError": "Failed to save page",
+    "ExportHTML": "Exporting HTML...",
+    "ExportSuccess": "HTML exported successfully!",
+    "ExportError": "Export failed: {error}",
+    "DeployPage": "Deploying page...",
+    "DeploySuccess": "Deployment successful!",
+    "DeployError": "Deploy failed: {error}",
+    "ExportButton": "Export {slug}",
+    "Exporting": "Exporting...",
+    "DeployButton": "Deploy {slug}",
+    "Deploying": "Deploying...",
+    "ExportAndDeployButton": "Deploy",
+    "ExportAndDeployError": "Export and deploy failed",
+    "LoadingPage": "Loading page...",
+    "PleaseWait": "Please wait while we load your page",
+    "LoadError": "Failed to load page",
+    "TryAgain": "Please try again or contact support if the problem persists",
+    "NewPage": {
+      "Title": "New Page: {slug}",
+      "Description": "Start building your page here."
+    },
+    "DeletingAssets": "Deleting assets...",
+    "AssetsDeletedSuccessfully": "Assets deleted successfully!",
+    "FailedToDeleteAssets": "Failed to delete assets",
+    "UploadingAssets": "Uploading assets...",
+    "AssetsUploadedSuccessfully": "Assets uploaded successfully!",
+    "FailedToUploadAssets": "Failed to upload assets"
+  }
+}

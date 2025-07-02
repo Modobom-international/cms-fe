@@ -1,0 +1,197 @@
+{
+  "AppInformationPage": {
+    "breadcrumb": "App Information",
+    "pageHeader": {
+      "title": "App Information",
+      "description": "Monitor and analyze user behavior logs from applications"
+    },
+    "table": {
+      "filters": {
+        "search": "Search",
+        "application": "Application",
+        "nation": "Country",
+        "platform": "Platform",
+        "network": "Network",
+        "appName": "App Name",
+        "appVersion": "App Version",
+        "osName": "OS Name",
+        "category": "Category",
+        "eventName": "Event Name",
+        "osVersion": "OS Version",
+        "filterByApp": "Filter by App",
+        "filterByAppVersion": "Filter by App Version",
+        "filterByPlatform": "Filter by Platform",
+        "filterByCountry": "Filter by Country",
+        "filterByOS": "Filter by OS",
+        "filterByOSVersion": "Filter by OS Version",
+        "filterByCategory": "Filter by Category",
+        "filterByEvent": "Filter by Event",
+        "filterByNetwork": "Filter by Network",
+        "eventValue": "Event Value",
+        "filterByEventValue": "Filter by Event Value",
+        "applyFilter": "Apply Filter",
+        "clearAllFilters": "Clear All Filters",
+        "loadingFilters": "Loading filters...",
+        "noFiltersAvailable": "No filters available yet for this category",
+        "removeFilter": "Remove {filterType} filter",
+        "selected": "selected",
+        "searchPlaceholder": "Search...",
+        "noResultsFound": "No results found",
+        "dateRange": "Date Range",
+        "dateRangeLabel": "Filter by date range",
+        "fromDate": "From",
+        "toDate": "To",
+        "selectDate": "Select date",
+        "quickRanges": "Quick ranges",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "last7Days": "Last 7 days",
+        "last30Days": "Last 30 days"
+      },
+      "overview": {
+        "totalEvents": "Total Events",
+        "totalUsers": "Total Users",
+        "avgPerUser": "Avg per User",
+        "currentPage": "Current Page",
+        "eventBreakdown": "Event Breakdown",
+        "eventTypes": "event type(s)",
+        "totalEventsCount": "total events",
+        "noValue": "No Value",
+        "moreValues": "more values"
+      },
+      "chart": {
+        "viewAnalytics": "Analyze",
+        "analyticsOverview": "Analytics Overview",
+        "loading": "Loading...",
+        "loadingError": "Failed to load chart data. Please try again.",
+        "appliedFilters": "Applied Filters",
+        "noFiltersApplied": "No filters applied - showing all data",
+        "filterLabels": {
+          "app_name": "App Name",
+          "os_name": "OS Name",
+          "os_version": "OS Version",
+          "app_version": "App Version",
+          "category": "Category",
+          "platform": "Platform",
+          "country": "Country",
+          "event_name": "Event Name",
+          "network": "Network",
+          "event_value": "Event Value",
+          "date_from": "Date From",
+          "date_to": "Date To"
+        },
+        "metrics": {
+          "totalUsers": "Total Users",
+          "uniqueUsers": "Unique users tracked",
+          "totalEvents": "Total Events",
+          "totalRecords": "Total records processed",
+          "uniqueApps": "Unique Apps",
+          "differentApps": "Different applications",
+          "avgEventsPerUser": "Avg Events/User",
+          "eventsPerUser": "Events per user"
+        },
+        "charts": {
+          "dailyUsers": {
+            "title": "Daily Unique Users",
+            "description": "Unique users activity over time"
+          },
+          "dailyEvents": {
+            "title": "Daily Events",
+            "description": "Total events activity over time"
+          }
+        },
+        "comingSoon": "Advanced Analytics",
+        "chartsComingSoon": "Detailed charts and visualizations coming soon",
+        "inDevelopment": "In Development"
+      },
+      "placeholders": {
+        "search": "Search by UID or behavior...",
+        "selectApplication": "Select application",
+        "selectNation": "Select country",
+        "selectPlatform": "Select platform",
+        "selectNetwork": "Select network"
+      },
+      "columns": {
+        "uid": "UID",
+        "app": "Application",
+        "country": "Country",
+        "platform": "Platform",
+        "network": "Network",
+        "behaviors": "Behaviors",
+        "timestamp": "Timestamp",
+        "actions": "Actions",
+        "requestId": "Request ID",
+        "userId": "User ID",
+        "appName": "App Name",
+        "appVersion": "App Version",
+        "osName": "OS Name",
+        "osVersion": "OS Version",
+        "event": "Event",
+        "category": "Category",
+        "createdAt": "Created At",
+        "updatedAt": "Updated At"
+      },
+      "actions": {
+        "title": "Actions",
+        "details": "View Details",
+        "export": "Export",
+        "retry": "Retry"
+      },
+      "pagination": {
+        "rowsPerPage": "Rows per page",
+        "of": "of",
+        "previousPage": "Previous",
+        "nextPage": "Next",
+        "viewing": "Viewing",
+        "results": "results",
+        "page": "Page"
+      },
+      "loadingStates": {
+        "loading": "Loading behavior logs...",
+        "error": "Failed to load behavior logs. Please try again."
+      },
+      "behaviors": {
+        "install": "Install",
+        "permission": "Permission",
+        "notification": "Notification",
+        "loadUrl": "Load URL",
+        "click": "Click",
+        "sms": "SMS",
+        "otp": "OTP",
+        "confirm": "Confirm"
+      }
+    },
+    "userSearch": {
+      "sectionTitle": "User Analysis",
+      "sectionDescription": "Search and analyze user activity by User ID",
+      "button": "Search User",
+      "title": "User Activity Search",
+      "description": "Enter a User ID to view their app usage and events",
+      "form": {
+        "userId": {
+          "label": "User ID",
+          "placeholder": "Enter User ID to search..."
+        },
+        "search": "Search",
+        "searching": "Searching...",
+        "clear": "Clear"
+      },
+      "results": {
+        "summary": {
+          "title": "User Activity Summary",
+          "userId": "User ID",
+          "totalApps": "Apps Used",
+          "totalEvents": "Total Events"
+        },
+        "events": {
+          "title": "Events",
+          "value": "Value"
+        },
+        "noData": "No activity data found for this user"
+      },
+      "error": {
+        "searchFailed": "Failed to search user data. Please try again."
+      }
+    }
+  }
+}

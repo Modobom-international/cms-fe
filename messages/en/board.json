@@ -1,0 +1,112 @@
+{
+  "Board": {
+    "title": "My Board",
+    "owner": "Owner: #{id}",
+    "created": "Created {date}",
+    "lists": {
+      "count": "{count} Lists",
+      "actions": {
+        "resetView": "Reset View",
+        "filter": "Filter",
+        "sort": "Sort"
+      }
+    },
+    "list": {
+      "delete": "Delete",
+      "addCard": {
+        "button": "Add a card",
+        "title": "Enter card title...",
+        "description": "Enter description (optional)...",
+        "cancel": "Cancel"
+      }
+    },
+    "addList": {
+      "button": "Add another list",
+      "title": "Enter list title...",
+      "submit": "Add List",
+      "cancel": "Cancel"
+    },
+    "card": {
+      "detail": {
+        "description": "Description",
+        "edit": "Edit",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "dueDate": {
+          "label": "Due Date",
+          "clear": "Clear",
+          "noDueDate": "No due date",
+          "due": "Due: {date}"
+        },
+        "checklist": {
+          "title": "Checklist",
+          "addItem": "Add an item",
+          "placeholder": "Add an item..."
+        },
+        "attachments": {
+          "title": "Attachments",
+          "add": "Add",
+          "noAttachments": "No attachments yet",
+          "preview": "Preview"
+        }
+      }
+    },
+    "form": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter board name",
+        "required": "Name is required"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter board description"
+      },
+      "buttons": {
+        "create": "Create",
+        "update": "Update",
+        "loading": "Loading..."
+      }
+    },
+    "errors": {
+      "loadBoards": {
+        "403": "You don't have permission to view these boards. Please check your access rights.",
+        "permission": "You don't have permission to view these boards. Please check your access rights.",
+        "generic": "Failed to load boards. Please try again later."
+      },
+      "noBoards": "No boards found. Create your first board to get started.",
+      "boardNotFound": "Board not found"
+    },
+    "operations": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "createBoard": "Create Board",
+      "deleteTitle": "Delete Board",
+      "editTitle": "Edit Board",
+      "createTitle": "Create Board",
+      "deleteDescription": "This action cannot be undone. This will permanently delete the board and all its data.",
+      "updateSuccess": "Board updated successfully",
+      "updateError": "Failed to update board",
+      "createSuccess": "Board created successfully",
+      "createError": "Failed to create board",
+      "deleteSuccess": "Board deleted successfully",
+      "deleteError": "Failed to delete board",
+      "genericError": "Something went wrong",
+      "manageBoardMembers": "Manage board members"
+    },
+    "members": "Members",
+    "manageBoardMembers": "Manage board members",
+    "selectMember": "Select a member",
+    "addMember": "Add Member",
+    "currentMembers": "Current Members: {count}",
+    "membersDescription": "View and manage members of this board",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "joined": "Joined",
+    "actions": "Actions",
+    "remove": "Remove"
+  }
+}

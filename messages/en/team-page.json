@@ -1,0 +1,36 @@
+{
+  "TeamPage": {
+    "breadcrumb": "Team Management",
+    "title": "Teams",
+    "description": "Manage teams",
+    "employees": "Employees",
+    "addTeam": "Add Team",
+    "table": {
+      "search": "Search teams...",
+      "loading": "Loading teams...",
+      "error": "An error occurred while loading teams",
+      "empty": "No teams found",
+      "columns": {
+        "id": "ID",
+        "name": "Name",
+        "permissions": "Permissions",
+        "createdAt": "Created At",
+        "updatedAt": "Updated At",
+        "actions": "Actions"
+      },
+      "actions": {
+        "edit": "Edit",
+        "delete": "Delete",
+        "retry": "Retry"
+      },
+      "pagination": {
+        "rowsPerPage": "Rows per page",
+        "of": "of",
+        "previousPage": "Previous",
+        "nextPage": "Next",
+        "showing": "Viewing {from}-{to} of {total} results",
+        "page": "Page {current} of {total}"
+      }
+    }
+  }
+}

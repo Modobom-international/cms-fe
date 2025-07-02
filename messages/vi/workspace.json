@@ -1,0 +1,123 @@
+{
+  "Workspace": {
+    "title": "Không gian làm việc",
+    "breadcrumb": "Không gian làm việc",
+    "boards": "Bảng",
+    "board": "Bảng",
+    "members": "Thành viên",
+    "manageMembers": "Quản lý thành viên",
+    "operations": {
+      "createSuccess": "Tạo không gian làm việc thành công",
+      "updateSuccess": "Cập nhật không gian làm việc thành công",
+      "deleteSuccess": "Xóa không gian làm việc thành công"
+    },
+    "errors": {
+      "failedToLoad": "Không thể tải không gian làm việc. Vui lòng thử lại sau.",
+      "noWorkspaces": "Không tìm thấy không gian làm việc nào. Tạo không gian làm việc đầu tiên của bạn để bắt đầu.",
+      "updateFailed": "Không thể cập nhật không gian làm việc",
+      "createFailed": "Không thể tạo không gian làm việc",
+      "deleteFailed": "Không thể xóa không gian làm việc",
+      "generic": "Đã xảy ra lỗi"
+    },
+    "visibility": {
+      "private": "Riêng tư",
+      "public": "Công khai"
+    },
+    "role": {
+      "owner": "Chủ sở hữu",
+      "member": "Thành viên",
+      "admin": "Quản trị viên",
+      "notMember": "Không phải là thành viên"
+    },
+    "noDescription": "Không có mô tả",
+    "owner": "Chủ sở hữu",
+    "created": "Tạo ngày {date}",
+    "actions": {
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa"
+    },
+    "delete": {
+      "title": "Xóa không gian làm việc",
+      "description": "Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn không gian làm việc và tất cả dữ liệu của nó.",
+      "cancel": "Hủy",
+      "confirm": "Xóa",
+      "deleting": "Đang xóa...",
+      "success": "Xóa không gian làm việc thành công"
+    },
+    "edit": {
+      "title": "Chỉnh sửa không gian làm việc",
+      "success": "Cập nhật không gian làm việc thành công",
+      "error": "Không thể cập nhật không gian làm việc"
+    },
+    "create": {
+      "title": "Tạo không gian làm việc",
+      "button": "Tạo không gian làm việc",
+      "success": "Tạo không gian làm việc thành công"
+    },
+    "form": {
+      "name": {
+        "label": "Tên",
+        "placeholder": "Nhập tên không gian làm việc"
+      },
+      "description": {
+        "label": "Mô tả",
+        "placeholder": "Nhập mô tả không gian làm việc"
+      },
+      "visibility": {
+        "label": "Quyền riêng tư",
+        "placeholder": "Chọn quyền riêng tư",
+        "private": "Riêng tư",
+        "public": "Công khai"
+      },
+      "validation": {
+        "name": {
+          "required": "Tên là bắt buộc"
+        },
+        "description": {
+          "required": "Mô tả là bắt buộc"
+        }
+      },
+      "buttons": {
+        "loading": "Đang tải...",
+        "update": "Cập nhật",
+        "create": "Tạo"
+      }
+    },
+    "Members": {
+      "removeMemberSuccess": "Xóa thành viên thành công",
+      "removeMemberError": "Lỗi khi xóa thành viên",
+      "addMemberSuccess": "Thêm thành viên thành công",
+      "addMemberError": "Lỗi khi thêm thành viên",
+      "title": "Thành viên không gian làm việc",
+      "description": "Quản lý thành viên và vai trò của họ trong không gian làm việc này",
+      "addMember": "Thêm thành viên",
+      "addMemberDescription": "Mời thành viên mới tham gia không gian làm việc này",
+      "email": "Địa chỉ email",
+      "role": "Vai trò",
+      "roles": {
+        "member": "Thành viên",
+        "admin": "Quản trị viên"
+      },
+      "cancel": "Hủy",
+      "add": "Thêm thành viên",
+      "setAsMember": "Đặt làm thành viên",
+      "setAsAdmin": "Đặt làm quản trị viên",
+      "remove": "Xóa thành viên",
+      "joinedAt": "Tham gia ngày {date}",
+      "joinWorkspace": "Tham gia không gian làm việc",
+      "errors": {
+        "failedToLoad": "Không thể tải danh sách thành viên",
+        "failedToJoin": "Không thể tham gia không gian làm việc",
+        "failedToAdd": "Không thể thêm thành viên",
+        "failedToRemove": "Không thể xóa thành viên",
+        "emailRequired": "Email không được để trống.",
+        "emailInvalid": "Email không hợp lệ.",
+        "emailNotFound": "Email không tồn tại trong hệ thống",
+        "roleRequired": "Vai trò không được để trống.",
+        "unauthorized": "Bạn không có quyền thực hiện hành động này",
+        "userNotFound": "Không tìm thấy người dùng",
+        "userAlreadyMember": "Người dùng đã là thành viên trong workspace"
+      }
+    }
+  }
+}
