@@ -232,6 +232,10 @@ export default function ActivityLogDataTable() {
     "user_ids",
     parseAsArrayOf(parseAsString).withDefault([])
   );
+  const [selectedActions, setSelectedActions] = useQueryState(
+    "actions",
+    parseAsArrayOf(parseAsString).withDefault([])
+  );
   const [sortField, setSortField] = useQueryState(
     "sort_field",
     parseAsString.withDefault("created_at")
@@ -256,7 +260,7 @@ export default function ActivityLogDataTable() {
     dateTo,
     selectedUsers.length > 0 ? selectedUsers.join(",") : "",
     selectedActionGroups,
-    undefined, // actions - can be added later
+    selectedActions, // Pass the selected actions
     sortField, // Pass the actual sort field
     sortDirection // Pass the actual sort direction
   );
@@ -290,8 +294,15 @@ export default function ActivityLogDataTable() {
         }
       }
 
+      // Filter by specific actions
+      if (selectedActions.length > 0) {
+        if (!selectedActions.includes(activity.action)) {
+          return false;
+        }
+      }
+
       // Filter by user - no client-side filtering needed since API handles it
-      // We only filter client-side for action groups
+      // We only filter client-side for action groups and actions
       return true;
     });
 
@@ -313,7 +324,7 @@ export default function ActivityLogDataTable() {
         ),
       },
     };
-  }, [activityLogData, selectedActionGroups]);
+  }, [activityLogData, selectedActionGroups, selectedActions]);
 
   // Get all users for filter dropdown
   const { data: allUsersResponse } = useGetAllUsers();
@@ -435,6 +446,7 @@ export default function ActivityLogDataTable() {
     setDateTo("");
     setSelectedActionGroups([]);
     setSelectedUsers([]);
+    setSelectedActions([]);
     setCurrentPage(1);
   };
 
@@ -447,6 +459,7 @@ export default function ActivityLogDataTable() {
         userId: selectedUsers.length > 0 ? selectedUsers.join(",") : undefined,
         actionGroups:
           selectedActionGroups.length > 0 ? selectedActionGroups : undefined,
+        actions: selectedActions.length > 0 ? selectedActions : undefined,
         search: debouncedSearch || undefined,
         format,
         limit: 5000, // Export up to 5000 records as per API documentation
@@ -465,12 +478,14 @@ export default function ActivityLogDataTable() {
         dateTo={dateTo}
         selectedActionGroups={selectedActionGroups}
         selectedUsers={selectedUsers}
+        selectedActions={selectedActions}
         uniqueUsers={uniqueUsers}
         onEmailChange={setEmail}
         onDateFromChange={setDateFrom}
         onDateToChange={setDateTo}
         onSelectedActionGroupsChange={setSelectedActionGroups}
         onSelectedUsersChange={setSelectedUsers}
+        onSelectedActionsChange={setSelectedActions}
         onDatePresetSelect={handleDatePreset}
         onClearFilters={clearFilters}
         onExport={handleExport}

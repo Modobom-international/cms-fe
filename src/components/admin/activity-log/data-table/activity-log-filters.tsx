@@ -3,7 +3,15 @@
 import { useEffect, useState } from "react";
 
 import { format } from "date-fns";
-import { CalendarIcon, Download, PlusCircle, Search, X } from "lucide-react";
+import {
+  CalendarIcon,
+  ChevronDown,
+  ChevronRight,
+  Download,
+  PlusCircle,
+  Search,
+  X,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -34,12 +42,14 @@ interface ActivityLogFiltersProps {
   dateTo: string;
   selectedActionGroups: string[];
   selectedUsers: string[];
+  selectedActions: string[];
   uniqueUsers: User[];
   onEmailChange: (email: string) => void;
   onDateFromChange: (dateFrom: string) => void;
   onDateToChange: (dateTo: string) => void;
   onSelectedActionGroupsChange: (groups: string[]) => void;
   onSelectedUsersChange: (userIds: string[]) => void;
+  onSelectedActionsChange: (actions: string[]) => void;
   onDatePresetSelect: (preset: string) => void;
   onClearFilters: () => void;
   onExport: () => void;
@@ -84,12 +94,14 @@ export function ActivityLogFilters({
   dateTo,
   selectedActionGroups,
   selectedUsers,
+  selectedActions,
   uniqueUsers,
   onEmailChange,
   onDateFromChange,
   onDateToChange,
   onSelectedActionGroupsChange,
   onSelectedUsersChange,
+  onSelectedActionsChange,
   onDatePresetSelect,
   onClearFilters,
   onExport,
@@ -106,6 +118,8 @@ export function ActivityLogFilters({
   const [localSelectedActionGroups, setLocalSelectedActionGroups] =
     useState(selectedActionGroups);
   const [localSelectedUsers, setLocalSelectedUsers] = useState(selectedUsers);
+  const [localSelectedActions, setLocalSelectedActions] =
+    useState(selectedActions);
 
   // Update local state when props change (when filters are applied or cleared)
   useEffect(() => {
@@ -114,7 +128,15 @@ export function ActivityLogFilters({
     setLocalDateTo(dateTo || getTodayString());
     setLocalSelectedActionGroups(selectedActionGroups);
     setLocalSelectedUsers(selectedUsers);
-  }, [email, dateFrom, dateTo, selectedActionGroups, selectedUsers]);
+    setLocalSelectedActions(selectedActions);
+  }, [
+    email,
+    dateFrom,
+    dateTo,
+    selectedActionGroups,
+    selectedUsers,
+    selectedActions,
+  ]);
 
   // Apply all filters at once
   const applyFilters = () => {
@@ -123,6 +145,7 @@ export function ActivityLogFilters({
     onDateToChange(localDateTo || getTodayString());
     onSelectedActionGroupsChange(localSelectedActionGroups);
     onSelectedUsersChange(localSelectedUsers);
+    onSelectedActionsChange(localSelectedActions);
   };
 
   const handleActionGroupChange = (groupKey: string, checked: boolean) => {
@@ -146,7 +169,8 @@ export function ActivityLogFilters({
     dateFrom ||
     dateTo ||
     selectedActionGroups.length > 0 ||
-    selectedUsers.length > 0
+    selectedUsers.length > 0 ||
+    selectedActions.length > 0
   );
 
   // Handle date preset selection for local state
@@ -227,6 +251,17 @@ export function ActivityLogFilters({
                 onClear={() => onSelectedActionGroupsChange([])}
               />
             )}
+            {selectedActions.length > 0 && (
+              <FilterBadge
+                label="Actions"
+                filterValue={
+                  selectedActions.length > 1
+                    ? `${selectedActions.length} actions selected`
+                    : selectedActions[0]
+                }
+                onClear={() => onSelectedActionsChange([])}
+              />
+            )}
             {selectedUsers.length > 0 && (
               <FilterBadge
                 label="Users"
@@ -277,6 +312,13 @@ export function ActivityLogFilters({
         <ActionGroupsFilter
           selectedActionGroups={localSelectedActionGroups}
           onChange={handleActionGroupChange}
+          onApply={applyFilters}
+        />
+
+        {/* Actions Tree Filter */}
+        <ActionsTreeFilter
+          selectedActions={localSelectedActions}
+          onChange={setLocalSelectedActions}
           onApply={applyFilters}
         />
 
@@ -530,6 +572,262 @@ function DateRangeFilter({
   );
 }
 
+interface ActionsTreeFilterProps {
+  selectedActions: string[];
+  onChange: (actions: string[]) => void;
+  onApply: () => void;
+}
+
+function ActionsTreeFilter({
+  selectedActions,
+  onChange,
+  onApply,
+}: ActionsTreeFilterProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+
+  // Organize actions by groups
+  const actionsByGroup = Object.entries(ACTION_GROUPS).map(([key, group]) => ({
+    groupKey: key,
+    groupLabel: group.label,
+    actions: group.actions as readonly string[],
+    icon: group.icon,
+    color: group.color,
+  }));
+
+  // Filter actions based on search term
+  const filteredActionsByGroup = actionsByGroup
+    .map((group) => ({
+      ...group,
+      actions: group.actions.filter(
+        (action) =>
+          action.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          group.groupLabel.toLowerCase().includes(searchTerm.toLowerCase())
+      ),
+    }))
+    .filter((group) => group.actions.length > 0);
+
+  const toggleGroup = (groupKey: string) => {
+    setExpandedGroups((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(groupKey)) {
+        newSet.delete(groupKey);
+      } else {
+        newSet.add(groupKey);
+      }
+      return newSet;
+    });
+  };
+
+  const handleActionChange = (action: string, checked: boolean) => {
+    if (checked) {
+      onChange([...selectedActions, action]);
+    } else {
+      onChange(selectedActions.filter((a) => a !== action));
+    }
+  };
+
+  const handleGroupChange = (
+    groupActions: readonly string[],
+    checked: boolean
+  ) => {
+    if (checked) {
+      // Add all actions from this group
+      const newActions = [...selectedActions];
+      groupActions.forEach((action) => {
+        if (!newActions.includes(action)) {
+          newActions.push(action);
+        }
+      });
+      onChange(newActions);
+    } else {
+      // Remove all actions from this group
+      onChange(
+        selectedActions.filter((action) => !groupActions.includes(action))
+      );
+    }
+  };
+
+  const isGroupChecked = (groupActions: readonly string[]) => {
+    return (
+      groupActions.length > 0 &&
+      groupActions.every((action) => selectedActions.includes(action))
+    );
+  };
+
+  const isGroupIndeterminate = (groupActions: readonly string[]) => {
+    const selectedInGroup = groupActions.filter((action) =>
+      selectedActions.includes(action)
+    );
+    return (
+      selectedInGroup.length > 0 && selectedInGroup.length < groupActions.length
+    );
+  };
+
+  return (
+    <div>
+      <Popover>
+        <PopoverTrigger asChild>
+          <span className="border-border text-muted-foreground hover:bg-muted inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed px-2 py-0.5 text-xs font-medium transition-colors">
+            <PlusCircle className="size-3" />
+            Actions
+            {selectedActions.length > 0 && (
+              <Badge variant="secondary" className="ml-1 h-4 px-1 text-xs">
+                {selectedActions.length}
+              </Badge>
+            )}
+          </span>
+        </PopoverTrigger>
+        <PopoverContent className="w-80 p-0" align="start">
+          <div className="px-3 pt-3 pb-2">
+            <h3 className="text-foreground text-sm font-medium">
+              Filter by Actions
+            </h3>
+          </div>
+
+          {/* Search Input */}
+          {actionsByGroup.length > 0 && (
+            <div className="px-3 pb-3">
+              <div className="relative">
+                <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+                <Input
+                  placeholder="Search actions..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="h-8 pl-8 text-sm"
+                />
+              </div>
+            </div>
+          )}
+
+          <ScrollArea className="h-[400px]">
+            <div className="space-y-2 p-3">
+              {actionsByGroup.length === 0 ? (
+                <div className="py-4 text-center">
+                  <p className="text-muted-foreground text-sm">
+                    No actions available
+                  </p>
+                </div>
+              ) : filteredActionsByGroup.length === 0 ? (
+                <div className="py-4 text-center">
+                  <p className="text-muted-foreground text-sm">
+                    No actions found
+                  </p>
+                </div>
+              ) : (
+                filteredActionsByGroup.map((group) => {
+                  const isExpanded = expandedGroups.has(group.groupKey);
+                  const groupChecked = isGroupChecked(group.actions);
+                  const groupIndeterminate = isGroupIndeterminate(
+                    group.actions
+                  );
+
+                  return (
+                    <div key={group.groupKey} className="space-y-1">
+                      {/* Group Header */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`group-${group.groupKey}`}
+                            checked={groupChecked}
+                            ref={(el: any) => {
+                              if (el) {
+                                el.indeterminate = groupIndeterminate;
+                              }
+                            }}
+                            onCheckedChange={(checked) =>
+                              handleGroupChange(group.actions, checked === true)
+                            }
+                          />
+                          <ActionGroupBadge
+                            groupKey={group.groupKey}
+                            size="sm"
+                          />
+                          <span className="text-muted-foreground text-xs">
+                            ({group.actions.length})
+                          </span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0"
+                          onClick={() => toggleGroup(group.groupKey)}
+                        >
+                          {isExpanded ? (
+                            <ChevronDown className="h-3 w-3" />
+                          ) : (
+                            <ChevronRight className="h-3 w-3" />
+                          )}
+                        </Button>
+                      </div>
+
+                      {/* Actions List */}
+                      {isExpanded && (
+                        <div className="ml-6 space-y-1">
+                          {group.actions.map((action) => (
+                            <div
+                              key={action}
+                              className="flex items-center space-x-2"
+                            >
+                              <Checkbox
+                                id={`action-${action}`}
+                                checked={selectedActions.includes(action)}
+                                onCheckedChange={(checked) =>
+                                  handleActionChange(action, checked === true)
+                                }
+                              />
+                              <label
+                                htmlFor={`action-${action}`}
+                                className="text-foreground cursor-pointer font-mono text-sm"
+                              >
+                                {action}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </ScrollArea>
+
+          {actionsByGroup.length > 0 && (
+            <div className="border-border flex items-center justify-between border-t p-3">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onChange([])}
+                  disabled={selectedActions.length === 0}
+                >
+                  Clear
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    // Expand all groups
+                    setExpandedGroups(
+                      new Set(actionsByGroup.map((g) => g.groupKey))
+                    );
+                  }}
+                >
+                  Expand All
+                </Button>
+              </div>
+              <Button onClick={onApply} size="sm">
+                Apply Filter
+              </Button>
+            </div>
+          )}
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
+
 interface ActionGroupsFilterProps {
   selectedActionGroups: string[];
   onChange: (groupKey: string, checked: boolean) => void;
@@ -753,4 +1051,3 @@ function UserFilter({
     </div>
   );
 }
-
