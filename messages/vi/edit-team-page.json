@@ -1,0 +1,10 @@
+{
+  "EditTeamPage": {
+    "breadcrumb": "Phòng ban",
+    "edit": {
+      "title": "Chỉnh sửa phòng ban",
+      "breadcrumb": "Chỉnh sửa phòng ban",
+      "description": "Chỉnh sửa thông tin phòng ban và phân quyền truy cập"
+    }
+  }
+}

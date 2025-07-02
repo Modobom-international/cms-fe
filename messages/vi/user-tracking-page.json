@@ -1,0 +1,103 @@
+{
+  "UserTrackingPage": {
+    "title": "Theo dõi người dùng",
+    "description": "Quản lý và theo dõi dữ liệu người dùng từ các ứng dụng khác nhau",
+    "breadcrumb": "Theo dõi người dùng",
+    "table": {
+      "filters": {
+        "selectDomain": "Chọn tên miền",
+        "datePicker": "Chọn ngày",
+        "search": "Tìm kiếm",
+        "viewHeatmap": "Xem bản đồ nhiệt",
+        "date": "Ngày",
+        "selectPath": "Chọn đường dẫn"
+      },
+      "columns": {
+        "id": "ID",
+        "timestamp": "Thời gian cuối cùng",
+        "ip": "Địa chỉ IP",
+        "device": "Thiết bị",
+        "userBehavior": "Hành vi người dùng",
+        "actions": "Hành động",
+        "uuid": "UUID",
+        "domain": "Tên miền",
+        "path": "Đường dẫn",
+        "eventCount": "Số sự kiện",
+        "browser": "Trình duyệt"
+      },
+      "pagination": {
+        "rowsPerPage": "Số dòng mỗi trang",
+        "of": "trong số",
+        "firstPage": "Trang đầu tiên",
+        "previousPage": "Trước",
+        "nextPage": "Tiếp",
+        "lastPage": "Trang cuối cùng",
+        "showing": "Hiển thị",
+        "results": "kết quả",
+        "page": "Trang"
+      },
+      "actions": {
+        "details": "Chi tiết",
+        "retry": "Thử lại"
+      },
+      "deviceTypes": {
+        "mobile": "Di động",
+        "tablet": "Máy tính bảng",
+        "desktop": "Máy tính để bàn"
+      },
+      "behaviors": {
+        "mouseMovement": "Di chuyển chuột",
+        "click": "Nhấp chuột",
+        "scroll": "Cuộn trang",
+        "pageView": "Xem trang",
+        "timeSpent": "Thời gian dừng",
+        "position": "Vị trí",
+        "totalMovements": "Tổng di chuyển",
+        "target": "Đích",
+        "height": "Chiều cao",
+        "duration": "Thời gian",
+        "elementTag": "Thẻ",
+        "elementText": "Nội dung",
+        "elementHref": "Liên kết",
+        "elementClasses": "Lớp"
+      },
+      "placeholders": {
+        "selectDomain": "Chọn tên miền",
+        "selectResults": "Chọn số kết quả hiển thị",
+        "searchDomain": "Tìm kiếm tên miền...",
+        "searchPath": "Tìm kiếm đường dẫn...",
+        "selectPath": "Chọn đường dẫn"
+      },
+      "loadingStates": {
+        "loadingDomains": "Đang tải domain...",
+        "noDomains": "Không tìm thấy tên miền",
+        "error": "Đã xảy ra lỗi khi tải dữ liệu",
+        "noPaths": "Không tìm thấy đường dẫn"
+      },
+      "activeUsers": {
+        "title": "Người dùng đang hoạt động",
+        "description": "Tổng số người dùng đang hoạt động trên tên miền"
+      },
+      "modal": {
+        "detail": {
+          "noData": "Không có dữ liệu",
+          "title": "Sự kiện người dùng",
+          "table": {
+            "columns": {
+              "eventName": "Tên sự kiện",
+              "timestamp": "Thời gian",
+              "device": "Thiết bị",
+              "details": "Chi tiết"
+            },
+            "behaviors": {
+              "elementTag": "Thẻ HTML",
+              "elementText": "Nội dung",
+              "elementHref": "Liên kết",
+              "elementClasses": "Lớp"
+            }
+          }
+        }
+      }
+    }
+  }
+}

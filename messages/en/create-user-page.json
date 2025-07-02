@@ -1,0 +1,40 @@
+{
+  "CreateUserPage": {
+    "title": "Create User",
+    "subtitle": "Add a new user to the system and set access permissions",
+    "breadcrumb": "Create User",
+    "form": {
+      "personalInfo": "Personal Information",
+      "personalInfoDesc": "Enter basic user information",
+      "name": "Name",
+      "namePlaceholder": "Enter user name",
+      "email": "Email",
+      "password": "Password",
+      "team": "Team",
+      "teamPlaceholder": "Select a team",
+      "permissions": "Access Permissions",
+      "permissionsDesc": "Set access permissions for the user"
+    },
+    "actions": {
+      "create": "Create User",
+      "creating": "Creating...",
+      "backToList": "Back to list"
+    },
+    "validation": {
+      "name": {
+        "min": "Name must be at least 2 characters"
+      },
+      "email": {
+        "required": "Email is required",
+        "invalid": "Email is invalid"
+      },
+      "password": {
+        "required": "Password is required",
+        "min": "Password must be at least 8 characters"
+      },
+      "team": {
+        "required": "Please select a team"
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "CreateUserPage": {
+    "title": "Thêm nhân viên",
+    "subtitle": "Thêm nhân viên mới vào hệ thống và phân quyền truy cập",
+    "breadcrumb": "Thêm nhân viên",
+    "form": {
+      "personalInfo": "Thông tin cá nhân",
+      "personalInfoDesc": "Nhập thông tin cơ bản của nhân viên",
+      "name": "Tên",
+      "namePlaceholder": "Nhập tên nhân viên",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "team": "Phòng ban",
+      "teamPlaceholder": "Chọn phòng ban",
+      "permissions": "Phân quyền truy cập",
+      "permissionsDesc": "Thiết lập quyền truy cập cho nhân viên"
+    },
+    "actions": {
+      "create": "Tạo nhân viên",
+      "creating": "Đang xử lý...",
+      "backToList": "Quay lại danh sách"
+    },
+    "validation": {
+      "name": {
+        "min": "Tên phải có ít nhất 2 ký tự"
+      },
+      "email": {
+        "required": "Email là bắt buộc",
+        "invalid": "Email không hợp lệ"
+      },
+      "password": {
+        "required": "Mật khẩu là bắt buộc",
+        "min": "Mật khẩu phải có ít nhất 8 ký tự"
+      },
+      "team": {
+        "required": "Vui lòng chọn phòng ban"
+      }
+    }
+  }
+}

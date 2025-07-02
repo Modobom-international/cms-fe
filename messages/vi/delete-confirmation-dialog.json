@@ -1,0 +1,9 @@
+{
+  "DeleteConfirmationDialog": {
+    "title": "Xác nhận xóa phòng ban",
+    "message": "Bạn có chắc chắn muốn xóa phòng ban này? Hành động này không thể hoàn tác.",
+    "cancel": "Hủy",
+    "confirm": "Đồng ý",
+    "deleting": "Đang xóa..."
+  }
+}

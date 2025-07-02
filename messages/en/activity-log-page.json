@@ -1,0 +1,64 @@
+{
+  "ActivityLogPage": {
+    "title": "Activity Log",
+    "description": "Monitor and review system activities and user actions",
+    "breadcrumb": "Activity Log",
+    "table": {
+      "title": "Activity Logs",
+      "description": "Track and monitor all system activities and user actions",
+      "filters": {
+        "search": "Search",
+        "searchByEmail": "Search by email",
+        "dateRange": "Date range",
+        "datePicker": "Select date",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "actionTypes": "Action types",
+        "apply": "Apply filters",
+        "clearAll": "Clear all",
+        "date": "Date"
+      },
+      "columns": {
+        "id": "ID",
+        "action": "Action",
+        "timestamp": "Timestamp",
+        "user": "User",
+        "userEmail": "Email",
+        "description": "Description",
+        "details": "Details",
+        "actions": "Actions"
+      },
+      "pagination": {
+        "rowsPerPage": "Rows per page",
+        "of": "of",
+        "firstPage": "Go to first page",
+        "previousPage": "Previous",
+        "nextPage": "Next",
+        "lastPage": "Go to last page",
+        "viewing": "Viewing",
+        "results": "results",
+        "page": "Page"
+      },
+      "actions": {
+        "details": "View Details",
+        "retry": "Retry",
+        "refresh": "Refresh"
+      },
+      "loadingStates": {
+        "loading": "Loading activity logs...",
+        "error": "An error occurred while loading activity logs"
+      },
+      "placeholders": {
+        "search": "Search by action or user ID",
+        "searchByEmail": "Search by email address"
+      },
+      "actionTypes": {
+        "ACCESS_VIEW": "Access View",
+        "SHOW_RECORD": "Show Record",
+        "CREATE_RECORD": "Create Record",
+        "UPDATE_RECORD": "Update Record",
+        "DELETE_RECORD": "Delete Record"
+      }
+    }
+  }
+}

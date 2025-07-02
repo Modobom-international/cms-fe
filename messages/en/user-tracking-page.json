@@ -1,0 +1,102 @@
+{
+  "UserTrackingPage": {
+    "title": "User Tracking",
+    "description": "Manage and monitor user tracking data from various applications",
+    "breadcrumb": "User Tracking",
+    "table": {
+      "filters": {
+        "selectDomain": "Select domain",
+        "datePicker": "Date picker",
+        "search": "Search",
+        "viewHeatmap": "View heatmap",
+        "date": "Date",
+        "selectPath": "Select path"
+      },
+      "columns": {
+        "id": "ID",
+        "timestamp": "Last timestamp",
+        "ip": "IP Address",
+        "device": "Device",
+        "userBehavior": "User Behavior",
+        "actions": "Actions",
+        "uuid": "UUID",
+        "domain": "Domain",
+        "path": "Path",
+        "eventCount": "Events",
+        "browser": "Browser"
+      },
+      "pagination": {
+        "rowsPerPage": "Rows per page",
+        "of": "of",
+        "firstPage": "Go to first page",
+        "previousPage": "Previous",
+        "nextPage": "Next",
+        "lastPage": "Go to last page",
+        "showing": "Showing",
+        "results": "results",
+        "page": "Page"
+      },
+      "actions": {
+        "details": "Details",
+        "retry": "Retry"
+      },
+      "deviceTypes": {
+        "mobile": "Mobile",
+        "tablet": "Tablet",
+        "desktop": "Desktop"
+      },
+      "behaviors": {
+        "mouseMovement": "Mouse Movement",
+        "click": "Click",
+        "scroll": "Scroll",
+        "pageView": "Page View",
+        "timeSpent": "Time Spent",
+        "position": "Position",
+        "totalMovements": "Total movements",
+        "target": "Target",
+        "height": "Height",
+        "duration": "Duration",
+        "elementTag": "Tag",
+        "elementText": "Text",
+        "elementHref": "Href",
+        "elementClasses": "Classes"
+      },
+      "placeholders": {
+        "selectDomain": "Select domain",
+        "selectResults": "Select number of results",
+        "searchDomain": "Search domain...",
+        "searchPath": "Search path..."
+      },
+      "loadingStates": {
+        "loadingDomains": "Domain is loading...",
+        "noDomains": "No domains found",
+        "error": "An error occurred while loading data",
+        "noPaths": "No path found"
+      },
+      "activeUsers": {
+        "title": "Total Active Users",
+        "description": "Total active users active in this domain"
+      },
+      "modal": {
+        "detail": {
+          "noData": "No Data",
+          "title": "User tracking",
+          "table": {
+            "columns": {
+              "eventName": "Event name",
+              "timestamp": "Timestamp",
+              "device": "Device",
+              "details": "Details"
+            },
+            "behaviors": {
+              "elementTag": "Tag HTML",
+              "elementText": "Content",
+              "elementHref": "Href",
+              "elementClasses": "Classes"
+            }
+          }
+        }
+      }
+    }
+  }
+}

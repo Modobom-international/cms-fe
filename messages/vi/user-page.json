@@ -1,0 +1,95 @@
+{
+  "UserPage": {
+    "breadcrumb": "Quản lý nhân viên",
+    "title": "Nhân viên",
+    "description": "Quản lý nhân viên và quyền của họ",
+    "teams": "Phòng ban",
+    "addUser": "Thêm nhân viên",
+    "table": {
+      "search": "Tìm kiếm nhân viên...",
+      "loading": "Đang tải danh sách nhân viên...",
+      "error": "Đã xảy ra lỗi khi tải danh sách nhân viên",
+      "empty": "Không tìm thấy nhân viên nào",
+      "columns": {
+        "id": "ID",
+        "name": "Tên",
+        "email": "Email",
+        "team": "Phòng ban",
+        "role": "Vai trò",
+        "status": "Trạng thái",
+        "createdAt": "Ngày tạo",
+        "updatedAt": "Cập nhật lần cuối",
+        "actions": "Thao tác"
+      },
+      "actions": {
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa",
+        "retry": "Thử lại"
+      },
+      "pagination": {
+        "rowsPerPage": "Số dòng mỗi trang",
+        "of": "trong số",
+        "previousPage": "Trước",
+        "nextPage": "Tiếp",
+        "showing": "Hiển thị {from}-{to} trong tổng số {total} kết quả",
+        "page": "Trang {current} trong tổng số {total}"
+      },
+      "status": {
+        "active": "Hoạt động",
+        "inactive": "Không hoạt động",
+        "pending": "Đang chờ"
+      },
+      "roles": {
+        "admin": "Quản trị viên",
+        "user": "Người dùng",
+        "manager": "Quản lý"
+      },
+      "delete": {
+        "title": "Xóa nhân viên",
+        "description": "Bạn có chắc chắn muốn xóa nhân viên này? Hành động này không thể hoàn tác.",
+        "error": "Không thể xóa nhân viên"
+      }
+    },
+    "navigation": {
+      "title": "Quản lý nhân viên",
+      "create": "Thêm nhân viên",
+      "edit": "Chỉnh sửa nhân viên"
+    },
+    "create": {
+      "title": "Thêm nhân viên",
+      "subtitle": "Thêm nhân viên mới vào hệ thống và phân quyền truy cập"
+    },
+    "edit": {
+      "title": "Chỉnh sửa nhân viên",
+      "subtitle": "Cập nhật thông tin và quyền truy cập cho nhân viên"
+    },
+    "form": {
+      "personalInfo": "Thông tin cá nhân",
+      "personalInfoDesc": "Nhập thông tin cơ bản của nhân viên",
+      "name": "Tên",
+      "namePlaceholder": "Nhập tên nhân viên",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "passwordHint": "Để trống nếu muốn giữ mật khẩu hiện tại",
+      "phone": "Số điện thoại",
+      "phonePlaceholder": "Nhập số điện thoại",
+      "address": "Địa chỉ",
+      "addressPlaceholder": "Nhập địa chỉ",
+      "team": "Phòng ban",
+      "teamPlaceholder": "Chọn phòng ban",
+      "permissions": "Phân quyền truy cập",
+      "permissionsDesc": "Thiết lập quyền truy cập cho nhân viên"
+    },
+    "actions": {
+      "create": "Tạo nhân viên",
+      "creating": "Đang xử lý...",
+      "update": "Cập nhật",
+      "updating": "Đang cập nhật...",
+      "backToList": "Quay lại danh sách",
+      "delete": "Xóa nhân viên"
+    },
+    "error": {
+      "notFound": "Không tìm thấy nhân viên"
+    }
+  }
+}

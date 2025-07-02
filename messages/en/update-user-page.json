@@ -1,0 +1,43 @@
+{
+  "UpdateUserPage": {
+    "title": "Edit User",
+    "subtitle": "Modify user information and access permissions",
+    "breadcrumb": "Edit User",
+    "form": {
+      "personalInfo": "Personal Information",
+      "personalInfoDesc": "Enter basic user information",
+      "name": "Name",
+      "namePlaceholder": "Enter user name",
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "Leave empty to keep current password",
+      "team": "Team",
+      "teamPlaceholder": "Select a team",
+      "permissions": "Access Permissions",
+      "permissionsDesc": "Set access permissions for the user"
+    },
+    "actions": {
+      "update": "Update User",
+      "updating": "Updating...",
+      "backToList": "Back to list"
+    },
+    "error": {
+      "notFound": "User not found"
+    },
+    "validation": {
+      "name": {
+        "min": "Name must be at least 2 characters"
+      },
+      "email": {
+        "required": "Email is required",
+        "invalid": "Email is invalid"
+      },
+      "password": {
+        "min": "Password must be at least 8 characters"
+      },
+      "team": {
+        "required": "Please select a team"
+      }
+    }
+  }
+}
