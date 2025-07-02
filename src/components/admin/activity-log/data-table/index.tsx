@@ -11,17 +11,12 @@ import {
   subDays,
 } from "date-fns";
 import {
-  Activity,
-  AlertCircle,
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
-  BarChart3,
   ChevronDown,
   ChevronRight,
-  Clock,
   Eye,
-  FileText,
   User,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -40,7 +35,10 @@ import { useActivityLogExport, useGetActivityLogs } from "@/hooks/activity-log";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useGetAllUsers } from "@/hooks/user";
 
-import { Badge } from "@/components/ui/badge";
+import {
+  ACTION_GROUPS,
+  ActionGroupBadge,
+} from "@/components/ui/badge/action-group-badge";
 import { ActivityLogBadge } from "@/components/ui/badge/activity-log-badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -88,74 +86,6 @@ import { EmptyTable } from "@/components/data-table/empty-table";
 import { Spinner } from "@/components/global/spinner";
 
 import { ActivityLogFilters } from "./activity-log-filters";
-import { ActivityLogOverview } from "./activity-log-overview";
-
-// Enhanced action type constants with grouping - matching API documentation (for use in table display)
-const ACTION_GROUPS = {
-  SITE_MANAGEMENT: {
-    label: "Site Management",
-    actions: ["create_site", "update_site", "delete_site"] as const,
-    color: "bg-blue-500/10 text-blue-700 border-blue-200",
-    icon: Activity,
-  },
-  PAGE_MANAGEMENT: {
-    label: "Page Management",
-    actions: ["create_page_exports", "update_pages", "delete_page"] as const,
-    color: "bg-green-500/10 text-green-700 border-green-200",
-    icon: FileText,
-  },
-  ATTENDANCE_MANAGEMENT: {
-    label: "Attendance Management",
-    actions: ["checkin", "checkout", "attendance_report"] as const,
-    color: "bg-purple-500/10 text-purple-700 border-purple-200",
-    icon: Clock,
-  },
-  ATTENDANCE_COMPLAINTS: {
-    label: "Attendance Complaints",
-    actions: [
-      "create_complaint",
-      "update_complaint",
-      "resolve_complaint",
-    ] as const,
-    color: "bg-orange-500/10 text-orange-700 border-orange-200",
-    icon: AlertCircle,
-  },
-  BOARD_MANAGEMENT: {
-    label: "Board Management",
-    actions: ["create_board", "update_board", "delete_board"] as const,
-    color: "bg-teal-500/10 text-teal-700 border-teal-200",
-    icon: BarChart3,
-  },
-  CLOUDFLARE_OPERATIONS: {
-    label: "Cloudflare Operations",
-    actions: [
-      "create_project_cloudflare_page",
-      "update_project_cloudflare_page",
-      "create_deploy_cloudflare_page",
-      "apply_page_domain_cloudflare_page",
-      "deploy_export_cloudflare_page",
-    ] as const,
-    color: "bg-orange-500/10 text-orange-700 border-orange-200",
-    icon: BarChart3,
-  },
-  DOMAIN_OPERATIONS: {
-    label: "Domain Operations",
-    actions: ["refresh_list_domain", "get_list_path_by_domain"] as const,
-    color: "bg-indigo-500/10 text-indigo-700 border-indigo-200",
-    icon: Clock,
-  },
-  GENERAL_OPERATIONS: {
-    label: "General Operations",
-    actions: [
-      "access_view",
-      "show_record",
-      "get_permission_by_team",
-      "detail_monitor_server",
-    ] as const,
-    color: "bg-gray-500/10 text-gray-700 border-gray-200",
-    icon: Eye,
-  },
-} as const;
 
 // Helper function to render object in key-value format
 const renderObjectDetails = (obj: any, indent = 0): React.ReactNode => {
@@ -206,33 +136,30 @@ const renderObjectDetails = (obj: any, indent = 0): React.ReactNode => {
   );
 };
 
-// Helper function to get action group - now uses API response group_action field
-const getActionGroup = (log: IActivityLog) => {
-  // Use group_action from API response if available
-  if (log.group_action) {
-    const groupKey = log.group_action.toUpperCase().replace("_", "_");
-    const group = ACTION_GROUPS[groupKey as keyof typeof ACTION_GROUPS];
-    if (group) {
-      return { key: groupKey, ...group };
-    }
-  }
-
-  // Fallback to matching by action name for backward compatibility
+// Find the function that determines action group
+function getActionGroup(action: string) {
+  // Look through all action groups to find which one contains this action
   for (const [key, group] of Object.entries(ACTION_GROUPS)) {
-    const actions = group.actions as unknown as string[];
-    if (actions.includes(log.action)) {
-      return { key, ...group };
+    // Type-safe check for action inclusion
+    const actionArray = group.actions as readonly string[];
+    if (actionArray.includes(action)) {
+      return {
+        key,
+        label: group.label,
+        color: group.color,
+        icon: group.icon,
+      };
     }
   }
 
+  // Default if not found in any group
   return {
-    key: "OTHER",
-    label: "Other",
-    actions: [],
+    key: "UNKNOWN",
+    label: "Unknown Action",
     color: "bg-gray-500/10 text-gray-700 border-gray-200",
-    icon: Activity,
+    icon: Eye, // Default icon
   };
-};
+}
 
 // Helper function to group activities by user and time
 const groupActivitiesByUser = (activities: IActivityLog[]) => {
@@ -250,7 +177,7 @@ const groupActivitiesByUser = (activities: IActivityLog[]) => {
       }
       acc[userId].activities.push(activity);
       acc[userId].totalActions++;
-      acc[userId].actionGroups.add(getActionGroup(activity).key);
+      acc[userId].actionGroups.add(getActionGroup(activity.action).key);
       return acc;
     },
     {} as Record<
@@ -357,7 +284,7 @@ export default function ActivityLogDataTable() {
     const filtered = activityLogData.filter((activity: IActivityLog) => {
       // Filter by action groups
       if (selectedActionGroups.length > 0) {
-        const actionGroup = getActionGroup(activity);
+        const actionGroup = getActionGroup(activity.action);
         if (!selectedActionGroups.includes(actionGroup.key)) {
           return false;
         }
@@ -377,7 +304,7 @@ export default function ActivityLogDataTable() {
         actionGroups: Object.entries(
           filtered.reduce(
             (acc: Record<string, number>, activity: IActivityLog) => {
-              const group = getActionGroup(activity);
+              const group = getActionGroup(activity.action);
               acc[group.key] = (acc[group.key] || 0) + 1;
               return acc;
             },
@@ -531,15 +458,6 @@ export default function ActivityLogDataTable() {
 
   return (
     <div className="space-y-6">
-      {/* Header Section with Stats */}
-      <ActivityLogOverview
-        totalActivities={processedData.stats.totalActivities}
-        uniqueUsers={processedData.stats.uniqueUsers}
-        actionGroupsCount={processedData.stats.actionGroups.length}
-        dateFrom={dateFrom}
-        dateTo={dateTo}
-      />
-
       {/* Enhanced Filters Section */}
       <ActivityLogFilters
         email={email}
@@ -649,8 +567,7 @@ export default function ActivityLogDataTable() {
                   <TableBody>
                     {processedData.activities.map((log: IActivityLog) => {
                       const isExpanded = expandedRows.has(log.id);
-                      const actionGroup = getActionGroup(log);
-                      const ActionGroupIcon = actionGroup.icon;
+                      const actionGroup = getActionGroup(log.action);
 
                       return (
                         <React.Fragment key={log.id}>
@@ -676,13 +593,7 @@ export default function ActivityLogDataTable() {
                               <ActivityLogBadge action={log.action} />
                             </TableCell>
                             <TableCell className="py-3">
-                              <Badge
-                                variant="outline"
-                                className={actionGroup.color}
-                              >
-                                <ActionGroupIcon className="mr-1 h-3 w-3" />
-                                {actionGroup.label}
-                              </Badge>
+                              <ActionGroupBadge groupKey={actionGroup.key} />
                             </TableCell>
                             <TableCell className="py-3">
                               <div className="flex items-center gap-2">
@@ -747,13 +658,9 @@ export default function ActivityLogDataTable() {
                                           Group
                                         </Label>
                                         <div className="mt-1">
-                                          <Badge
-                                            variant="outline"
-                                            className={actionGroup.color}
-                                          >
-                                            <ActionGroupIcon className="mr-1 h-3 w-3" />
-                                            {actionGroup.label}
-                                          </Badge>
+                                          <ActionGroupBadge
+                                            groupKey={actionGroup.key}
+                                          />
                                         </div>
                                       </div>
                                       <div>
@@ -900,35 +807,142 @@ export default function ActivityLogDataTable() {
           ) : (
             <Timeline>
               {processedData.activities.map((log: IActivityLog) => {
-                const actionGroup = getActionGroup(log);
+                const actionGroup = getActionGroup(log.action);
 
                 return (
                   <TimelineItem key={log.id} step={log.id}>
                     <TimelineHeader>
                       <TimelineSeparator />
                       <TimelineDate>
-                        {log.details?.logged_at
-                          ? format(
-                              new Date(log.details.logged_at),
-                              "MMM d, yyyy, h:mm:ss a"
-                            )
+                        {log.formatted_created_at
+                          ? getCurrentTimezoneInfo(log.formatted_created_at)
+                              .convertedTime
                           : "Unknown Time"}
                       </TimelineDate>
-                      <TimelineTitle>{actionGroup.label}</TimelineTitle>
+                      <TimelineTitle className="flex items-center gap-2">
+                        <ActionGroupBadge
+                          groupKey={actionGroup.key}
+                          size="sm"
+                        />
+                        <ActivityLogBadge action={log.action} />
+                      </TimelineTitle>
                       <TimelineIndicator />
                     </TimelineHeader>
                     <TimelineContent>
-                      <p className="text-muted-foreground">
-                        {log.description || "No description provided."}
-                      </p>
-                      <div className="text-muted-foreground mt-2 text-xs">
-                        <span className="text-foreground font-semibold">
-                          {log.user_email}
-                        </span>{" "}
-                        performed action:{" "}
-                        <span className="bg-muted rounded px-1.5 py-1 font-mono text-xs">
-                          {log.action}
-                        </span>
+                      <div className="space-y-2">
+                        <div className="font-medium">
+                          {log.description || "No description provided."}
+                        </div>
+                        <div className="text-muted-foreground flex flex-col text-sm">
+                          <span className="text-primary font-medium">
+                            {log.user_email}
+                          </span>{" "}
+                        </div>
+
+                        {log.details && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-1 text-xs"
+                            onClick={() => {
+                              // Use existing dialog functionality
+                              const dialogTrigger = document.getElementById(
+                                `timeline-details-${log.id}`
+                              );
+                              if (dialogTrigger) {
+                                (dialogTrigger as HTMLButtonElement).click();
+                              }
+                            }}
+                          >
+                            View Details
+                          </Button>
+                        )}
+
+                        {/* Hidden dialog trigger */}
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <button
+                              id={`timeline-details-${log.id}`}
+                              className="hidden"
+                            />
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl">
+                            <DialogHeader>
+                              <DialogTitle>
+                                Activity Details - #{log.id}
+                              </DialogTitle>
+                              <DialogDescription>
+                                Complete information about this activity log
+                                entry
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <Label className="text-sm font-medium">
+                                    Action
+                                  </Label>
+                                  <div className="mt-1">
+                                    <ActivityLogBadge action={log.action} />
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label className="text-sm font-medium">
+                                    Group
+                                  </Label>
+                                  <div className="mt-1">
+                                    <ActionGroupBadge
+                                      groupKey={actionGroup.key}
+                                    />
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label className="text-sm font-medium">
+                                    User
+                                  </Label>
+                                  <p className="mt-1 text-sm">
+                                    {log.user_email}
+                                  </p>
+                                </div>
+                                <div>
+                                  <Label className="text-sm font-medium">
+                                    Timestamp
+                                  </Label>
+                                  <p className="mt-1 text-sm">
+                                    {log.formatted_created_at
+                                      ? getCurrentTimezoneInfo(
+                                          log.formatted_created_at
+                                        ).convertedTime
+                                      : "—"}
+                                  </p>
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="text-sm font-medium">
+                                  Description
+                                </Label>
+                                <p className="mt-1 text-sm">
+                                  {log.description ||
+                                    "No description available"}
+                                </p>
+                              </div>
+                              <div>
+                                <Label className="text-sm font-medium">
+                                  Full Details
+                                </Label>
+                                <div className="bg-muted mt-1 rounded-lg p-3">
+                                  {log.details ? (
+                                    renderObjectDetails(log.details)
+                                  ) : (
+                                    <span className="text-muted-foreground text-sm">
+                                      No additional details available
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </TimelineContent>
                   </TimelineItem>
@@ -975,26 +989,25 @@ export default function ActivityLogDataTable() {
                               {userGroup.user_email}
                             </h4>
                             <div className="mt-1 flex items-center gap-2">
-                              {Array.from(userGroup.actionGroups).map(
-                                (groupKey) => {
-                                  const group =
-                                    ACTION_GROUPS[
-                                      groupKey as keyof typeof ACTION_GROUPS
-                                    ];
-                                  if (!group) return null;
-                                  const Icon = group.icon;
-                                  return (
-                                    <Badge
-                                      key={groupKey}
-                                      variant="outline"
-                                      className={group.color}
-                                    >
-                                      <Icon className="mr-1 h-3 w-3" />
-                                      {group.label}
-                                    </Badge>
-                                  );
-                                }
-                              )}
+                              <div className="flex flex-wrap gap-1">
+                                {Array.from(userGroup.actionGroups).map(
+                                  (groupKey) => {
+                                    const group =
+                                      ACTION_GROUPS[
+                                        groupKey as keyof typeof ACTION_GROUPS
+                                      ];
+                                    if (group) {
+                                      return (
+                                        <ActionGroupBadge
+                                          key={groupKey}
+                                          groupKey={groupKey}
+                                          size="sm"
+                                        />
+                                      );
+                                    }
+                                  }
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1034,147 +1047,155 @@ export default function ActivityLogDataTable() {
 
                       <CollapsibleContent>
                         <div className="p-6 pt-0">
-                          <div className="space-y-3">
+                          <Timeline>
                             {userGroup.activities.map((activity) => {
-                              const actionGroup = getActionGroup(activity);
-                              const ActionGroupIcon = actionGroup.icon;
+                              const actionGroup = getActionGroup(
+                                activity.action
+                              );
 
                               return (
-                                <div
+                                <TimelineItem
                                   key={activity.id}
-                                  className="group dark:hover:bg-gray-750 rounded-lg border border-gray-100 p-4 transition-colors hover:bg-gray-50 dark:border-gray-700"
+                                  step={activity.id}
                                 >
-                                  <div className="flex items-start justify-between">
-                                    <div className="min-w-0 flex-1">
-                                      <div className="mb-1 flex items-center gap-2">
-                                        <ActivityLogBadge
-                                          action={activity.action}
-                                        />
-                                        <Badge
-                                          variant="outline"
-                                          className={actionGroup.color}
-                                        >
-                                          <ActionGroupIcon className="mr-1 h-3 w-3" />
-                                          {actionGroup.label}
-                                        </Badge>
-                                      </div>
-                                      <div className="pl-4 text-sm text-gray-600 dark:text-gray-300">
+                                  <TimelineHeader>
+                                    <TimelineSeparator />
+                                    <TimelineDate>
+                                      {activity.formatted_created_at
+                                        ? getCurrentTimezoneInfo(
+                                            activity.formatted_created_at
+                                          ).convertedTime
+                                        : "Unknown Time"}
+                                    </TimelineDate>
+                                    <TimelineTitle className="flex items-center gap-2">
+                                      <ActionGroupBadge
+                                        groupKey={actionGroup.key}
+                                        size="sm"
+                                      />
+                                      <ActivityLogBadge
+                                        action={activity.action}
+                                      />
+                                    </TimelineTitle>
+                                    <TimelineIndicator />
+                                  </TimelineHeader>
+                                  <TimelineContent>
+                                    <div className="space-y-2">
+                                      <div className="font-medium">
                                         {activity.description ||
                                           "No description available"}
                                       </div>
-                                    </div>
-                                    <div className="ml-4 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                                      <Clock className="h-3 w-3" />
-                                      <span className="font-mono">
-                                        {activity.details?.logged_at
-                                          ? getCurrentTimezoneInfo(
-                                              activity.details.logged_at
-                                            ).convertedTime
-                                          : "—"}
-                                      </span>
-                                    </div>
-                                  </div>
 
-                                  {/* Activity Details Dialog */}
-                                  <Dialog>
-                                    <DialogTrigger asChild>
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="mt-2 text-xs"
-                                      >
-                                        View Full Details
-                                      </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="max-w-2xl">
-                                      <DialogHeader>
-                                        <DialogTitle>
-                                          Activity Details - #{activity.id}
-                                        </DialogTitle>
-                                        <DialogDescription>
-                                          Complete information about this
-                                          activity log entry
-                                        </DialogDescription>
-                                      </DialogHeader>
-                                      <div className="space-y-4">
-                                        <div className="grid grid-cols-2 gap-4">
-                                          <div>
-                                            <Label className="text-sm font-medium">
-                                              Action
-                                            </Label>
-                                            <div className="mt-1">
-                                              <ActivityLogBadge
-                                                action={activity.action}
-                                              />
+                                      {activity.details && (
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="mt-1 text-xs"
+                                          onClick={() => {
+                                            // Use existing dialog functionality
+                                            const dialogTrigger =
+                                              document.getElementById(
+                                                `group-details-${activity.id}`
+                                              );
+                                            if (dialogTrigger) {
+                                              (
+                                                dialogTrigger as HTMLButtonElement
+                                              ).click();
+                                            }
+                                          }}
+                                        >
+                                          View Details
+                                        </Button>
+                                      )}
+
+                                      {/* Hidden dialog trigger */}
+                                      <Dialog>
+                                        <DialogTrigger asChild>
+                                          <button
+                                            id={`group-details-${activity.id}`}
+                                            className="hidden"
+                                          />
+                                        </DialogTrigger>
+                                        <DialogContent className="max-w-2xl">
+                                          <DialogHeader>
+                                            <DialogTitle>
+                                              Activity Details - #{activity.id}
+                                            </DialogTitle>
+                                            <DialogDescription>
+                                              Complete information about this
+                                              activity log entry
+                                            </DialogDescription>
+                                          </DialogHeader>
+                                          <div className="space-y-4">
+                                            <div className="grid grid-cols-2 gap-4">
+                                              <div>
+                                                <Label className="text-sm font-medium">
+                                                  Action
+                                                </Label>
+                                                <div className="mt-1">
+                                                  <ActivityLogBadge
+                                                    action={activity.action}
+                                                  />
+                                                </div>
+                                              </div>
+                                              <div>
+                                                <Label className="text-sm font-medium">
+                                                  Group
+                                                </Label>
+                                                <div className="mt-1">
+                                                  <ActionGroupBadge
+                                                    groupKey={actionGroup.key}
+                                                  />
+                                                </div>
+                                              </div>
+                                              <div>
+                                                <Label className="text-sm font-medium">
+                                                  User
+                                                </Label>
+                                                <p className="mt-1 text-sm">
+                                                  {activity.user_email}
+                                                </p>
+                                              </div>
+                                              <div>
+                                                <Label className="text-sm font-medium">
+                                                  Timestamp
+                                                </Label>
+                                                <p className="mt-1 text-sm">
+                                                  {activity.formatted_created_at
+                                                    ? getCurrentTimezoneInfo(
+                                                        activity.formatted_created_at
+                                                      ).convertedTime
+                                                    : "—"}
+                                                </p>
+                                              </div>
+                                            </div>
+                                            <div>
+                                              <Label className="text-sm font-medium">
+                                                Description
+                                              </Label>
+                                              <p className="mt-1 text-sm">
+                                                {activity.description ||
+                                                  "No description available"}
+                                              </p>
+                                            </div>
+                                            <div>
+                                              <Label className="text-sm font-medium">
+                                                Full Details
+                                              </Label>
+                                              <div className="bg-muted mt-1 rounded-lg p-3">
+                                                {renderObjectDetails(
+                                                  activity.details
+                                                )}
+                                              </div>
                                             </div>
                                           </div>
-                                          <div>
-                                            <Label className="text-sm font-medium">
-                                              Group
-                                            </Label>
-                                            <div className="mt-1">
-                                              <Badge
-                                                variant="outline"
-                                                className={actionGroup.color}
-                                              >
-                                                <ActionGroupIcon className="mr-1 h-3 w-3" />
-                                                {actionGroup.label}
-                                              </Badge>
-                                            </div>
-                                          </div>
-                                          <div>
-                                            <Label className="text-sm font-medium">
-                                              User
-                                            </Label>
-                                            <p className="mt-1 text-sm">
-                                              {activity.user_email}
-                                            </p>
-                                          </div>
-                                          <div>
-                                            <Label className="text-sm font-medium">
-                                              Timestamp
-                                            </Label>
-                                            <p className="mt-1 text-sm">
-                                              {activity.details?.logged_at
-                                                ? getCurrentTimezoneInfo(
-                                                    activity.details.logged_at
-                                                  ).convertedTime
-                                                : "—"}
-                                            </p>
-                                          </div>
-                                        </div>
-                                        <div>
-                                          <Label className="text-sm font-medium">
-                                            Description
-                                          </Label>
-                                          <p className="mt-1 text-sm">
-                                            {activity.description ||
-                                              "No description available"}
-                                          </p>
-                                        </div>
-                                        <div>
-                                          <Label className="text-sm font-medium">
-                                            Full Details
-                                          </Label>
-                                          <div className="bg-muted mt-1 rounded-lg p-3">
-                                            {activity.details ? (
-                                              renderObjectDetails(
-                                                activity.details
-                                              )
-                                            ) : (
-                                              <span className="text-muted-foreground text-sm">
-                                                No additional details available
-                                              </span>
-                                            )}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </DialogContent>
-                                  </Dialog>
-                                </div>
+                                        </DialogContent>
+                                      </Dialog>
+                                    </div>
+                                  </TimelineContent>
+                                </TimelineItem>
                               );
                             })}
-                          </div>
+                          </Timeline>
                         </div>
                       </CollapsibleContent>
                     </Collapsible>
@@ -1188,3 +1209,4 @@ export default function ActivityLogDataTable() {
     </div>
   );
 }
+

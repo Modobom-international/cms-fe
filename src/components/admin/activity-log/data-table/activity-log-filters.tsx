@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { format } from "date-fns";
 import { CalendarIcon, Download, PlusCircle, Search, X } from "lucide-react";
@@ -8,6 +8,10 @@ import { CalendarIcon, Download, PlusCircle, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
+import {
+  ACTION_GROUPS,
+  ActionGroupBadge,
+} from "@/components/ui/badge/action-group-badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,54 +22,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-// Enhanced action type constants with grouping
-const ACTION_GROUPS = {
-  SITE_MANAGEMENT: {
-    label: "Site Management",
-    actions: ["create_record", "update_record", "delete_record"] as const,
-    color: "bg-blue-500/10 text-blue-700 border-blue-200",
-    icon: "Activity",
-  },
-  PAGE_MANAGEMENT: {
-    label: "Page Management",
-    actions: ["create_page_exports", "update_pages"] as const,
-    color: "bg-green-500/10 text-green-700 border-green-200",
-    icon: "FileText",
-  },
-  CLOUDFLARE_OPS: {
-    label: "Cloudflare Operations",
-    actions: [
-      "create_project_cloudflare_page",
-      "update_project_cloudflare_page",
-      "create_deploy_cloudflare_page",
-      "apply_page_domain_cloudflare_page",
-      "deploy_export_cloudflare_page",
-    ] as const,
-    color: "bg-orange-500/10 text-orange-700 border-orange-200",
-    icon: "BarChart3",
-  },
-  ACCESS_CONTROL: {
-    label: "Access Control",
-    actions: ["access_view", "show_record", "get_permission_by_team"] as const,
-    color: "bg-purple-500/10 text-purple-700 border-purple-200",
-    icon: "Eye",
-  },
-  DOMAIN_OPS: {
-    label: "Domain Operations",
-    actions: ["refresh_list_domain", "get_list_path_by_domain"] as const,
-    color: "bg-teal-500/10 text-teal-700 border-teal-200",
-    icon: "Clock",
-  },
-  MONITORING: {
-    label: "Monitoring",
-    actions: ["detail_monitor_server"] as const,
-    color: "bg-red-500/10 text-red-700 border-red-200",
-    icon: "AlertCircle",
-  },
-} as const;
-
-// Date range presets are handled directly in the DateRangeFilter component
 
 interface User {
   id: number;
@@ -258,36 +214,32 @@ export function ActivityLogFilters({
                 onClear={clearDateRange}
               />
             )}
-            {selectedActionGroups.map((groupKey) => (
+            {selectedActionGroups.length > 0 && (
               <FilterBadge
-                key={groupKey}
-                label="Action Group"
+                label="Action Groups"
                 filterValue={
-                  ACTION_GROUPS[groupKey as keyof typeof ACTION_GROUPS]
-                    ?.label || groupKey
+                  selectedActionGroups.length > 1
+                    ? `${selectedActionGroups.length} groups selected`
+                    : ACTION_GROUPS[
+                        selectedActionGroups[0] as keyof typeof ACTION_GROUPS
+                      ]?.label || selectedActionGroups[0]
                 }
-                onClear={() =>
-                  onSelectedActionGroupsChange(
-                    selectedActionGroups.filter((key) => key !== groupKey)
-                  )
-                }
+                onClear={() => onSelectedActionGroupsChange([])}
               />
-            ))}
-            {selectedUsers.map((userId) => (
+            )}
+            {selectedUsers.length > 0 && (
               <FilterBadge
-                key={userId}
-                label="User"
+                label="Users"
                 filterValue={
-                  uniqueUsers.find((u) => u.id.toString() === userId)?.email ||
-                  userId
+                  selectedUsers.length > 1
+                    ? `${selectedUsers.length} users selected`
+                    : uniqueUsers.find(
+                        (u) => u.id.toString() === selectedUsers[0]
+                      )?.email || selectedUsers[0]
                 }
-                onClear={() =>
-                  onSelectedUsersChange(
-                    selectedUsers.filter((id) => id !== userId)
-                  )
-                }
+                onClear={() => onSelectedUsersChange([])}
               />
-            ))}
+            )}
             {email && (
               <FilterBadge
                 label="Email"
@@ -664,9 +616,9 @@ function ActionGroupsFilter({
                     />
                     <label
                       htmlFor={option.value}
-                      className="text-foreground cursor-pointer text-sm"
+                      className="text-foreground flex cursor-pointer items-center gap-2 text-sm"
                     >
-                      {option.label}
+                      <ActionGroupBadge groupKey={option.value} size="sm" />
                     </label>
                   </div>
                 ))
@@ -801,3 +753,4 @@ function UserFilter({
     </div>
   );
 }
+
