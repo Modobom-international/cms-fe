@@ -1,0 +1,10 @@
+{
+  "EditTeamPage": {
+    "breadcrumb": "Teams",
+    "edit": {
+      "title": "Edit team",
+      "breadcrumb": "Edit team",
+      "description": "Edit team information and access permissions"
+    }
+  }
+}

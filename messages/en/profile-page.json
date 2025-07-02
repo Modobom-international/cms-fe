@@ -1,0 +1,78 @@
+{
+  "ProfilePage": {
+    "header": {
+      "title": "Personal Information",
+      "welcome": "Hello, {name}!",
+      "subtitle": "Manage your personal information and account settings",
+      "status": "Status",
+      "active": "Active",
+      "lastLogin": "Last login"
+    },
+    "profile": {
+      "title": "Account Information",
+      "description": "Manage your personal information and account security",
+      "tabs": {
+        "personal": "Personal Information",
+        "security": "Security"
+      },
+      "workInfo": {
+        "title": "Work Information",
+        "position": "Position",
+        "team": "Team",
+        "joinDate": "Join Date",
+        "salary": "Salary"
+      },
+      "actions": {
+        "logout": "Logout",
+        "editCover": "Edit cover photo",
+        "updateAvatar": "Update profile picture"
+      }
+    },
+    "personalInfo": {
+      "basicInfo": "Basic Information",
+      "name": "Name",
+      "email": "Email",
+      "notifications": {
+        "title": "Notification Settings",
+        "emailNotifications": {
+          "title": "Email notifications",
+          "description": "Receive notifications via email"
+        },
+        "systemNotifications": {
+          "title": "System notifications",
+          "description": "Show notifications in browser"
+        },
+        "updateNotifications": {
+          "title": "Update notifications",
+          "description": "Receive information about new updates"
+        }
+      },
+      "saveChanges": "Save Changes"
+    },
+    "security": {
+      "changePassword": {
+        "title": "Change Password",
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm Password",
+        "updatePassword": "Update Password"
+      },
+      "loginSecurity": {
+        "title": "Login Security",
+        "twoFactor": {
+          "title": "Two-factor authentication",
+          "description": "Add an extra layer of security to your account"
+        },
+        "newDeviceLogin": {
+          "title": "New device login",
+          "description": "Require verification when logging in from an unknown device"
+        }
+      },
+      "dangerZone": {
+        "title": "Danger Zone",
+        "description": "When you delete your account, it cannot be recovered. Please be sure.",
+        "deleteAccount": "Delete Account"
+      }
+    }
+  }
+}

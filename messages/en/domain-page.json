@@ -1,0 +1,102 @@
+{
+  "DomainPage": {
+    "title": "Domain Management",
+    "description": "Manage and monitor domain activities across the system",
+    "breadcrumb": "Domains",
+    "pageHeader": {
+      "title": "Domain",
+      "description": "Manage and monitor system domains"
+    },
+    "table": {
+      "filters": {
+        "search": "Search",
+        "status": "Status",
+        "lockStatus": "Lock Status",
+        "all": "All",
+        "active": "Active",
+        "inactive": "Inactive",
+        "cancelled": "Cancelled",
+        "heldExpiredRedemption": "Held Expired Redemption",
+        "pendingHoldRedemption": "Pending Hold Redemption",
+        "cancelledRedeemable": "Cancelled Redeemable",
+        "locked": "Locked",
+        "unlocked": "Unlocked",
+        "renewable": "Renewable",
+        "nonRenewable": "Non-renewable",
+        "hasSites": "Has Sites",
+        "noSites": "No Sites",
+        "clear": "Clear Filters"
+      },
+      "status": {
+        "active": "Active",
+        "cancelled": "Cancelled",
+        "heldExpiredRedemptionMock": "Held Expired Redemption mock",
+        "pendingHoldRedemption": "Pending Hold Redemption",
+        "cancelledRedeemable": "Cancelled Redeemable",
+        "inUse": "In Use",
+        "default": "Default"
+      },
+      "columns": {
+        "id": "ID",
+        "domain": "Domain",
+        "status": "Status",
+        "timestamp": "Last updated",
+        "renewDeadline": "Renew Deadline",
+        "expires": "Expires",
+        "registrar": "Registrar",
+        "security": "Security",
+        "user": "User",
+        "details": "Details",
+        "actions": "Actions"
+      },
+      "securityStatus": {
+        "locked": "Locked",
+        "unlocked": "Unlocked"
+      },
+      "pagination": {
+        "rowsPerPage": "Rows per page",
+        "of": "of",
+        "firstPage": "Go to first page",
+        "previousPage": "Previous",
+        "nextPage": "Next",
+        "lastPage": "Go to last page",
+        "viewing": "Viewing",
+        "results": "results",
+        "page": "Page"
+      },
+      "actions": {
+        "details": "Details",
+        "edit": "Edit Domain",
+        "retry": "Retry",
+        "refresh": "Refresh",
+        "refreshDomains": "Refresh Domains"
+      },
+      "loadingStates": {
+        "loading": "Loading domain data...",
+        "error": "An error occurred while loading domain data"
+      },
+      "placeholders": {
+        "search": "Search by domain name or action"
+      },
+      "actionTypes": {
+        "create": "Create",
+        "update": "Update",
+        "delete": "Delete"
+      },
+      "modal": {
+        "refresh": {
+          "title": "Refresh List Domain",
+          "messages": {
+            "initializing": "Initializing...",
+            "sending": "Sending refresh request...",
+            "waiting": "Request sent, waiting for server response...",
+            "error": "Error sending refresh request."
+          },
+          "button": {
+            "close": "Close"
+          }
+        }
+      }
+    }
+  }
+}

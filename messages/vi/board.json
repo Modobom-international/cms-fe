@@ -1,0 +1,111 @@
+{
+  "Board": {
+    "title": "Bảng của tôi",
+    "owner": "Chủ sở hữu: {id}",
+    "created": "Tạo ngày {date}",
+    "lists": {
+      "count": "{count} Danh sách",
+      "actions": {
+        "resetView": "Đặt lại chế độ xem",
+        "filter": "Lọc",
+        "sort": "Sắp xếp"
+      }
+    },
+    "list": {
+      "delete": "Xóa",
+      "addCard": {
+        "button": "Thêm thẻ",
+        "title": "Nhập tiêu đề thẻ...",
+        "description": "Nhập mô tả (tùy chọn)...",
+        "cancel": "Hủy"
+      }
+    },
+    "addList": {
+      "button": "Thêm danh sách khác",
+      "title": "Nhập tiêu đề danh sách...",
+      "submit": "Thêm danh sách",
+      "cancel": "Hủy"
+    },
+    "card": {
+      "detail": {
+        "description": "Mô tả",
+        "edit": "Chỉnh sửa",
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "dueDate": {
+          "label": "Ngày hết hạn",
+          "clear": "Xóa",
+          "noDueDate": "Không có ngày hết hạn",
+          "due": "Hết hạn: {date}"
+        },
+        "checklist": {
+          "title": "Danh sách kiểm tra",
+          "addItem": "Thêm mục",
+          "placeholder": "Thêm mục..."
+        },
+        "attachments": {
+          "title": "Tệp đính kèm",
+          "add": "Thêm",
+          "noAttachments": "Chưa có tệp đính kèm",
+          "preview": "Xem trước"
+        }
+      }
+    },
+    "form": {
+      "name": {
+        "label": "Tên",
+        "placeholder": "Nhập tên bảng",
+        "required": "Tên là bắt buộc"
+      },
+      "description": {
+        "label": "Mô tả",
+        "placeholder": "Nhập mô tả bảng"
+      },
+      "buttons": {
+        "create": "Tạo",
+        "update": "Cập nhật",
+        "loading": "Đang tải..."
+      }
+    },
+    "errors": {
+      "loadBoards": {
+        "403": "Bạn không có quyền xem các bảng này. Vui lòng kiểm tra quyền truy cập của bạn.",
+        "permission": "Bạn không có quyền xem các bảng này. Vui lòng kiểm tra quyền truy cập của bạn.",
+        "generic": "Không thể tải các bảng. Vui lòng thử lại sau."
+      },
+      "noBoards": "Không tìm thấy bảng nào. Tạo bảng đầu tiên của bạn để bắt đầu.",
+      "boardNotFound": "Không tìm thấy bảng"
+    },
+    "operations": {
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa",
+      "cancel": "Hủy",
+      "deleting": "Đang xóa...",
+      "createBoard": "Tạo bảng",
+      "deleteTitle": "Xóa bảng",
+      "editTitle": "Chỉnh sửa bảng",
+      "createTitle": "Tạo bảng mới",
+      "deleteDescription": "Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn bảng và tất cả dữ liệu của nó.",
+      "updateSuccess": "Cập nhật bảng thành công",
+      "updateError": "Không thể cập nhật bảng",
+      "createSuccess": "Tạo bảng thành công",
+      "createError": "Không thể tạo bảng",
+      "deleteSuccess": "Xóa bảng thành công",
+      "deleteError": "Không thể xóa bảng",
+      "genericError": "Đã xảy ra lỗi",
+      "manageBoardMembers": "Quản lý thành viên bảng"
+    },
+    "members": "Thành viên",
+    "selectMember": "Chọn thành viên",
+    "manageBoardMembers": "Quản lý thành viên bảng",
+    "currentMembers": "Thành viên hiện tại: {count}",
+    "addMember": "Thêm thành viên",
+    "membersDescription": "Xem và quản lý thành viên của bảng này",
+    "name": "Tên",
+    "email": "Email",
+    "role": "Vai trò",
+    "joined": "Tham gia",
+    "actions": "Thao tác",
+    "remove": "Xóa"
+  }
+}

@@ -13,6 +13,9 @@ import {
 import {
   Activity,
   AlertCircle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   BarChart3,
   ChevronDown,
   ChevronRight,
@@ -33,12 +36,7 @@ import { IActivityLog } from "@/types/activity-log.type";
 
 import { getCurrentTimezoneInfo } from "@/lib/utils";
 
-import {
-  useActivityLogExport,
-  useGetActivityLogFilters,
-  useGetActivityLogs,
-  useGetActivityLogStats,
-} from "@/hooks/activity-log";
+import { useActivityLogExport, useGetActivityLogs } from "@/hooks/activity-log";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useGetAllUsers } from "@/hooks/user";
 
@@ -307,6 +305,14 @@ export default function ActivityLogDataTable() {
     "user_ids",
     parseAsArrayOf(parseAsString).withDefault([])
   );
+  const [sortField, setSortField] = useQueryState(
+    "sort_field",
+    parseAsString.withDefault("created_at")
+  );
+  const [sortDirection, setSortDirection] = useQueryState(
+    "sort_direction",
+    parseAsString.withDefault("desc")
+  );
 
   const debouncedSearch = useDebounce(email, 500);
 
@@ -328,18 +334,8 @@ export default function ActivityLogDataTable() {
     undefined // sortDirection - can be added later
   );
 
-  // Get activity log stats
-  const { data: statsResponse } = useGetActivityLogStats(
-    dateFrom,
-    dateTo,
-    selectedUsers.length > 0 ? selectedUsers : undefined
-  );
-
-  // Get available filters
-  const { data: filtersResponse } = useGetActivityLogFilters();
-
   // Export functionality
-  const { exportLogs, isExporting } = useActivityLogExport();
+  const { exportLogs } = useActivityLogExport();
 
   // Extract data from the response
   const activityLogData = useMemo(() => {
@@ -481,6 +477,30 @@ export default function ActivityLogDataTable() {
     });
   };
 
+  // Handle column sorting
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      // Toggle direction if same field
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // Set new field with default descending order
+      setSortField(field);
+      setSortDirection("desc");
+    }
+  };
+
+  // Get sort icon for column header
+  const getSortIcon = (field: string) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="text-muted-foreground ml-1 h-4 w-4" />;
+    }
+    return sortDirection === "asc" ? (
+      <ArrowUp className="text-muted-foreground ml-1 h-4 w-4" />
+    ) : (
+      <ArrowDown className="text-muted-foreground ml-1 h-4 w-4" />
+    );
+  };
+
   // Clear all filters
   const clearFilters = () => {
     setEmail("");
@@ -597,8 +617,14 @@ export default function ActivityLogDataTable() {
                       <TableHead className="text-foreground w-[60px] py-3 font-medium">
                         ID
                       </TableHead>
-                      <TableHead className="text-foreground w-[140px] py-3 font-medium">
-                        Action
+                      <TableHead
+                        className="text-foreground hover:bg-muted/50 w-[140px] cursor-pointer py-3 font-medium transition-colors"
+                        onClick={() => handleSort("action")}
+                      >
+                        <div className="flex items-center">
+                          Action
+                          {getSortIcon("action")}
+                        </div>
                       </TableHead>
                       <TableHead className="text-foreground w-[120px] py-3 font-medium">
                         Group
@@ -606,8 +632,14 @@ export default function ActivityLogDataTable() {
                       <TableHead className="text-foreground w-[180px] py-3 font-medium">
                         User
                       </TableHead>
-                      <TableHead className="text-foreground w-[180px] py-3 font-medium">
-                        Timestamp
+                      <TableHead
+                        className="text-foreground hover:bg-muted/50 w-[180px] cursor-pointer py-3 font-medium transition-colors"
+                        onClick={() => handleSort("created_at")}
+                      >
+                        <div className="flex items-center">
+                          Timestamp
+                          {getSortIcon("created_at")}
+                        </div>
                       </TableHead>
                       <TableHead className="text-foreground py-3 font-medium">
                         Description

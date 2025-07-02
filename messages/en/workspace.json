@@ -1,0 +1,127 @@
+{
+  "Workspace": {
+    "title": "Workspaces",
+    "breadcrumb": "Workspaces",
+    "boards": "Boards",
+    "board": "Board",
+    "members": "Members",
+    "manageMembers": "Manage Members",
+    "operations": {
+      "createSuccess": "Create workspace successfully",
+      "updateSuccess": "Update workspace successfully",
+      "deleteSuccess": "Delete workspace successfully"
+    },
+    "errors": {
+      "failedToLoad": "Failed to load workspaces. Please try again later.",
+      "noWorkspaces": "No workspaces found. Create your first workspace to get started.",
+      "updateFailed": "Failed to update workspace",
+      "createFailed": "Failed to create workspace",
+      "deleteFailed": "Failed to delete workspace",
+      "generic": "Something went wrong"
+    },
+    "visibility": {
+      "private": "Private",
+      "public": "Public"
+    },
+    "role": {
+      "owner": "Owner",
+      "member": "Member",
+      "admin": "Admin",
+      "notMember": "Not a member"
+    },
+    "noDescription": "No description",
+    "owner": "Owner",
+    "created": "Created {date}",
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "delete": {
+      "title": "Delete Workspace",
+      "description": "This action cannot be undone. This will permanently delete the workspace and all its data.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "deleting": "Deleting...",
+      "success": "Workspace deleted successfully"
+    },
+    "edit": {
+      "title": "Edit Workspace",
+      "success": "Workspace updated successfully",
+      "error": "Failed to update workspace"
+    },
+    "create": {
+      "title": "Create Workspace",
+      "button": "Create Workspace",
+      "success": "Workspace created successfully"
+    },
+    "form": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter workspace name"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter workspace description"
+      },
+      "visibility": {
+        "label": "Visibility",
+        "placeholder": "Select visibility",
+        "private": "Private",
+        "public": "Public"
+      },
+      "validation": {
+        "name": {
+          "required": "Name is required"
+        },
+        "description": {
+          "required": "Description is required"
+        }
+      },
+      "buttons": {
+        "loading": "Loading...",
+        "update": "Update",
+        "create": "Create"
+      }
+    },
+    "Members": {
+      "removeMemberSuccess": "Member removed successfully",
+      "removeMemberError": "Failed to remove member",
+      "addMemberSuccess": "Add Member successfully",
+      "addMemberError": "Add Member fail",
+      "confirm": "Delete Members",
+      "title": "Workspace Members",
+      "description": "Manage members and their roles in this workspace",
+      "addMember": "Add Member",
+      "addMemberDescription": "Invite a new member to join this workspace",
+      "email": "Email Address",
+      "role": "Role",
+      "roles": {
+        "member": "Member",
+        "admin": "Admin"
+      },
+      "cancel": "Cancel",
+      "add": "Add Member",
+      "setAsMember": "Set as Member",
+      "setAsAdmin": "Set as Admin",
+      "remove": "Remove Member",
+      "joinedAt": "Joined {date}",
+      "joinWorkspace": "Join Workspace",
+      "errors": {
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Email is invalid",
+        "emailNotFound": "Email does not exist in the system",
+        "roleRequired": "Role is required",
+        "failedToLoad": "Failed to load workspace members",
+        "failedToJoin": "Failed to join workspace",
+        "failedToAdd": "Failed to add member",
+        "failedToRemove": "Failed to remove member",
+        "unauthorized": "You do not have permission to perform this action.",
+        "userNotFound": "User not found.",
+        "userAlreadyMember": "The user is already a member of this workspace."
+      },
+      "validation": {
+        "email_not_found": "Email does not exist in the system"
+      }
+    }
+  }
+}

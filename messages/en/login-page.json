@@ -1,0 +1,16 @@
+{
+  "LoginPage": {
+    "title": "Welcome back",
+    "description": "Login with your email and password",
+    "validation": {
+      "email": {
+        "required": "Email is required",
+        "invalid": "Email is invalid"
+      },
+      "password": {
+        "required": "Password is required",
+        "min": "Password must be at least 6 characters"
+      }
+    }
+  }
+}

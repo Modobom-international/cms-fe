@@ -1,0 +1,270 @@
+{
+  "Studio": {
+    "Sites": {
+      "Title": "Quản lý Trang web",
+      "Description": "Quản lý các trang web và trang của chúng",
+      "CreateSite": {
+        "Button": "Tạo Trang web",
+        "Title": "Tạo Trang web Mới",
+        "Description": "Thêm một trang web mới vào danh mục của bạn. Điền thông tin chi tiết bên dưới.",
+        "Required": "*",
+        "SiteName": {
+          "Label": "Tên Trang web",
+          "Required": "*",
+          "Placeholder": "Trang web Tuyệt vời của Tôi",
+          "Helper": "Đây là tên hiển thị cho trang web của bạn"
+        },
+        "Domain": {
+          "Label": "Tên miền",
+          "Required": "*",
+          "Placeholder": "example.com",
+          "SearchPlaceholder": "Tìm kiếm tên miền...",
+          "Helper": "Tên miền nơi trang web của bạn sẽ được lưu trữ",
+          "NoDomains": "Không tìm thấy tên miền"
+        },
+        "Language": {
+          "Label": "Ngôn ngữ",
+          "Required": "*",
+          "Helper": "Ngôn ngữ mặc định của trang web",
+          "Placeholder": "Chọn ngôn ngữ"
+        },
+        "Platform": {
+          "Label": "Nền tảng",
+          "Required": "*",
+          "Helper": "Nền tảng mà trang web sẽ được tối ưu hóa",
+          "Placeholder": "Chọn nền tảng"
+        },
+        "Submit": "Tạo Trang web",
+        "Loading": "Đang tạo trang web...",
+        "Success": "Tạo trang web thành công!",
+        "Error": "Tạo trang web thất bại",
+        "Validation": {
+          "Name": {
+            "Required": "Tên trang web là bắt buộc",
+            "MinLength": "Tên trang web phải có ít nhất 3 ký tự",
+            "MaxLength": "Tên trang web không được vượt quá 64 ký tự",
+            "InvalidCharacters": "Tên trang web chỉ được chứa chữ cái, số, khoảng trắng, dấu gạch ngang và dấu gạch dưới"
+          },
+          "Domain": {
+            "Required": "Tên miền là bắt buộc",
+            "MinLength": "Tên miền phải có ít nhất 3 ký tự",
+            "MaxLength": "Tên miền không được vượt quá 253 ký tự",
+            "Invalid": "Vui lòng nhập tên miền hợp lệ (ví dụ: example.com)"
+          },
+          "Language": {
+            "Required": "Ngôn ngữ là bắt buộc",
+            "Invalid": "Vui lòng chọn một ngôn ngữ hợp lệ"
+          },
+          "Platform": {
+            "Invalid": "Vui lòng chọn một nền tảng hợp lệ"
+          }
+        }
+      },
+      "UpdateLanguage": {
+        "Title": "Cập nhật Ngôn ngữ",
+        "Description": "Cập nhật ngôn ngữ của trang web",
+        "CurrentLanguage": "Ngôn ngữ hiện tại",
+        "Label": "Ngôn ngữ",
+        "Required": "*",
+        "Placeholder": "Chọn ngôn ngữ",
+        "Cancel": "Hủy",
+        "Save": "Lưu",
+        "Saving": "Đang lưu...",
+        "Success": "Ngôn ngữ đã được cập nhật thành công!",
+        "Error": "Không thể cập nhật ngôn ngữ"
+      },
+      "UpdatePlatform": {
+        "Title": "Cập nhật Nền tảng",
+        "Description": "Cập nhật nền tảng của trang web: {siteName}",
+        "CurrentPlatform": "Nền tảng hiện tại",
+        "NewPlatform": {
+          "Label": "Nền tảng mới",
+          "Required": "*",
+          "Placeholder": "Chọn nền tảng",
+          "Helper": "Chọn nền tảng mà trang web sẽ được tối ưu hóa"
+        },
+        "Cancel": "Hủy",
+        "Submit": "Cập nhật Nền tảng",
+        "Loading": "Đang cập nhật...",
+        "Success": "Nền tảng đã được cập nhật thành công!",
+        "Error": "Không thể cập nhật nền tảng"
+      },
+      "DeleteSite": {
+        "Title": "Xóa Trang web",
+        "Description": "Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn trang web",
+        "Description2": "và tất cả các trang của nó.",
+        "Confirmation": {
+          "Text": "Để xác nhận, hãy nhập",
+          "Text2": "bên dưới:",
+          "Placeholder": "Nhập tên trang web để xác nhận"
+        },
+        "Cancel": "Hủy",
+        "Delete": "Xóa Trang web",
+        "Deleting": "Đang xóa...",
+        "Success": "Xóa trang web thành công!",
+        "Error": "Xóa trang web thất bại"
+      },
+      "Table": {
+        "Name": "Tên",
+        "Domain": "Tên miền",
+        "CreatedAt": "Ngày Tạo",
+        "UpdatedAt": "Ngày Cập nhật",
+        "Actions": "Thao tác",
+        "Edit": "Sửa",
+        "Delete": "Xóa",
+        "Pages": "Trang",
+        "NoSites": "Không tìm thấy trang web nào",
+        "Search": "Tìm kiếm",
+        "SearchPlaceholder": "Tìm kiếm trang web...",
+        "Showing": "Hiển thị",
+        "Previous": "Trước",
+        "Page": "Trang {current} của {total}",
+        "Next": "Tiếp",
+        "Loading": "Đang tải trang web...",
+        "Saving": "Đang lưu trang web...",
+        "Save": "Lưu",
+        "Cancel": "Hủy",
+        "Description": "Mô tả",
+        "Cloudflare": "Cloudflare",
+        "Branch": "Nhánh",
+        "Owner": "Chủ sở hữu",
+        "FilterByOwner": "Chủ sở hữu",
+        "AllOwners": "Tất cả chủ sở hữu",
+        "Language": "Ngôn ngữ",
+        "Platform": "Nền tảng",
+        "FilterByOwnerTitle": "Lọc theo chủ sở hữu",
+        "SearchOwners": "Tìm kiếm chủ sở hữu...",
+        "NoOwnersFound": "Không tìm thấy chủ sở hữu",
+        "ApplyFilter": "Áp dụng bộ lọc",
+        "ClearAllFilters": "Xóa tất cả bộ lọc",
+        "RemoveSearchFilter": "Xóa bộ lọc tìm kiếm",
+        "RemoveOwnerFilter": "Xóa bộ lọc chủ sở hữu",
+        "Of": "của",
+        "Results": "kết quả",
+        "FilterByStatus": "Trạng thái",
+        "FilterByStatusTitle": "Lọc theo trạng thái",
+        "AllStatuses": "Tất cả trạng thái",
+        "RemoveStatusFilter": "Xóa bộ lọc trạng thái",
+        "Status": {
+          "Header": "Trạng thái",
+          "Active": "Hoạt động",
+          "Inactive": "Không hoạt động"
+        },
+        "Activate": "Kích hoạt",
+        "Deactivate": "Tắt",
+        "Activating": "Đang kích hoạt...",
+        "Deactivating": "Đang tắt...",
+        "ActivateSuccess": "Kích hoạt trang web thành công!",
+        "DeactivateSuccess": "Tắt trang web thành công!",
+        "ActivateError": "Không thể kích hoạt trang web",
+        "DeactivateError": "Không thể tắt trang web"
+      },
+      "Pages": {
+        "Title": "Trang - {siteName}",
+        "Breadcrumb": "Quản lý Trang",
+        "Description": "Tạo và quản lý các trang cho trang web của bạn",
+        "BackToSites": "Quay lại Sites",
+        "Preview": "Xem trước",
+        "PreviewExported": "Xem trước",
+        "PreviewExportedDescription": "Hãy đảm bảo trang đã được xuất ra server",
+        "List": {
+          "Title": "Danh sách trang",
+          "Description": "Quản lý và xem tất cả các trang của trang web",
+          "Search": "Tìm kiếm trang theo tên hoặc đường dẫn...",
+          "NoSearchResults": "Không tìm thấy trang nào khớp với tìm kiếm của bạn",
+          "NoPages": "Không tìm thấy trang nào",
+          "Table": {
+            "Name": "Tên",
+            "Slug": "Đường dẫn",
+            "LastUpdated": "Cập nhật lần cuối",
+            "Actions": "Thao tác",
+            "Edit": "Sửa",
+            "Preview": "Xem trước",
+            "PreviewExported": "Xem trước",
+            "Delete": "Xóa",
+            "View": "Xem",
+            "TrackingScript": "Mã theo dõi"
+          }
+        },
+        "Create": {
+          "Button": "Tạo Trang",
+          "Dialog": {
+            "Title": "Tạo Trang Mới",
+            "Description": "Thêm một trang mới vào trang web của bạn. Điền thông tin bên dưới."
+          },
+          "Form": {
+            "Name": {
+              "Label": "Tên Trang",
+              "Placeholder": "ví dụ: Trang Chủ, Giới Thiệu, Liên Hệ",
+              "Help": "Đây là tên hiển thị cho trang của bạn"
+            },
+            "Slug": {
+              "Label": "URL Slug",
+              "Placeholder": "ví dụ: trang-chu, gioi-thieu, lien-he",
+              "Help": "Đường dẫn sẽ là: https://{site}/",
+              "Validation": {
+                "Required": "URL Slug là bắt buộc",
+                "Invalid": "URL Slug chỉ được chứa chữ thường, số và dấu gạch ngang",
+                "MinLength": "URL Slug phải có ít nhất 3 ký tự",
+                "MaxLength": "URL Slug không được vượt quá 64 ký tự"
+              }
+            },
+            "Cancel": "Hủy",
+            "Submit": "Tạo Trang",
+            "Submitting": "Đang tạo..."
+          },
+          "Toast": {
+            "Loading": "Đang tạo trang...",
+            "Success": "Tạo trang thành công!",
+            "Error": "Tạo trang thất bại"
+          }
+        },
+        "Delete": {
+          "Dialog": {
+            "Title": "Xóa Trang",
+            "Description": "Hành động này không thể hoàn tác. Bạn sẽ xóa vĩnh viễn trang.",
+            "ConfirmationText": "Để xác nhận, hãy nhập tên trang ",
+            "ConfirmationText2": "bên dưới:",
+            "InputPlaceholder": "Nhập tên trang để xác nhận",
+            "Cancel": "Hủy",
+            "Confirm": "Xóa Trang",
+            "Deleting": "Đang xóa..."
+          },
+          "Toast": {
+            "Loading": "Đang xóa trang...",
+            "Success": "Xóa trang thành công",
+            "Error": "Xóa trang thất bại"
+          }
+        },
+        "TrackingScript": {
+          "Dialog": {
+            "Title": "Quản lý mã theo dõi - {pageName}",
+            "Description": "Thêm hoặc cập nhật mã theo dõi cho trang này. Mã sẽ được tự động chèn vào trang khi xuất.",
+            "Label": "Mã theo dõi",
+            "Placeholder": "Nhập mã theo dõi của bạn vào đây...",
+            "Cancel": "Hủy",
+            "Save": "Lưu",
+            "Saving": "Đang lưu...",
+            "Help": "Copy mã Facebook Pixel hoặc Google Analytics vào đây"
+          },
+          "Toast": {
+            "Loading": "Đang cập nhật mã theo dõi...",
+            "Success": "Cập nhật mã theo dõi thành công",
+            "Error": "Không thể cập nhật mã theo dõi"
+          },
+          "Delete": {
+            "Dialog": {
+              "Deleting": "Đang xóa...",
+              "Confirm": "Xóa mã"
+            },
+            "Toast": {
+              "Loading": "Đang xóa mã theo dõi...",
+              "Success": "Xóa mã theo dõi thành công",
+              "Error": "Không thể xóa mã theo dõi"
+            }
+          }
+        }
+      }
+    }
+  }
+}

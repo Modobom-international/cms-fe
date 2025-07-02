@@ -1,0 +1,103 @@
+{
+  "ServerPage": {
+    "breadcrumb": "Server Management",
+    "addServer": "Add Server",
+    "pageHeader": {
+      "title": "Servers",
+      "description": "Manage your servers"
+    },
+    "table": {
+      "filters": {
+        "search": "Search servers"
+      },
+      "columns": {
+        "id": "ID",
+        "name": "Name",
+        "ip": "IP Address",
+        "status": "Status",
+        "createdAt": "Created At",
+        "updatedAt": "Last Updated",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "maintenance": "Maintenance"
+      },
+      "pagination": {
+        "rowsPerPage": "Rows per page",
+        "of": "of",
+        "previousPage": "Previous",
+        "nextPage": "Next",
+        "viewing": "Viewing",
+        "results": "results",
+        "page": "Page"
+      },
+      "actions": {
+        "title": "Actions",
+        "details": "View Details",
+        "retry": "Retry",
+        "edit": "Edit",
+        "delete": "Delete",
+        "openMenu": "Open menu"
+      },
+      "loadingStates": {
+        "loading": "Loading server data...",
+        "error": "An error occurred while loading server data"
+      },
+      "placeholders": {
+        "search": "Search by server name or IP address"
+      }
+    },
+    "dialog": {
+      "addServer": {
+        "title": "Add Server",
+        "description": "Add a new server to the system",
+        "success": "Server added successfully",
+        "error": "Failed to add server",
+        "form": {
+          "name": "Server Name",
+          "namePlaceholder": "Enter server name",
+          "ip": "IP Address",
+          "ipPlaceholder": "e.g. 192.168.1.1",
+          "cancel": "Cancel",
+          "create": "Create Server",
+          "creating": "Creating..."
+        }
+      },
+      "updateServer": {
+        "title": "Update Server",
+        "description": "Update the server information",
+        "success": "Server updated successfully",
+        "error": "Failed to update server",
+        "form": {
+          "name": "Server Name",
+          "namePlaceholder": "Enter server name",
+          "ip": "IP Address",
+          "ipPlaceholder": "e.g. 192.168.1.1",
+          "cancel": "Cancel",
+          "update": "Update Server",
+          "updating": "Updating..."
+        }
+      },
+      "deleteServer": {
+        "title": "Delete Server",
+        "description": "Are you sure you want to delete the server {name}? This action cannot be undone.",
+        "success": "Server deleted successfully",
+        "error": "Failed to delete server",
+        "cancel": "Cancel",
+        "confirm": "Delete Server",
+        "deleting": "Deleting..."
+      }
+    },
+    "validation": {
+      "name": {
+        "required": "Server name is required"
+      },
+      "ip": {
+        "required": "IP address is required",
+        "invalid": "Please enter a valid IP address (e.g. 192.168.1.1)"
+      }
+    }
+  }
+}

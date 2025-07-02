@@ -1,0 +1,35 @@
+{
+  "Editor": {
+    "BackToPages": "Quay lại Trang",
+    "Editing": "Đang chỉnh sửa: {slug}",
+    "SavePage": "Đang lưu trang...",
+    "SaveSuccess": "Lưu trang thành công!",
+    "SaveError": "Lưu trang thất bại",
+    "ExportHTML": "Đang xuất HTML...",
+    "ExportSuccess": "Xuất HTML thành công!",
+    "ExportError": "Xuất thất bại: {error}",
+    "DeployPage": "Đang đăng trang...",
+    "DeploySuccess": "Đăng trang thành công!",
+    "DeployError": "Đăng trang thất bại: {error}",
+    "ExportButton": "Xuất {slug}",
+    "Exporting": "Đang xuất...",
+    "DeployButton": "Đăng {slug}",
+    "Deploying": "Đang đăng...",
+    "ExportAndDeployButton": "Đăng",
+    "ExportAndDeployError": "Xuất và đăng thất bại",
+    "LoadingPage": "Đang tải trang...",
+    "PleaseWait": "Vui lòng đợi trong khi chúng tôi tải trang của bạn",
+    "LoadError": "Không thể tải trang",
+    "TryAgain": "Vui lòng thử lại hoặc liên hệ hỗ trợ nếu vấn đề vẫn tiếp tục",
+    "NewPage": {
+      "Title": "Trang mới: {slug}",
+      "Description": "Bắt đầu xây dựng trang của bạn tại đây."
+    },
+    "DeletingAssets": "Đang xóa file...",
+    "AssetsDeletedSuccessfully": "File đã được xóa thành công!",
+    "FailedToDeleteAssets": "Không thể xóa file",
+    "UploadingAssets": "Đang tải lên file...",
+    "AssetsUploadedSuccessfully": "File đã được tải lên thành công!",
+    "FailedToUploadAssets": "Không thể tải file lên"
+  }
+}
