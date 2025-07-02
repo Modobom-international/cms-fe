@@ -145,6 +145,11 @@ export const teamPermissionQueryKeys = {
 
 export const userQueryKeys = {
   origin: ["users"] as const,
+  all: (team?: string, search?: string) => [
+    ...userQueryKeys.origin,
+    "all",
+    { team, search },
+  ],
   list: (page: number, pageSize: number, search: string = "") => [
     ...userQueryKeys.origin,
     "list",

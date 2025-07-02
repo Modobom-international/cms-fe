@@ -77,13 +77,13 @@ interface ActivityLogFiltersProps {
   dateFrom: string;
   dateTo: string;
   selectedActionGroups: string[];
-  selectedUser: string;
+  selectedUsers: string[];
   uniqueUsers: User[];
   onEmailChange: (email: string) => void;
   onDateFromChange: (dateFrom: string) => void;
   onDateToChange: (dateTo: string) => void;
   onSelectedActionGroupsChange: (groups: string[]) => void;
-  onSelectedUserChange: (userId: string) => void;
+  onSelectedUsersChange: (userIds: string[]) => void;
   onDatePresetSelect: (preset: string) => void;
   onClearFilters: () => void;
   onExport: () => void;
@@ -127,13 +127,13 @@ export function ActivityLogFilters({
   dateFrom,
   dateTo,
   selectedActionGroups,
-  selectedUser,
+  selectedUsers,
   uniqueUsers,
   onEmailChange,
   onDateFromChange,
   onDateToChange,
   onSelectedActionGroupsChange,
-  onSelectedUserChange,
+  onSelectedUsersChange,
   onDatePresetSelect,
   onClearFilters,
   onExport,
@@ -149,7 +149,7 @@ export function ActivityLogFilters({
   const [localDateTo, setLocalDateTo] = useState(dateTo || getTodayString());
   const [localSelectedActionGroups, setLocalSelectedActionGroups] =
     useState(selectedActionGroups);
-  const [localSelectedUser, setLocalSelectedUser] = useState(selectedUser);
+  const [localSelectedUsers, setLocalSelectedUsers] = useState(selectedUsers);
 
   // Update local state when props change (when filters are applied or cleared)
   useEffect(() => {
@@ -157,8 +157,8 @@ export function ActivityLogFilters({
     setLocalDateFrom(dateFrom || getTodayString());
     setLocalDateTo(dateTo || getTodayString());
     setLocalSelectedActionGroups(selectedActionGroups);
-    setLocalSelectedUser(selectedUser);
-  }, [email, dateFrom, dateTo, selectedActionGroups, selectedUser]);
+    setLocalSelectedUsers(selectedUsers);
+  }, [email, dateFrom, dateTo, selectedActionGroups, selectedUsers]);
 
   // Apply all filters at once
   const applyFilters = () => {
@@ -166,7 +166,7 @@ export function ActivityLogFilters({
     onDateFromChange(localDateFrom || getTodayString());
     onDateToChange(localDateTo || getTodayString());
     onSelectedActionGroupsChange(localSelectedActionGroups);
-    onSelectedUserChange(localSelectedUser);
+    onSelectedUsersChange(localSelectedUsers);
   };
 
   const handleActionGroupChange = (groupKey: string, checked: boolean) => {
@@ -190,7 +190,7 @@ export function ActivityLogFilters({
     dateFrom ||
     dateTo ||
     selectedActionGroups.length > 0 ||
-    selectedUser !== "all"
+    selectedUsers.length > 0
   );
 
   // Handle date preset selection for local state
@@ -273,16 +273,21 @@ export function ActivityLogFilters({
                 }
               />
             ))}
-            {selectedUser !== "all" && (
+            {selectedUsers.map((userId) => (
               <FilterBadge
+                key={userId}
                 label="User"
                 filterValue={
-                  uniqueUsers.find((u) => u.id.toString() === selectedUser)
-                    ?.email || ""
+                  uniqueUsers.find((u) => u.id.toString() === userId)?.email ||
+                  userId
                 }
-                onClear={() => onSelectedUserChange("all")}
+                onClear={() =>
+                  onSelectedUsersChange(
+                    selectedUsers.filter((id) => id !== userId)
+                  )
+                }
               />
-            )}
+            ))}
             {email && (
               <FilterBadge
                 label="Email"
@@ -325,9 +330,9 @@ export function ActivityLogFilters({
 
         {/* User Filter */}
         <UserFilter
-          selectedUser={localSelectedUser}
+          selectedUsers={localSelectedUsers}
           uniqueUsers={uniqueUsers}
-          onChange={setLocalSelectedUser}
+          onChange={setLocalSelectedUsers}
           onApply={applyFilters}
         />
       </div>
@@ -682,33 +687,38 @@ function ActionGroupsFilter({
 }
 
 interface UserFilterProps {
-  selectedUser: string;
+  selectedUsers: string[];
   uniqueUsers: User[];
-  onChange: (userId: string) => void;
+  onChange: (userIds: string[]) => void;
   onApply: () => void;
 }
 
 function UserFilter({
-  selectedUser,
+  selectedUsers,
   uniqueUsers,
   onChange,
   onApply,
 }: UserFilterProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Convert users to options array including "All users" option
-  const userOptions = [
-    { value: "all", label: "All users" },
-    ...uniqueUsers.map((user) => ({
-      value: user.id.toString(),
-      label: user.email,
-    })),
-  ];
+  // Convert users to options array (no "All users" option for multiple selection)
+  const userOptions = uniqueUsers.map((user) => ({
+    value: user.id.toString(),
+    label: user.email,
+  }));
 
   // Filter users based on search term
   const filteredUsers = userOptions.filter((option) =>
     option.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleUserChange = (userId: string, checked: boolean) => {
+    if (checked) {
+      onChange([...selectedUsers, userId]);
+    } else {
+      onChange(selectedUsers.filter((id) => id !== userId));
+    }
+  };
 
   return (
     <div>
@@ -716,18 +726,18 @@ function UserFilter({
         <PopoverTrigger asChild>
           <span className="border-border text-muted-foreground hover:bg-muted inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed px-2 py-0.5 text-xs font-medium transition-colors">
             <PlusCircle className="size-3" />
-            User
+            Users
           </span>
         </PopoverTrigger>
         <PopoverContent className="w-72 p-0" align="start">
           <div className="px-3 pt-3 pb-2">
             <h3 className="text-foreground text-sm font-medium">
-              Filter by User
+              Filter by Users
             </h3>
           </div>
 
           {/* Search Input */}
-          {userOptions.length > 1 && (
+          {userOptions.length > 0 && (
             <div className="px-3 pb-3">
               <div className="relative">
                 <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
@@ -743,7 +753,7 @@ function UserFilter({
 
           <ScrollArea className="h-60">
             <div className="space-y-3 p-3">
-              {userOptions.length <= 1 ? (
+              {userOptions.length === 0 ? (
                 <div className="py-4 text-center">
                   <p className="text-muted-foreground text-sm">
                     No users available
@@ -763,8 +773,10 @@ function UserFilter({
                   >
                     <Checkbox
                       id={`user-${option.value}`}
-                      checked={selectedUser === option.value}
-                      onCheckedChange={() => onChange(option.value)}
+                      checked={selectedUsers.includes(option.value)}
+                      onCheckedChange={(checked) =>
+                        handleUserChange(option.value, checked === true)
+                      }
                     />
                     <label
                       htmlFor={`user-${option.value}`}
@@ -777,7 +789,7 @@ function UserFilter({
               )}
             </div>
           </ScrollArea>
-          {userOptions.length > 1 && (
+          {userOptions.length > 0 && (
             <div className="border-border flex items-center justify-between border-t p-3">
               <Button onClick={onApply} className="w-full">
                 Apply Filter

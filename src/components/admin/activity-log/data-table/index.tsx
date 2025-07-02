@@ -40,6 +40,7 @@ import {
   useGetActivityLogStats,
 } from "@/hooks/activity-log";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useGetAllUsers } from "@/hooks/user";
 
 import { Badge } from "@/components/ui/badge";
 import { ActivityLogBadge } from "@/components/ui/badge/activity-log-badge";
@@ -302,9 +303,9 @@ export default function ActivityLogDataTable() {
     "action_groups",
     parseAsArrayOf(parseAsString).withDefault([])
   );
-  const [selectedUser, setSelectedUser] = useQueryState(
-    "user_id",
-    parseAsString.withDefault("all")
+  const [selectedUsers, setSelectedUsers] = useQueryState(
+    "user_ids",
+    parseAsArrayOf(parseAsString).withDefault([])
   );
 
   const debouncedSearch = useDebounce(email, 500);
@@ -320,7 +321,7 @@ export default function ActivityLogDataTable() {
     debouncedSearch,
     dateFrom,
     dateTo,
-    selectedUser === "all" ? "" : selectedUser,
+    selectedUsers.length > 0 ? selectedUsers.join(",") : "",
     selectedActionGroups,
     undefined, // actions - can be added later
     undefined, // sortField - can be added later
@@ -331,7 +332,7 @@ export default function ActivityLogDataTable() {
   const { data: statsResponse } = useGetActivityLogStats(
     dateFrom,
     dateTo,
-    selectedUser === "all" ? undefined : selectedUser
+    selectedUsers.length > 0 ? selectedUsers : undefined
   );
 
   // Get available filters
@@ -391,19 +392,18 @@ export default function ActivityLogDataTable() {
     };
   }, [activityLogData, selectedActionGroups]);
 
-  // Get unique users for filter dropdown
+  // Get all users for filter dropdown
+  const { data: allUsersResponse } = useGetAllUsers();
+
   const uniqueUsers = useMemo(() => {
-    const users = new Map();
-    activityLogData.forEach((activity: IActivityLog) => {
-      if (!users.has(activity.user_id)) {
-        users.set(activity.user_id, {
-          id: activity.user_id,
-          email: activity.user_email,
-        });
-      }
-    });
-    return Array.from(users.values());
-  }, [activityLogData]);
+    if (allUsersResponse?.success && allUsersResponse.data) {
+      return allUsersResponse.data.map((user) => ({
+        id: typeof user.id === "string" ? parseInt(user.id, 10) : user.id,
+        email: user.email,
+      }));
+    }
+    return [];
+  }, [allUsersResponse]);
 
   // Handle next page navigation
   const handleNextPage = () => {
@@ -487,7 +487,7 @@ export default function ActivityLogDataTable() {
     setDateFrom("");
     setDateTo("");
     setSelectedActionGroups([]);
-    setSelectedUser("all");
+    setSelectedUsers([]);
     setCurrentPage(1);
   };
 
@@ -497,7 +497,7 @@ export default function ActivityLogDataTable() {
       await exportLogs({
         dateFrom,
         dateTo,
-        userId: selectedUser === "all" ? undefined : selectedUser,
+        userId: selectedUsers.length > 0 ? selectedUsers.join(",") : undefined,
         actionGroups:
           selectedActionGroups.length > 0 ? selectedActionGroups : undefined,
         search: debouncedSearch || undefined,
@@ -526,13 +526,13 @@ export default function ActivityLogDataTable() {
         dateFrom={dateFrom}
         dateTo={dateTo}
         selectedActionGroups={selectedActionGroups}
-        selectedUser={selectedUser}
+        selectedUsers={selectedUsers}
         uniqueUsers={uniqueUsers}
         onEmailChange={setEmail}
         onDateFromChange={setDateFrom}
         onDateToChange={setDateTo}
         onSelectedActionGroupsChange={setSelectedActionGroups}
-        onSelectedUserChange={setSelectedUser}
+        onSelectedUsersChange={setSelectedUsers}
         onDatePresetSelect={handleDatePreset}
         onClearFilters={clearFilters}
         onExport={handleExport}
