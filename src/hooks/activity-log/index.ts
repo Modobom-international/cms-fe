@@ -17,19 +17,20 @@ export const useGetActivityLogs = (
   actionGroups?: string[],
   sortBy?: string
 ) => {
-  const params = qs.stringify(
-    {
-      page,
-      pageSize,
-      search,
-      date_from: dateFrom,
-      date_to: dateTo,
-      user_id: userId,
-      group_action: actionGroups?.join(","),
-      sort: sortBy,
-    },
-    { skipNulls: true }
-  );
+  // Filter out empty strings and null/undefined values
+  const queryParams: Record<string, any> = {
+    page,
+    pageSize,
+  };
+
+  if (search && search.trim() !== "") queryParams.search = search;
+  if (dateFrom && dateFrom.trim() !== "") queryParams.date_from = dateFrom;
+  if (dateTo && dateTo.trim() !== "") queryParams.date_to = dateTo;
+  if (userId && userId.trim() !== "" && userId !== "all") queryParams.user_id = userId;
+  if (actionGroups && actionGroups.length > 0) queryParams.group_action = actionGroups.join(",");
+  if (sortBy && sortBy.trim() !== "") queryParams.sort = sortBy;
+
+  const params = qs.stringify(queryParams, { skipNulls: true });
 
   return useQuery({
     queryKey: activityLogQueryKeys.list(
@@ -76,14 +77,14 @@ export const useGetActivityLogStats = (
   dateTo?: string,
   userId?: string
 ) => {
-  const params = qs.stringify(
-    {
-      date_from: dateFrom,
-      date_to: dateTo,
-      user_id: userId,
-    },
-    { skipNulls: true }
-  );
+  // Filter out empty strings and null/undefined values
+  const queryParams: Record<string, any> = {};
+
+  if (dateFrom && dateFrom.trim() !== "") queryParams.date_from = dateFrom;
+  if (dateTo && dateTo.trim() !== "") queryParams.date_to = dateTo;
+  if (userId && userId.trim() !== "" && userId !== "all") queryParams.user_id = userId;
+
+  const params = qs.stringify(queryParams, { skipNulls: true });
 
   return useQuery({
     queryKey: activityLogQueryKeys.stats(dateFrom, dateTo, userId),
@@ -143,17 +144,18 @@ export const useExportActivityLogs = (
   search?: string,
   format?: "csv" | "excel" | "json"
 ) => {
-  const params = qs.stringify(
-    {
-      date_from: dateFrom,
-      date_to: dateTo,
-      user_id: userId,
-      group_action: actionGroups?.join(","),
-      search: search,
-      format: format || "csv",
-    },
-    { skipNulls: true }
-  );
+  // Filter out empty strings and null/undefined values
+  const queryParams: Record<string, any> = {
+    format: format || "csv",
+  };
+
+  if (dateFrom && dateFrom.trim() !== "") queryParams.date_from = dateFrom;
+  if (dateTo && dateTo.trim() !== "") queryParams.date_to = dateTo;
+  if (userId && userId.trim() !== "" && userId !== "all") queryParams.user_id = userId;
+  if (actionGroups && actionGroups.length > 0) queryParams.group_action = actionGroups.join(",");
+  if (search && search.trim() !== "") queryParams.search = search;
+
+  const params = qs.stringify(queryParams, { skipNulls: true });
 
   return useQuery({
     queryKey: activityLogQueryKeys.export({

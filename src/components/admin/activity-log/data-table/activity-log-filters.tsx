@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { format } from "date-fns";
 import { CalendarIcon, Download, PlusCircle, Search, X } from "lucide-react";
@@ -138,12 +138,43 @@ export function ActivityLogFilters({
   onClearFilters,
   onExport,
 }: ActivityLogFiltersProps) {
+  // Get today's date in YYYY-MM-DD format
+  const getTodayString = () => format(new Date(), "yyyy-MM-dd");
+
+  // Local state for temporary filter values with today as default for date range
+  const [localEmail, setLocalEmail] = useState(email);
+  const [localDateFrom, setLocalDateFrom] = useState(
+    dateFrom || getTodayString()
+  );
+  const [localDateTo, setLocalDateTo] = useState(dateTo || getTodayString());
+  const [localSelectedActionGroups, setLocalSelectedActionGroups] =
+    useState(selectedActionGroups);
+  const [localSelectedUser, setLocalSelectedUser] = useState(selectedUser);
+
+  // Update local state when props change (when filters are applied or cleared)
+  useEffect(() => {
+    setLocalEmail(email);
+    setLocalDateFrom(dateFrom || getTodayString());
+    setLocalDateTo(dateTo || getTodayString());
+    setLocalSelectedActionGroups(selectedActionGroups);
+    setLocalSelectedUser(selectedUser);
+  }, [email, dateFrom, dateTo, selectedActionGroups, selectedUser]);
+
+  // Apply all filters at once
+  const applyFilters = () => {
+    onEmailChange(localEmail);
+    onDateFromChange(localDateFrom || getTodayString());
+    onDateToChange(localDateTo || getTodayString());
+    onSelectedActionGroupsChange(localSelectedActionGroups);
+    onSelectedUserChange(localSelectedUser);
+  };
+
   const handleActionGroupChange = (groupKey: string, checked: boolean) => {
     if (checked) {
-      onSelectedActionGroupsChange([...selectedActionGroups, groupKey]);
+      setLocalSelectedActionGroups([...localSelectedActionGroups, groupKey]);
     } else {
-      onSelectedActionGroupsChange(
-        selectedActionGroups.filter((g) => g !== groupKey)
+      setLocalSelectedActionGroups(
+        localSelectedActionGroups.filter((g) => g !== groupKey)
       );
     }
   };
@@ -162,10 +193,34 @@ export function ActivityLogFilters({
     selectedUser !== "all"
   );
 
-  // Apply filters function for consistency
-  const applyFilters = () => {
-    // The parent component already handles filter application
-    // This function is used for consistency with the FilterPopover component
+  // Handle date preset selection for local state
+  const handleLocalDatePreset = (preset: string) => {
+    const today = new Date();
+
+    switch (preset) {
+      case "today":
+        setLocalDateFrom(format(today, "yyyy-MM-dd"));
+        setLocalDateTo(format(today, "yyyy-MM-dd"));
+        break;
+      case "yesterday":
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        setLocalDateFrom(format(yesterday, "yyyy-MM-dd"));
+        setLocalDateTo(format(yesterday, "yyyy-MM-dd"));
+        break;
+      case "week":
+        const lastWeek = new Date(today);
+        lastWeek.setDate(lastWeek.getDate() - 7);
+        setLocalDateFrom(format(lastWeek, "yyyy-MM-dd"));
+        setLocalDateTo(format(today, "yyyy-MM-dd"));
+        break;
+      case "month":
+        const lastMonth = new Date(today);
+        lastMonth.setDate(lastMonth.getDate() - 30);
+        setLocalDateFrom(format(lastMonth, "yyyy-MM-dd"));
+        setLocalDateTo(format(today, "yyyy-MM-dd"));
+        break;
+    }
   };
 
   return (
@@ -176,9 +231,14 @@ export function ActivityLogFilters({
           <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
           <Input
             placeholder="Search by email..."
-            value={email}
-            onChange={(e) => onEmailChange(e.target.value)}
+            value={localEmail}
+            onChange={(e) => setLocalEmail(e.target.value)}
             className="pl-10"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                applyFilters();
+              }
+            }}
           />
         </div>
         <Button variant="outline" onClick={onExport}>
@@ -240,25 +300,26 @@ export function ActivityLogFilters({
       <div className="flex flex-wrap items-center gap-2">
         {/* Date Range Filter */}
         <DateRangeFilter
-          dateFrom={dateFrom}
-          dateTo={dateTo}
-          onDateFromChange={onDateFromChange}
-          onDateToChange={onDateToChange}
-          onDatePresetSelect={onDatePresetSelect}
+          dateFrom={localDateFrom}
+          dateTo={localDateTo}
+          onDateFromChange={setLocalDateFrom}
+          onDateToChange={setLocalDateTo}
+          onDatePresetSelect={handleLocalDatePreset}
+          onApply={applyFilters}
         />
 
         {/* Action Groups Filter */}
         <ActionGroupsFilter
-          selectedActionGroups={selectedActionGroups}
+          selectedActionGroups={localSelectedActionGroups}
           onChange={handleActionGroupChange}
           onApply={applyFilters}
         />
 
         {/* User Filter */}
         <UserFilter
-          selectedUser={selectedUser}
+          selectedUser={localSelectedUser}
           uniqueUsers={uniqueUsers}
-          onChange={onSelectedUserChange}
+          onChange={setLocalSelectedUser}
           onApply={applyFilters}
         />
       </div>
@@ -272,6 +333,7 @@ interface DateRangeFilterProps {
   onDateFromChange: (date: string) => void;
   onDateToChange: (date: string) => void;
   onDatePresetSelect: (preset: string) => void;
+  onApply: () => void;
 }
 
 function DateRangeFilter({
@@ -280,6 +342,7 @@ function DateRangeFilter({
   onDateFromChange,
   onDateToChange,
   onDatePresetSelect,
+  onApply,
 }: DateRangeFilterProps) {
   // Convert string dates to Date objects for the calendar
   const fromDate = dateFrom ? new Date(dateFrom) : null;
@@ -289,8 +352,6 @@ function DateRangeFilter({
     from: fromDate,
     to: toDate,
   };
-
-  // Date changes are handled directly in the Calendar onSelect callbacks
 
   // Helper functions to check if a quick range is currently active
   const isSameDay = (date1: Date | null, date2: Date) => {
@@ -328,11 +389,6 @@ function DateRangeFilter({
     return (
       isSameDay(dateRange.from, lastMonth) && isSameDay(dateRange.to, today)
     );
-  };
-
-  // Apply filters function
-  const applyFilters = () => {
-    // The parent component already handles filter application
   };
 
   return (
@@ -498,7 +554,7 @@ function DateRangeFilter({
             </div>
 
             <div className="border-t pt-3">
-              <Button onClick={applyFilters} className="w-full">
+              <Button onClick={onApply} className="w-full">
                 Apply Filter
               </Button>
             </div>
@@ -522,9 +578,17 @@ function ActionGroupsFilter({
 }: ActionGroupsFilterProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Convert ACTION_GROUPS to options array
+  const actionGroupOptions = Object.entries(ACTION_GROUPS).map(
+    ([key, group]) => ({
+      value: key,
+      label: group.label,
+    })
+  );
+
   // Filter action groups based on search term
-  const filteredActionGroups = Object.entries(ACTION_GROUPS).filter(
-    ([_, group]) => group.label.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredActionGroups = actionGroupOptions.filter((option) =>
+    option.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -536,7 +600,7 @@ function ActionGroupsFilter({
             Action Groups
           </span>
         </PopoverTrigger>
-        <PopoverContent className="w-72" align="start">
+        <PopoverContent className="w-72 p-0" align="start">
           <div className="px-3 pt-3 pb-2">
             <h3 className="text-foreground text-sm font-medium">
               Filter by Action Groups
@@ -544,55 +608,65 @@ function ActionGroupsFilter({
           </div>
 
           {/* Search Input */}
-          <div className="px-3 pb-3">
-            <div className="relative">
-              <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
-              <Input
-                placeholder="Search action groups..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-8 pl-8 text-sm"
-              />
+          {actionGroupOptions.length > 0 && (
+            <div className="px-3 pb-3">
+              <div className="relative">
+                <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+                <Input
+                  placeholder="Search action groups..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="h-8 pl-8 text-sm"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           <ScrollArea className="h-60">
             <div className="space-y-3 p-3">
-              {filteredActionGroups.length === 0 ? (
+              {actionGroupOptions.length === 0 ? (
+                <div className="py-4 text-center">
+                  <p className="text-muted-foreground text-sm">
+                    No action groups available
+                  </p>
+                </div>
+              ) : filteredActionGroups.length === 0 ? (
                 <div className="py-4 text-center">
                   <p className="text-muted-foreground text-sm">
                     No action groups found
                   </p>
                 </div>
               ) : (
-                filteredActionGroups.map(([groupKey, group]) => (
-                  <div key={groupKey} className="flex items-center space-x-2">
+                filteredActionGroups.map((option) => (
+                  <div
+                    key={option.value}
+                    className="flex items-center space-x-2"
+                  >
                     <Checkbox
-                      id={groupKey}
-                      checked={selectedActionGroups.includes(groupKey)}
+                      id={option.value}
+                      checked={selectedActionGroups.includes(option.value)}
                       onCheckedChange={(checked) =>
-                        onChange(groupKey, checked === true)
+                        onChange(option.value, checked === true)
                       }
                     />
                     <label
-                      htmlFor={groupKey}
+                      htmlFor={option.value}
                       className="text-foreground cursor-pointer text-sm"
                     >
-                      {group.label}
-                      <Badge variant="outline" className="ml-2 text-xs">
-                        {group.actions.length} actions
-                      </Badge>
+                      {option.label}
                     </label>
                   </div>
                 ))
               )}
             </div>
           </ScrollArea>
-          <div className="border-border flex items-center justify-between border-t p-3">
-            <Button onClick={onApply} className="w-full">
-              Apply Filter
-            </Button>
-          </div>
+          {actionGroupOptions.length > 0 && (
+            <div className="border-border flex items-center justify-between border-t p-3">
+              <Button onClick={onApply} className="w-full">
+                Apply Filter
+              </Button>
+            </div>
+          )}
         </PopoverContent>
       </Popover>
     </div>
@@ -614,9 +688,18 @@ function UserFilter({
 }: UserFilterProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Convert users to options array including "All users" option
+  const userOptions = [
+    { value: "all", label: "All users" },
+    ...uniqueUsers.map((user) => ({
+      value: user.id.toString(),
+      label: user.email,
+    })),
+  ];
+
   // Filter users based on search term
-  const filteredUsers = uniqueUsers.filter((user) =>
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = userOptions.filter((option) =>
+    option.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -628,7 +711,7 @@ function UserFilter({
             User
           </span>
         </PopoverTrigger>
-        <PopoverContent className="w-72" align="start">
+        <PopoverContent className="w-72 p-0" align="start">
           <div className="px-3 pt-3 pb-2">
             <h3 className="text-foreground text-sm font-medium">
               Filter by User
@@ -636,64 +719,63 @@ function UserFilter({
           </div>
 
           {/* Search Input */}
-          <div className="px-3 pb-3">
-            <div className="relative">
-              <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
-              <Input
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-8 pl-8 text-sm"
-              />
+          {userOptions.length > 1 && (
+            <div className="px-3 pb-3">
+              <div className="relative">
+                <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+                <Input
+                  placeholder="Search users..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="h-8 pl-8 text-sm"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           <ScrollArea className="h-60">
             <div className="space-y-3 p-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="all-users"
-                  checked={selectedUser === "all"}
-                  onCheckedChange={() => onChange("all")}
-                />
-                <label
-                  htmlFor="all-users"
-                  className="text-foreground cursor-pointer text-sm"
-                >
-                  All users
-                </label>
-              </div>
-
-              {filteredUsers.length === 0 ? (
+              {userOptions.length <= 1 ? (
+                <div className="py-4 text-center">
+                  <p className="text-muted-foreground text-sm">
+                    No users available
+                  </p>
+                </div>
+              ) : filteredUsers.length === 0 ? (
                 <div className="py-4 text-center">
                   <p className="text-muted-foreground text-sm">
                     No users found
                   </p>
                 </div>
               ) : (
-                filteredUsers.map((user) => (
-                  <div key={user.id} className="flex items-center space-x-2">
+                filteredUsers.map((option) => (
+                  <div
+                    key={option.value}
+                    className="flex items-center space-x-2"
+                  >
                     <Checkbox
-                      id={`user-${user.id}`}
-                      checked={selectedUser === user.id.toString()}
-                      onCheckedChange={() => onChange(user.id.toString())}
+                      id={`user-${option.value}`}
+                      checked={selectedUser === option.value}
+                      onCheckedChange={() => onChange(option.value)}
                     />
                     <label
-                      htmlFor={`user-${user.id}`}
+                      htmlFor={`user-${option.value}`}
                       className="text-foreground cursor-pointer text-sm"
                     >
-                      {user.email}
+                      {option.label}
                     </label>
                   </div>
                 ))
               )}
             </div>
           </ScrollArea>
-          <div className="border-border flex items-center justify-between border-t p-3">
-            <Button onClick={onApply} className="w-full">
-              Apply Filter
-            </Button>
-          </div>
+          {userOptions.length > 1 && (
+            <div className="border-border flex items-center justify-between border-t p-3">
+              <Button onClick={onApply} className="w-full">
+                Apply Filter
+              </Button>
+            </div>
+          )}
         </PopoverContent>
       </Popover>
     </div>
