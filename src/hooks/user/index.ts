@@ -58,6 +58,34 @@ export const useGetUserList = (
   });
 };
 
+export const useGetAllUsers = (team?: string, search?: string) => {
+  const params = qs.stringify({ team, search }, { skipNulls: true });
+
+  return useQuery({
+    queryKey: userQueryKeys.all(team, search),
+    queryFn: async () => {
+      try {
+        const url = params ? `/api/users/all?${params}` : "/api/users/all";
+        const { data } = await apiClient.get<{
+          success: boolean;
+          data: IUser[];
+          message: string;
+          type: string;
+        }>(url);
+
+        return data;
+      } catch (error) {
+        return {
+          success: false,
+          data: [],
+          message: "Failed to fetch all users",
+          type: "list_all_user_fail",
+        };
+      }
+    },
+  });
+};
+
 export const useGetUserById = (id: string) => {
   return useQuery({
     queryKey: userQueryKeys.details(id),
