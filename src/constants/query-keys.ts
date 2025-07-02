@@ -78,7 +78,9 @@ export const activityLogQueryKeys = {
     dateTo?: string,
     userId?: string,
     actionGroups?: string[],
-    sortBy?: string
+    actions?: string[],
+    sortField?: string,
+    sortDirection?: string
   ) =>
     [
       ...activityLogQueryKeys.origin,
@@ -91,10 +93,12 @@ export const activityLogQueryKeys = {
         dateTo,
         userId,
         actionGroups,
-        sortBy,
+        actions,
+        sortField,
+        sortDirection,
       },
     ] as const,
-  stats: (dateFrom?: string, dateTo?: string, userId?: string) =>
+  stats: (dateFrom?: string, dateTo?: string, userId?: string | string[]) =>
     [
       ...activityLogQueryKeys.origin,
       "stats",
