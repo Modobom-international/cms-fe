@@ -257,8 +257,8 @@ export default function ActivityLogDataTable() {
     selectedUsers.length > 0 ? selectedUsers.join(",") : "",
     selectedActionGroups,
     undefined, // actions - can be added later
-    undefined, // sortField - can be added later
-    undefined // sortDirection - can be added later
+    sortField, // Pass the actual sort field
+    sortDirection // Pass the actual sort direction
   );
 
   // Export functionality
@@ -864,6 +864,7 @@ export default function ActivityLogDataTable() {
                             <button
                               id={`timeline-details-${log.id}`}
                               className="hidden"
+                              aria-label={`View details for activity ${log.id}`}
                             />
                           </DialogTrigger>
                           <DialogContent className="max-w-2xl">
@@ -1113,6 +1114,7 @@ export default function ActivityLogDataTable() {
                                           <button
                                             id={`group-details-${activity.id}`}
                                             className="hidden"
+                                            aria-label={`View details for activity ${activity.id}`}
                                           />
                                         </DialogTrigger>
                                         <DialogContent className="max-w-2xl">
@@ -1209,4 +1211,3 @@ export default function ActivityLogDataTable() {
     </div>
   );
 }
-
