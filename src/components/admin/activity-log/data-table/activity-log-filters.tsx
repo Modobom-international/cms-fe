@@ -258,13 +258,21 @@ export function ActivityLogFilters({
                 onClear={clearDateRange}
               />
             )}
-            {selectedActionGroups.length > 0 && (
+            {selectedActionGroups.map((groupKey) => (
               <FilterBadge
-                label="Action Groups"
-                filterValue={selectedActionGroups.join(",")}
-                onClear={() => onSelectedActionGroupsChange([])}
+                key={groupKey}
+                label="Action Group"
+                filterValue={
+                  ACTION_GROUPS[groupKey as keyof typeof ACTION_GROUPS]
+                    ?.label || groupKey
+                }
+                onClear={() =>
+                  onSelectedActionGroupsChange(
+                    selectedActionGroups.filter((key) => key !== groupKey)
+                  )
+                }
               />
-            )}
+            ))}
             {selectedUser !== "all" && (
               <FilterBadge
                 label="User"
@@ -781,4 +789,3 @@ function UserFilter({
     </div>
   );
 }
-

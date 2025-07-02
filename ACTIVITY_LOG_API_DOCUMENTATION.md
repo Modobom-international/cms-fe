@@ -2,54 +2,103 @@
 
 ## Overview
 
-The Activity Log API provides comprehensive logging and monitoring capabilities for all user activities within the system. The API has been enhanced with advanced filtering, grouping, statistics, and export functionality.
+The Activity Log API provides comprehensive functionality for viewing, filtering, exporting, and analyzing user activity logs within the system. This documentation covers all available endpoints, parameters, response formats, and implementation examples.
 
-## Base URL
+**Base URL**: `/api/activity-log`
+
+## Authentication
+
+All endpoints require authentication via Bearer token in the Authorization header:
 
 ```
-/api/activity-log
+Authorization: Bearer {your_token}
 ```
 
 ## Endpoints
 
 ### 1. List Activity Logs
 
-**GET** `/api/activity-log/`
+**Endpoint**: `GET /api/activity-log/`
 
-Retrieves a paginated list of activity logs with advanced filtering capabilities.
+Retrieves a paginated list of activity logs with comprehensive filtering options.
 
 #### Query Parameters
 
-| Parameter      | Type    | Required | Description                                                 |
-| -------------- | ------- | -------- | ----------------------------------------------------------- |
-| `date`         | string  | No       | Specific date (YYYY-MM-DD format). Defaults to current date |
-| `date_from`    | string  | No       | Start date for date range (YYYY-MM-DD format)               |
-| `date_to`      | string  | No       | End date for date range (YYYY-MM-DD format)                 |
-| `user_id`      | integer | No       | Filter by specific user ID                                  |
-| `action`       | string  | No       | Filter by specific action                                   |
-| `group_action` | string  | No       | Filter by action group (see available groups below)         |
-| `search`       | string  | No       | Search in description, action, user email, or user name     |
-| `pageSize`     | integer | No       | Number of items per page (default: 10)                      |
-| `page`         | integer | No       | Page number (default: 1)                                    |
+| Parameter        | Type          | Required | Default    | Description                                    |
+| ---------------- | ------------- | -------- | ---------- | ---------------------------------------------- |
+| `date`           | string        | No       | -          | Single date filter (YYYY-MM-DD format)         |
+| `date_from`      | string        | No       | -          | Start date for date range filter (YYYY-MM-DD)  |
+| `date_to`        | string        | No       | -          | End date for date range filter (YYYY-MM-DD)    |
+| `user_id`        | integer/array | No       | -          | Filter by specific user ID(s)                  |
+| `action`         | string/array  | No       | -          | Filter by specific action(s)                   |
+| `group_action`   | string/array  | No       | -          | Filter by action group(s)                      |
+| `search`         | string        | No       | -          | Search in description, action, user email/name |
+| `page`           | integer       | No       | 1          | Page number                                    |
+| `pageSize`       | integer       | No       | 20         | Records per page (max: 100)                    |
+| `sort_field`     | string        | No       | created_at | Sort field (created_at, action, user_id)       |
+| `sort_direction` | string        | No       | desc       | Sort direction (asc, desc)                     |
 
-#### Available Group Actions
+#### Available Action Groups
 
 - `site_management` - Site management operations
 - `page_management` - Page management operations
-- `attendance_management` - Attendance management operations
+- `attendance_management` - Attendance operations
 - `attendance_complaints` - Attendance complaint operations
 - `board_management` - Board management operations
-- `cloudflare_operations` - Cloudflare-related operations
-- `domain_operations` - Domain-related operations
+- `cloudflare_operations` - Cloudflare operations
+- `domain_operations` - Domain operations
 - `general_operations` - General system operations
 
-#### Example Request
+#### Example Requests
 
-```bash
-GET /api/activity-log/?date_from=2024-01-01&date_to=2024-01-31&group_action=site_management&search=create&pageSize=20&page=1
+**Basic request:**
+
+```javascript
+fetch("/api/activity-log/", {
+  headers: {
+    Authorization: "Bearer " + token,
+    Accept: "application/json",
+  },
+});
 ```
 
-#### Response
+**Filtered request:**
+
+```javascript
+const params = new URLSearchParams({
+  date_from: "2024-01-01",
+  date_to: "2024-01-31",
+  group_action: "attendance_management",
+  pageSize: 50,
+  sort_field: "created_at",
+  sort_direction: "desc",
+});
+
+fetch(`/api/activity-log/?${params}`, {
+  headers: {
+    Authorization: "Bearer " + token,
+    Accept: "application/json",
+  },
+});
+```
+
+**Search request:**
+
+```javascript
+const params = new URLSearchParams({
+  search: "john@example.com",
+  pageSize: 20,
+});
+
+fetch(`/api/activity-log/?${params}`, {
+  headers: {
+    Authorization: "Bearer " + token,
+    Accept: "application/json",
+  },
+});
+```
+
+#### Success Response (200)
 
 ```json
 {
@@ -61,15 +110,14 @@ GET /api/activity-log/?date_from=2024-01-01&date_to=2024-01-31&group_action=site
         "action": "create_site",
         "action_label": "Tạo site",
         "group_action": "site_management",
-        "description": "Tạo site mới",
-        "user_id": 1,
+        "description": "Tạo site mới với domain example.com",
+        "user_id": 123,
         "user_email": "user@example.com",
         "user_name": "John Doe",
-        "created_at": "2024-01-15 10:30:00",
         "formatted_created_at": "2024-01-15 10:30:00",
-        "details": {
-          "site_name": "example.com",
-          "site_id": 123
+        "formatted_details": {
+          "site_id": 456,
+          "domain": "example.com"
         }
       }
     ],
@@ -79,13 +127,18 @@ GET /api/activity-log/?date_from=2024-01-01&date_to=2024-01-31&group_action=site
       "total": 150,
       "last_page": 8,
       "from": 1,
-      "to": 20
+      "to": 20,
+      "has_more_pages": true,
+      "on_first_page": true
     },
     "filters_applied": {
       "date_from": "2024-01-01",
       "date_to": "2024-01-31",
-      "group_action": "site_management",
-      "search": "create"
+      "group_action": "attendance_management"
+    },
+    "sort": {
+      "field": "created_at",
+      "direction": "desc"
     }
   },
   "message": "Lấy danh sách activity log thành công",
@@ -93,28 +146,67 @@ GET /api/activity-log/?date_from=2024-01-01&date_to=2024-01-31&group_action=site
 }
 ```
 
+#### Error Responses
+
+**Validation Error (422):**
+
+```json
+{
+  "success": false,
+  "message": "Dữ liệu đầu vào không hợp lệ",
+  "type": "list_activity_log_validation_error",
+  "errors": {
+    "date_from": ["The date from field must be a valid date."],
+    "pageSize": ["The page size may not be greater than 100."]
+  }
+}
+```
+
+**Server Error (500):**
+
+```json
+{
+  "success": false,
+  "message": "Lấy danh sách activity log không thành công",
+  "type": "list_activity_log_fail",
+  "error": "Internal server error message"
+}
+```
+
+---
+
 ### 2. Get Activity Statistics
 
-**GET** `/api/activity-log/stats`
+**Endpoint**: `GET /api/activity-log/stats`
 
 Retrieves statistical information about activity logs.
 
 #### Query Parameters
 
-| Parameter   | Type    | Required | Description                                   |
-| ----------- | ------- | -------- | --------------------------------------------- |
-| `date`      | string  | No       | Specific date (YYYY-MM-DD format)             |
-| `date_from` | string  | No       | Start date for date range (YYYY-MM-DD format) |
-| `date_to`   | string  | No       | End date for date range (YYYY-MM-DD format)   |
-| `user_id`   | integer | No       | Filter by specific user ID                    |
+| Parameter   | Type          | Required | Default | Description                            |
+| ----------- | ------------- | -------- | ------- | -------------------------------------- |
+| `date`      | string        | No       | -       | Single date filter (YYYY-MM-DD format) |
+| `date_from` | string        | No       | -       | Start date for date range filter       |
+| `date_to`   | string        | No       | -       | End date for date range filter         |
+| `user_id`   | integer/array | No       | -       | Filter by specific user ID(s)          |
 
 #### Example Request
 
-```bash
-GET /api/activity-log/stats?date_from=2024-01-01&date_to=2024-01-31
+```javascript
+const params = new URLSearchParams({
+  date_from: "2024-01-01",
+  date_to: "2024-01-31",
+});
+
+fetch(`/api/activity-log/stats?${params}`, {
+  headers: {
+    Authorization: "Bearer " + token,
+    Accept: "application/json",
+  },
+});
 ```
 
-#### Response
+#### Success Response (200)
 
 ```json
 {
@@ -122,27 +214,33 @@ GET /api/activity-log/stats?date_from=2024-01-01&date_to=2024-01-31
   "data": {
     "total_activities": 1250,
     "actions_by_group": {
-      "site_management": 150,
-      "page_management": 300,
-      "attendance_management": 400,
-      "attendance_complaints": 50,
-      "board_management": 200,
-      "cloudflare_operations": 100,
-      "domain_operations": 30,
-      "general_operations": 20
+      "site_management": 45,
+      "page_management": 320,
+      "attendance_management": 580,
+      "general_operations": 305
     },
     "top_users": [
       {
-        "user_id": 1,
-        "email": "admin@example.com",
-        "name": "Admin User",
-        "count": 250
+        "user_id": 123,
+        "email": "user1@example.com",
+        "name": "John Doe",
+        "count": 85
       },
       {
-        "user_id": 2,
-        "email": "user@example.com",
-        "name": "Regular User",
-        "count": 180
+        "user_id": 456,
+        "email": "user2@example.com",
+        "name": "Jane Smith",
+        "count": 72
+      }
+    ],
+    "daily_activities": [
+      {
+        "date": "2024-01-31",
+        "count": 45
+      },
+      {
+        "date": "2024-01-30",
+        "count": 52
       }
     ],
     "filters_applied": {
@@ -155,19 +253,26 @@ GET /api/activity-log/stats?date_from=2024-01-01&date_to=2024-01-31
 }
 ```
 
+---
+
 ### 3. Get Available Filters
 
-**GET** `/api/activity-log/filters`
+**Endpoint**: `GET /api/activity-log/filters`
 
-Retrieves all available filter options for the activity log.
+Retrieves all available filter options for the front-end to build filter interfaces.
 
 #### Example Request
 
-```bash
-GET /api/activity-log/filters
+```javascript
+fetch("/api/activity-log/filters", {
+  headers: {
+    Authorization: "Bearer " + token,
+    Accept: "application/json",
+  },
+});
 ```
 
-#### Response
+#### Success Response (200)
 
 ```json
 {
@@ -185,22 +290,37 @@ GET /api/activity-log/filters
         "description": "Các hoạt động liên quan đến quản lý trang"
       }
     ],
-    "date_filters": {
-      "today": "Hôm nay",
-      "yesterday": "Hôm qua",
-      "this_week": "Tuần này",
-      "last_week": "Tuần trước",
-      "this_month": "Tháng này",
-      "last_month": "Tháng trước",
-      "custom_range": "Khoảng thời gian tùy chỉnh"
-    },
-    "sort_options": {
-      "created_at_desc": "Thời gian tạo (Mới nhất)",
-      "created_at_asc": "Thời gian tạo (Cũ nhất)",
-      "action_asc": "Hành động (A-Z)",
-      "action_desc": "Hành động (Z-A)",
-      "user_name_asc": "Tên người dùng (A-Z)",
-      "user_name_desc": "Tên người dùng (Z-A)"
+    "date_filters": [
+      {
+        "value": "today",
+        "label": "Hôm nay",
+        "date": "2024-01-15"
+      },
+      {
+        "value": "this_week",
+        "label": "Tuần này",
+        "date_from": "2024-01-08",
+        "date_to": "2024-01-14"
+      }
+    ],
+    "sort_options": [
+      {
+        "value": "created_at_desc",
+        "label": "Thời gian tạo (Mới nhất)",
+        "field": "created_at",
+        "direction": "desc"
+      },
+      {
+        "value": "action_asc",
+        "label": "Hành động (A-Z)",
+        "field": "action",
+        "direction": "asc"
+      }
+    ],
+    "filter_options": {
+      "page_sizes": [10, 20, 50, 100],
+      "max_page_size": 100,
+      "default_page_size": 20
     }
   },
   "message": "Lấy danh sách bộ lọc thành công",
@@ -208,32 +328,72 @@ GET /api/activity-log/filters
 }
 ```
 
+---
+
 ### 4. Export Activity Logs
 
-**GET** `/api/activity-log/export`
+**Endpoint**: `GET /api/activity-log/export`
 
-Exports activity logs in various formats.
+Exports activity logs in JSON or CSV format.
 
 #### Query Parameters
 
-| Parameter      | Type    | Required | Description                                             |
-| -------------- | ------- | -------- | ------------------------------------------------------- |
-| `date`         | string  | No       | Specific date (YYYY-MM-DD format)                       |
-| `date_from`    | string  | No       | Start date for date range (YYYY-MM-DD format)           |
-| `date_to`      | string  | No       | End date for date range (YYYY-MM-DD format)             |
-| `user_id`      | integer | No       | Filter by specific user ID                              |
-| `action`       | string  | No       | Filter by specific action                               |
-| `group_action` | string  | No       | Filter by action group                                  |
-| `search`       | string  | No       | Search in description, action, user email, or user name |
-| `format`       | string  | No       | Export format (csv, excel, json). Default: csv          |
+All filtering parameters from the list endpoint plus:
 
-#### Example Request
+| Parameter | Type    | Required | Default | Description                       |
+| --------- | ------- | -------- | ------- | --------------------------------- |
+| `format`  | string  | No       | json    | Export format (json, csv)         |
+| `limit`   | integer | No       | 1000    | Max records to export (max: 5000) |
 
-```bash
-GET /api/activity-log/export?date_from=2024-01-01&date_to=2024-01-31&group_action=site_management&format=json
+#### Example Requests
+
+**JSON Export:**
+
+```javascript
+const params = new URLSearchParams({
+  date_from: "2024-01-01",
+  date_to: "2024-01-31",
+  group_action: "site_management",
+  format: "json",
+  limit: 500,
+});
+
+fetch(`/api/activity-log/export?${params}`, {
+  headers: {
+    Authorization: "Bearer " + token,
+    Accept: "application/json",
+  },
+});
 ```
 
-#### Response
+**CSV Export:**
+
+```javascript
+const params = new URLSearchParams({
+  date_from: "2024-01-01",
+  date_to: "2024-01-31",
+  format: "csv",
+  limit: 1000,
+});
+
+fetch(`/api/activity-log/export?${params}`, {
+  headers: {
+    Authorization: "Bearer " + token,
+  },
+})
+  .then((response) => response.blob())
+  .then((blob) => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "activity_log.csv";
+    a.click();
+  });
+```
+
+#### Success Responses
+
+**JSON Export (200):**
 
 ```json
 {
@@ -246,22 +406,22 @@ GET /api/activity-log/export?date_from=2024-01-01&date_to=2024-01-31&group_actio
         "action_label": "Tạo site",
         "group_action": "site_management",
         "description": "Tạo site mới",
-        "user_id": 1,
+        "user_id": 123,
         "user_email": "user@example.com",
         "user_name": "John Doe",
         "created_at": "2024-01-15 10:30:00",
         "details": {
-          "site_name": "example.com",
-          "site_id": 123
+          "site_id": 456
         }
       }
     ],
-    "total_records": 150,
+    "total_records": 250,
     "export_format": "json",
+    "export_limit": 500,
+    "generated_at": "2024-01-15 15:30:00",
     "filters_applied": {
       "date_from": "2024-01-01",
-      "date_to": "2024-01-31",
-      "group_action": "site_management"
+      "date_to": "2024-01-31"
     }
   },
   "message": "Xuất activity log thành công",
@@ -269,108 +429,287 @@ GET /api/activity-log/export?date_from=2024-01-01&date_to=2024-01-31&group_actio
 }
 ```
 
-## Activity Action Groups
+**CSV Export (200):**
 
-### Site Management
+```
+Content-Type: text/csv
+Content-Disposition: attachment; filename="activity_log_2024-01-15_15-30-00.csv"
 
-- `create_site` - Create new site
-- `update_site` - Update site information
-- `delete_site` - Delete site
-- `activate_site` - Activate site
-- `deactivate_site` - Deactivate site
-- `update_site_language` - Update site language
-- `update_site_platform` - Update site platform
+ID,Hành động,Nhãn hành động,Nhóm hành động,Mô tả,ID người dùng,Email người dùng,Tên người dùng,Thời gian tạo,Chi tiết
+1,"create_site","Tạo site","site_management","Tạo site mới",123,"user@example.com","John Doe","2024-01-15 10:30:00","{\"site_id\":456}"
+```
 
-### Page Management
+## Implementation Examples
 
-- `create_page` - Create new page
-- `update_page` - Update page
-- `delete_page` - Delete page
-- `export_page` - Export page
-- `update_tracking_script` - Update tracking script
-- `remove_tracking_script` - Remove tracking script
-- `get_tracking_script` - Get tracking script
-- `cancel_export` - Cancel export
-- `create_page_exports` - Create page exports
-- `update_pages` - Update pages
+### React Hook for Activity Logs
 
-### Attendance Management
+```javascript
+import { useState, useEffect } from "react";
 
-- `checkin_attendance` - Check-in attendance
-- `checkout_attendance` - Check-out attendance
-- `get_attendance` - Get attendance
-- `get_attendance_report` - Get attendance report
-- `add_custom_attendance` - Add custom attendance
-- `update_custom_attendance` - Update custom attendance
+const useActivityLogs = () => {
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({});
+  const [filters, setFilters] = useState({});
 
-### Attendance Complaints
+  const fetchLogs = async (newFilters = {}) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        ...filters,
+        ...newFilters,
+      });
 
-- `create_attendance_complaint` - Create attendance complaint
-- `update_attendance_complaint` - Update attendance complaint
-- `get_attendance_complaints` - Get attendance complaints
-- `review_attendance_complaint` - Review attendance complaint
-- `respond_to_attendance_complaint` - Respond to attendance complaint
-- `get_attendance_complaint_stats` - Get attendance complaint statistics
+      const response = await fetch(`/api/activity-log/?${params}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Accept: "application/json",
+        },
+      });
 
-### Board Management
+      const data = await response.json();
 
-- `create_list` - Create list
-- `update_list` - Update list
-- `delete_list` - Delete list
-- `update_list_positions` - Update list positions
-- `get_board_lists` - Get board lists
-- `add_board_member` - Add board member
-- `remove_board_member` - Remove board member
-- `get_board_members` - Get board members
+      if (data.success) {
+        setLogs(data.data.activities);
+        setPagination(data.data.pagination);
+        setFilters(data.data.filters_applied);
+      }
+    } catch (error) {
+      console.error("Error fetching activity logs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-### Cloudflare Operations
+  const exportLogs = async (format = "csv") => {
+    try {
+      const params = new URLSearchParams({
+        ...filters,
+        format,
+        limit: 5000,
+      });
 
-- `create_project_cloudflare_page` - Create Cloudflare project page
-- `update_project_cloudflare_page` - Update Cloudflare project page
-- `create_deploy_cloudflare_page` - Create Cloudflare deploy page
-- `apply_page_domain_cloudflare_page` - Apply page domain to Cloudflare
-- `deploy_export_cloudflare_page` - Deploy export to Cloudflare
+      const response = await fetch(`/api/activity-log/export?${params}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
-### Domain Operations
+      if (format === "csv") {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `activity_log_${
+          new Date().toISOString().split("T")[0]
+        }.csv`;
+        a.click();
+      } else {
+        const data = await response.json();
+        return data.data.export_data;
+      }
+    } catch (error) {
+      console.error("Error exporting logs:", error);
+    }
+  };
 
-- `refresh_list_domain` - Refresh domain list
-- `get_list_path_by_domain` - Get list path by domain
+  return {
+    logs,
+    loading,
+    pagination,
+    filters,
+    fetchLogs,
+    exportLogs,
+  };
+};
 
-### General Operations
+export default useActivityLogs;
+```
 
-- `access_view` - Access view
-- `show_record` - Show record
-- `create_record` - Create record
-- `update_record` - Update record
-- `delete_record` - Delete record
-- `get_permission_by_team` - Get permission by team
+### Vue.js Composition API Example
 
-## Error Responses
+```javascript
+import { ref, reactive } from "vue";
 
-All endpoints return consistent error responses:
+export function useActivityLogs() {
+  const logs = ref([]);
+  const loading = ref(false);
+  const pagination = reactive({});
+  const filters = reactive({});
 
-```json
-{
-  "success": false,
-  "message": "Error description",
-  "type": "error_type",
-  "error": "Detailed error message"
+  const fetchLogs = async (newFilters = {}) => {
+    loading.value = true;
+    try {
+      const params = new URLSearchParams({
+        ...filters,
+        ...newFilters,
+      });
+
+      const response = await fetch(`/api/activity-log/?${params}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Accept: "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        logs.value = data.data.activities;
+        Object.assign(pagination, data.data.pagination);
+        Object.assign(filters, data.data.filters_applied);
+      }
+    } catch (error) {
+      console.error("Error fetching activity logs:", error);
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  return {
+    logs,
+    loading,
+    pagination,
+    filters,
+    fetchLogs,
+  };
 }
 ```
 
-## Authentication
+## Best Practices
 
-All endpoints require authentication. Include the appropriate authentication token in the request headers.
+### 1. Error Handling
+
+Always handle both validation errors (422) and server errors (500):
+
+```javascript
+const handleApiResponse = async (response) => {
+  const data = await response.json();
+
+  if (!response.ok) {
+    if (response.status === 422) {
+      // Handle validation errors
+      console.error("Validation errors:", data.errors);
+      // Show field-specific error messages
+    } else if (response.status === 500) {
+      // Handle server errors
+      console.error("Server error:", data.error);
+      // Show generic error message
+    }
+    throw new Error(data.message);
+  }
+
+  return data;
+};
+```
+
+### 2. Pagination
+
+Implement proper pagination controls:
+
+```javascript
+const PaginationControls = ({ pagination, onPageChange }) => {
+  return (
+    <div className="pagination">
+      <button
+        disabled={pagination.on_first_page}
+        onClick={() => onPageChange(pagination.current_page - 1)}
+      >
+        Previous
+      </button>
+
+      <span>
+        Page {pagination.current_page} of {pagination.last_page}(
+        {pagination.from}-{pagination.to} of {pagination.total})
+      </span>
+
+      <button
+        disabled={!pagination.has_more_pages}
+        onClick={() => onPageChange(pagination.current_page + 1)}
+      >
+        Next
+      </button>
+    </div>
+  );
+};
+```
+
+### 3. Date Range Filtering
+
+Use proper date validation and formatting:
+
+```javascript
+const DateRangeFilter = ({ onFilterChange }) => {
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+
+  const handleApplyFilter = () => {
+    if (dateFrom && dateTo && dateFrom <= dateTo) {
+      onFilterChange({
+        date_from: dateFrom,
+        date_to: dateTo,
+      });
+    }
+  };
+
+  return (
+    <div className="date-filter">
+      <input
+        type="date"
+        value={dateFrom}
+        onChange={(e) => setDateFrom(e.target.value)}
+        max={dateTo || undefined}
+      />
+      <input
+        type="date"
+        value={dateTo}
+        onChange={(e) => setDateTo(e.target.value)}
+        min={dateFrom || undefined}
+      />
+      <button onClick={handleApplyFilter}>Apply</button>
+    </div>
+  );
+};
+```
+
+### 4. Debounced Search
+
+Implement debounced search for better performance:
+
+```javascript
+import { useDebouncedCallback } from "use-debounce";
+
+const SearchFilter = ({ onFilterChange }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const debouncedSearch = useDebouncedCallback((term) => {
+    onFilterChange({ search: term });
+  }, 500);
+
+  useEffect(() => {
+    debouncedSearch(searchTerm);
+  }, [searchTerm, debouncedSearch]);
+
+  return (
+    <input
+      type="text"
+      placeholder="Search logs..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+  );
+};
+```
 
 ## Rate Limiting
 
-The API implements rate limiting to prevent abuse. Please respect the rate limits and implement appropriate retry logic in your applications.
+Be mindful of API rate limits:
 
-## Best Practices
+- Implement debouncing for search inputs
+- Cache results when appropriate
+- Use pagination instead of loading all data at once
+- Limit export sizes for performance
 
-1. **Use appropriate filters**: Use specific filters to reduce response time and data transfer
-2. **Implement pagination**: Always use pagination for large datasets
-3. **Cache filter options**: Cache the available filters to reduce API calls
-4. **Handle errors gracefully**: Implement proper error handling for all API responses
-5. **Use date ranges**: Use date ranges instead of individual dates for better performance
-6. **Monitor usage**: Keep track of API usage to stay within rate limits
+## Support
+
+For technical questions or issues with the Activity Log API, please contact the backend development team or create an issue in the project repository.

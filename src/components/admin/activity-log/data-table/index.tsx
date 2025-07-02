@@ -13,6 +13,9 @@ import {
 import {
   Activity,
   AlertCircle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   BarChart3,
   ChevronDown,
   ChevronRight,
@@ -33,7 +36,7 @@ import { IActivityLog } from "@/types/activity-log.type";
 
 import { getCurrentTimezoneInfo } from "@/lib/utils";
 
-import { useGetActivityLogs } from "@/hooks/activity-log";
+import { useActivityLogExport, useGetActivityLogs } from "@/hooks/activity-log";
 import { useDebounce } from "@/hooks/use-debounce";
 
 import { Badge } from "@/components/ui/badge";
@@ -86,21 +89,43 @@ import { Spinner } from "@/components/global/spinner";
 import { ActivityLogFilters } from "./activity-log-filters";
 import { ActivityLogOverview } from "./activity-log-overview";
 
-// Enhanced action type constants with grouping (for use in table display)
+// Enhanced action type constants with grouping - matching API documentation (for use in table display)
 const ACTION_GROUPS = {
   SITE_MANAGEMENT: {
     label: "Site Management",
-    actions: ["create_record", "update_record", "delete_record"] as const,
+    actions: ["create_site", "update_site", "delete_site"] as const,
     color: "bg-blue-500/10 text-blue-700 border-blue-200",
     icon: Activity,
   },
   PAGE_MANAGEMENT: {
     label: "Page Management",
-    actions: ["create_page_exports", "update_pages"] as const,
+    actions: ["create_page_exports", "update_pages", "delete_page"] as const,
     color: "bg-green-500/10 text-green-700 border-green-200",
     icon: FileText,
   },
-  CLOUDFLARE_OPS: {
+  ATTENDANCE_MANAGEMENT: {
+    label: "Attendance Management",
+    actions: ["checkin", "checkout", "attendance_report"] as const,
+    color: "bg-purple-500/10 text-purple-700 border-purple-200",
+    icon: Clock,
+  },
+  ATTENDANCE_COMPLAINTS: {
+    label: "Attendance Complaints",
+    actions: [
+      "create_complaint",
+      "update_complaint",
+      "resolve_complaint",
+    ] as const,
+    color: "bg-orange-500/10 text-orange-700 border-orange-200",
+    icon: AlertCircle,
+  },
+  BOARD_MANAGEMENT: {
+    label: "Board Management",
+    actions: ["create_board", "update_board", "delete_board"] as const,
+    color: "bg-teal-500/10 text-teal-700 border-teal-200",
+    icon: BarChart3,
+  },
+  CLOUDFLARE_OPERATIONS: {
     label: "Cloudflare Operations",
     actions: [
       "create_project_cloudflare_page",
@@ -112,23 +137,22 @@ const ACTION_GROUPS = {
     color: "bg-orange-500/10 text-orange-700 border-orange-200",
     icon: BarChart3,
   },
-  ACCESS_CONTROL: {
-    label: "Access Control",
-    actions: ["access_view", "show_record", "get_permission_by_team"] as const,
-    color: "bg-purple-500/10 text-purple-700 border-purple-200",
-    icon: Eye,
-  },
-  DOMAIN_OPS: {
+  DOMAIN_OPERATIONS: {
     label: "Domain Operations",
     actions: ["refresh_list_domain", "get_list_path_by_domain"] as const,
-    color: "bg-teal-500/10 text-teal-700 border-teal-200",
+    color: "bg-indigo-500/10 text-indigo-700 border-indigo-200",
     icon: Clock,
   },
-  MONITORING: {
-    label: "Monitoring",
-    actions: ["detail_monitor_server"] as const,
-    color: "bg-red-500/10 text-red-700 border-red-200",
-    icon: AlertCircle,
+  GENERAL_OPERATIONS: {
+    label: "General Operations",
+    actions: [
+      "access_view",
+      "show_record",
+      "get_permission_by_team",
+      "detail_monitor_server",
+    ] as const,
+    color: "bg-gray-500/10 text-gray-700 border-gray-200",
+    icon: Eye,
   },
 } as const;
 
@@ -181,14 +205,25 @@ const renderObjectDetails = (obj: any, indent = 0): React.ReactNode => {
   );
 };
 
-// Helper function to get action group
-const getActionGroup = (action: string) => {
+// Helper function to get action group - now uses API response group_action field
+const getActionGroup = (log: IActivityLog) => {
+  // Use group_action from API response if available
+  if (log.group_action) {
+    const groupKey = log.group_action.toUpperCase().replace("_", "_");
+    const group = ACTION_GROUPS[groupKey as keyof typeof ACTION_GROUPS];
+    if (group) {
+      return { key: groupKey, ...group };
+    }
+  }
+
+  // Fallback to matching by action name for backward compatibility
   for (const [key, group] of Object.entries(ACTION_GROUPS)) {
     const actions = group.actions as unknown as string[];
-    if (actions.includes(action)) {
+    if (actions.includes(log.action)) {
       return { key, ...group };
     }
   }
+
   return {
     key: "OTHER",
     label: "Other",
@@ -214,7 +249,7 @@ const groupActivitiesByUser = (activities: IActivityLog[]) => {
       }
       acc[userId].activities.push(activity);
       acc[userId].totalActions++;
-      acc[userId].actionGroups.add(getActionGroup(activity.action).key);
+      acc[userId].actionGroups.add(getActionGroup(activity).key);
       return acc;
     },
     {} as Record<
@@ -269,6 +304,14 @@ export default function ActivityLogDataTable() {
     "user_id",
     parseAsString.withDefault("all")
   );
+  const [sortField, setSortField] = useQueryState(
+    "sort_field",
+    parseAsString.withDefault("created_at")
+  );
+  const [sortDirection, setSortDirection] = useQueryState(
+    "sort_direction",
+    parseAsString.withDefault("desc")
+  );
 
   const debouncedSearch = useDebounce(email, 500);
 
@@ -285,8 +328,13 @@ export default function ActivityLogDataTable() {
     dateTo,
     selectedUser === "all" ? "" : selectedUser,
     selectedActionGroups,
-    undefined // sortBy - can be added later
+    undefined, // actions - can be added later
+    sortField,
+    sortDirection
   );
+
+  // Export functionality
+  const { exportLogs } = useActivityLogExport();
 
   // Extract data from the response
   const activityLogData = useMemo(() => {
@@ -308,7 +356,7 @@ export default function ActivityLogDataTable() {
     const filtered = activityLogData.filter((activity: IActivityLog) => {
       // Filter by action groups
       if (selectedActionGroups.length > 0) {
-        const actionGroup = getActionGroup(activity.action);
+        const actionGroup = getActionGroup(activity);
         if (!selectedActionGroups.includes(actionGroup.key)) {
           return false;
         }
@@ -328,7 +376,7 @@ export default function ActivityLogDataTable() {
         actionGroups: Object.entries(
           filtered.reduce(
             (acc: Record<string, number>, activity: IActivityLog) => {
-              const group = getActionGroup(activity.action);
+              const group = getActionGroup(activity);
               acc[group.key] = (acc[group.key] || 0) + 1;
               return acc;
             },
@@ -429,6 +477,30 @@ export default function ActivityLogDataTable() {
     });
   };
 
+  // Handle column sorting
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      // Toggle direction if same field
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // Set new field with default descending order
+      setSortField(field);
+      setSortDirection("desc");
+    }
+  };
+
+  // Get sort icon for column header
+  const getSortIcon = (field: string) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="text-muted-foreground ml-1 h-4 w-4" />;
+    }
+    return sortDirection === "asc" ? (
+      <ArrowUp className="text-muted-foreground ml-1 h-4 w-4" />
+    ) : (
+      <ArrowDown className="text-muted-foreground ml-1 h-4 w-4" />
+    );
+  };
+
   // Clear all filters
   const clearFilters = () => {
     setEmail("");
@@ -440,9 +512,21 @@ export default function ActivityLogDataTable() {
   };
 
   // Export functionality
-  const handleExport = () => {
-    // This would integrate with the export API endpoint from the documentation
-    console.log("Export functionality to be implemented with API");
+  const handleExport = async (format: "csv" | "json" = "csv") => {
+    try {
+      await exportLogs({
+        dateFrom,
+        dateTo,
+        userId: selectedUser === "all" ? undefined : selectedUser,
+        actionGroups:
+          selectedActionGroups.length > 0 ? selectedActionGroups : undefined,
+        search: debouncedSearch || undefined,
+        format,
+        limit: 5000, // Export up to 5000 records as per API documentation
+      });
+    } catch (error) {
+      console.error("Export failed:", error);
+    }
   };
 
   return (
@@ -533,8 +617,14 @@ export default function ActivityLogDataTable() {
                       <TableHead className="text-foreground w-[60px] py-3 font-medium">
                         ID
                       </TableHead>
-                      <TableHead className="text-foreground w-[140px] py-3 font-medium">
-                        Action
+                      <TableHead
+                        className="text-foreground hover:bg-muted/50 w-[140px] cursor-pointer py-3 font-medium transition-colors"
+                        onClick={() => handleSort("action")}
+                      >
+                        <div className="flex items-center">
+                          Action
+                          {getSortIcon("action")}
+                        </div>
                       </TableHead>
                       <TableHead className="text-foreground w-[120px] py-3 font-medium">
                         Group
@@ -542,8 +632,14 @@ export default function ActivityLogDataTable() {
                       <TableHead className="text-foreground w-[180px] py-3 font-medium">
                         User
                       </TableHead>
-                      <TableHead className="text-foreground w-[180px] py-3 font-medium">
-                        Timestamp
+                      <TableHead
+                        className="text-foreground hover:bg-muted/50 w-[180px] cursor-pointer py-3 font-medium transition-colors"
+                        onClick={() => handleSort("created_at")}
+                      >
+                        <div className="flex items-center">
+                          Timestamp
+                          {getSortIcon("created_at")}
+                        </div>
                       </TableHead>
                       <TableHead className="text-foreground py-3 font-medium">
                         Description
@@ -553,7 +649,7 @@ export default function ActivityLogDataTable() {
                   <TableBody>
                     {processedData.activities.map((log: IActivityLog) => {
                       const isExpanded = expandedRows.has(log.id);
-                      const actionGroup = getActionGroup(log.action);
+                      const actionGroup = getActionGroup(log);
                       const ActionGroupIcon = actionGroup.icon;
 
                       return (
@@ -598,12 +694,12 @@ export default function ActivityLogDataTable() {
                                 </span>
                               </div>
                             </TableCell>
-                            <TableCell className="py-3">
-                              {log.details && log.details.logged_at ? (
+                            <TableCell>
+                              {log.formatted_created_at ? (
                                 <div className="flex flex-col gap-1">
                                   <div className="text-foreground text-xs font-medium">
                                     {getCurrentTimezoneInfo(
-                                      log.details.logged_at
+                                      log.formatted_created_at
                                     ).convertedTime || "—"}
                                   </div>
                                   <div className="text-muted-foreground text-xs">
@@ -616,6 +712,97 @@ export default function ActivityLogDataTable() {
                             </TableCell>
                             <TableCell className="text-foreground max-w-[200px] truncate py-3">
                               {log.description || "—"}
+                            </TableCell>
+                            <TableCell>
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-2xl">
+                                  <DialogHeader>
+                                    <DialogTitle>
+                                      Activity Details - #{log.id}
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                      Complete information about this activity
+                                      log entry
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div>
+                                        <Label className="text-sm font-medium">
+                                          Action
+                                        </Label>
+                                        <div className="mt-1">
+                                          <ActivityLogBadge
+                                            action={log.action}
+                                          />
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <Label className="text-sm font-medium">
+                                          Group
+                                        </Label>
+                                        <div className="mt-1">
+                                          <Badge
+                                            variant="outline"
+                                            className={actionGroup.color}
+                                          >
+                                            <ActionGroupIcon className="mr-1 h-3 w-3" />
+                                            {actionGroup.label}
+                                          </Badge>
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <Label className="text-sm font-medium">
+                                          User
+                                        </Label>
+                                        <p className="mt-1 text-sm">
+                                          {log.user_email}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <Label className="text-sm font-medium">
+                                          Timestamp
+                                        </Label>
+                                        <p className="mt-1 text-sm">
+                                          {log.formatted_created_at
+                                            ? getCurrentTimezoneInfo(
+                                                log.formatted_created_at
+                                              ).convertedTime
+                                            : "—"}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <Label className="text-sm font-medium">
+                                        Description
+                                      </Label>
+                                      <p className="mt-1 text-sm">
+                                        {log.description ||
+                                          "No description available"}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <Label className="text-sm font-medium">
+                                        Full Details
+                                      </Label>
+                                      <div className="bg-muted mt-1 rounded-lg p-3">
+                                        {log.details ? (
+                                          renderObjectDetails(log.details)
+                                        ) : (
+                                          <span className="text-muted-foreground text-sm">
+                                            No additional details available
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
                             </TableCell>
                           </TableRow>
                           {isExpanded && (
@@ -713,7 +900,7 @@ export default function ActivityLogDataTable() {
           ) : (
             <Timeline>
               {processedData.activities.map((log: IActivityLog) => {
-                const actionGroup = getActionGroup(log.action);
+                const actionGroup = getActionGroup(log);
 
                 return (
                   <TimelineItem key={log.id} step={log.id}>
@@ -849,9 +1036,7 @@ export default function ActivityLogDataTable() {
                         <div className="p-6 pt-0">
                           <div className="space-y-3">
                             {userGroup.activities.map((activity) => {
-                              const actionGroup = getActionGroup(
-                                activity.action
-                              );
+                              const actionGroup = getActionGroup(activity);
                               const ActionGroupIcon = actionGroup.icon;
 
                               return (
