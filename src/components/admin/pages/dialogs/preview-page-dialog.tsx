@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Monitor,
@@ -186,9 +186,38 @@ export default function PreviewPageDialog({
 
   const canRotate = selectedDevice.type !== "desktop";
 
+  // Inject CSS with !important styles for dialog positioning
+  useEffect(() => {
+    const styleId = "preview-dialog-positioning";
+    const existingStyle = document.getElementById(styleId);
+
+    if (!existingStyle) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `
+        .preview-dialog-content {
+          position: fixed !important;
+          top: 50% !important;
+          left: 50% !important;
+          transform: translate(-50%, -50%) !important;
+          margin: 0 !important;
+          z-index: 9999 !important;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    return () => {
+      const style = document.getElementById(styleId);
+      if (style) {
+        style.remove();
+      }
+    };
+  }, []);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="h-full max-h-[90vh] w-full !max-w-[90vw] bg-white p-0 [&>button]:hidden">
+      <DialogContent className="preview-dialog-content h-full max-h-[90vh] w-full !max-w-[90vw] bg-white p-0 [&>button]:hidden">
         {/* Enhanced Chrome DevTools Style Header */}
         <DialogHeader className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100/50 px-4 py-3">
           <DialogTitle className="flex items-center justify-between text-sm">

@@ -21,6 +21,11 @@
     "PleaseWait": "Vui lòng đợi trong khi chúng tôi tải trang của bạn",
     "LoadError": "Không thể tải trang",
     "TryAgain": "Vui lòng thử lại hoặc liên hệ hỗ trợ nếu vấn đề vẫn tiếp tục",
+    "LoadingSiteData": "Đang tải dữ liệu trang...",
+    "WaitingForSiteData": "Đang chờ dữ liệu trang",
+    "ExportInProgress": "Đang xuất",
+    "DeployInProgress": "Đang đăng",
+    "PleaseWait3Seconds": "Vui lòng đợi 3 giây trước khi nhấn lại",
     "NewPage": {
       "Title": "Trang mới: {slug}",
       "Description": "Bắt đầu xây dựng trang của bạn tại đây."

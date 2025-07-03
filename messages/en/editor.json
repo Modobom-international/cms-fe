@@ -21,6 +21,11 @@
     "PleaseWait": "Please wait while we load your page",
     "LoadError": "Failed to load page",
     "TryAgain": "Please try again or contact support if the problem persists",
+    "LoadingSiteData": "Loading site data...",
+    "WaitingForSiteData": "Waiting for site data",
+    "ExportInProgress": "Export in progress",
+    "DeployInProgress": "Deploy in progress",
+    "PleaseWait3Seconds": "Please wait 3 seconds before clicking again",
     "NewPage": {
       "Title": "New Page: {slug}",
       "Description": "Start building your page here."
