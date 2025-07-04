@@ -307,7 +307,9 @@ export default function PagesPage() {
         }
         previewUrl={previewDialogState.previewUrl}
         pageName={previewDialogState.pageName}
+        isEditing={false}
       />
     </div>
   );
 }
+
