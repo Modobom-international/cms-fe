@@ -6,11 +6,11 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
 import { env } from "@/env";
-import { ChevronRight, Home, Search } from "lucide-react";
+import { ChevronRight, Home, Rocket, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { useDeletePage, useGetPages } from "@/hooks/pages";
+import { useDeletePage, useDeployPage, useGetPages } from "@/hooks/pages";
 import { useGetSiteById } from "@/hooks/sites";
 import { useDebounce } from "@/hooks/use-debounce";
 
@@ -28,6 +28,7 @@ import {
 import {
   CreatePageDialog,
   DeletePageDialog,
+  DeploySiteDialog,
   PreviewPageDialog,
   TrackingScriptDialog,
 } from "@/components/admin/pages/dialogs";
@@ -55,6 +56,7 @@ export default function PagesPage() {
     params.siteId?.toString() || ""
   );
   const deletePageMutation = useDeletePage();
+  const deployPageMutation = useDeployPage();
 
   const site = siteData?.data as Site | undefined;
   const pages = pagesData?.data as Page[] | undefined;
@@ -81,6 +83,12 @@ export default function PagesPage() {
     isOpen: false,
     previewUrl: "",
     pageName: "",
+  });
+
+  const [deployDialogState, setDeployDialogState] = useState<{
+    isOpen: boolean;
+  }>({
+    isOpen: false,
   });
 
   // Filter pages based on search query
@@ -112,6 +120,31 @@ export default function PagesPage() {
       setDeleteDialogState({ isOpen: false, pageId: "", pageName: "" });
     } catch (err) {
       console.error("Error deleting page:", err);
+    }
+  };
+
+  const handleDeploySite = async () => {
+    if (!pages || pages.length === 0) {
+      toast.error("No pages to deploy");
+      return;
+    }
+
+    try {
+      const pageSlugs = pages.map((page) => page.slug);
+      await toast.promise(
+        deployPageMutation.mutateAsync({
+          site_id: Number(params.siteId),
+          page_slugs: pageSlugs,
+        }),
+        {
+          loading: t("Deploy.Loading"),
+          success: t("Deploy.Success"),
+          error: t("Deploy.Error"),
+        }
+      );
+      setDeployDialogState({ isOpen: false });
+    } catch (err) {
+      console.error("Error deploying site:", err);
     }
   };
 
@@ -150,6 +183,27 @@ export default function PagesPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <Button
+              variant="default"
+              size="sm"
+              className="bg-green-600 hover:bg-green-700"
+              onClick={() => setDeployDialogState({ isOpen: true })}
+              disabled={
+                !pages || pages.length === 0 || deployPageMutation.isPending
+              }
+            >
+              {deployPageMutation.isPending ? (
+                <>
+                  <Spinner />
+                  {t("Deploy.Loading")}
+                </>
+              ) : (
+                <>
+                  <Rocket className="mr-2 h-4 w-4" />
+                  {t("Deploy.Button")}
+                </>
+              )}
+            </Button>
             <CreatePageDialog site={site?.domain || ""} />
           </div>
         </div>
@@ -307,7 +361,17 @@ export default function PagesPage() {
         }
         previewUrl={previewDialogState.previewUrl}
         pageName={previewDialogState.pageName}
+        isEditing={false}
+      />
+
+      <DeploySiteDialog
+        isOpen={deployDialogState.isOpen}
+        onClose={() => setDeployDialogState({ isOpen: false })}
+        onConfirm={handleDeploySite}
+        siteName={site?.name || ""}
+        isDeploying={deployPageMutation.isPending}
       />
     </div>
   );
 }
+

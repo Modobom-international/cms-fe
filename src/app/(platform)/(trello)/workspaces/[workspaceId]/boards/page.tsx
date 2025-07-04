@@ -1,7 +1,13 @@
+"use client";
+
+import { use } from "react";
+
 import Link from "next/link";
 
 import { Home } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
+
+import { useGetWorkspace } from "@/hooks/workspace";
 
 import {
   Breadcrumb,
@@ -14,15 +20,19 @@ import {
 
 import BoardsClient from "@/components/board/BoardsClient";
 
-export default async function BoardsPage({
+export default function BoardsPage({
   params,
 }: {
   params: Promise<{
     workspaceId: string;
   }>;
 }) {
-  const { workspaceId } = await params;
-  const t = await getTranslations("Workspace");
+  const { workspaceId } = use(params);
+  const t = useTranslations("Workspace");
+
+  // Convert workspaceId to number and fetch workspace data
+  const workspaceIdNumber = parseInt(workspaceId);
+  const { workspace, isLoading } = useGetWorkspace(workspaceIdNumber);
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -44,15 +54,20 @@ export default async function BoardsPage({
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{t("boards")}</BreadcrumbPage>
+              <BreadcrumbPage>
+                {isLoading ? t("boards") : workspace?.name || t("boards")}
+              </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">{t("boards")}</h2>
+          <h2 className="text-3xl font-bold tracking-tight">
+            {isLoading ? t("boards") : `${workspace?.name} - ${t("boards")}`}
+          </h2>
         </div>
       </div>
       <BoardsClient workspaceId={workspaceId} />
     </div>
   );
 }
+

@@ -84,37 +84,42 @@ export default function EditorHeader({
             </p>
           </div>
         </div>
-        <Button
-          variant="secondary"
-          size="sm"
-          className="cursor-pointer"
-          onClick={onPreviewClick}
-        >
-          Preview Exported
-        </Button>
-        {/* Deploy Button */}
-        <button
-          onClick={handleDeploy}
-          disabled={isDisabled}
-          className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 ease-in-out ${
-            isDisabled
-              ? "cursor-not-allowed bg-gray-400 text-white opacity-60"
-              : "bg-green-600 text-white shadow-sm hover:-translate-y-0.5 hover:bg-green-700 hover:shadow-md"
-          } ${deployPageMutation.isPending ? "animate-pulse" : ""} `}
-          title={
-            isDisabled
-              ? tempDisabled
-                ? "Please wait 3 seconds before clicking again"
-                : "Deploy in progress"
-              : "Deploy your changes to make them live"
-          }
-        >
-          <Rocket
-            className={`h-4 w-4 ${deployPageMutation.isPending ? "animate-spin" : ""}`}
-          />
-          {buttonText}
-        </button>
+
+        {/* Button Group */}
+        <div className="flex items-center gap-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="cursor-pointer transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:scale-105 hover:shadow-lg hover:shadow-gray-200/50 dark:hover:shadow-gray-800/50"
+            onClick={onPreviewClick}
+          >
+            Preview Exported
+          </Button>
+
+          <button
+            onClick={handleDeploy}
+            disabled={isDisabled}
+            className={`group inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 ease-in-out ${
+              isDisabled
+                ? "cursor-not-allowed bg-gray-400 text-white opacity-60"
+                : "bg-green-600 text-white shadow-sm hover:-translate-y-0.5 hover:scale-105 hover:bg-green-700 hover:shadow-lg hover:shadow-green-200/50 dark:hover:shadow-green-800/50"
+            } ${deployPageMutation.isPending ? "animate-pulse" : ""} `}
+            title={
+              isDisabled
+                ? tempDisabled
+                  ? "Please wait 3 seconds before clicking again"
+                  : "Deploy in progress"
+                : "Deploy your changes to make them live"
+            }
+          >
+            <Rocket
+              className={`h-4 w-4 transition-transform duration-200 ${deployPageMutation.isPending ? "animate-spin" : "group-hover:rotate-12"}`}
+            />
+            {buttonText}
+          </button>
+        </div>
       </div>
     </header>
   );
 }
+

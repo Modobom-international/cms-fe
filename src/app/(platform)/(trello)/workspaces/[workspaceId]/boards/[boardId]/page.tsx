@@ -1,7 +1,14 @@
+"use client";
+
+import { use } from "react";
+
 import Link from "next/link";
 
 import { Home } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
+
+import { useGetBoards } from "@/hooks/board/board";
+import { useGetWorkspace } from "@/hooks/workspace";
 
 import {
   Breadcrumb,
@@ -14,7 +21,7 @@ import {
 
 import BoardClient from "@/components/board/BoardClient";
 
-export default async function BoardPage({
+export default function BoardPage({
   params,
 }: {
   params: Promise<{
@@ -22,8 +29,20 @@ export default async function BoardPage({
     boardId: string;
   }>;
 }) {
-  const { boardId, workspaceId } = await params;
-  const t = await getTranslations("Workspace");
+  const { boardId, workspaceId } = use(params);
+  const t = useTranslations("Workspace");
+
+  // Convert IDs to numbers and fetch data
+  const workspaceIdNumber = parseInt(workspaceId);
+  const boardIdNumber = parseInt(boardId);
+
+  const { workspace, isLoading: isLoadingWorkspace } =
+    useGetWorkspace(workspaceIdNumber);
+  const { boards, isLoading: isLoadingBoards } = useGetBoards(workspaceId);
+
+  // Find the specific board
+  const board = boards?.find((b) => b.id === boardIdNumber);
+  const isLoading = isLoadingWorkspace || isLoadingBoards;
 
   return (
     <div className="flex flex-col space-y-4">
@@ -58,20 +77,21 @@ export default async function BoardPage({
                   href={`/workspaces/${workspaceId}/boards`}
                   className="text-foreground hover:text-primary"
                 >
-                  {t("boards")}
+                  {isLoading ? t("boards") : workspace?.name || t("boards")}
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbPage className="text-foreground">
-                {t("board")}
+                {isLoading ? t("board") : board?.name || t("board")}
               </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <BoardClient boardId={Number(boardId)} />
+      <BoardClient boardId={Number(boardId)} boardName={board?.name} />
     </div>
   );
 }
+

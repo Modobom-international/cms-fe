@@ -1,12 +1,59 @@
----
-description: 
-globs: 
-alwaysApply: false
----
-# Current Task: Enhanced Activity Log UI/UX for User Tracking & Traceability
+# Current Task: Add Deploy Button to Pages Listing
 
 ## Task Summary
+
+Add a deploy button to the studio sites pages listing page to allow users to deploy all pages of a site at once.
+
+## Progress
+
+[X] Analyze existing deploy functionality in the codebase
+[X] Add deploy translation keys to English and Vietnamese studio translation files
+[X] Create DeploySiteDialog component for deploy confirmation
+[X] Add deploy button to pages listing header actions
+[X] Implement deploy functionality using existing useDeployPage hook
+[X] Test the implementation
+
+## Implementation Details
+
+### Changes Made:
+
+1. **Translation Keys Added**:
+
+   - Added deploy section to `messages/en/studio.json`
+   - Added Vietnamese translations to `messages/vi/studio.json`
+   - Keys include: Button, DialogTitle, DialogDescription, Confirm, Cancel, Loading, Success, Error
+
+2. **New Component Created**:
+
+   - `src/components/admin/pages/dialogs/deploy-site-dialog.tsx`
+   - Clean dialog with rocket icon and green deploy button
+   - Proper loading states and confirmation flow
+   - Uses existing translation system
+
+3. **Updated Main Pages Component**:
+
+   - Added deploy button in header actions section next to "Create Page"
+   - Green rocket-styled button with proper loading states
+   - Deploys all pages of the site using page slugs array
+   - Proper error handling and success feedback
+   - Button disabled when no pages exist or deployment in progress
+
+4. **Integration Details**:
+   - Uses existing `useDeployPage` hook from `/hooks/pages`
+   - Deploys to `/api/cloudflare/deployments/exports` endpoint
+   - Passes `{ site_id: number; page_slugs: string[] }` payload
+   - Proper toast notifications for user feedback
+
+## Task Status: ✅ COMPLETED
+
+The deploy button has been successfully added to the pages listing page. Users can now deploy all pages of a site with a single click, which will make their changes live for visitors.
+
+# Previous Task: Enhanced Activity Log UI/UX for User Tracking & Traceability
+
+## Task Summary
+
 Improve the Activity Log data table UI/UX to provide better user tracking and traceability capabilities:
+
 1. Enhanced filtering with date ranges, user selection, and action grouping
 2. Better data visualization with timeline view and user activity patterns
 3. Improved search and filtering capabilities
@@ -15,6 +62,7 @@ Improve the Activity Log data table UI/UX to provide better user tracking and tr
 6. Real-time activity monitoring
 
 ## Progress
+
 [X] Analyze current Activity Log implementation
 [X] Design enhanced filtering system
 [X] Implement improved data visualization
@@ -27,6 +75,7 @@ Improve the Activity Log data table UI/UX to provide better user tracking and tr
 ## Implementation Plan
 
 ### 1. Enhanced Filtering System
+
 - Date range picker with preset options (Today, Yesterday, This Week, etc.)
 - User dropdown with search capability
 - Action type grouping (Site Management, User Management, etc.)
@@ -34,6 +83,7 @@ Improve the Activity Log data table UI/UX to provide better user tracking and tr
 - Filter persistence in URL parameters
 
 ### 2. Improved Data Visualization
+
 - Timeline view showing activity patterns
 - User activity heatmap
 - Action frequency charts
@@ -41,6 +91,7 @@ Improve the Activity Log data table UI/UX to provide better user tracking and tr
 - Better data table with expandable details
 
 ### 3. User Tracking Features
+
 - User activity timeline
 - Action history per user
 - Session tracking
@@ -48,6 +99,7 @@ Improve the Activity Log data table UI/UX to provide better user tracking and tr
 - Audit trail export
 
 ### 4. Enhanced UI Components
+
 - Better filter bar with clear/apply actions
 - Improved table with sorting and grouping
 - Activity detail modal with full context
@@ -59,12 +111,14 @@ Improve the Activity Log data table UI/UX to provide better user tracking and tr
 ### Enhanced Features Implemented
 
 1. **Statistics Dashboard**:
+
    - Total activities count
-   - Active users count  
+   - Active users count
    - Action groups overview
    - Time period display
 
 2. **Advanced Filtering System**:
+
    - Email search with debouncing
    - User dropdown filter
    - Date range picker with presets (Today, Yesterday, Last 7 days, etc.)
@@ -73,11 +127,13 @@ Improve the Activity Log data table UI/UX to provide better user tracking and tr
    - Active filters display with remove capability
 
 3. **Multiple View Modes**:
+
    - **Table View**: Enhanced data table with expandable rows
    - **Timeline View**: Chronological activity display with visual timeline
    - **Grouped View**: Activities organized by user for tracking patterns
 
 4. **Enhanced Data Presentation**:
+
    - Action grouping (Site Management, Page Management, Cloudflare Ops, etc.)
    - Color-coded badges and icons for different action types
    - User avatars and improved user identification
@@ -85,6 +141,7 @@ Improve the Activity Log data table UI/UX to provide better user tracking and tr
    - Better timestamp formatting with timezone info
 
 5. **User Experience Improvements**:
+
    - Clear filter management with one-click removal
    - Export functionality framework
    - Responsive design with mobile-first approach
@@ -98,6 +155,7 @@ Improve the Activity Log data table UI/UX to provide better user tracking and tr
    - Client-side filtering and grouping logic
 
 ## Files to Modify
+
 1. `src/components/admin/activity-log/data-table/index.tsx` - Main data table component
 2. `src/hooks/activity-log/index.ts` - Activity log hooks
 3. `src/types/activity-log.type.ts` - Type definitions
@@ -227,6 +285,7 @@ Contains all TypeScript interfaces for the handbook feature:
 - Source: Source information interface
 
 **🔒 Security & Validation**:
+
 - All endpoints use `protectedProcedure` requiring authentication
 - Proper user ID filtering (only own data accessible)
 - Input validation with Zod schemas
@@ -235,6 +294,8 @@ Contains all TypeScript interfaces for the handbook feature:
 # General
 
 - Use always use npx shadcn@latest init to install shadcn/ui. Avoid using shadcn-ui as it's deprecated.
+- Use always use npx shadcn@latest add [component] to add a component to the project.
+- Always use NPM as the package manager.
 - Use always use npx shadcn@latest add [component] to add a component to the project.
 - Always use NPM as the package manager.
 

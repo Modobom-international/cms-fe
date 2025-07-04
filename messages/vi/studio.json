@@ -175,15 +175,15 @@
           "NoPages": "Không tìm thấy trang nào",
           "Table": {
             "Name": "Tên",
-            "Slug": "Đường dẫn",
+            "Slug": "Slug",
             "LastUpdated": "Cập nhật lần cuối",
-            "Actions": "Thao tác",
-            "Edit": "Sửa",
+            "Actions": "Hành động",
+            "Edit": "Chỉnh sửa",
             "Preview": "Xem trước",
-            "PreviewExported": "Xem trước",
+            "PreviewExported": "Xem trước đã xuất",
             "Delete": "Xóa",
             "View": "Xem",
-            "TrackingScript": "Mã theo dõi"
+            "TrackingScript": "Script theo dõi"
           }
         },
         "Create": {
@@ -263,6 +263,16 @@
               "Error": "Không thể xóa mã theo dõi"
             }
           }
+        },
+        "Deploy": {
+          "Button": "Triển khai Trang web",
+          "DialogTitle": "Triển khai Trang web",
+          "DialogDescription": "Triển khai tất cả các trang cho trang web này để làm cho chúng hoạt động. Điều này sẽ làm cho các thay đổi của bạn hiển thị với người truy cập.",
+          "Confirm": "Triển khai Ngay",
+          "Cancel": "Hủy",
+          "Loading": "Đang triển khai...",
+          "Success": "Triển khai trang web thành công!",
+          "Error": "Triển khai trang web thất bại"
         }
       }
     }

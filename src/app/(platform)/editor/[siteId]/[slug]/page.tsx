@@ -81,7 +81,9 @@ export default function PageEditor({ params, searchParams }: PageEditorProps) {
         }
         previewUrl={previewDialogState.previewUrl}
         pageName={previewDialogState.pageName}
+        isEditing={true}
       />
     </>
   );
 }
+

@@ -36,6 +36,7 @@ interface PreviewPageDialogProps {
   onClose: () => void;
   previewUrl: string;
   pageName: string;
+  isEditing: boolean;
 }
 
 type DevicePreset = {
@@ -47,6 +48,7 @@ type DevicePreset = {
   userAgent: string;
   type: "mobile" | "tablet" | "desktop";
   hasNotch?: boolean;
+  hasDynamicIsland?: boolean;
   hasHomeButton?: boolean;
 };
 
@@ -61,7 +63,7 @@ const devicePresets: DevicePreset[] = [
     pixelRatio: 3,
     userAgent: "iPhone",
     type: "mobile",
-    hasNotch: true,
+    hasDynamicIsland: true,
   },
   {
     id: "iphone-se",
@@ -145,11 +147,12 @@ export default function PreviewPageDialog({
   onClose,
   previewUrl,
   pageName,
+  isEditing,
 }: PreviewPageDialogProps) {
   const t = useTranslations("Studio.Sites.Pages");
   const [selectedDeviceId, setSelectedDeviceId] = useState("iphone-14-pro");
   const [orientation, setOrientation] = useState<Orientation>("portrait");
-  const [zoom, setZoom] = useState(0.75);
+  const [zoom, setZoom] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const selectedDevice =
@@ -171,9 +174,32 @@ export default function PreviewPageDialog({
       return { width: selectedDevice.width, height: selectedDevice.height };
     }
 
-    return orientation === "portrait"
-      ? { width: selectedDevice.width, height: selectedDevice.height }
-      : { width: selectedDevice.height, height: selectedDevice.width };
+    const baseDimensions =
+      orientation === "portrait"
+        ? { width: selectedDevice.width, height: selectedDevice.height }
+        : { width: selectedDevice.height, height: selectedDevice.width };
+
+    // Scale mobile devices to fit better in the dialog
+    const maxMobileHeight = window.innerHeight * 0.6;
+    const maxMobileWidth = window.innerWidth * 0.4;
+
+    if (baseDimensions.height > maxMobileHeight) {
+      const scale = maxMobileHeight / baseDimensions.height;
+      return {
+        width: Math.round(baseDimensions.width * scale),
+        height: Math.round(baseDimensions.height * scale),
+      };
+    }
+
+    if (baseDimensions.width > maxMobileWidth) {
+      const scale = maxMobileWidth / baseDimensions.width;
+      return {
+        width: Math.round(baseDimensions.width * scale),
+        height: Math.round(baseDimensions.height * scale),
+      };
+    }
+
+    return baseDimensions;
   };
 
   const dimensions = getDisplayDimensions();
@@ -186,12 +212,12 @@ export default function PreviewPageDialog({
 
   const canRotate = selectedDevice.type !== "desktop";
 
-  // Inject CSS with !important styles for dialog positioning
+  // Inject CSS with proper dialog styling only when editing
   useEffect(() => {
     const styleId = "preview-dialog-positioning";
     const existingStyle = document.getElementById(styleId);
 
-    if (!existingStyle) {
+    if (isEditing && !existingStyle) {
       const style = document.createElement("style");
       style.id = styleId;
       style.textContent = `
@@ -201,25 +227,41 @@ export default function PreviewPageDialog({
           left: 50% !important;
           transform: translate(-50%, -50%) !important;
           margin: 0 !important;
-          z-index: 9999 !important;
+          z-index: 50 !important;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+          border-radius: 12px !important;
+        }
+        .preview-dialog-content [role="combobox"] {
+          z-index: 60 !important;
+        }
+        .preview-dialog-content [data-radix-popper-content-wrapper] {
+          z-index: 70 !important;
+        }
+        .preview-dialog-overlay {
+          background: rgba(0, 0, 0, 0.4) !important;
+          backdrop-filter: blur(4px) !important;
         }
       `;
       document.head.appendChild(style);
+    } else if (!isEditing && existingStyle) {
+      existingStyle.remove();
     }
 
     return () => {
-      const style = document.getElementById(styleId);
-      if (style) {
-        style.remove();
+      if (isEditing) {
+        const style = document.getElementById(styleId);
+        if (style) {
+          style.remove();
+        }
       }
     };
-  }, []);
+  }, [isEditing]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="preview-dialog-content h-full max-h-[90vh] w-full !max-w-[90vw] bg-white p-0 [&>button]:hidden">
+      <DialogContent className="preview-dialog-content h-full max-h-[92vh] w-full !max-w-[92vw] border-0 bg-white p-0 shadow-2xl [&>button]:hidden">
         {/* Enhanced Chrome DevTools Style Header */}
-        <DialogHeader className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100/50 px-4 py-3">
+        <DialogHeader className="shrink-0 border-b border-gray-200/80 bg-gradient-to-r from-white via-gray-50/80 to-white px-6 py-4 backdrop-blur-sm">
           <DialogTitle className="flex items-center justify-between text-sm">
             {/* Left Section - Device Controls */}
             <div className="flex items-center gap-4">
@@ -234,7 +276,7 @@ export default function PreviewPageDialog({
                   <SelectTrigger className="h-9 w-52 border-gray-300 bg-white text-sm shadow-sm hover:border-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="border-gray-200 bg-white shadow-lg">
+                  <SelectContent className="z-[70] border-gray-200 bg-white shadow-xl">
                     {devicePresets.map((device) => {
                       const Icon = getDeviceIcon(device.type);
                       return (
@@ -326,7 +368,7 @@ export default function PreviewPageDialog({
                   <SelectTrigger className="h-8 w-20 rounded-none border-0 border-x border-gray-200 bg-white text-xs hover:bg-blue-50 focus:ring-0">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="border-gray-200">
+                  <SelectContent className="z-[70] border-gray-200 bg-white shadow-xl">
                     {zoomLevels.map((level) => (
                       <SelectItem key={level} value={level.toString()}>
                         {Math.round(level * 100)}%
@@ -373,136 +415,180 @@ export default function PreviewPageDialog({
         </DialogHeader>
 
         {/* Enhanced Preview Area */}
-        <div className="flex-1 overflow-hidden bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100">
+        <div className="flex-1 overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50/50">
           {previewUrl ? (
-            <div
-              className="flex h-full items-center justify-center"
-              style={{
-                transform: `scale(${zoom})`,
-                transformOrigin: "center center",
-                height: "calc(90vh - 60px)",
-                width: "100%",
-              }}
-            >
-              {/* Enhanced Device Frame */}
-              <div className="relative">
-                {selectedDevice.type !== "desktop" ? (
-                  // Enhanced Mobile/Tablet Device Frame
-                  <div
-                    className="relative bg-gradient-to-b from-gray-800 to-gray-900 shadow-2xl"
-                    style={{
-                      width: dimensions.width + 32,
-                      height:
-                        dimensions.height +
-                        (selectedDevice.hasHomeButton ? 72 : 56),
-                      borderRadius:
-                        selectedDevice.type === "mobile" ? "44px" : "28px",
-                      padding: "16px",
-                      boxShadow:
-                        "0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)",
-                    }}
-                  >
-                    {/* Enhanced Device Details */}
-                    {selectedDevice.hasNotch ? (
+            <div className="relative h-full w-full overflow-auto">
+              <div className="flex min-h-full items-center justify-center p-4">
+                {/* Scaled Container */}
+                <div
+                  className="flex items-center justify-center transition-transform duration-200 ease-out"
+                  style={{
+                    transform: `scale(${zoom})`,
+                    transformOrigin: "center center",
+                  }}
+                >
+                  {/* Enhanced Device Frame */}
+                  <div className="relative">
+                    {selectedDevice.type !== "desktop" ? (
+                      // Enhanced Mobile/Tablet Device Frame
                       <div
-                        className="absolute top-4 left-1/2 -translate-x-1/2 bg-black"
+                        className="relative bg-gradient-to-b from-gray-800 to-gray-900 shadow-2xl"
                         style={{
-                          width: "140px",
-                          height: "28px",
-                          borderRadius: "14px",
+                          width: dimensions.width + 32,
+                          height:
+                            dimensions.height +
+                            (selectedDevice.hasHomeButton
+                              ? 72
+                              : selectedDevice.hasDynamicIsland
+                                ? 64
+                                : 56),
+                          borderRadius:
+                            selectedDevice.type === "mobile" ? "44px" : "28px",
+                          padding: "16px",
+                          boxShadow:
+                            "0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)",
                         }}
-                      />
-                    ) : (
-                      <div className="absolute top-5 left-1/2 flex -translate-x-1/2 items-center gap-1.5">
-                        <div className="h-1.5 w-1.5 rounded-full bg-gray-500"></div>
-                        <div className="h-1 w-12 rounded-full bg-gray-500"></div>
-                        <div className="h-1.5 w-1.5 rounded-full bg-gray-500"></div>
-                      </div>
-                    )}
+                      >
+                        {/* Enhanced Device Details */}
+                        {selectedDevice.hasDynamicIsland ? (
+                          <div
+                            className="absolute bg-black"
+                            style={{
+                              top: "16px",
+                              left: "50%",
+                              transform: "translateX(-50%)",
+                              width: "126px",
+                              height: "37px",
+                              borderRadius: "18.5px",
+                              zIndex: 10,
+                            }}
+                          />
+                        ) : selectedDevice.hasNotch ? (
+                          <div
+                            className="absolute bg-black"
+                            style={{
+                              top: "12px",
+                              left: "50%",
+                              transform: "translateX(-50%)",
+                              width: "140px",
+                              height: "28px",
+                              borderRadius: "14px",
+                              zIndex: 10,
+                            }}
+                          />
+                        ) : (
+                          <div
+                            className="absolute flex items-center gap-1.5"
+                            style={{
+                              top: "16px",
+                              left: "50%",
+                              transform: "translateX(-50%)",
+                              zIndex: 10,
+                            }}
+                          >
+                            <div className="h-1.5 w-1.5 rounded-full bg-gray-500"></div>
+                            <div className="h-1 w-12 rounded-full bg-gray-500"></div>
+                            <div className="h-1.5 w-1.5 rounded-full bg-gray-500"></div>
+                          </div>
+                        )}
 
-                    {/* Enhanced Screen with Subtle Inner Shadow */}
-                    <div
-                      className="relative overflow-hidden bg-white"
-                      style={{
-                        width: dimensions.width,
-                        height: dimensions.height,
-                        borderRadius:
-                          selectedDevice.type === "mobile" ? "28px" : "20px",
-                        marginTop: "16px",
-                        boxShadow: "inset 0 0 0 1px rgba(0, 0, 0, 0.1)",
-                      }}
-                    >
-                      <iframe
-                        key={`${selectedDeviceId}-${orientation}-${isRefreshing}`}
-                        src={previewUrl}
-                        className="h-full w-full border-0"
-                        title={`Preview of ${pageName}`}
-                        onError={() => {
-                          console.error("Failed to load preview:", previewUrl);
-                        }}
-                      />
-                    </div>
-
-                    {/* Enhanced Home Button */}
-                    {selectedDevice.hasHomeButton && (
-                      <div
-                        className="absolute bottom-5 left-1/2 -translate-x-1/2 border-2 border-gray-500 bg-gray-800"
-                        style={{
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "16px",
-                        }}
-                      />
-                    )}
-                  </div>
-                ) : (
-                  // Enhanced Desktop Frame
-                  <div
-                    className="overflow-hidden rounded-xl border border-gray-300 bg-white shadow-2xl"
-                    style={{
-                      width: Math.min(
-                        dimensions.width,
-                        window.innerWidth * 0.75
-                      ),
-                      height: Math.min(
-                        dimensions.height,
-                        window.innerHeight * 0.65
-                      ),
-                      boxShadow:
-                        "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)",
-                    }}
-                  >
-                    {/* Browser-like Top Bar */}
-                    <div className="flex h-8 items-center gap-2 border-b border-gray-200 bg-gray-50 px-4">
-                      <div className="flex gap-1.5">
-                        <div className="h-3 w-3 rounded-full bg-red-400"></div>
-                        <div className="h-3 w-3 rounded-full bg-yellow-400"></div>
-                        <div className="h-3 w-3 rounded-full bg-green-400"></div>
-                      </div>
-                      <div className="flex-1 text-center">
-                        <div className="inline-flex h-5 items-center rounded border border-gray-200 bg-white px-3 text-xs text-gray-500">
-                          {previewUrl}
+                        {/* Enhanced Screen with Subtle Inner Shadow */}
+                        <div
+                          className="relative mx-auto overflow-hidden bg-white"
+                          style={{
+                            width: dimensions.width,
+                            height: dimensions.height,
+                            borderRadius:
+                              selectedDevice.type === "mobile"
+                                ? "28px"
+                                : "20px",
+                            marginTop: selectedDevice.hasDynamicIsland
+                              ? "20px"
+                              : "16px",
+                            boxShadow: "inset 0 0 0 1px rgba(0, 0, 0, 0.1)",
+                          }}
+                        >
+                          <iframe
+                            key={`${selectedDeviceId}-${orientation}-${isRefreshing}`}
+                            src={previewUrl}
+                            className="h-full w-full border-0 bg-white"
+                            title={`Preview of ${pageName}`}
+                            loading="lazy"
+                            onError={() => {
+                              console.error(
+                                "Failed to load preview:",
+                                previewUrl
+                              );
+                            }}
+                          />
                         </div>
-                      </div>
-                    </div>
 
-                    <iframe
-                      key={`${selectedDeviceId}-${isRefreshing}`}
-                      src={previewUrl}
-                      className="h-full w-full border-0"
-                      style={{ height: "calc(100% - 32px)" }}
-                      title={`Preview of ${pageName}`}
-                      onError={() => {
-                        console.error("Failed to load preview:", previewUrl);
-                      }}
-                    />
+                        {/* Enhanced Home Button */}
+                        {selectedDevice.hasHomeButton && (
+                          <div
+                            className="absolute border-2 border-gray-500 bg-gray-800"
+                            style={{
+                              bottom: "16px",
+                              left: "50%",
+                              transform: "translateX(-50%)",
+                              width: "32px",
+                              height: "32px",
+                              borderRadius: "16px",
+                              zIndex: 10,
+                            }}
+                          />
+                        )}
+                      </div>
+                    ) : (
+                      // Enhanced Desktop Frame
+                      <div
+                        className="overflow-hidden rounded-xl border border-gray-300 bg-white shadow-2xl"
+                        style={{
+                          width: Math.min(dimensions.width, 1200),
+                          height: Math.min(dimensions.height, 700),
+                          maxWidth: "90vw",
+                          maxHeight: "70vh",
+                          boxShadow:
+                            "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05)",
+                        }}
+                      >
+                        {/* Browser-like Top Bar */}
+                        <div className="flex h-8 items-center gap-2 border-b border-gray-200 bg-gray-50 px-4">
+                          <div className="flex gap-1.5">
+                            <div className="h-3 w-3 rounded-full bg-red-400"></div>
+                            <div className="h-3 w-3 rounded-full bg-yellow-400"></div>
+                            <div className="h-3 w-3 rounded-full bg-green-400"></div>
+                          </div>
+                          <div className="flex-1 text-center">
+                            <div className="inline-flex h-5 items-center rounded border border-gray-200 bg-white px-3 text-xs text-gray-500">
+                              {previewUrl}
+                            </div>
+                          </div>
+                        </div>
+
+                        <iframe
+                          key={`${selectedDeviceId}-${isRefreshing}`}
+                          src={previewUrl}
+                          className="h-full w-full border-0 bg-white"
+                          style={{ height: "calc(100% - 32px)" }}
+                          title={`Preview of ${pageName}`}
+                          loading="lazy"
+                          onError={() => {
+                            console.error(
+                              "Failed to load preview:",
+                              previewUrl
+                            );
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
           ) : (
-            <div className="flex h-full items-center justify-center p-8">
-              <div className="rounded-xl border border-gray-200 bg-white p-12 text-center shadow-lg">
+            <div className="flex min-h-full items-center justify-center p-8">
+              <div className="rounded-2xl border border-gray-200/80 bg-white/80 p-16 text-center shadow-xl backdrop-blur-sm">
                 <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-50 to-indigo-100">
                   <DeviceIcon className="h-10 w-10 text-blue-600" />
                 </div>
@@ -520,3 +606,4 @@ export default function PreviewPageDialog({
     </Dialog>
   );
 }
+
