@@ -450,7 +450,7 @@ export default function AppInformationDataTable() {
             </div>
 
             {/* Event Groups */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {countEvents.map((eventGroup) => {
                 const totalEventCount = eventGroup.values.reduce(
                   (sum, val) => sum + val.count,
@@ -474,9 +474,8 @@ export default function AppInformationDataTable() {
                       </p>
                     </div>
 
-                    {/* Event Values */}
                     <div className="space-y-3">
-                      {eventGroup.values.slice(0, 5).map((value, index) => (
+                      {eventGroup.values.map((value, index) => (
                         <div
                           key={`${eventGroup.event_name}-${value.event_value}-${index}`}
                           className="flex items-center justify-between"
@@ -492,15 +491,6 @@ export default function AppInformationDataTable() {
                           </span>
                         </div>
                       ))}
-
-                      {eventGroup.values.length > 5 && (
-                        <div className="border-t pt-2">
-                          <p className="text-muted-foreground text-center text-xs">
-                            +{eventGroup.values.length - 5}{" "}
-                            {t("overview.moreValues")}
-                          </p>
-                        </div>
-                      )}
                     </div>
                   </div>
                 );
