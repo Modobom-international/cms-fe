@@ -264,6 +264,16 @@
               "Error": "Failed to delete tracking script"
             }
           }
+        },
+        "Deploy": {
+          "Button": "Deploy Site",
+          "DialogTitle": "Deploy Site",
+          "DialogDescription": "Deploy all pages for this site to make them live. This will make your changes visible to visitors.",
+          "Confirm": "Deploy Now",
+          "Cancel": "Cancel",
+          "Loading": "Deploying...",
+          "Success": "Site deployed successfully!",
+          "Error": "Failed to deploy site"
         }
       }
     }
