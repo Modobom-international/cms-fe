@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 
+import { format, parse } from "date-fns";
 import { Activity, BarChart3, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
@@ -99,13 +100,25 @@ export default function AppInformationDataTable() {
     parseAsString.withDefault("")
   );
 
+  // Convert URL date strings (YYYY-MM-DD) to Date objects for UI
   const dateFilter = useMemo(
     () => ({
-      from: dateFromFilter ? new Date(dateFromFilter) : null,
-      to: dateToFilter ? new Date(dateToFilter) : null,
+      from: dateFromFilter
+        ? parse(dateFromFilter, "yyyy-MM-dd", new Date())
+        : null,
+      to: dateToFilter ? parse(dateToFilter, "yyyy-MM-dd", new Date()) : null,
     }),
     [dateFromFilter, dateToFilter]
   );
+
+  // Convert date filter to API format with time
+  const apiDateParams = useMemo(() => {
+    const from = dateFilter.from
+      ? formatDateForApiStart(dateFilter.from)
+      : undefined;
+    const to = dateFilter.to ? formatDateForApiEnd(dateFilter.to) : undefined;
+    return { from, to };
+  }, [dateFilter.from, dateFilter.to]);
 
   const {
     data: appInformationData,
@@ -138,9 +151,9 @@ export default function AppInformationDataTable() {
     event_value: eventValueFilter
       ? eventValueFilter.split(",").filter(Boolean)
       : undefined,
-    // Note: from and to will always be present due to default values in the hook
-    from: dateFromFilter || undefined,
-    to: dateToFilter || undefined,
+    // Use API formatted dates with time
+    from: apiDateParams.from,
+    to: apiDateParams.to,
   });
 
   const appInformationList: IAppInformation[] =
@@ -199,14 +212,14 @@ export default function AppInformationDataTable() {
       setNetworkFilter(filters.network.join(","));
       setEventValueFilter(filters.event_value.join(","));
 
-      // Format dates for backend API (always include time)
+      // Format dates for URL (date only, no time)
       setDateFromFilter(
         filters.date_range.from
-          ? formatDateForApiStart(filters.date_range.from)
+          ? format(filters.date_range.from, "yyyy-MM-dd")
           : ""
       );
       setDateToFilter(
-        filters.date_range.to ? formatDateForApiEnd(filters.date_range.to) : ""
+        filters.date_range.to ? format(filters.date_range.to, "yyyy-MM-dd") : ""
       );
       setCurrentPage(1);
     },
@@ -265,8 +278,8 @@ export default function AppInformationDataTable() {
           const today = new Date();
           const yesterday = new Date(today);
           yesterday.setDate(yesterday.getDate() - 1);
-          setDateFromFilter(formatDateForApiStart(yesterday));
-          setDateToFilter(formatDateForApiEnd(today));
+          setDateFromFilter(format(yesterday, "yyyy-MM-dd"));
+          setDateToFilter(format(today, "yyyy-MM-dd"));
           break;
       }
       setCurrentPage(1);
