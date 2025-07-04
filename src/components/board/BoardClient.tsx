@@ -21,9 +21,10 @@ import BoardList from "@/components/board/BoardList";
 
 interface BoardClientProps {
   boardId: number;
+  boardName?: string;
 }
 
-export default function BoardClient({ boardId }: BoardClientProps) {
+export default function BoardClient({ boardId, boardName }: BoardClientProps) {
   const t = useTranslations("Board");
   const { data: lists = [], isLoading } = useGetLists(boardId);
   const { mutate: createList } = useCreateList(boardId);
@@ -73,7 +74,7 @@ export default function BoardClient({ boardId }: BoardClientProps) {
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-bold tracking-tight text-gray-800">
-              {t("title")}
+              {boardName || t("title")}
             </h1>
             <div className="h-8 w-px bg-gray-200/80" />
             <div className="text-muted-foreground flex items-center gap-2 text-sm">
@@ -161,3 +162,4 @@ export default function BoardClient({ boardId }: BoardClientProps) {
     </div>
   );
 }
+
