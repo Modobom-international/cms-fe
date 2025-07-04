@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo } from "react";
 
-import { format, parse } from "date-fns";
 import { Activity, BarChart3, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
@@ -100,25 +99,31 @@ export default function AppInformationDataTable() {
     parseAsString.withDefault("")
   );
 
-  // Convert URL date strings (YYYY-MM-DD) to Date objects for UI
   const dateFilter = useMemo(
     () => ({
       from: dateFromFilter
-        ? parse(dateFromFilter, "yyyy-MM-dd", new Date())
+        ? (() => {
+            try {
+              const date = new Date(dateFromFilter);
+              return !isNaN(date.getTime()) ? date : null;
+            } catch {
+              return null;
+            }
+          })()
         : null,
-      to: dateToFilter ? parse(dateToFilter, "yyyy-MM-dd", new Date()) : null,
+      to: dateToFilter
+        ? (() => {
+            try {
+              const date = new Date(dateToFilter);
+              return !isNaN(date.getTime()) ? date : null;
+            } catch {
+              return null;
+            }
+          })()
+        : null,
     }),
     [dateFromFilter, dateToFilter]
   );
-
-  // Convert date filter to API format with time
-  const apiDateParams = useMemo(() => {
-    const from = dateFilter.from
-      ? formatDateForApiStart(dateFilter.from)
-      : undefined;
-    const to = dateFilter.to ? formatDateForApiEnd(dateFilter.to) : undefined;
-    return { from, to };
-  }, [dateFilter.from, dateFilter.to]);
 
   const {
     data: appInformationData,
@@ -151,9 +156,9 @@ export default function AppInformationDataTable() {
     event_value: eventValueFilter
       ? eventValueFilter.split(",").filter(Boolean)
       : undefined,
-    // Use API formatted dates with time
-    from: apiDateParams.from,
-    to: apiDateParams.to,
+    // Note: from and to will always be present due to default values in the hook
+    from: dateFromFilter || undefined,
+    to: dateToFilter || undefined,
   });
 
   const appInformationList: IAppInformation[] =
@@ -212,15 +217,24 @@ export default function AppInformationDataTable() {
       setNetworkFilter(filters.network.join(","));
       setEventValueFilter(filters.event_value.join(","));
 
-      // Format dates for URL (date only, no time)
-      setDateFromFilter(
-        filters.date_range.from
-          ? format(filters.date_range.from, "yyyy-MM-dd")
-          : ""
-      );
-      setDateToFilter(
-        filters.date_range.to ? format(filters.date_range.to, "yyyy-MM-dd") : ""
-      );
+      // Format dates for backend API (always include time)
+      try {
+        setDateFromFilter(
+          filters.date_range.from
+            ? formatDateForApiStart(filters.date_range.from)
+            : ""
+        );
+        setDateToFilter(
+          filters.date_range.to
+            ? formatDateForApiEnd(filters.date_range.to)
+            : ""
+        );
+      } catch (error) {
+        console.warn("Error formatting dates:", error);
+        // Fallback: clear the date filters
+        setDateFromFilter("");
+        setDateToFilter("");
+      }
       setCurrentPage(1);
     },
     [
@@ -274,12 +288,27 @@ export default function AppInformationDataTable() {
           setEventValueFilter("");
           break;
         case "date_range":
-          // Reset to default date range instead of empty
-          const today = new Date();
-          const yesterday = new Date(today);
-          yesterday.setDate(yesterday.getDate() - 1);
-          setDateFromFilter(format(yesterday, "yyyy-MM-dd"));
-          setDateToFilter(format(today, "yyyy-MM-dd"));
+          try {
+            // Reset to default date range instead of empty
+            const today = new Date();
+            const yesterday = new Date(today.getTime());
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            // Ensure dates are valid before formatting
+            if (!isNaN(today.getTime()) && !isNaN(yesterday.getTime())) {
+              setDateFromFilter(formatDateForApiStart(yesterday));
+              setDateToFilter(formatDateForApiEnd(today));
+            } else {
+              // Fallback: clear the date filters completely
+              setDateFromFilter("");
+              setDateToFilter("");
+            }
+          } catch (error) {
+            console.warn("Error resetting date range filter:", error);
+            // Fallback: clear the date filters completely
+            setDateFromFilter("");
+            setDateToFilter("");
+          }
           break;
       }
       setCurrentPage(1);
@@ -313,12 +342,27 @@ export default function AppInformationDataTable() {
     setNetworkFilter("");
     setEventValueFilter("");
 
-    // Reset to default date range instead of empty
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    setDateFromFilter(formatDateForApiStart(yesterday));
-    setDateToFilter(formatDateForApiEnd(today));
+    try {
+      // Reset to default date range instead of empty
+      const today = new Date();
+      const yesterday = new Date(today.getTime());
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      // Ensure dates are valid before formatting
+      if (!isNaN(today.getTime()) && !isNaN(yesterday.getTime())) {
+        setDateFromFilter(formatDateForApiStart(yesterday));
+        setDateToFilter(formatDateForApiEnd(today));
+      } else {
+        // Fallback: clear the date filters completely
+        setDateFromFilter("");
+        setDateToFilter("");
+      }
+    } catch (error) {
+      console.warn("Error resetting date range filters:", error);
+      // Fallback: clear the date filters completely
+      setDateFromFilter("");
+      setDateToFilter("");
+    }
 
     setCurrentPage(1);
   }, [
