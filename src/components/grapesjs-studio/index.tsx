@@ -47,19 +47,18 @@ export default function WebBuilderStudio({
     isError: isSiteError,
   } = useGetSiteById(siteId);
   // console.log(site?.data?.platform == PLATFORMS[2].value ? "true" : "false");
-  const saveToAPI = async (project: any) => {
+  const saveToAPI = async (project: any, editor: Editor) => {
     try {
-      toast.promise(
-        updatePageMutation.mutateAsync({
-          pageId: pageId,
-          content: JSON.stringify(project),
-        }),
-        {
-          loading: t("SavePage"),
-          success: t("SaveSuccess"),
-          error: t("SaveError"),
-        }
-      );
+      // First save the project data
+      await updatePageMutation.mutateAsync({
+        pageId: pageId,
+        content: JSON.stringify(project),
+      });
+
+      // Then export HTML with CSS if site data is available
+      if (site?.data) {
+        await exportHTMLWithCSS(editor);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : t("SaveError");
       toast.error(t("SaveError"), {
@@ -306,349 +305,9 @@ export default function WebBuilderStudio({
     return exportPageMutation.mutateAsync(formData);
   };
 
-  // Plugin to add export and deploy buttons using GrapeJS Panel API
+  // Plugin simplified since export functionality is now integrated into save
   const customButtonsPlugin = (editor: any) => {
-    // State to track temporarily disabled button
-    let tempDisabledExport = false;
-    // Add custom styles for the buttons
-    const style = document.createElement("style");
-    style.innerHTML = `
-      .custom-btn {
-        display: block;
-        color: white;
-        text-align: center;
-        padding: 8px 16px;
-        margin: 8px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        z-index: 999;
-        font-size: 14px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        position: relative;
-        overflow: hidden;
-      }
-      .export-btn {
-        background-color: #2563eb;
-      }
-      .export-btn:hover:not(.loading):not(.disabled) {
-        background-color: #1d4ed8;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      }
-      .deploy-btn {
-        background-color: #16a34a;
-      }
-      .deploy-btn:hover:not(.loading):not(.disabled) {
-        background-color: #15803d;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      }
-      .custom-btn.loading {
-        opacity: 0.8;
-        cursor: not-allowed;
-        pointer-events: none;
-      }
-      .custom-btn.loading::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        animation: loading-shine 1.5s infinite;
-      }
-      .custom-btn.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        pointer-events: none;
-        background-color: #6b7280 !important;
-      }
-      .custom-btn.disabled:hover {
-        transform: none;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      }
-      .custom-btn.success {
-        background-color: #059669 !important;
-      }
-      .custom-btn.error {
-        background-color: #dc2626 !important;
-      }
-      .export-deploy-btn {
-        background-color: #7c3aed;
-      }
-      .export-deploy-btn:hover:not(.loading):not(.disabled) {
-        background-color: #6d28d9;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      }
-      @keyframes loading-shine {
-        0% { left: -100%; }
-        100% { left: 100%; }
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Register export command
-    editor.Commands.add("export-html", {
-      run: async () => {
-        if (!site?.data) {
-          toast.error("Site data not loaded");
-          return Promise.reject(new Error("Site data not loaded"));
-        }
-
-        // Temporarily disable the button for 3 seconds
-        setTempDisabledExport();
-
-        return toast.promise(exportHTMLWithCSS(editor), {
-          loading: "Exporting HTML...",
-          success: "Export completed successfully!",
-          error: (err) =>
-            `Export failed: ${err instanceof Error ? err.message : "Please try again"}`,
-        });
-      },
-    });
-
-    // Register deploy command
-    // editor.Commands.add("deploy-page", {
-    //   run: async () => {
-    //     if (!site?.data) {
-    //       toast.error("Site data not loaded");
-    //       return Promise.reject(new Error("Site data not loaded"));
-    //     }
-
-    //     // Temporarily disable the button for 3 seconds
-    //     setTempDisabledExport();
-
-    //     return toast.promise(
-    //       deployPageMutation.mutateAsync({
-    //         site_id: Number(siteId),
-    //         page_slugs: [slug],
-    //       }),
-    //       {
-    //         loading: "Deploying page...",
-    //         success: "Deploy completed successfully!",
-    //         error: (err) =>
-    //           `Deploy failed: ${err instanceof Error ? err.message : "Please try again"}`,
-    //       }
-    //     );
-    //   },
-    // });
-
-    // Combined export and deploy command (commented out)
-    // editor.Commands.add("export-and-deploy", {
-    //   run: async () => {
-    //     if (!site?.data) {
-    //       toast.error(t("SiteDataNotLoaded"));
-    //       throw new Error("Site data not loaded");
-    //     }
-
-    //     try {
-    //       // First export - making sure it completes fully
-    //       const exportResult = await toast.promise(exportHTMLWithCSS(editor), {
-    //         loading: t("ExportHTML"),
-    //         success: t("ExportSuccess"),
-    //         error: (err) =>
-    //           t("ExportError", {
-    //             error: err instanceof Error ? err.message : "Please try again",
-    //           }),
-    //       });
-
-    //       // Wait to ensure export is fully processed
-    //       console.log("Export completed successfully:", exportResult);
-
-    //       // Then deploy after export is confirmed complete
-    //       return toast.promise(
-    //         deployPageMutation.mutateAsync({
-    //           site_id: Number(siteId),
-    //           page_slugs: [slug],
-    //         }),
-    //         {
-    //           loading: t("DeployPage"),
-    //           success: t("DeploySuccess"),
-    //           error: (err) =>
-    //             t("DeployError", {
-    //               error:
-    //                 err instanceof Error ? err.message : "Please try again",
-    //             }),
-    //         }
-    //       );
-    //     } catch (err) {
-    //       toast.error(t("ExportAndDeployError"), {
-    //         description:
-    //           err instanceof Error ? err.message : "Please try again",
-    //       });
-    //       throw err;
-    //     }
-    //   },
-    // });
-
-    // Helper function to temporarily disable export button
-    const setTempDisabledExport = () => {
-      tempDisabledExport = true;
-      setTimeout(() => {
-        tempDisabledExport = false;
-        updateButtonStates(); // Update button appearance after timeout
-      }, 3000);
-    };
-
-    // Helper function to get button state
-    const getButtonState = (type: "export" | "deploy") => {
-      const isExport = type === "export";
-      const mutation = isExport ? exportPageMutation : deployPageMutation;
-      const baseLabel = isExport ? "Export HTML" : "Deploy Page";
-      const loadingLabel = isExport ? "Exporting..." : "Deploying...";
-      const baseClass = `custom-btn ${type}-btn`;
-
-      // Debug logging (remove in production)
-      // console.log(`Button ${type} state:`, {
-      //   siteData: !!site?.data,
-      //   isPending: mutation.isPending,
-      //   isError: mutation.isError,
-      //   isIdle: mutation.isIdle,
-      //   status: mutation.status,
-      //   tempDisabled: tempDisabledButtons[type],
-      // });
-
-      if (!site?.data) {
-        return {
-          label: "Loading site data...",
-          className: `${baseClass} disabled`,
-          disabled: true,
-        };
-      }
-
-      // Check if temporarily disabled (3s cooldown)
-      if (tempDisabledExport) {
-        return {
-          label: baseLabel,
-          className: `${baseClass} disabled`,
-          disabled: true,
-        };
-      }
-
-      // Only show loading if actively pending
-      if (mutation.isPending === true) {
-        return {
-          label: loadingLabel,
-          className: `${baseClass} loading`,
-          disabled: true,
-        };
-      }
-
-      if (mutation.isError) {
-        return {
-          label: baseLabel,
-          className: `${baseClass} error`,
-          disabled: false,
-        };
-      }
-
-      // Default idle state
-      return {
-        label: baseLabel,
-        className: baseClass,
-        disabled: false,
-      };
-    };
-
-    // Add a panel with separate export and deploy buttons
-    const exportState = getButtonState("export");
-    // const deployState = getButtonState("deploy");
-
-    editor.Panels.addPanel({
-      id: "custom-panel",
-      visible: true,
-      buttons: [
-        {
-          id: "export-btn",
-          label: exportState.label,
-          command: "export-html",
-          className: exportState.className,
-          attributes: {
-            disabled: exportState.disabled,
-            title: exportState.disabled
-              ? !site?.data
-                ? "Waiting for site data"
-                : tempDisabledExport
-                  ? "Please wait 3 seconds before clicking again"
-                  : "Export in progress"
-              : "Export HTML",
-          },
-        },
-        // {
-        //   id: "deploy-btn",
-        //   label: deployState.label,
-        //   command: "deploy-page",
-        //   className: deployState.className,
-        //   attributes: {
-        //     disabled: deployState.disabled,
-        //     title: deployState.disabled
-        //       ? !site?.data
-        //         ? "Waiting for site data"
-        //         : tempDisabledExport
-        //           ? "Please wait 3 seconds before clicking again"
-        //           : "Deploy in progress"
-        //       : "Deploy Page",
-        //   },
-        // },
-      ],
-    });
-
-    // Function to update button states dynamically
-    const updateButtonStates = () => {
-      const exportBtn = editor.Panels.getButton("custom-panel", "export-btn");
-      const deployBtn = editor.Panels.getButton("custom-panel", "deploy-btn");
-
-      if (exportBtn) {
-        const exportState = getButtonState("export");
-        exportBtn.set({
-          label: exportState.label,
-          className: exportState.className,
-          attributes: {
-            disabled: exportState.disabled,
-            title: exportState.disabled
-              ? !site?.data
-                ? "Waiting for site data"
-                : tempDisabledExport
-                  ? "Please wait 3 seconds before clicking again"
-                  : "Export in progress"
-              : "Export HTML",
-          },
-        });
-      }
-
-      if (deployBtn) {
-        const deployState = getButtonState("deploy");
-        deployBtn.set({
-          label: deployState.label,
-          className: deployState.className,
-          attributes: {
-            disabled: deployState.disabled,
-            title: deployState.disabled
-              ? !site?.data
-                ? "Waiting for site data"
-                : tempDisabledExport
-                  ? "Please wait 3 seconds before clicking again"
-                  : "Deploy in progress"
-              : "Deploy Page",
-          },
-        });
-      }
-    };
-
-    // Update button states initially and when mutations change
-    updateButtonStates();
-
-    // Update button states periodically to reflect mutation state changes
-    const updateInterval = setInterval(updateButtonStates, 1000);
-
-    // Cleanup interval when editor is destroyed
-    editor.on("destroy", () => {
-      clearInterval(updateInterval);
-    });
+    // Plugin now only registers custom blocks, no UI buttons needed
   };
 
   // If loading, show loading state
@@ -689,8 +348,14 @@ export default function WebBuilderStudio({
             autosaveChanges: 5,
             onSave: async ({ project, editor }) => {
               try {
-                await saveToAPI(project);
-                console.log(`Project saved for slug: ${slug}`, { project });
+                await toast.promise(saveToAPI(project, editor), {
+                  loading: "Saving and exporting page...",
+                  success: "Page saved and exported successfully!",
+                  error: t("SaveError"),
+                });
+                console.log(`Project saved and exported for slug: ${slug}`, {
+                  project,
+                });
               } catch (error) {
                 console.error(
                   `Failed to save project for slug: ${slug}`,
@@ -811,3 +476,4 @@ export default function WebBuilderStudio({
     </div>
   );
 }
+

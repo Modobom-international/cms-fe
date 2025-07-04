@@ -180,7 +180,7 @@
             "Actions": "Hành động",
             "Edit": "Chỉnh sửa",
             "Preview": "Xem trước",
-            "PreviewExported": "Xem trước đã xuất",
+            "PreviewExported": "Xem trước",
             "Delete": "Xóa",
             "View": "Xem",
             "TrackingScript": "Script theo dõi"
@@ -278,3 +278,4 @@
     }
   }
 }
+

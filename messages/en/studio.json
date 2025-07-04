@@ -166,7 +166,7 @@
         "Description": "Create and manage pages for your website",
         "BackToSites": "Back to Sites",
         "Preview": "Preview",
-        "PreviewExported": "Preview Exported",
+        "PreviewExported": "Preview",
         "PreviewExportedDescription": "Make sure the page has been exported to the server",
         "List": {
           "Title": "Pages List",
@@ -181,7 +181,7 @@
             "Actions": "Actions",
             "Edit": "Edit",
             "Preview": "Preview",
-            "PreviewExported": "Preview Exported",
+            "PreviewExported": "Preview",
             "Delete": "Delete",
             "View": "View",
             "TrackingScript": "Tracking Script"
@@ -279,3 +279,4 @@
     }
   }
 }
+
